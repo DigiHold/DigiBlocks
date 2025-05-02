@@ -31,6 +31,8 @@ import SocialIconsEdit from '../../../blocks/social-icons/edit';
 import SocialIconsSave from '../../../blocks/social-icons/save';
 import SpacerEdit from '../../../blocks/spacer/edit';
 import SpacerSave from '../../../blocks/spacer/save';
+import TableEdit from '../../../blocks/table/edit';
+import TableSave from '../../../blocks/table/save';
 import TeamEdit from '../../../blocks/team/edit';
 import TeamSave from '../../../blocks/team/save';
 
@@ -2788,9 +2790,37 @@ registerBlockType('digiblocks/social-icons', {
             default: [
                 {
                     id: 'social-icon-1',
-                    iconValue: null,
-                    url: '',
-                    label: '',
+                    iconValue: {
+                        name: 'Facebook',
+                        network: 'facebook',
+                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor"><path d="M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z"></path></svg>'
+                    },
+                    url: 'https://facebook.com',
+                    label: 'Facebook',
+                    openInNewTab: true,
+                    rel: 'nofollow'
+                },
+                {
+                    id: 'social-icon-2',
+                    iconValue: {
+                        name: 'Twitter',
+                        network: 'twitter',
+                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path></svg>'
+                    },
+                    url: 'https://twitter.com',
+                    label: 'Twitter',
+                    openInNewTab: true,
+                    rel: 'nofollow'
+                },
+                {
+                    id: 'social-icon-3',
+                    iconValue: {
+                        name: 'Instagram',
+                        network: 'instagram',
+                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"></path></svg>'
+                    },
+                    url: 'https://instagram.com',
+                    label: 'Instagram',
                     openInNewTab: true,
                     rel: 'nofollow'
                 }
@@ -2920,6 +2950,7 @@ registerBlockType('digiblocks/social-icons', {
                     id: 'example-icon-1',
                     iconValue: {
                         name: 'Facebook',
+                        network: 'facebook',
                         svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.8 90.69 226.4 209.3 245V327.7h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.3 482.4 504 379.8 504 256z"></path></svg>',
                     },
                     url: 'https://facebook.com',
@@ -2931,6 +2962,7 @@ registerBlockType('digiblocks/social-icons', {
                     id: 'example-icon-2',
                     iconValue: {
                         name: 'Twitter',
+                        network: 'twitter',
                         svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path></svg>',
                     },
                     url: 'https://twitter.com',
@@ -2942,6 +2974,7 @@ registerBlockType('digiblocks/social-icons', {
                     id: 'example-icon-3',
                     iconValue: {
                         name: 'Instagram',
+                        network: 'instagram',
                         svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"></path></svg>',
                     },
                     url: 'https://instagram.com',
@@ -2950,13 +2983,13 @@ registerBlockType('digiblocks/social-icons', {
                     rel: 'nofollow'
                 }
             ],
-			iconSpacing: { desktop: 20 },
-			align: 'center',
+            iconSpacing: { desktop: 20 },
+            align: 'center',
             iconColor: '#1e73be',
             labelColor: '#09053a',
             iconBackground: 'transparent',
             showLabels: true,
-			labelPosition: 'right',
+            labelPosition: 'right',
         }
     },
     edit: SocialIconsEdit,
@@ -3022,15 +3055,15 @@ registerBlockType('digiblocks/spacer', {
 });
 
 /**
- * Register Team block
+ * Register Table block
  */
-registerBlockType('digiblocks/team', {
+registerBlockType('digiblocks/table', {
     apiVersion: 2,
-    title: digiBlocksData.blocks['team'].title,
+    title: digiBlocksData.blocks['table'].title,
     category: 'digiblocks',
     icon: {
         src: () => {
-            const { viewbox, path } = digiBlocksData.blocks['team'].icon;
+            const { viewbox, path } = digiBlocksData.blocks['table'].icon;
             return (
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
                     <path d={path} />
@@ -3038,10 +3071,10 @@ registerBlockType('digiblocks/team', {
             );
         }
     },
-    description: digiBlocksData.blocks['team'].description,
-    keywords: [__('team', 'digiblocks'), __('staff', 'digiblocks'), __('members', 'digiblocks'), __('employees', 'digiblocks')],
+    description: digiBlocksData.blocks['table'].description,
+    keywords: [__('table', 'digiblocks'), __('comparison', 'digiblocks'), __('grid', 'digiblocks'), __('cells', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('spacer') ? true : false,
+        inserter: getBlockActiveStatus('table') ? true : false,
         html: false,
         className: false,
         customClassName: false,
@@ -3059,9 +3092,313 @@ registerBlockType('digiblocks/team', {
             type: 'string',
             default: ''
         },
-        layout: {
+        tableData: {
+            type: 'array',
+            default: [
+                ['Header 1', 'Header 2', 'Header 3'],
+                ['Cell 1,1', 'Cell 1,2', 'Cell 1,3'],
+                ['Cell 2,1', 'Cell 2,2', 'Cell 2,3']
+            ]
+        },
+        hasHeader: {
+            type: 'boolean',
+            default: true
+        },
+        hasFooter: {
+            type: 'boolean',
+            default: false
+        },
+        tableBorderColor: {
             type: 'string',
-            default: 'grid'
+            default: '#e0e0e0'
+        },
+        tableBorderWidth: {
+            type: 'number',
+            default: 1
+        },
+        tableBorderStyle: {
+            type: 'string',
+            default: 'solid'
+        },
+        cellPadding: {
+            type: 'object',
+            default: {
+                desktop: { top: 15, right: 15, bottom: 15, left: 15, unit: 'px' },
+                tablet: { top: 12, right: 12, bottom: 12, left: 12, unit: 'px' },
+                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+            }
+        },
+        tableBorderCollapse: {
+            type: 'string',
+            default: 'collapse'
+        },
+        headerBackgroundColor: {
+            type: 'string',
+            default: '#f8f9fa'
+        },
+        headerTextColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        headingTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 18, tablet: 16, mobile: 15 },
+                fontSizeUnit: 'px',
+                fontWeight: '600',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        bodyBackgroundColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        altRowBackgroundColor: {
+            type: 'string',
+            default: ''
+        },
+        bodyTextColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        textTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: '',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        footerBackgroundColor: {
+            type: 'string',
+            default: '#f8f9fa'
+        },
+        footerTextColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        contentTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: '600',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+            }
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 2,
+                blur: 10,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+            }
+        },
+        cellAlignment: {
+            type: 'string',
+            default: 'left'
+        },
+        headerAlignment: {
+            type: 'string',
+            default: 'left'
+        },
+        footerAlignment: {
+            type: 'string',
+            default: 'left'
+        },
+        tablePreset: {
+            type: 'string',
+            default: 'default'
+        },
+        responsiveMode: {
+            type: 'string',
+            default: 'stack'
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+        firstColHeader: {
+            type: 'boolean',
+            default: false
+        },
+        cellControls: {
+            type: 'object',
+            default: {}
+        }
+    },
+    example: {
+        attributes: {
+            tableData: [
+                ['Feature', 'Basic', 'Premium'],
+                ['Storage', '10GB', '1TB'],
+                ['Users', '1', 'Unlimited'],
+                ['Support', 'Email', '24/7 Phone'],
+                ['Price', '$9.99', '$29.99']
+            ],
+            hasHeader: true,
+            headerBackgroundColor: '#f8f9fa',
+            bodyBackgroundColor: '#ffffff',
+            altRowBackgroundColor: '#f9f9f9',
+        }
+    },
+    edit: TableEdit,
+    save: TableSave,
+});
+
+/**
+ * Register Team block
+ */
+registerBlockType('digiblocks/team', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['team'].title,
+    category: 'digiblocks',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['team'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['team'].description,
+    keywords: [__('team', 'digiblocks'), __('members', 'digiblocks'), __('staff', 'digiblocks'), __('people', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('team') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string'
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        members: {
+            type: 'array',
+            default: [
+                {
+                    id: 'team-member-1',
+                    name: __('John Doe', 'digiblocks'),
+                    position: __('CEO & Founder', 'digiblocks'),
+                    bio: __('John has over 15 years of experience in the industry and leads our team with vision and expertise.', 'digiblocks'),
+                    image: {
+                        url: '',
+                        id: '',
+                        alt: ''
+                    },
+                    socials: [
+                        {
+                            id: 'social-1',
+                            network: 'facebook',
+                            url: 'https://facebook.com'
+                        },
+                        {
+                            id: 'social-2',
+                            network: 'twitter',
+                            url: 'https://twitter.com'
+                        }
+                    ]
+                },
+                {
+                    id: 'team-member-2',
+                    name: __('Jane Smith', 'digiblocks'),
+                    position: __('Creative Director', 'digiblocks'),
+                    bio: __('Jane brings creativity and innovation to every project with her background in design and marketing.', 'digiblocks'),
+                    image: {
+                        url: '',
+                        id: '',
+                        alt: ''
+                    },
+                    socials: [
+                        {
+                            id: 'social-3',
+                            network: 'linkedin',
+                            url: 'https://linkedin.com'
+                        },
+                        {
+                            id: 'social-4',
+                            network: 'instagram',
+                            url: 'https://instagram.com'
+                        }
+                    ]
+                },
+                {
+                    id: 'team-member-3',
+                    name: __('Mike Johnson', 'digiblocks'),
+                    position: __('Lead Developer', 'digiblocks'),
+                    bio: __('Mike is our technical expert, specializing in cutting-edge technologies and solving complex problems.', 'digiblocks'),
+                    image: {
+                        url: '',
+                        id: '',
+                        alt: ''
+                    },
+                    socials: [
+                        {
+                            id: 'social-5',
+                            network: 'github',
+                            url: 'https://github.com'
+                        },
+                        {
+                            id: 'social-6',
+                            network: 'dribbble',
+                            url: 'https://dribbble.com'
+                        }
+                    ]
+                }
+            ]
         },
         columns: {
             type: 'object',
@@ -3071,29 +3408,25 @@ registerBlockType('digiblocks/team', {
                 mobile: 1
             }
         },
-        gap: {
+        gutter: {
             type: 'object',
             default: {
-                desktop: { horizontal: 30, vertical: 30, unit: 'px' },
-                tablet: { horizontal: 20, vertical: 20, unit: 'px' },
-                mobile: { horizontal: 15, vertical: 15, unit: 'px' }
+                desktop: 30,
+                tablet: 20,
+                mobile: 15
             }
+        },
+        layout: {
+            type: 'string',
+            default: 'grid'
         },
         alignment: {
             type: 'string',
             default: 'center'
         },
-        showDescription: {
-            type: 'boolean',
-            default: true
-        },
-        showPosition: {
-            type: 'boolean',
-            default: true
-        },
-        showSocialIcons: {
-            type: 'boolean',
-            default: true
+        imageStyle: {
+            type: 'string',
+            default: 'circle'
         },
         imageSize: {
             type: 'object',
@@ -3103,99 +3436,31 @@ registerBlockType('digiblocks/team', {
                 mobile: 100
             }
         },
-        imageShape: {
-            type: 'string',
-            default: 'circle'
+        imageBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+            }
         },
         imageBorderWidth: {
             type: 'object',
             default: {
-                desktop: 0,
-                tablet: 0,
-                mobile: 0
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
             }
         },
         imageBorderColor: {
             type: 'string',
             default: '#e0e0e0'
         },
-        imageBorderHoverColor: {
+        imageBorderStyle: {
             type: 'string',
-            default: ''
+            default: 'none'
         },
-        imageMargin: {
-            type: 'object',
-            default: {
-                desktop: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 15, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 10, left: 0, unit: 'px' }
-            }
-        },
-        nameColor: {
-            type: 'string',
-            default: '#333333'
-        },
-        nameHoverColor: {
-            type: 'string',
-            default: ''
-        },
-        positionColor: {
-            type: 'string',
-            default: '#666666'
-        },
-        positionHoverColor: {
-            type: 'string',
-            default: ''
-        },
-        descriptionColor: {
-            type: 'string',
-            default: '#666666'
-        },
-        descriptionHoverColor: {
-            type: 'string',
-            default: ''
-        },
-        cardBackgroundColor: {
-            type: 'string',
-            default: '#ffffff'
-        },
-        cardBackgroundHoverColor: {
-            type: 'string',
-            default: ''
-        },
-        socialIconsColor: {
-            type: 'string',
-            default: '#1e73be'
-        },
-        socialIconsHoverColor: {
-            type: 'string',
-            default: '#135e9e'
-        },
-        socialIconsBackgroundColor: {
-            type: 'string',
-            default: 'transparent'
-        },
-        socialIconsBackgroundHoverColor: {
-            type: 'string',
-            default: ''
-        },
-        socialIconsSize: {
-            type: 'object',
-            default: {
-                desktop: 16,
-                tablet: 14,
-                mobile: 12
-            }
-        },
-        socialIconsSpacing: {
-            type: 'object',
-            default: {
-                desktop: 10,
-                tablet: 8,
-                mobile: 6
-            }
-        },
-        headingTypography: {
+        typography: {
             type: 'object',
             default: {
                 fontFamily: '',
@@ -3203,8 +3468,8 @@ registerBlockType('digiblocks/team', {
                 fontSizeUnit: 'px',
                 fontWeight: '600',
                 fontStyle: 'normal',
-                textTransform: '',
-                textDecoration: '',
+                textTransform: 'none',
+                textDecoration: 'none',
                 lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
                 lineHeightUnit: 'em',
                 letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
@@ -3217,10 +3482,10 @@ registerBlockType('digiblocks/team', {
                 fontFamily: '',
                 fontSize: { desktop: 16, tablet: 15, mobile: 14 },
                 fontSizeUnit: 'px',
-                fontWeight: '',
-                fontStyle: 'italic',
-                textTransform: '',
-                textDecoration: '',
+                fontWeight: '400',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
                 lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
                 lineHeightUnit: 'em',
                 letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
@@ -3233,41 +3498,85 @@ registerBlockType('digiblocks/team', {
                 fontFamily: '',
                 fontSize: { desktop: 16, tablet: 15, mobile: 14 },
                 fontSizeUnit: 'px',
-                fontWeight: '',
+                fontWeight: '400',
                 fontStyle: 'normal',
-                textTransform: '',
-                textDecoration: '',
+                textTransform: 'none',
+                textDecoration: 'none',
                 lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
                 lineHeightUnit: 'em',
                 letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
                 letterSpacingUnit: 'px'
             }
         },
-        padding: {
+        nameColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        positionColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        bioColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        iconColor: {
+            type: 'string',
+            default: '#1e73be'
+        },
+        iconHoverColor: {
+            type: 'string',
+            default: '#135e9e'
+        },
+        iconSize: {
             type: 'object',
             default: {
-                desktop: { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' },
-                tablet: { top: 25, right: 25, bottom: 25, left: 25, unit: 'px' },
-                mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' }
+                desktop: 20,
+                tablet: 18,
+                mobile: 16
             }
         },
-        margin: {
+        iconSpacing: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+                desktop: 10,
+                tablet: 8,
+                mobile: 6
             }
         },
-        animation: {
+        iconBackgroundColor: {
             type: 'string',
-            default: 'none'
+            default: 'transparent'
         },
-        borderStyle: {
+        iconBackgroundHoverColor: {
             type: 'string',
-            default: 'default'
+            default: ''
         },
-        borderRadius: {
+        iconBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 50, right: 50, bottom: 50, left: 50, unit: '%' },
+                tablet: { top: 50, right: 50, bottom: 50, left: 50, unit: '%' },
+                mobile: { top: 50, right: 50, bottom: 50, left: 50, unit: '%' }
+            }
+        },
+        iconPadding: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: 6, right: 6, bottom: 6, left: 6, unit: 'px' },
+                mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+            }
+        },
+        boxBackgroundColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        boxBorderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        boxBorderRadius: {
             type: 'object',
             default: {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
@@ -3275,7 +3584,7 @@ registerBlockType('digiblocks/team', {
                 mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
             }
         },
-        borderWidth: {
+        boxBorderWidth: {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
@@ -3283,22 +3592,34 @@ registerBlockType('digiblocks/team', {
                 mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
             }
         },
-        borderColor: {
+        boxBorderStyle: {
             type: 'string',
-            default: '#e0e0e0'
+            default: 'solid'
         },
-        borderHoverColor: {
-            type: 'string',
-            default: ''
+        boxPadding: {
+            type: 'object',
+            default: {
+                desktop: { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' },
+                tablet: { top: 25, right: 25, bottom: 25, left: 25, unit: 'px' },
+                mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' }
+            }
+        },
+        boxMargin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+            }
         },
         boxShadow: {
             type: 'object',
             default: {
                 enable: false,
-                color: 'rgba(0, 0, 0, 0.2)',
+                color: 'rgba(0, 0, 0, 0.1)',
                 horizontal: 0,
-                vertical: 0,
-                blur: 0,
+                vertical: 5,
+                blur: 15,
                 spread: 0,
                 position: 'outset'
             }
@@ -3309,82 +3630,73 @@ registerBlockType('digiblocks/team', {
                 enable: false,
                 color: 'rgba(0, 0, 0, 0.2)',
                 horizontal: 0,
-                vertical: 0,
-                blur: 0,
+                vertical: 10,
+                blur: 25,
                 spread: 0,
                 position: 'outset'
             }
         },
-        members: {
-            type: 'array',
-            default: [
-                {
-                    id: 'member-1',
-                    name: 'John Doe',
-                    position: 'CEO & Founder',
-                    description: 'John has over 15 years of experience in the industry and leads our company with a focus on innovation and growth.',
-                    imageUrl: '',
-                    imageId: 0,
-                    socialLinks: [
-                        { platform: 'facebook', url: '' },
-                        { platform: 'twitter', url: '' },
-                        { platform: 'linkedin', url: '' },
-                        { platform: 'instagram', url: '' }
-                    ]
-                },
-                {
-                    id: 'member-2',
-                    name: 'Jane Smith',
-                    position: 'Marketing Director',
-                    description: 'Jane brings creativity and strategic thinking to our marketing initiatives, with expertise in digital marketing and brand development.',
-                    imageUrl: '',
-                    imageId: 0,
-                    socialLinks: [
-                        { platform: 'facebook', url: '' },
-                        { platform: 'twitter', url: '' },
-                        { platform: 'linkedin', url: '' },
-                        { platform: 'instagram', url: '' }
-                    ]
-                },
-                {
-                    id: 'member-3',
-                    name: 'Michael Johnson',
-                    position: 'Technical Lead',
-                    description: 'Michael oversees all technical aspects of our projects, ensuring high-quality solutions that meet our clients\' needs.',
-                    imageUrl: '',
-                    imageId: 0,
-                    socialLinks: [
-                        { platform: 'facebook', url: '' },
-                        { platform: 'twitter', url: '' },
-                        { platform: 'linkedin', url: '' },
-                        { platform: 'github', url: '' }
-                    ]
-                }
-            ]
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+        showName: {
+            type: 'boolean',
+            default: true
+        },
+        showPosition: {
+            type: 'boolean',
+            default: true
+        },
+        showBio: {
+            type: 'boolean',
+            default: true
+        },
+        showSocial: {
+            type: 'boolean',
+            default: true
         }
     },
     example: {
         attributes: {
-            layout: 'grid',
-            columns: {
-                desktop: 3
-            },
             members: [
                 {
-                    id: 'member-1',
-                    name: 'John Doe',
-                    position: 'CEO & Founder',
-                    description: 'John has over 15 years of experience in the industry.',
-                    imageUrl: ''
+                    id: 'team-member-1',
+                    name: __('John Doe', 'digiblocks'),
+                    position: __('CEO & Founder', 'digiblocks'),
+                    bio: __('John has over 15 years of experience in the industry.', 'digiblocks'),
+                    socials: [
+                        {
+                            id: 'social-1',
+                            network: 'facebook',
+                            url: 'https://facebook.com'
+                        },
+                        {
+                            id: 'social-2',
+                            network: 'twitter',
+                            url: 'https://twitter.com'
+                        }
+                    ]
                 },
                 {
-                    id: 'member-2',
-                    name: 'Jane Smith',
-                    position: 'Marketing Director',
-                    description: 'Jane brings creativity and strategic thinking to our marketing initiatives.',
-                    imageUrl: ''
+                    id: 'team-member-2',
+                    name: __('Jane Smith', 'digiblocks'),
+                    position: __('Creative Director', 'digiblocks'),
+                    bio: __('Jane brings creativity to every project.', 'digiblocks'),
+                    socials: [
+                        {
+                            id: 'social-3',
+                            network: 'linkedin',
+                            url: 'https://linkedin.com'
+                        }
+                    ]
                 }
-            ]
+            ],
+            columns: {
+                desktop: 2,
+                tablet: 2,
+                mobile: 1
+            }
         }
     },
     edit: TeamEdit,

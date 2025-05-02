@@ -1,0 +1,37 @@
+{
+    "name": "digiblocks",
+    "version": "1.0.0",
+    "description": "A collection of beautiful custom Gutenberg blocks for WordPress.",
+    "scripts": {
+        "clean": "rm -rf assets/css/admin/* assets/js/admin/* assets/js/blocks/* assets/js/globals.js",
+        "clean:ds_store": "find . -name '.DS_Store' -type f -delete",
+        "dev:css-admin": "postcss ./resources/css/admin/admin.css -o ./assets/css/admin/admin.css --watch",
+        "build:css-admin": "postcss ./resources/css/admin/admin.css -o ./assets/css/admin/admin.css --env production",
+        "dev:css-blocks": "postcss ./resources/css/blocks/editor.css -o ./assets/css/blocks/editor.css --watch",
+        "build:css-blocks": "postcss ./resources/css/blocks/editor.css -o ./assets/css/blocks/editor.css --env production",
+        "dev:js-admin": "esbuild ./resources/js/admin/*.js --bundle --outdir=assets/js/admin --watch",
+        "build:js-admin": "esbuild ./resources/js/admin/*.js --bundle --minify --outdir=assets/js/admin",
+        "dev:js-globals": "mkdir -p assets/js && esbuild ./resources/js/globals.js --bundle --loader:.js=jsx --define:wp=window.wp --jsx-factory=wp.element.createElement --jsx-fragment=wp.element.Fragment --outfile=assets/js/globals.js --watch",
+        "build:js-globals": "mkdir -p assets/js && esbuild ./resources/js/globals.js --bundle --loader:.js=jsx --define:wp=window.wp --jsx-factory=wp.element.createElement --jsx-fragment=wp.element.Fragment --minify --outfile=assets/js/globals.js",
+        "dev:js-blocks": "mkdir -p assets/js/blocks && esbuild ./resources/js/blocks/index.js --bundle --loader:.js=jsx --define:wp=window.wp --jsx-factory=wp.element.createElement --jsx-fragment=wp.element.Fragment --outfile=assets/js/blocks/index.js --watch",
+        "build:js-blocks": "mkdir -p assets/js/blocks && esbuild ./resources/js/blocks/index.js --bundle --loader:.js=jsx --define:wp=window.wp --jsx-factory=wp.element.createElement --jsx-fragment=wp.element.Fragment --minify --outfile=assets/js/blocks/index.js",
+        "dev:js-animations": "esbuild ./resources/js/front-animations.js --bundle --outdir=assets/js --watch",
+        "build:js-animations": "esbuild ./resources/js/front-animations.js --bundle --minify --outdir=assets/js",
+        "watch": "npm run clean && npm run clean:ds_store && npm run dev:css-admin & npm run dev:css-blocks & npm run dev:js-admin & npm run dev:js-globals & npm run dev:js-blocks & npm run dev:js-animations",
+        "build": "npm run clean && npm run clean:ds_store && npm run build:css-admin && npm run build:css-blocks && npm run build:js-admin && npm run build:js-globals && npm run build:js-blocks && npm run build:js-animations",
+        "pack": "npm run build && find . -name '.DS_Store' -type f -delete && zip -r digiblocks.zip . -x '*node_modules*' -x '*/node_modules/*' -x '*/.*' -x '*.DS_Store' -x '*__MACOSX*' -x 'package.json' -x 'package-lock.json' -x 'postcss.config.js' -x 'composer.json' -x 'composer.lock' -x 'CONTRIBUTING.md' -x 'README.md' -x '.gitattributes' -x '.gitignore' -x 'phpcs.xml' -x '.git/*' -x '.git/**/*'",
+        "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md,json}\""
+    },
+    "devDependencies": {
+        "autoprefixer": "^10.4.16",
+        "chokidar": "^3.5.3",
+        "clean-css-cli": "^5.6.2",
+        "cssnano": "^6.0.1",
+        "esbuild": "^0.19.11",
+        "postcss": "^8.4.32",
+        "postcss-cli": "^10.1.0",
+        "postcss-import": "^15.1.0",
+        "postcss-nested": "^6.0.1",
+        "prettier": "^3.1.0"
+    }
+}

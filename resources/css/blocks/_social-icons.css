@@ -1,0 +1,169 @@
+/* Main container styles */
+.digiblocks-social-icons-list {
+    margin-bottom: 20px;
+}
+
+/* Individual social icon item */
+.digiblocks-social-icon-item {
+    margin-bottom: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #fff;
+    transition: box-shadow 0.2s ease;
+}
+
+/* Add shadow effect when dragging */
+.digiblocks-social-icon-item.dragging {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0.9;
+    border: 1px solid #007cba;
+    position: relative;
+    z-index: 100;
+}
+
+/* Highlight drop target */
+.digiblocks-social-icon-item.drag-over {
+    border: 1px dashed #007cba;
+    background-color: rgba(0, 124, 186, 0.05);
+}
+
+/* Icon item header */
+.digiblocks-social-icon-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+}
+
+/* Closed panel style */
+.digiblocks-social-icon-item.is-closed .digiblocks-social-icon-header {
+    border-bottom: none;
+}
+
+.digiblocks-social-icon-title {
+    font-weight: 600;
+    font-size: 14px;
+    flex-grow: 1;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+/* Drag handle */
+.digiblocks-social-icon-drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    color: #757575;
+}
+
+.digiblocks-social-icon-drag-handle:hover {
+    color: #007cba;
+}
+
+.digiblocks-social-icon-drag-handle .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.digiblocks-social-icon-actions {
+    display: flex;
+    gap: 5px;
+}
+
+/* Icon item content */
+.digiblocks-social-icon-content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Add button */
+.digiblocks-add-social-icon {
+    width: 100%;
+    justify-content: center;
+    margin-top: 12px !important;
+}
+
+/* Improve icon selector appearance */
+.digiblocks-social-icon-fields .social-media-icon-picker {
+    margin-bottom: 16px;
+}
+
+/* Fix icon alignment in editor preview */
+.block-editor-block-list__block .digiblocks-social-icon {
+    display: inline-flex !important;
+}
+
+/* Editor block appearance */
+[data-type="digiblocks/social-icons"] {
+    padding: 10px;
+}
+
+/* Icon selector styling */
+.digiblocks-social-icon-fields .fa-selector-button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.digiblocks-social-icon-fields .fa-selector-button {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f7f7f7;
+}
+
+.digiblocks-social-icon-fields .fa-selector-button:hover {
+    background: #f0f0f0;
+    border-color: #007cba;
+}
+
+.digiblocks-social-icon-fields .fa-selector-button.selected {
+    background: #f0f7fc;
+    border-color: #007cba;
+    box-shadow: 0 0 0 1px #007cba;
+}
+
+.digiblocks-social-icon-fields .fa-selector-button svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Buttons for move up/down */
+.digiblocks-social-icon-actions .components-button.is-small {
+    min-width: 24px;
+    height: 24px;
+    padding: 0;
+}
+
+/* Focus styles */
+.digiblocks-social-icon-item:focus-within {
+    box-shadow: 0 0 0 1.5px #007cba;
+}
+
+/* Animation when expanding/collapsing */
+.digiblocks-social-icon-content {
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+}
+
+.digiblocks-social-icon-item.is-closed .digiblocks-social-icon-content {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: none;
+}

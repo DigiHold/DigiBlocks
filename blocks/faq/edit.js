@@ -1,0 +1,2033 @@
+/**
+ * WordPress dependencies
+ */
+const { __ } = wp.i18n;
+const {
+    useBlockProps,
+    RichText,
+    InspectorControls,
+    PanelColorSettings,
+} = wp.blockEditor;
+const {
+    SelectControl,
+    RangeControl,
+    ToggleControl,
+    Button,
+    TextControl,
+    Tooltip,
+    TabPanel,
+    __experimentalToggleGroupControl: ToggleGroupControl,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption,
+} = wp.components;
+const { useState, useEffect, useRef } = wp.element;
+
+/**
+ * Internal dependencies
+ */
+const { animations } = digi.utils;
+const { tabIcons } = digi.icons;
+const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
+
+/**
+ * Edit function for the FAQ block
+ */
+const FAQEdit = ({ attributes, setAttributes, clientId }) => {
+    const {
+        id,
+        anchor,
+        customClasses,
+        items,
+        titleColor,
+        titleHoverColor,
+        titleActiveColor,
+        backgroundColor,
+        backgroundHoverColor,
+        backgroundActiveColor,
+        contentColor,
+        contentBackgroundColor,
+        borderColor,
+        borderHoverColor,
+        borderRadius,
+        borderWidth,
+        borderStyle,
+        boxShadow,
+        boxShadowHover,
+        padding,
+        margin,
+        titleTypography,
+        contentTypography,
+        iconPosition,
+        iconColor,
+        iconHoverColor,
+        iconActiveColor,
+        iconSize,
+        animation,
+        allowMultipleOpen,
+        iconType,
+        titleTag,
+        questionPrefix,
+        questionPrefixColor,
+        answerPrefix,
+        answerPrefixColor,
+        layout,
+        itemsSpacing,
+        schemaEnabled,
+        schemaType,
+        schemaName
+    } = attributes;
+
+    // State for active tab
+    const [activeTab, setActiveTab] = useState("options");
+
+    // Use global responsive state for local rendering instead of local state
+    const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
+    
+    // State for animation preview
+    const [isAnimating, setIsAnimating] = useState(false);
+    const previewTimeoutRef = useRef(null);
+    
+    // Subscribe to global device state changes
+    useEffect(() => {
+        const unsubscribe = window.digi.responsiveState.subscribe((device) => {
+            setLocalActiveDevice(device);
+        });
+        
+        // Cleanup subscription on unmount
+        return unsubscribe;
+    }, []);
+    
+    // Use useEffect to set the ID only once when component mounts
+    useEffect(() => {
+        // Check if the ID needs to be regenerated using clientId
+		if (!id || !id.includes(clientId.substr(0, 8))) {
+			setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
+		}
+        
+        // Initialize items with IDs if needed
+        if (items && items.length > 0) {
+            const updatedItems = items.map((item, index) => {
+                if (!item.id) {
+                    return { ...item, id: `faq-item-${clientId.substr(0, 8)}-${index}` };
+                }
+                return item;
+            });
+            
+            if (JSON.stringify(updatedItems) !== JSON.stringify(items)) {
+                setAttributes({ items: updatedItems });
+            }
+        }
+    }, [clientId, items, setAttributes]);
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (previewTimeoutRef.current) {
+                clearTimeout(previewTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Animation preview function
+    const triggerAnimationPreview = () => {
+        // Only proceed if we have a valid animation
+        if (!animation || animation === 'none') {
+            return;
+        }
+        
+        // Clear any existing timeout
+        if (previewTimeoutRef.current) {
+            clearTimeout(previewTimeoutRef.current);
+        }
+        
+        // Find the block element
+        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
+        if (!blockElement) {
+            return;
+        }
+        
+        // Generate a timestamp to ensure unique animation names on each click
+        const timestamp = Date.now();
+        
+        // Apply animation directly
+        if (animations[animation]) {
+            // Extract the original animation name from the keyframes
+            const originalKeyframes = animations[animation].keyframes;
+            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
+            
+            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
+                console.error('Could not extract animation name from keyframes');
+                return;
+            }
+            
+            const originalAnimName = originalAnimNameMatch[1];
+            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
+            
+            // Create a style element with a unique animation name to avoid conflicts
+            const styleElement = document.createElement('style');
+            styleElement.id = `animation-style-${id}_${timestamp}`;
+            
+            // Replace the original animation name with our unique name
+            const updatedKeyframes = originalKeyframes.replace(
+                new RegExp(originalAnimName, 'g'),
+                uniqueAnimName
+            );
+            
+            styleElement.textContent = `
+                ${updatedKeyframes}
+                
+                [data-custom-id="${id}"] {
+                    animation: none; /* Reset first */
+                }
+            `;
+            
+            // Remove any existing animation style for this block
+            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
+                el.remove();
+            });
+            
+            // Add the style to the document
+            document.head.appendChild(styleElement);
+            
+            // Force reflow to ensure animation reset
+            blockElement.offsetHeight;
+            
+            // Now apply the animation
+            const animationStyleElement = document.createElement('style');
+            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
+            animationStyleElement.textContent = `
+                [data-custom-id="${id}"] {
+                    animation: ${uniqueAnimName} 1.5s forwards !important;
+                }
+            `;
+            document.head.appendChild(animationStyleElement);
+            
+            // Clean up after animation
+            previewTimeoutRef.current = setTimeout(() => {
+                styleElement.remove();
+                animationStyleElement.remove();
+                blockElement.style.animation = '';
+            }, 1500);
+        }
+    };
+
+    // Effect to trigger animation preview when animation attribute changes
+    useEffect(() => {
+        if (animation && animation !== 'none') {
+            const timeoutId = setTimeout(() => {
+                triggerAnimationPreview();
+            }, 100);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [animation]);
+
+    // Border style options
+    const borderStyleOptions = [
+        { label: __("Default", "digiblocks"), value: "default" },
+        { label: __("None", "digiblocks"), value: "none" },
+        { label: __("Solid", "digiblocks"), value: "solid" },
+        { label: __("Dotted", "digiblocks"), value: "dotted" },
+        { label: __("Dashed", "digiblocks"), value: "dashed" },
+        { label: __("Double", "digiblocks"), value: "double" },
+        { label: __("Groove", "digiblocks"), value: "groove" },
+        { label: __("Inset", "digiblocks"), value: "inset" },
+        { label: __("Outset", "digiblocks"), value: "outset" },
+        { label: __("Ridge", "digiblocks"), value: "ridge" },
+    ];
+
+    // Animation options
+    const animationOptions = [
+        { label: __("None", "digiblocks"), value: "none" },
+        ...Object.keys(animations).map((animation) => ({
+            label: animation
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase()),
+            value: animation,
+        })),
+    ];
+
+    // Icon type options
+    const iconTypeOptions = [
+        { label: __("Plus/Minus", "digiblocks"), value: "plusMinus" },
+        { label: __("Arrow", "digiblocks"), value: "arrow" },
+        { label: __("Chevron", "digiblocks"), value: "chevron" },
+        { label: __("Triangle", "digiblocks"), value: "triangle" },
+        { label: __("Circle Plus/Minus", "digiblocks"), value: "circlePlusMinus" },
+    ];
+
+    // Icon position options
+    const iconPositionOptions = [
+        { label: __("Right", "digiblocks"), value: "right" },
+        { label: __("Left", "digiblocks"), value: "left" },
+    ];
+
+    // Title tag options
+    const titleTagOptions = [
+        { label: __("H2", "digiblocks"), value: "h2" },
+        { label: __("H3", "digiblocks"), value: "h3" },
+        { label: __("H4", "digiblocks"), value: "h4" },
+        { label: __("H5", "digiblocks"), value: "h5" },
+        { label: __("H6", "digiblocks"), value: "h6" },
+        { label: __("p", "digiblocks"), value: "p" },
+        { label: __("div", "digiblocks"), value: "div" },
+    ];
+
+    // Layout options
+    const layoutOptions = [
+        { label: __("Boxed", "digiblocks"), value: "boxed" },
+        { label: __("Classic", "digiblocks"), value: "classic" },
+        { label: __("Separated", "digiblocks"), value: "separated" },
+        { label: __("Minimalist", "digiblocks"), value: "minimalist" },
+        { label: __("Bordered", "digiblocks"), value: "bordered" },
+    ];
+
+    // Schema type options
+    const schemaTypeOptions = [
+        { label: __("Default FAQ Schema", "digiblocks"), value: "FAQPage" },
+        { label: __("Q&A Schema", "digiblocks"), value: "QAPage" },
+    ];
+
+    // Define the tabs for our custom tab panel
+    const tabList = [
+        { 
+            name: 'options', 
+            title: __('Options', 'digiblocks'),
+            icon: tabIcons.optionsIcon
+        },
+        { 
+            name: 'style', 
+            title: __('Style', 'digiblocks'),
+            icon: tabIcons.styleIcon
+        },
+        { 
+            name: 'advanced', 
+            title: __('Advanced', 'digiblocks'),
+            icon: tabIcons.advancedIcon
+        }
+    ];
+
+    // Tabs for normal/hover/active states
+    const stateTabList = [
+        {
+            name: 'normal',
+            title: __('Normal', 'digiblocks'),
+            className: 'digiblocks-tab-1 normal'
+        },
+        {
+            name: 'hover',
+            title: __('Hover', 'digiblocks'),
+            className: 'digiblocks-tab-2 hover'
+        },
+        {
+            name: 'active',
+            title: __('Active', 'digiblocks'),
+            className: 'digiblocks-tab-3 active'
+        }
+    ];
+
+    // Add item function
+    const addNewItem = () => {
+		const newItemIndex = items.length;
+        const newItem = {
+            id: `faq-item-${clientId.substr(0, 8)}-${newItemIndex}`,
+            title: __('New FAQ Question', 'digiblocks'),
+            content: __('Add your answer here. Edit or remove this text inline or in the module Content settings.', 'digiblocks'),
+            isOpen: false
+        };
+        
+        setAttributes({
+            items: [...items, newItem]
+        });
+    };
+
+    // Remove item function
+    const removeItem = (index) => {
+        const newItems = [...items];
+        newItems.splice(index, 1);
+        setAttributes({
+            items: newItems
+        });
+    };
+
+    // Duplicate item function
+    const duplicateItem = (index) => {
+        const itemToDuplicate = items[index];
+		const timestamp = Date.now();
+        const newItem = {
+            ...itemToDuplicate,
+            id: `faq-item-${clientId.substr(0, 8)}-${timestamp}`,
+            isOpen: false
+        };
+        
+        const newItems = [...items];
+        newItems.splice(index + 1, 0, newItem);
+        setAttributes({
+            items: newItems
+        });
+    };
+
+    // Move item up function
+    const moveItemUp = (index) => {
+        if (index === 0) return;
+        
+        const newItems = [...items];
+        const item = newItems[index];
+        newItems.splice(index, 1);
+        newItems.splice(index - 1, 0, item);
+        
+        setAttributes({
+            items: newItems
+        });
+    };
+
+    // Move item down function
+    const moveItemDown = (index) => {
+        if (index === items.length - 1) return;
+        
+        const newItems = [...items];
+        const item = newItems[index];
+        newItems.splice(index, 1);
+        newItems.splice(index + 1, 0, item);
+        
+        setAttributes({
+            items: newItems
+        });
+    };
+
+    // Toggle item function
+    const toggleItem = (index) => {
+        const newItems = items.map((item, i) => {
+            if (i === index) {
+                return { ...item, isOpen: !item.isOpen };
+            }
+            
+            // If multiple open is not allowed, close other items
+            if (!allowMultipleOpen && i !== index && item.isOpen) {
+                return { ...item, isOpen: false };
+            }
+            
+            return item;
+        });
+        
+        setAttributes({
+            items: newItems
+        });
+    };
+
+    // Update item title function
+    const updateItemTitle = (value, index) => {
+        const newItems = [...items];
+        newItems[index].title = value;
+        
+        setAttributes({
+            items: newItems
+        });
+    };
+
+    // Update item content function
+    const updateItemContent = (value, index) => {
+        const newItems = [...items];
+        newItems[index].content = value;
+        
+        setAttributes({
+            items: newItems
+        });
+    };
+
+    // Generate icon JSX based on icon type and state
+    const getIcon = (isOpen, type = iconType) => {
+        switch (type) {
+            case 'plusMinus':
+                return isOpen ? (
+                    <span className="digiblocks-faq-icon-minus">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+                            <path fillRule="evenodd" d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z" />
+                        </svg>
+                    </span>
+                ) : (
+                    <span className="digiblocks-faq-icon-plus">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+                            <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+                        </svg>
+                    </span>
+                );
+            case 'arrow':
+                return (
+                    <span className={`digiblocks-faq-icon-arrow ${isOpen ? 'is-open' : ''}`}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+                            <path fillRule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
+                        </svg>
+                    </span>
+                );
+            case 'chevron':
+                return (
+                    <span className={`digiblocks-faq-icon-chevron ${isOpen ? 'is-open' : ''}`}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+                            <path fillRule="evenodd" d="M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z" />
+                        </svg>
+                    </span>
+                );
+            case 'triangle':
+                return (
+                    <span className={`digiblocks-faq-icon-triangle ${isOpen ? 'is-open' : ''}`}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+                            <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
+                        </svg>
+                    </span>
+                );
+            case 'circlePlusMinus':
+                return isOpen ? (
+                    <span className="digiblocks-faq-icon-circle-minus">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                            <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z" />
+                        </svg>
+                    </span>
+                ) : (
+                    <span className="digiblocks-faq-icon-circle-plus">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                        </svg>
+                    </span>
+                );
+            default:
+                return isOpen ? (
+                    <span className="digiblocks-faq-icon-minus">—</span>
+                ) : (
+                    <span className="digiblocks-faq-icon-plus">+</span>
+                );
+        }
+    };
+
+    // Generate CSS for styling the FAQ block
+	const generateCSS = () => {
+		const activeDevice = window.digi.responsiveState.activeDevice;
+		const blockId = id;
+		
+		// Base styles
+		let baseStyles = '';
+		const marginValue = margin[activeDevice] || { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' };
+		// Properly handle 0 values with explicit undefined check
+		const itemSpacing = itemsSpacing[activeDevice] !== undefined ? itemsSpacing[activeDevice] : 16;
+		
+		// Border styles
+		let borderCSS = '';
+		if (borderStyle && borderStyle !== 'default' && borderStyle !== 'none') {
+			const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
+			const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' };
+			
+			borderCSS = `
+				border-style: ${borderStyle};
+				border-color: ${borderColor || '#e0e0e0'};
+				border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
+				border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+			`;
+		} else {
+			borderCSS = 'border: none;';
+		}
+		
+		// Box shadow
+		let boxShadowCSS = 'box-shadow: none;';
+		if (boxShadow && boxShadow.enable) {
+			const inset = boxShadow.position === 'inset' ? 'inset ' : '';
+			boxShadowCSS = `box-shadow: ${inset}${boxShadow.horizontal}px ${boxShadow.vertical}px ${boxShadow.blur}px ${boxShadow.spread}px ${boxShadow.color};`;
+		}
+		
+		// Padding
+		const paddingCSS = `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};`;
+		
+		// Title typography CSS
+		let titleTypographyCSS = '';
+		if (titleTypography) {
+			if (titleTypography.fontFamily) {
+				titleTypographyCSS += `font-family: ${titleTypography.fontFamily};`;
+			}
+			
+			if (titleTypography.fontSize && titleTypography.fontSize[activeDevice]) {
+				titleTypographyCSS += `font-size: ${titleTypography.fontSize[activeDevice]}${titleTypography.fontSizeUnit || 'px'};`;
+			}
+			
+			if (titleTypography.fontWeight) {
+				titleTypographyCSS += `font-weight: ${titleTypography.fontWeight};`;
+			}
+			
+			if (titleTypography.fontStyle) {
+				titleTypographyCSS += `font-style: ${titleTypography.fontStyle};`;
+			}
+			
+			if (titleTypography.textTransform) {
+				titleTypographyCSS += `text-transform: ${titleTypography.textTransform};`;
+			}
+			
+			if (titleTypography.textDecoration) {
+				titleTypographyCSS += `text-decoration: ${titleTypography.textDecoration};`;
+			}
+			
+			if (titleTypography.lineHeight && titleTypography.lineHeight[activeDevice]) {
+				titleTypographyCSS += `line-height: ${titleTypography.lineHeight[activeDevice]}${titleTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			if (titleTypography.letterSpacing && titleTypography.letterSpacing[activeDevice]) {
+				titleTypographyCSS += `letter-spacing: ${titleTypography.letterSpacing[activeDevice]}${titleTypography.letterSpacingUnit || 'px'};`;
+			}
+		}
+		
+		// Content typography CSS
+		let contentTypographyCSS = '';
+		if (contentTypography) {
+			if (contentTypography.fontFamily) {
+				contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
+			}
+			
+			if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
+				contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || 'px'};`;
+			}
+			
+			if (contentTypography.fontWeight) {
+				contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
+			}
+			
+			if (contentTypography.fontStyle) {
+				contentTypographyCSS += `font-style: ${contentTypography.fontStyle};`;
+			}
+			
+			if (contentTypography.textTransform) {
+				contentTypographyCSS += `text-transform: ${contentTypography.textTransform};`;
+			}
+			
+			if (contentTypography.textDecoration) {
+				contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
+			}
+			
+			if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
+				contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
+				contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || 'px'};`;
+			}
+		}
+		
+		// Hover box shadow
+		let boxShadowHoverCSS = '';
+		if (boxShadowHover && boxShadowHover.enable) {
+			const insetHover = boxShadowHover.position === 'inset' ? 'inset ' : '';
+			boxShadowHoverCSS = `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
+		}
+		
+		// Base styles for all layouts
+		const baseCSS = `
+			/* FAQ Block - ${blockId} */
+			[data-custom-id="${blockId}"] {
+				margin: ${marginValue.top}${marginValue.unit} ${marginValue.right}${marginValue.unit} ${marginValue.bottom}${marginValue.unit} ${marginValue.left}${marginValue.unit};
+				width: 100%;
+			}
+			
+			/* Base styles for questions and answers */
+			[data-custom-id="${blockId}"] .digiblocks-faq-question {
+				cursor: pointer;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+				display: flex;
+				align-items: center;
+				${iconPosition === 'left' ? 'flex-direction: row-reverse; justify-content: flex-end;' : 'justify-content: space-between;'}
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-question-text {
+				color: ${titleColor};
+				${titleTypographyCSS}
+				margin: 0;
+				flex: 1;
+				${questionPrefix ? 'display: flex; align-items: center; gap: .5rem;' : ''}
+				transition: color 0.3s ease;
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-question-prefix {
+				${questionPrefixColor ? `color: ${questionPrefixColor};` : ''}
+				font-weight: bold;
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-answer-prefix {
+				${answerPrefixColor ? `color: ${answerPrefixColor};` : ''}
+				font-weight: bold;
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-answer-content {
+				display: flex;
+				${answerPrefix ? 'display: flex; gap: .5rem;' : ''}
+				color: ${contentColor};
+				${contentTypographyCSS}
+			}
+			
+			/* Handle answer display states */
+			[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+				overflow: hidden;
+				display: none;
+				transition: height 0.3s ease;
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-answer {
+				display: block;
+			}
+			
+			/* Icon styles */
+			[data-custom-id="${blockId}"] .digiblocks-faq-question {
+				gap: 15px;
+			}
+
+			[data-custom-id="${blockId}"] .digiblocks-faq-question-icon {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: ${iconColor};
+				transition: all 0.3s ease;
+				font-size: ${iconSize[activeDevice]}px;
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-question-icon span {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-question-icon svg {
+				width: ${iconSize[activeDevice]}px;
+				height: ${iconSize[activeDevice]}px;
+				transition: transform 0.3s ease;
+				fill: currentColor;
+			}
+			
+			/* Rotate icons when active */
+			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-arrow,
+			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-chevron,
+			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-triangle {
+				transform: rotate(180deg);
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-icon-arrow,
+			[data-custom-id="${blockId}"] .digiblocks-faq-icon-chevron,
+			[data-custom-id="${blockId}"] .digiblocks-faq-icon-triangle {
+				display: inline-flex;
+				transition: transform 0.3s ease;
+			}
+			
+			/* Handle hover state */
+			[data-custom-id="${blockId}"] .digiblocks-faq-question:hover .digiblocks-faq-question-text {
+				${titleHoverColor ? `color: ${titleHoverColor};` : ''}
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-question:hover .digiblocks-faq-question-icon {
+				${iconHoverColor ? `color: ${iconHoverColor};` : ''}
+			}
+			
+			/* Handle active state */
+			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question-text {
+				color: ${titleActiveColor};
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question-icon {
+				color: ${iconActiveColor};
+			}
+		`;
+		
+		// Layout-specific styles
+		let layoutCSS = '';
+		switch (layout) {
+			case 'boxed':
+				layoutCSS = `
+					[data-custom-id="${blockId}"] .digiblocks-faq-item {
+						${borderCSS}
+						${boxShadowCSS}
+						background-color: ${backgroundColor || '#ffffff'};
+						transition: all 0.3s ease;
+						margin-bottom: ${itemSpacing}px;
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-item:hover {
+						${boxShadowHoverCSS}
+						${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
+						${borderHoverColor ? `border-color: ${borderHoverColor};` : ''}
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-question {
+						${paddingCSS}
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+						${paddingCSS}
+						border-top: 1px solid ${borderColor || '#e0e0e0'};
+						${contentBackgroundColor ? `background-color: ${contentBackgroundColor};` : ''}
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active {
+						${backgroundActiveColor ? `background-color: ${backgroundActiveColor};` : ''}
+					}
+				`;
+				break;
+			
+			case 'classic':
+				layoutCSS = `
+					[data-custom-id="${blockId}"] .digiblocks-faq-item {
+						border: none;
+						border-bottom: 1px solid ${borderColor || '#e0e0e0'};
+						background-color: transparent;
+						margin-bottom: ${itemSpacing}px;
+						transition: all 0.3s ease;
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-question {
+						${paddingCSS}
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+						padding: 0 ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};
+					}
+				`;
+				break;
+			
+			case 'separated':
+				layoutCSS = `
+					[data-custom-id="${blockId}"] .digiblocks-faq-item {
+						margin-bottom: ${itemSpacing}px;
+						transition: all 0.3s ease;
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-question {
+						${paddingCSS}
+						${borderCSS}
+						${boxShadowCSS}
+						background-color: ${backgroundColor || '#ffffff'};
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-question:hover {
+						${titleHoverColor ? `color: ${titleHoverColor};` : ''}
+						${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
+						${borderHoverColor ? `border-color: ${borderHoverColor};` : ''}
+						${boxShadowHoverCSS}
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question {
+						${titleActiveColor ? `color: ${titleActiveColor};` : ''}
+						${backgroundActiveColor ? `background-color: ${backgroundActiveColor};` : ''}
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+						${paddingCSS}
+						${contentBackgroundColor ? `background-color: ${contentBackgroundColor};` : ''}
+						border: 1px solid ${borderColor || '#e0e0e0'};
+						border-top: none;
+						border-bottom-left-radius: ${borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice].left + borderRadius[activeDevice].unit : '8px'};
+						border-bottom-right-radius: ${borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice].right + borderRadius[activeDevice].unit : '8px'};
+						margin-top: -1px;
+					}
+				`;
+				break;
+			
+			case 'minimalist':
+				layoutCSS = `
+					[data-custom-id="${blockId}"] .digiblocks-faq-item {
+						margin-bottom: ${itemSpacing}px;
+						transition: all 0.3s ease;
+						background-color: transparent;
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-question {
+						${paddingCSS}
+						border-bottom: 2px solid ${borderColor || '#e0e0e0'};
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-question:hover {
+						${titleHoverColor ? `color: ${titleHoverColor};` : ''}
+						border-color: ${titleHoverColor || borderHoverColor || '#cccccc'};
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question {
+						${titleActiveColor ? `color: ${titleActiveColor};` : ''}
+						border-color: ${titleActiveColor || '#1e73be'};
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+						padding: ${padding[activeDevice].top}${padding[activeDevice].unit} 0 ${padding[activeDevice].bottom}${padding[activeDevice].unit} 0;
+					}
+				`;
+				break;
+			
+			case 'bordered':
+				layoutCSS = `
+					[data-custom-id="${blockId}"] .digiblocks-faq-item {
+						${borderCSS}
+						background-color: transparent;
+						margin-bottom: ${itemSpacing}px;
+						transition: all 0.3s ease;
+						overflow: hidden;
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-item:hover {
+						${borderHoverColor ? `border-color: ${borderHoverColor};` : ''}
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-question {
+						${paddingCSS}
+						background-color: ${backgroundColor || '#f8f9fa'};
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-question:hover {
+						${titleHoverColor ? `color: ${titleHoverColor};` : ''}
+						${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question {
+						${titleActiveColor ? `color: ${titleActiveColor};` : ''}
+						${backgroundActiveColor ? `background-color: ${backgroundActiveColor};` : ''}
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+						${paddingCSS}
+						${contentBackgroundColor ? `background-color: ${contentBackgroundColor};` : ''}
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active {
+						border-color: ${titleActiveColor || borderColor || '#1e73be'};
+					}
+				`;
+				break;
+			
+			default:
+				layoutCSS = `
+					[data-custom-id="${blockId}"] .digiblocks-faq-item {
+						${borderCSS}
+						${boxShadowCSS}
+						background-color: ${backgroundColor || '#ffffff'};
+						transition: all 0.3s ease;
+						margin-bottom: ${itemSpacing}px;
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-question {
+						${paddingCSS}
+					}
+					
+					[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+						${paddingCSS}
+						border-top: 1px solid #e0e0e0;
+					}
+				`;
+		}
+		
+		// Editor-specific styles
+		const editorCSS = `
+			[data-custom-id="${blockId}"] .digiblocks-faq-item {
+				position: relative;
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-item-controls {
+				display: flex;
+				gap: 5px;
+				position: absolute;
+				right: 10px;
+				top: -28px;
+				background-color: #fff;
+				padding: 2px;
+				border-radius: 3px;
+				box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+				z-index: 10;
+			}
+		
+			/* Respect the is-active class for showing/hiding answers */
+			[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+				display: none;
+				transition: height 0.3s ease;
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-answer {
+				display: block;
+			}
+			
+			[data-custom-id="${blockId}"] .digiblocks-faq-schema {
+				margin-top: 15px;
+			}
+		`;
+		
+		// Responsive styles
+		const tabletStyles = `
+			@media (max-width: 991px) {
+				[data-custom-id="${blockId}"] {
+					${margin.tablet ? `margin: ${margin.tablet.top}${margin.tablet.unit} ${margin.tablet.right}${margin.tablet.unit} ${margin.tablet.bottom}${margin.tablet.unit} ${margin.tablet.left}${margin.tablet.unit};` : ''}
+				}
+				
+				[data-custom-id="${blockId}"] .digiblocks-faq-item {
+					margin-bottom: ${itemsSpacing.tablet !== undefined ? itemsSpacing.tablet : itemSpacing}px;
+				}
+				
+				[data-custom-id="${blockId}"] .digiblocks-faq-question,
+				[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+					${padding.tablet ? `padding: ${padding.tablet.top}${padding.tablet.unit} ${padding.tablet.right}${padding.tablet.unit} ${padding.tablet.bottom}${padding.tablet.unit} ${padding.tablet.left}${padding.tablet.unit};` : ''}
+				}
+				
+				${layout === 'minimalist' ? `
+				[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+					padding: ${padding.tablet?.top || padding[activeDevice].top}${padding.tablet?.unit || padding[activeDevice].unit} 0 ${padding.tablet?.bottom || padding[activeDevice].bottom}${padding.tablet?.unit || padding[activeDevice].unit} 0;
+				}
+				` : ''}
+				
+				${iconSize && iconSize.tablet ? `
+				[data-custom-id="${blockId}"] .digiblocks-faq-question-icon {
+					font-size: ${iconSize.tablet}px;
+				}
+				
+				[data-custom-id="${blockId}"] .digiblocks-faq-question-icon svg {
+					width: ${iconSize.tablet}px;
+					height: ${iconSize.tablet}px;
+				}
+				` : ''}
+				
+				${titleTypography && titleTypography.fontSize && titleTypography.fontSize.tablet ? `
+				[data-custom-id="${blockId}"] .digiblocks-faq-question-text {
+					font-size: ${titleTypography.fontSize.tablet}${titleTypography.fontSizeUnit || 'px'};
+					${titleTypography.lineHeight && titleTypography.lineHeight.tablet ? `line-height: ${titleTypography.lineHeight.tablet}${titleTypography.lineHeightUnit || 'em'};` : ''}
+				}
+				` : ''}
+				
+				${contentTypography && contentTypography.fontSize && contentTypography.fontSize.tablet ? `
+				[data-custom-id="${blockId}"] .digiblocks-faq-answer-content {
+					font-size: ${contentTypography.fontSize.tablet}${contentTypography.fontSizeUnit || 'px'};
+					${contentTypography.lineHeight && contentTypography.lineHeight.tablet ? `line-height: ${contentTypography.lineHeight.tablet}${contentTypography.lineHeightUnit || 'em'};` : ''}
+				}
+				` : ''}
+			}
+		`;
+		
+		const mobileStyles = `
+			@media (max-width: 767px) {
+				[data-custom-id="${blockId}"] {
+					${margin.mobile ? `margin: ${margin.mobile.top}${margin.mobile.unit} ${margin.mobile.right}${margin.mobile.unit} ${margin.mobile.bottom}${margin.mobile.unit} ${margin.mobile.left}${margin.mobile.unit};` : ''}
+				}
+				
+				[data-custom-id="${blockId}"] .digiblocks-faq-item {
+					margin-bottom: ${itemsSpacing.mobile !== undefined ? itemsSpacing.mobile : itemSpacing}px;
+				}
+				
+				[data-custom-id="${blockId}"] .digiblocks-faq-question,
+				[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+					${padding.mobile ? `padding: ${padding.mobile.top}${padding.mobile.unit} ${padding.mobile.right}${padding.mobile.unit} ${padding.mobile.bottom}${padding.mobile.unit} ${padding.mobile.left}${padding.mobile.unit};` : ''}
+				}
+				
+				${layout === 'minimalist' ? `
+				[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+					padding: ${padding.mobile?.top || padding[activeDevice].top}${padding.mobile?.unit || padding[activeDevice].unit} 0 ${padding.mobile?.bottom || padding[activeDevice].bottom}${padding.mobile?.unit || padding[activeDevice].unit} 0;
+				}
+				` : ''}
+				
+				${iconSize && iconSize.mobile ? `
+				[data-custom-id="${blockId}"] .digiblocks-faq-question-icon {
+					font-size: ${iconSize.mobile}px;
+				}
+				
+				[data-custom-id="${blockId}"] .digiblocks-faq-question-icon svg {
+					width: ${iconSize.mobile}px;
+					height: ${iconSize.mobile}px;
+				}
+				` : ''}
+				
+				${titleTypography && titleTypography.fontSize && titleTypography.fontSize.mobile ? `
+				[data-custom-id="${blockId}"] .digiblocks-faq-question-text {
+					font-size: ${titleTypography.fontSize.mobile}${titleTypography.fontSizeUnit || 'px'};
+					${titleTypography.lineHeight && titleTypography.lineHeight.mobile ? `line-height: ${titleTypography.lineHeight.mobile}${titleTypography.lineHeightUnit || 'em'};` : ''}
+				}
+				` : ''}
+				
+				${contentTypography && contentTypography.fontSize && contentTypography.fontSize.mobile ? `
+				[data-custom-id="${blockId}"] .digiblocks-faq-answer-content {
+					font-size: ${contentTypography.fontSize.mobile}${contentTypography.fontSizeUnit || 'px'};
+					${contentTypography.lineHeight && contentTypography.lineHeight.mobile ? `line-height: ${contentTypography.lineHeight.mobile}${contentTypography.lineHeightUnit || 'em'};` : ''}
+				}
+				` : ''}
+			}
+		`;
+		
+		// Animation CSS if provided
+		let animationCSS = '';
+		if (animation && animation !== 'none' && animations[animation]) {
+			animationCSS = animations[animation].keyframes;
+		}
+		
+		// Combine all styles
+		return `
+			${baseCSS}
+			${layoutCSS}
+			${editorCSS}
+			${tabletStyles}
+			${mobileStyles}
+			${animationCSS}
+		`;
+	};
+
+    // Render title/heading tab content based on active tab
+    const renderTitleTabContent = (tabName) => {
+        if (tabName === 'normal') {
+            return (
+                <>
+                    <PanelColorSettings
+                        title={__(
+                            "Question Colors",
+                            "digiblocks"
+                        )}
+                        initialOpen={true}
+                        enableAlpha={true}
+                        colorSettings={[
+                            {
+                                value: titleColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        titleColor: value,
+                                    }),
+                                label: __(
+                                    "Text Color",
+                                    "digiblocks"
+                                ),
+                            },
+                            {
+                                value: backgroundColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        backgroundColor: value,
+                                    }),
+                                label: __(
+                                    "Background Color",
+                                    "digiblocks"
+                                ),
+                            },
+                            {
+                                value: questionPrefixColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        questionPrefixColor: value,
+                                    }),
+                                label: __(
+                                    "Prefix Color",
+                                    "digiblocks"
+                                ),
+                                disableCustomColors: !questionPrefix,
+                            },
+                        ]}
+                    />
+                </>
+            );
+        } else if (tabName === 'hover') {
+            return (
+                <>
+                    <PanelColorSettings
+                        title={__(
+                            "Question Hover Colors",
+                            "digiblocks"
+                        )}
+                        initialOpen={true}
+                        enableAlpha={true}
+                        colorSettings={[
+                            {
+                                value: titleHoverColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        titleHoverColor: value,
+                                    }),
+                                label: __(
+                                    "Text Color",
+                                    "digiblocks"
+                                ),
+                            },
+                            {
+                                value: backgroundHoverColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        backgroundHoverColor: value,
+                                    }),
+                                label: __(
+                                    "Background Color",
+                                    "digiblocks"
+                                ),
+                            },
+                        ]}
+                    />
+                </>
+            );
+        } else if (tabName === 'active') {
+            return (
+                <>
+                    <PanelColorSettings
+                        title={__(
+                            "Question Active Colors",
+                            "digiblocks"
+                        )}
+                        initialOpen={true}
+                        enableAlpha={true}
+                        colorSettings={[
+                            {
+                                value: titleActiveColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        titleActiveColor: value,
+                                    }),
+                                label: __(
+                                    "Text Color",
+                                    "digiblocks"
+                                ),
+                            },
+                            {
+                                value: backgroundActiveColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        backgroundActiveColor: value,
+                                    }),
+                                label: __(
+                                    "Background Color",
+                                    "digiblocks"
+                                ),
+                            },
+                        ]}
+                    />
+                </>
+            );
+        }
+        
+        return null;
+    };
+
+    // Render icon tab content based on active tab
+    const renderIconTabContent = (tabName) => {
+        if (tabName === 'normal') {
+            return (
+                <>
+                    <PanelColorSettings
+                        title={__(
+                            "Icon Colors",
+                            "digiblocks"
+                        )}
+                        initialOpen={true}
+                        enableAlpha={true}
+                        colorSettings={[
+                            {
+                                value: iconColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        iconColor: value,
+                                    }),
+                                label: __(
+                                    "Icon Color",
+                                    "digiblocks"
+                                ),
+                            },
+                        ]}
+                    />
+                </>
+            );
+        } else if (tabName === 'hover') {
+            return (
+                <>
+                    <PanelColorSettings
+                        title={__(
+                            "Icon Hover Colors",
+                            "digiblocks"
+                        )}
+                        initialOpen={true}
+                        enableAlpha={true}
+                        colorSettings={[
+                            {
+                                value: iconHoverColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        iconHoverColor: value,
+                                    }),
+                                label: __(
+                                    "Icon Color",
+                                    "digiblocks"
+                                ),
+                            },
+                        ]}
+                    />
+                </>
+            );
+        } else if (tabName === 'active') {
+            return (
+                <>
+                    <PanelColorSettings
+                        title={__(
+                            "Icon Active Colors",
+                            "digiblocks"
+                        )}
+                        initialOpen={true}
+                        enableAlpha={true}
+                        colorSettings={[
+                            {
+                                value: iconActiveColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        iconActiveColor: value,
+                                    }),
+                                label: __(
+                                    "Icon Color",
+                                    "digiblocks"
+                                ),
+                            },
+                        ]}
+                    />
+                </>
+            );
+        }
+        
+        return null;
+    };
+
+    // Render content tab content based on active tab
+    const renderContentTabContent = () => {
+        return (
+            <>
+                <PanelColorSettings
+                    title={__(
+                        "Answer Colors",
+                        "digiblocks"
+                    )}
+                    initialOpen={true}
+                    enableAlpha={true}
+                    colorSettings={[
+                        {
+                            value: contentColor,
+                            onChange: (value) =>
+                                setAttributes({
+                                    contentColor: value,
+                                }),
+                            label: __(
+                                "Text Color",
+                                "digiblocks"
+                            ),
+                        },
+                        {
+                            value: contentBackgroundColor,
+                            onChange: (value) =>
+                                setAttributes({
+                                    contentBackgroundColor: value,
+                                }),
+                            label: __(
+                                "Background Color",
+                                "digiblocks"
+                            ),
+                        },
+                        {
+                            value: answerPrefixColor,
+                            onChange: (value) =>
+                                setAttributes({
+                                    answerPrefixColor: value,
+                                }),
+                            label: __(
+                                "Prefix Color",
+                                "digiblocks"
+                            ),
+                            disableCustomColors: !answerPrefix,
+                        },
+                    ]}
+                />
+            </>
+        );
+    };
+
+    // Render tab content based on the active tab
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'options':
+                return (
+                    <>
+                        <TabPanelBody
+                            tab="options"
+                            name="content-settings"
+                            title={__("Items", "digiblocks")}
+                            initialOpen={true}
+                        >
+                            <ToggleControl
+                                label={__("Allow Multiple Open", "digiblocks")}
+                                checked={allowMultipleOpen}
+                                onChange={() => setAttributes({ allowMultipleOpen: !allowMultipleOpen })}
+                                help={__("When enabled, multiple FAQ items can be open at the same time.", "digiblocks")}
+                            />
+                            
+                            <SelectControl
+                                label={__("Layout", "digiblocks")}
+                                value={layout}
+                                options={layoutOptions}
+                                onChange={(value) => setAttributes({ layout: value })}
+                                __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                            
+                            <div className="components-base-control">
+                                <div className="components-base-control__field">
+                                    <label htmlFor="question-prefix" className="components-base-control__label">
+                                        {__("Question Prefix", "digiblocks")}
+                                    </label>
+                                    <TextControl
+                                        id="question-prefix"
+                                        value={questionPrefix || ""}
+                                        onChange={(value) => setAttributes({ questionPrefix: value })}
+                                        placeholder={__("Example: Q:", "digiblocks")}
+                                    />
+                                    <p className="components-base-control__help">
+                                        {__("Add a prefix to questions (e.g., 'Q:').", "digiblocks")}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div className="components-base-control">
+                                <div className="components-base-control__field">
+                                    <label htmlFor="answer-prefix" className="components-base-control__label">
+                                        {__("Answer Prefix", "digiblocks")}
+                                    </label>
+                                    <TextControl
+                                        id="answer-prefix"
+                                        value={answerPrefix || ""}
+                                        onChange={(value) => setAttributes({ answerPrefix: value })}
+                                        placeholder={__("Example: A:", "digiblocks")}
+                                    />
+                                    <p className="components-base-control__help">
+                                        {__("Add a prefix to answers (e.g., 'A:').", "digiblocks")}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <ResponsiveControl
+                                label={__("Items Spacing", "digiblocks")}
+                            >
+                                <RangeControl
+                                    value={itemsSpacing[localActiveDevice]}
+                                    onChange={(value) =>
+                                        setAttributes({
+                                            itemsSpacing: {
+                                                ...itemsSpacing,
+                                                [localActiveDevice]: value,
+                                            },
+                                        })
+                                    }
+                                    min={0}
+                                    max={100}
+                                    step={1}
+                                    __next40pxDefaultSize={true}
+                                    __nextHasNoMarginBottom={true}
+                                />
+                            </ResponsiveControl>
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="options"
+                            name="icon-settings"
+                            title={__("Icon Settings", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            <SelectControl
+                                label={__("Icon Type", "digiblocks")}
+                                value={iconType}
+                                options={iconTypeOptions}
+                                onChange={(value) => setAttributes({ iconType: value })}
+                                __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                            
+                            <SelectControl
+                                label={__("Icon Position", "digiblocks")}
+                                value={iconPosition}
+                                options={iconPositionOptions}
+                                onChange={(value) => setAttributes({ iconPosition: value })}
+                                __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                            
+                            <ResponsiveControl
+                                label={__("Icon Size", "digiblocks")}
+                            >
+                                <RangeControl
+                                    value={iconSize[localActiveDevice]}
+                                    onChange={(value) =>
+                                        setAttributes({
+                                            iconSize: {
+                                                ...iconSize,
+                                                [localActiveDevice]: value,
+                                            },
+                                        })
+                                    }
+                                    min={8}
+                                    max={100}
+                                    step={1}
+                                    __next40pxDefaultSize={true}
+                                    __nextHasNoMarginBottom={true}
+                                />
+                            </ResponsiveControl>
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="options"
+                            name="schema-settings"
+                            title={__("SEO Schema", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            <ToggleControl
+                                label={__("Enable Schema Markup", "digiblocks")}
+                                checked={schemaEnabled}
+                                onChange={() => setAttributes({ schemaEnabled: !schemaEnabled })}
+                                help={__("Add JSON-LD schema markup for better SEO results.", "digiblocks")}
+                            />
+                            
+                            {schemaEnabled && (
+                                <>
+                                    <SelectControl
+                                        label={__("Schema Type", "digiblocks")}
+                                        value={schemaType}
+                                        options={schemaTypeOptions}
+                                        onChange={(value) => setAttributes({ schemaType: value })}
+                                        __next40pxDefaultSize={true}
+                                        __nextHasNoMarginBottom={true}
+                                    />
+                                    
+                                    <TextControl
+                                        label={__("Schema Name", "digiblocks")}
+                                        value={schemaName}
+                                        onChange={(value) => setAttributes({ schemaName: value })}
+                                        placeholder={__("Example: Product FAQ", "digiblocks")}
+                                        help={__("Name for your FAQ schema (e.g., Company FAQ, Product FAQ).", "digiblocks")}
+                                        __next40pxDefaultSize={true}
+                                        __nextHasNoMarginBottom={true}
+                                    />
+                                </>
+                            )}
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="options"
+                            name="heading-settings"
+                            title={__("HTML Settings", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            <SelectControl
+                                label={__("Question Tag", "digiblocks")}
+                                value={titleTag}
+                                options={titleTagOptions}
+                                onChange={(value) => setAttributes({ titleTag: value })}
+                                help={__("HTML tag for questions. Default is h3.", "digiblocks")}
+                                __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                        </TabPanelBody>
+                    </>
+                );
+            case 'style':
+                return (
+                    <>
+                        <TabPanelBody
+                            tab="style"
+                            name="question-styles"
+                            title={__("Question Styles", "digiblocks")}
+                            initialOpen={true}
+                        >
+                            <TabPanel
+                                className="digiblocks-control-tabs"
+                                activeClass="active-tab"
+                                tabs={stateTabList}
+                            >
+                                {(tab) => renderTitleTabContent(tab.name)}
+                            </TabPanel>
+                            
+                            <TypographyControl
+                                label={__(
+                                    "Question Typography",
+                                    "digiblocks"
+                                )}
+                                value={titleTypography}
+                                onChange={(value) =>
+                                    setAttributes({
+                                        titleTypography: value,
+                                    })
+                                }
+                                defaults={{
+                                    fontSize: { desktop: 18, tablet: 16, mobile: 15 },
+                                    fontSizeUnit: 'px',
+                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                                    lineHeightUnit: 'em',
+                                }}
+                            />
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="style"
+                            name="answer-styles"
+                            title={__("Answer Styles", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            {renderContentTabContent()}
+                            
+                            <TypographyControl
+                                label={__(
+                                    "Answer Typography",
+                                    "digiblocks"
+                                )}
+                                value={contentTypography}
+                                onChange={(value) =>
+                                    setAttributes({
+                                        contentTypography: value,
+                                    })
+                                }
+                                defaults={{
+                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                                    fontSizeUnit: 'px',
+                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                                    lineHeightUnit: 'em',
+                                }}
+                            />
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="style"
+                            name="icon-styles"
+                            title={__("Icon Styles", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            <TabPanel
+                                className="digiblocks-control-tabs"
+                                activeClass="active-tab"
+                                tabs={stateTabList}
+                            >
+                                {(tab) => renderIconTabContent(tab.name)}
+                            </TabPanel>
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="style"
+                            name="border-box"
+                            title={__("Border & Shadow", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            {/* Only show border style controls for layouts that support custom borders */}
+							{layout !== 'classic' && layout !== 'minimalist' && (
+								<>
+									<SelectControl
+										label={__("Border Style", "digiblocks")}
+										value={borderStyle || 'default'}
+										options={borderStyleOptions}
+										onChange={(value) => {
+											// Initialize border width and radius with defaults when a style is first selected
+											if ((value !== 'default' && value !== 'none') && 
+												(borderStyle === 'default' || borderStyle === 'none' || !borderStyle)) {
+												// Set initial border width if not already set
+												if (!borderWidth || Object.keys(borderWidth).length === 0) {
+													setAttributes({
+														borderWidth: {
+															desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+															tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+															mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+														}
+													});
+												}
+												
+												// Set initial border radius if not already set
+												if (!borderRadius || Object.keys(borderRadius).length === 0) {
+													setAttributes({
+														borderRadius: {
+															desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+															tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+															mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+														}
+													});
+												}
+											}
+											
+											setAttributes({
+												borderStyle: value,
+											});
+										}}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+									
+									{/* Show border width and border radius controls only if a border style is selected */}
+									{borderStyle && borderStyle !== 'default' && borderStyle !== 'none' && (
+										<>
+											{/* Border Color */}
+											<PanelColorSettings
+												title={__(
+													"Border Colors",
+													"digiblocks"
+												)}
+												enableAlpha={true}
+												colorSettings={[
+													{
+														value: borderColor,
+														onChange: (value) =>
+															setAttributes({
+																borderColor: value,
+															}),
+														label: __(
+															"Border Color",
+															"digiblocks"
+														),
+													},
+													{
+														value: borderHoverColor,
+														onChange: (value) =>
+															setAttributes({
+																borderHoverColor: value,
+															}),
+														label: __(
+															"Border Hover Color",
+															"digiblocks"
+														),
+													},
+												]}
+											/>
+											
+											{/* Border Width */}
+											<ResponsiveControl
+												label={__("Border Width", "digiblocks")}
+											>
+												<DimensionControl
+													values={borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : {
+														top: 1,
+														right: 1,
+														bottom: 1,
+														left: 1,
+														unit: 'px'
+													}}
+													onChange={(value) =>
+														setAttributes({
+															borderWidth: {
+																...borderWidth,
+																[localActiveDevice]: value,
+															},
+														})
+													}
+												/>
+											</ResponsiveControl>
+											
+											{/* Border Radius */}
+											<ResponsiveControl
+												label={__("Border Radius", "digiblocks")}
+											>
+												<DimensionControl
+													values={borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
+														top: 8,
+														right: 8,
+														bottom: 8,
+														left: 8,
+														unit: 'px'
+													}}
+													onChange={(value) =>
+														setAttributes({
+															borderRadius: {
+																...borderRadius,
+																[localActiveDevice]: value,
+															},
+														})
+													}
+													units={[
+														{ label: 'px', value: 'px' },
+														{ label: '%', value: '%' }
+													]}
+												/>
+											</ResponsiveControl>
+										</>
+									)}
+								</>
+							)}
+                            
+                            {/* Box Shadow Control */}
+                            <BoxShadowControl
+                                normalValue={boxShadow}
+                                hoverValue={boxShadowHover}
+                                onNormalChange={(value) =>
+                                    setAttributes({
+                                        boxShadow: value,
+                                    })
+                                }
+                                onHoverChange={(value) =>
+                                    setAttributes({
+                                        boxShadowHover: value,
+                                    })
+                                }
+                            />
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="style"
+                            name="spacing"
+                            title={__("Spacing", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            <ResponsiveControl
+                                label={__("Padding", "digiblocks")}
+                            >
+                                <DimensionControl
+                                    values={padding[localActiveDevice]}
+                                    onChange={(value) =>
+                                        setAttributes({
+                                            padding: {
+                                                ...padding,
+                                                [localActiveDevice]: value,
+                                            },
+                                        })
+                                    }
+                                />
+                            </ResponsiveControl>
+                            <ResponsiveControl
+                                label={__("Margin", "digiblocks")}
+                            >
+                                <DimensionControl
+                                    values={margin[localActiveDevice]}
+                                    onChange={(value) =>
+                                        setAttributes({
+                                            margin: {
+                                                ...margin,
+                                                [localActiveDevice]: value,
+                                            },
+                                        })
+                                    }
+                                />
+                            </ResponsiveControl>
+                        </TabPanelBody>
+                    </>
+                );
+            case 'advanced':
+                return (
+                    <>
+                        <TabPanelBody
+                            tab="advanced"
+                            name="animation"
+                            title={__("Animation", "digiblocks")}
+                            initialOpen={true}
+                        >
+                            <SelectControl
+                                label={__("Animation Effect", "digiblocks")}
+                                value={animation}
+                                options={animationOptions}
+                                onChange={(value) => setAttributes({ animation: value })}
+                                __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                            
+                            {/* Animation Preview Button */}
+                            {animation && animation !== 'none' && (
+                                <div style={{ marginTop: '10px' }}>
+                                    <Button
+                                        variant="secondary"
+                                        isSecondary
+                                        onClick={triggerAnimationPreview}
+                                        style={{ width: '100%' }}
+                                    >
+                                        {__("Preview Animation", "digiblocks")}
+                                    </Button>
+                                </div>
+                            )}
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="advanced"
+                            name="additional"
+                            title={__("Additional", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            {/* HTML Anchor field */}
+                            <div className="components-base-control html-anchor-control">
+                                <div className="components-base-control__field">
+                                    <label className="components-base-control__label" htmlFor="html-anchor">
+                                        {__("HTML anchor", "digiblocks")}
+                                    </label>
+                                    <input
+                                        className="components-text-control__input"
+                                        type="text"
+                                        id="html-anchor"
+                                        value={anchor || ""}
+                                        onChange={(e) =>
+                                            setAttributes({ anchor: e.target.value })
+                                        }
+                                        aria-describedby="html-anchor-help"
+                                        autoCapitalize="none"
+                                        autoComplete="off"
+                                    />
+                                </div>
+                                <p id="html-anchor-help" className="components-base-control__help">
+                                    {__("Enter a word or two — without spaces — to make a unique web address just for this block, called an \"anchor\". Then, you'll be able to link directly to this section of your page.", "digiblocks")}
+                                    {' '}
+                                    <a 
+                                        className="components-external-link" 
+                                        href="https://wordpress.org/documentation/article/page-jumps/" 
+                                        target="_blank" 
+                                        rel="external noreferrer noopener"
+                                    >
+                                        <span className="components-external-link__contents">
+                                            {__("Learn more about anchors", "digiblocks")}
+                                        </span>
+                                        <span className="components-external-link__icon" aria-label="(opens in a new tab)">↗</span>
+                                    </a>
+                                </p>
+                            </div>
+
+                            {/* Additional CSS classes field */}
+                            <div className="components-base-control">
+                                <div className="components-base-control__field">
+                                    <label className="components-base-control__label" htmlFor="additional-css-classes">
+                                        {__("Additional CSS class(es)", "digiblocks")}
+                                    </label>
+                                    <input
+                                        className="components-text-control__input"
+                                        type="text"
+                                        id="additional-css-classes"
+                                        value={customClasses || ""}
+                                        onChange={(e) =>
+                                            setAttributes({ customClasses: e.target.value })
+                                        }
+                                        aria-describedby="additional-css-classes-help"
+                                        autoComplete="off"
+                                    />
+                                </div>
+                                <p id="additional-css-classes-help" className="components-base-control__help">
+                                    {__("Separate multiple classes with spaces.", "digiblocks")}
+                                </p>
+                            </div>
+                        </TabPanelBody>
+                    </>
+                );
+        }
+    };
+
+    // Render FAQ items
+    const renderFAQItems = () => {
+        if (!items || items.length === 0) {
+            return (
+                <div className="digiblocks-no-items">
+                    <p>{__('No FAQ items found. Please add some items.', 'digiblocks')}</p>
+                </div>
+            );
+        }
+        
+        return items.map((item, index) => {
+            const isLast = index === items.length - 1;
+            
+            return (
+                <div
+                    key={item.id}
+                    className={`digiblocks-faq-item ${item.isOpen ? 'is-active' : ''}`}
+                    style={isLast ? { marginBottom: 0 } : {}}
+                >
+                    <div 
+                        className="digiblocks-faq-question"
+                        onClick={() => toggleItem(index)}
+                    >
+                        <div className="digiblocks-faq-question-text">
+                            {questionPrefix && (
+                                <span className="digiblocks-faq-question-prefix">{questionPrefix}</span>
+                            )}
+                            <RichText
+                                tagName="span"
+                                value={item.title}
+                                onChange={(value) => updateItemTitle(value, index)}
+                                placeholder={__('Enter question...', 'digiblocks')}
+                                allowedFormats={['core/bold', 'core/italic']}
+                                className="digiblocks-faq-question-text-content"
+                            />
+                        </div>
+                        <span className="digiblocks-faq-question-icon">
+                            {getIcon(item.isOpen)}
+                        </span>
+                    </div>
+                    <div className="digiblocks-faq-answer">
+                        <div className="digiblocks-faq-answer-content">
+                            {answerPrefix && (
+                                <span className="digiblocks-faq-answer-prefix">{answerPrefix}</span>
+                            )}
+                            <RichText
+                                tagName="div"
+                                value={item.content}
+                                onChange={(value) => updateItemContent(value, index)}
+                                placeholder={__('Enter answer...', 'digiblocks')}
+                                allowedFormats={['core/bold', 'core/italic', 'core/link', 'core/image', 'core/list']}
+                                className="digiblocks-faq-answer-text"
+                            />
+                        </div>
+                    </div>
+                    
+                    {/* Item Controls */}
+                    <div className="digiblocks-faq-item-controls">
+                        <Tooltip text={__('Move Up', 'digiblocks')}>
+                            <Button
+                                className="digiblocks-faq-item-move-up"
+                                onClick={() => moveItemUp(index)}
+                                icon="arrow-up-alt2"
+                                disabled={index === 0}
+                                isSmall
+                            />
+                        </Tooltip>
+                        <Tooltip text={__('Move Down', 'digiblocks')}>
+                            <Button
+                                className="digiblocks-faq-item-move-down"
+                                onClick={() => moveItemDown(index)}
+                                icon="arrow-down-alt2"
+                                disabled={index === items.length - 1}
+                                isSmall
+                            />
+                        </Tooltip>
+                        <Tooltip text={__('Duplicate', 'digiblocks')}>
+                            <Button
+                                className="digiblocks-faq-item-duplicate"
+                                onClick={() => duplicateItem(index)}
+                                icon="admin-page"
+                                isSmall
+                            />
+                        </Tooltip>
+                        <Tooltip text={__('Remove', 'digiblocks')}>
+                            <Button
+                                className="digiblocks-faq-item-remove"
+                                onClick={() => removeItem(index)}
+                                icon="trash"
+                                isSmall
+                            />
+                        </Tooltip>
+                    </div>
+                </div>
+            );
+        });
+    };
+
+    // Block props without any inline styles - we'll use the style tag for everything
+    const blockProps = useBlockProps({
+        className: `digiblocks-faq-block ${layout || 'boxed'} ${customClasses || ''}`,
+        id: anchor || null, // Set the anchor as ID if provided
+        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
+    });
+
+    return (
+        <>
+            <InspectorControls>
+                <CustomTabPanel
+                    tabs={tabList}
+                    activeTab={activeTab}
+                    onSelect={setActiveTab}
+                >
+                    {renderTabContent()}
+                </CustomTabPanel>
+            </InspectorControls>
+
+            {/* Use dangerouslySetInnerHTML for the style tag */}
+            <style dangerouslySetInnerHTML={{ __html: generateCSS() }} />
+
+            <div {...blockProps}>
+                <div className="digiblocks-faq-items">
+                    {renderFAQItems()}
+                </div>
+                
+                <Button
+                    variant="primary"
+                    icon="plus"
+                    onClick={addNewItem}
+					style={{ width: '100%', marginTop: '20px', justifyContent: 'center' }}
+				>
+                    {__("Add FAQ Item", "digiblocks")}
+                </Button>
+            </div>
+        </>
+    );
+};
+
+export default FAQEdit;

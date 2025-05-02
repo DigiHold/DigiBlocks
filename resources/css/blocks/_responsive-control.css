@@ -1,0 +1,77 @@
+/* Viewport */
+body .editor-styles-wrapper {
+	transition: all 0.3s ease-in-out;
+}
+
+body[data-digiblocks-device="desktop"] .editor-styles-wrapper {
+	width: 100% !important;
+	margin: 0 auto !important;
+}
+
+body[data-digiblocks-device="tablet"] .editor-styles-wrapper {
+	width: 768px !important;
+	margin: 0 auto !important;
+}
+
+body[data-digiblocks-device="mobile"] .editor-styles-wrapper {
+	width: 360px !important;
+	margin: 0 auto !important;
+}
+
+body[data-digiblocks-device="tablet"] .digiblocks-device-tablet svg,
+body[data-digiblocks-device="mobile"] .digiblocks-device-mobile svg {
+	fill: #007cba !important;
+}
+
+/* Responsive control wrapper */
+.digiblocks-responsive-control {
+    margin-bottom: 24px;
+}
+
+.digiblocks-responsive-control-content {
+    padding: 0;
+}
+
+/* Responsive label wrap */
+.digiblocks-responsive-label-wrap {
+    display: flex;
+    align-items: center;
+	gap: .5rem;
+}
+
+/* Responsive device button */
+.digiblocks-responsive-common-button {
+    box-shadow: none !important;
+    color: #50575e;
+    border: 0;
+    outline: 0;
+    display: flex;
+    height: auto;
+    cursor: pointer;
+    padding: 4px;
+    margin: 0;
+    line-height: 0;
+}
+
+.digiblocks-responsive-common-button:hover,
+.digiblocks-responsive-common-button:focus,
+.digiblocks-responsive-common-button:active {
+    box-shadow: none;
+    outline: none;
+    color: #007cba;
+}
+
+.digiblocks-responsive-common-button svg {
+	width: .6rem;
+    height: .6rem;
+    fill: currentColor;
+}
+
+/* Control label */
+.digiblocks-control-label {
+    color: #50575e;
+    font-size: 13px;
+    line-height: 1.4em;
+    margin-bottom: 0;
+    font-weight: 400;
+}

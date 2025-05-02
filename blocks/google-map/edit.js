@@ -1,0 +1,1464 @@
+/**
+ * WordPress dependencies
+ */
+const { __ } = wp.i18n;
+const {
+    useBlockProps,
+    InspectorControls,
+    PanelColorSettings,
+    BlockControls,
+} = wp.blockEditor;
+const {
+    PanelBody,
+    TextControl,
+    TextareaControl,
+    RangeControl,
+    SelectControl,
+    Button,
+    Placeholder,
+    Spinner,
+    ToggleControl,
+    BaseControl,
+    __experimentalToggleGroupControl: ToggleGroupControl,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption,
+} = wp.components;
+const { useState, useEffect, useRef } = wp.element;
+
+/**
+ * Internal dependencies
+ */
+const { animations, debounce } = digi.utils;
+const { tabIcons } = digi.icons;
+const { 
+    ResponsiveControl,
+    DimensionControl,
+    CustomTabPanel,
+	BoxShadowControl,
+    TabPanelBody 
+} = digi.components;
+
+/**
+ * Edit function for the Google Map block
+ */
+const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
+    const {
+        id,
+        anchor,
+        customClasses,
+        mapHeight,
+        zoom,
+        mapType,
+        mapStyle,
+        customMapStyle,
+        markers,
+        address,
+        animation,
+        enableZoom,
+        enableScroll,
+        enableFullscreenControl,
+        enableStreetViewControl,
+        enableMapTypeControl,
+        borderStyle,
+        borderWidth,
+        borderRadius,
+        borderColor,
+        boxShadow,
+        boxShadowHover
+    } = attributes;
+
+    // Use global responsive state for local rendering
+    const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
+    
+    // States for map preview
+    const [isLoading, setIsLoading] = useState(false);
+    const [geocodeError, setGeocodeError] = useState(null);
+    const [mapLoaded, setMapLoaded] = useState(false);
+    const [mapInstance, setMapInstance] = useState(null);
+    const [markerInstances, setMarkerInstances] = useState([]);
+    const mapContainerRef = useRef(null);
+    const geocoder = useRef(null);
+    
+    // State for active tab
+    const [activeTab, setActiveTab] = useState("options");
+    
+    // Animation preview timeout ref
+    const previewTimeoutRef = useRef(null);
+
+    // Subscribe to global device state changes
+    useEffect(() => {
+        const unsubscribe = window.digi.responsiveState.subscribe((device) => {
+            setLocalActiveDevice(device);
+        });
+        
+        // Cleanup subscription on unmount
+        return unsubscribe;
+    }, []);
+
+    // Use useEffect to set the ID only once when component mounts
+    useEffect(() => {
+        if (!id || !id.includes(clientId.substr(0, 8))) {
+            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
+        }
+
+		// Ensure markers is initialized as an array if null/undefined
+		if (!markers) {
+			setAttributes({ markers: [] });
+		}
+    }, [clientId, id, setAttributes]);
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (previewTimeoutRef.current) {
+                clearTimeout(previewTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Load Google Maps API script and initialize map
+	useEffect(() => {
+		// Check if Google Maps API exists or is being loaded
+		if (!mapLoaded && typeof google === 'undefined' && !window.googleMapsLoading) {
+			// Check if API key exists
+			if (!digiBlocksData.googleMapsApiKey) {
+				setGeocodeError(__('Google Maps API key not found. Please add it in the DigiBlocks settings.', 'digiblocks'));
+				return;
+			}
+
+			// Mark as loading to prevent duplicate loads
+			window.googleMapsLoading = true;
+			
+			// Setup global callback array if it doesn't exist
+			window.digiblocksGoogleMapsCallbacks = window.digiblocksGoogleMapsCallbacks || [];
+			
+			// Register our callback
+			const ourCallback = () => {
+				setMapLoaded(true);
+				geocoder.current = new google.maps.Geocoder();
+			};
+			
+			window.digiblocksGoogleMapsCallbacks.push(ourCallback);
+			
+			// Define the global callback if not already defined
+			if (typeof window.digiblocksGoogleMapsCallback !== 'function') {
+				window.digiblocksGoogleMapsCallback = () => {
+					window.googleMapsInitialized = true;
+					window.googleMapsLoading = false;
+					
+					// Execute all callbacks
+					window.digiblocksGoogleMapsCallbacks.forEach(callback => {
+						if (typeof callback === 'function') {
+							callback();
+						}
+					});
+				};
+			}
+
+			// Load Google Maps API
+			const script = document.createElement('script');
+			script.src = `https://maps.googleapis.com/maps/api/js?key=${digiBlocksData.googleMapsApiKey}&callback=digiblocksGoogleMapsCallback&loading=async`;
+			script.async = true;
+			script.defer = true;
+			document.head.appendChild(script);
+
+			return () => {
+				// Cleanup if component unmounts before API loads
+				const index = window.digiblocksGoogleMapsCallbacks.indexOf(ourCallback);
+				if (index > -1) {
+					window.digiblocksGoogleMapsCallbacks.splice(index, 1);
+				}
+			};
+		} else if (!mapLoaded && typeof google !== 'undefined') {
+			// API already loaded
+			setMapLoaded(true);
+			geocoder.current = new google.maps.Geocoder();
+		} else if (!mapLoaded && window.googleMapsLoading) {
+			// API is currently loading, register our callback
+			const ourCallback = () => {
+				setMapLoaded(true);
+				geocoder.current = new google.maps.Geocoder();
+			};
+			
+			window.digiblocksGoogleMapsCallbacks = window.digiblocksGoogleMapsCallbacks || [];
+			window.digiblocksGoogleMapsCallbacks.push(ourCallback);
+			
+			return () => {
+				// Cleanup if component unmounts before API loads
+				const index = window.digiblocksGoogleMapsCallbacks.indexOf(ourCallback);
+				if (index > -1) {
+					window.digiblocksGoogleMapsCallbacks.splice(index, 1);
+				}
+			};
+		}
+	}, [mapLoaded]);
+
+	// When initializing the map in useEffect
+	useEffect(() => {
+		if (mapLoaded && mapContainerRef.current && !mapInstance) {
+			// Default center
+			const center = { lat: 40.7128, lng: -74.0060 };
+			
+			// Map options
+			const mapOptions = {
+				center: center,
+				zoom: zoom || 10,
+				mapTypeId: mapType || 'roadmap',
+				zoomControl: enableZoom,
+				scrollwheel: enableScroll,
+				fullscreenControl: enableFullscreenControl,
+				streetViewControl: enableStreetViewControl,
+				mapTypeControl: enableMapTypeControl
+			};
+
+			// Only apply map style if no markers or Map ID not needed
+			const hasMarkers = markers && markers.length > 0;
+			
+			if (mapStyle && mapStyle !== 'default' && !hasMarkers) {
+				if (mapStyle === 'custom' && customMapStyle) {
+					try {
+						const customStyleObj = JSON.parse(customMapStyle);
+						mapOptions.styles = customStyleObj;
+					} catch (error) {
+						console.error('Invalid map style JSON:', error);
+					}
+				} else if (predefinedMapStyles[mapStyle]) {
+					mapOptions.styles = predefinedMapStyles[mapStyle];
+				}
+			}
+			
+			// Add Map ID only if we have markers
+			const globalMapId = digiBlocksData.googleMapsMapId || '';
+			if (globalMapId && hasMarkers) {
+				mapOptions.mapId = globalMapId;
+				setAttributes({ mapId: globalMapId });
+			} else if (attributes.mapId) {
+				// Make sure to clear mapId if no markers
+				setAttributes({ mapId: '' });
+			}
+			
+			// Create map
+			const map = new google.maps.Map(mapContainerRef.current, mapOptions);
+			setMapInstance(map);
+			
+			// Initialize geocoder
+			if (!geocoder.current) {
+				geocoder.current = new google.maps.Geocoder();
+			}
+			
+			// Geocode address if provided
+			if (address) {
+				geocodeAddress(address, map);
+			}
+			
+			// Add markers only if Map ID is set and we have markers
+			if (markers && markers.length > 0 && globalMapId) {
+				addMarkers(markers, map);
+			}
+		}
+	}, [mapLoaded, mapContainerRef, mapInstance, zoom, mapType, mapStyle, customMapStyle, address, markers, enableZoom, enableScroll, enableFullscreenControl, enableStreetViewControl, enableMapTypeControl, attributes.mapId]);
+
+	// Update map when settings change
+	useEffect(() => {
+		if (mapInstance) {
+			mapInstance.setZoom(zoom);
+			mapInstance.setMapTypeId(mapType);
+			
+			// Update map styles if changed
+			if (mapStyle && mapStyle !== 'default') {
+				if (mapStyle === 'custom' && customMapStyle) {
+					try {
+						const customStyleObj = JSON.parse(customMapStyle);
+						mapInstance.setOptions({ styles: customStyleObj });
+					} catch (error) {
+						console.error('Invalid map style JSON:', error);
+					}
+				} else if (predefinedMapStyles[mapStyle]) {
+					mapInstance.setOptions({ styles: predefinedMapStyles[mapStyle] });
+				}
+			} else {
+				// Reset to default style
+				mapInstance.setOptions({ styles: [] });
+			}
+			
+			mapInstance.setOptions({
+				zoomControl: enableZoom,
+				scrollwheel: enableScroll,
+				fullscreenControl: enableFullscreenControl,
+				streetViewControl: enableStreetViewControl,
+				mapTypeControl: enableMapTypeControl
+			});
+		}
+	}, [mapInstance, zoom, mapType, mapStyle, customMapStyle, enableZoom, enableScroll, enableFullscreenControl, enableStreetViewControl, enableMapTypeControl]);
+
+    // Geocode address and update map
+    const geocodeAddress = (address, map, markerIndex = -1) => {
+		if (!geocoder.current) return;
+		
+		setIsLoading(true);
+		setGeocodeError(null);
+		
+		geocoder.current.geocode({ address: address }, (results, status) => {
+			setIsLoading(false);
+			
+			if (status === 'OK' && results && results.length > 0) {
+				const location = results[0].geometry.location;
+				
+				if (markerIndex >= 0) {
+					// We're updating a specific marker
+					const updatedMarkers = [...markers];
+					updatedMarkers[markerIndex] = {
+						...updatedMarkers[markerIndex],
+						latitude: location.lat(),
+						longitude: location.lng(),
+					};
+					setAttributes({ markers: updatedMarkers });
+					
+					// Refresh the markers on the map
+					if (mapInstance) {
+						addMarkers(updatedMarkers, mapInstance);
+					}
+				} else {
+					// We're updating the main map address
+					map.setCenter(location);
+					
+					// Only update existing markers, don't create new ones automatically
+					if (markers && markers.length > 0) {
+						const updatedMarkers = [...markers];
+						updatedMarkers[0] = {
+							...updatedMarkers[0],
+							address: address,
+							latitude: location.lat(),
+							longitude: location.lng(),
+						};
+						
+						setAttributes({ markers: updatedMarkers });
+						
+						// Refresh the markers on the map
+						if (mapInstance) {
+							addMarkers(updatedMarkers, mapInstance);
+						}
+					}
+				}
+			} else {
+				setGeocodeError(__('Could not find address. Please try a different one or use the map to position your marker.', 'digiblocks'));
+			}
+		});
+	};
+
+    // Add new marker
+    const addNewMarker = () => {
+		const newMarkers = [...(markers || [])];
+		
+		// Create a unique ID for the new marker
+		const markerId = `marker-${Date.now()}`;
+		
+		// Use the current map center if available
+		const center = mapInstance ? mapInstance.getCenter() : { lat: 40.7128, lng: -74.0060 };
+		
+		newMarkers.push({
+			id: markerId,
+			address: '',
+			latitude: typeof center.lat === 'function' ? center.lat() : center.lat,
+			longitude: typeof center.lng === 'function' ? center.lng() : center.lng,
+			title: '',
+		});
+		
+		setAttributes({ markers: newMarkers });
+		
+		// Add the new marker to the map
+		if (mapInstance) {
+			addMarkers(newMarkers, mapInstance);
+		}
+	};
+
+    // Update marker
+    const updateMarker = (index, field, value) => {
+        const updatedMarkers = [...markers];
+        updatedMarkers[index] = {
+            ...updatedMarkers[index],
+            [field]: value
+        };
+        
+        setAttributes({ markers: updatedMarkers });
+        
+        // If address was updated, geocode it
+        if (field === 'address' && value && geocoder.current && mapInstance) {
+            geocodeAddress(value, mapInstance);
+        }
+    };
+
+    // Remove marker
+    const removeMarker = (index) => {
+		const updatedMarkers = [...markers];
+		updatedMarkers.splice(index, 1);
+		
+		// Update the markers attribute with the new array
+		setAttributes({ markers: updatedMarkers });
+		
+		// If this was the last marker, also clear the mapId attribute
+		if (updatedMarkers.length === 0) {
+			setAttributes({ mapId: '' });
+			
+			// Apply map style if no markers left
+			if (mapInstance && mapStyle && mapStyle !== 'default') {
+				if (mapStyle === 'custom' && customMapStyle) {
+					try {
+						const customStyleObj = JSON.parse(customMapStyle);
+						mapInstance.setOptions({ styles: customStyleObj });
+					} catch (error) {
+						console.error('Invalid map style JSON:', error);
+					}
+				} else if (predefinedMapStyles[mapStyle]) {
+					mapInstance.setOptions({ styles: predefinedMapStyles[mapStyle] });
+				}
+			}
+		}
+	};
+
+	// Map style
+	const applyMapStyle = (map, style, customStyle) => {
+		if (!map) return;
+		
+		if (style && style !== 'default') {
+			if (style === 'custom' && customStyle) {
+				try {
+					const customStyleObj = JSON.parse(customStyle);
+					map.setOptions({ styles: customStyleObj });
+				} catch (error) {
+					console.error('Invalid map style JSON:', error);
+				}
+			} else if (predefinedMapStyles[style]) {
+				map.setOptions({ styles: predefinedMapStyles[style] });
+			}
+		} else {
+			// Reset to default style
+			map.setOptions({ styles: [] });
+		}
+	};
+
+    // Add markers to map
+    const addMarkers = async (markers, map) => {
+		// Check for Map ID requirement
+		const hasMapId = !!digiBlocksData.googleMapsMapId;
+		if (!hasMapId) {
+			console.warn('Map ID is required for Advanced Markers');
+			return;
+		}
+		
+		// Safely handle empty markers array
+		if (!markers || markers.length === 0) {
+			return;
+		}
+		
+		// Clear existing markers
+		if (markerInstances.length > 0) {
+			markerInstances.forEach(marker => marker.map = null);
+		}
+		
+		try {
+			// Make sure the marker library is loaded
+			if (!google.maps.marker) {
+				await google.maps.importLibrary("marker");
+			}
+			
+			// Create new marker instances
+			const newMarkerInstances = markers.map(marker => {
+				if (!marker.latitude || !marker.longitude) return null;
+				
+				const position = { lat: marker.latitude, lng: marker.longitude };
+				const title = marker.title || '';
+				const description = marker.description || '';
+				
+				// Create the marker
+				const advancedMarker = new google.maps.marker.AdvancedMarkerElement({
+					map: map,
+					position: position,
+					title: title
+				});
+				
+				// If there's a description, create an info window with the description
+				if (description) {
+					// Create info window content
+					const infoContent = document.createElement('div');
+					infoContent.className = 'digiblocks-map-info-content';
+					infoContent.style.cssText = 'min-width: 200px; max-width: 300px; padding: 10px; background-color: white; border-radius: 8px; box-shadow: 0 2px 7px 1px rgba(0,0,0,0.3);';
+					
+					// Add title if exists
+					if (title) {
+						const titleElement = document.createElement('div');
+						titleElement.className = 'digiblocks-map-info-title';
+						titleElement.style.cssText = 'font-weight: bold; margin-bottom: 5px; font-size: 16px;';
+						titleElement.textContent = title;
+						infoContent.appendChild(titleElement);
+					}
+					
+					// Add description
+					const descElement = document.createElement('div');
+					descElement.className = 'digiblocks-map-info-description';
+					descElement.style.cssText = 'font-size: 14px;';
+					descElement.innerHTML = description;
+					infoContent.appendChild(descElement);
+					
+					// Create info window
+					const infoWindow = new google.maps.InfoWindow({
+						content: infoContent
+					});
+					
+					// Add click listener to open info window
+					google.maps.event.addListener(advancedMarker, 'click', function() {
+						infoWindow.open({
+							anchor: advancedMarker,
+							map: map
+						});
+					});
+					
+					// If there's only one marker with description, open it by default
+					if (markers.length === 1) {
+						infoWindow.open({
+							anchor: advancedMarker,
+							map: map
+						});
+					}
+				}
+				
+				return advancedMarker;
+			}).filter(Boolean);
+			
+			setMarkerInstances(newMarkerInstances);
+		} catch (error) {
+			console.error('Error creating advanced markers:', error);
+		}
+	};
+
+    // Animation preview function
+    const triggerAnimationPreview = () => {
+        // Only proceed if we have a valid animation
+        if (!animation || animation === 'none') {
+            return;
+        }
+        
+        // Clear any existing timeout
+        if (previewTimeoutRef.current) {
+            clearTimeout(previewTimeoutRef.current);
+        }
+        
+        // Find the block element
+        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
+        if (!blockElement) {
+            return;
+        }
+        
+        // Generate a timestamp to ensure unique animation names on each click
+        const timestamp = Date.now();
+        
+        // Apply animation directly
+        if (animations[animation]) {
+            // Extract the original animation name from the keyframes
+            const originalKeyframes = animations[animation].keyframes;
+            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
+            
+            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
+                console.error('Could not extract animation name from keyframes');
+                return;
+            }
+            
+            const originalAnimName = originalAnimNameMatch[1];
+            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
+            
+            // Create a style element with a unique animation name to avoid conflicts
+            const styleElement = document.createElement('style');
+            styleElement.id = `animation-style-${id}_${timestamp}`;
+            
+            // Replace the original animation name with our unique name
+            const updatedKeyframes = originalKeyframes.replace(
+                new RegExp(originalAnimName, 'g'),
+                uniqueAnimName
+            );
+            
+            styleElement.textContent = `
+                ${updatedKeyframes}
+                
+                [data-custom-id="${id}"] {
+                    animation: none; /* Reset first */
+                }
+            `;
+            
+            // Remove any existing animation style for this block
+            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
+                el.remove();
+            });
+            
+            // Add the style to the document
+            document.head.appendChild(styleElement);
+            
+            // Force reflow to ensure animation reset
+            blockElement.offsetHeight;
+            
+            // Now apply the animation
+            const animationStyleElement = document.createElement('style');
+            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
+            animationStyleElement.textContent = `
+                [data-custom-id="${id}"] {
+                    animation: ${uniqueAnimName} 1.5s forwards !important;
+                }
+            `;
+            document.head.appendChild(animationStyleElement);
+            
+            // Clean up after animation
+            previewTimeoutRef.current = setTimeout(() => {
+                styleElement.remove();
+                animationStyleElement.remove();
+                blockElement.style.animation = '';
+            }, 1500);
+        }
+    };
+
+    // Effect to trigger animation preview when animation attribute changes
+    useEffect(() => {
+        if (animation && animation !== 'none') {
+            const timeoutId = setTimeout(() => {
+                triggerAnimationPreview();
+            }, 100);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [animation]);
+
+    // Border style options
+    const borderStyleOptions = [
+        { label: __("None", "digiblocks"), value: "none" },
+        { label: __("Solid", "digiblocks"), value: "solid" },
+        { label: __("Dotted", "digiblocks"), value: "dotted" },
+        { label: __("Dashed", "digiblocks"), value: "dashed" },
+        { label: __("Double", "digiblocks"), value: "double" },
+        { label: __("Groove", "digiblocks"), value: "groove" },
+        { label: __("Ridge", "digiblocks"), value: "ridge" },
+        { label: __("Inset", "digiblocks"), value: "inset" },
+        { label: __("Outset", "digiblocks"), value: "outset" },
+    ];
+
+    // Map type options
+    const mapTypeOptions = [
+        { label: __("Roadmap", "digiblocks"), value: "roadmap" },
+        { label: __("Satellite", "digiblocks"), value: "satellite" },
+        { label: __("Hybrid", "digiblocks"), value: "hybrid" },
+        { label: __("Terrain", "digiblocks"), value: "terrain" },
+    ];
+
+	// Map style options
+	const mapStyleOptions = [
+		{ label: __("Default", "digiblocks"), value: "default" },
+		{ label: __("Silver", "digiblocks"), value: "silver" },
+		{ label: __("Retro", "digiblocks"), value: "retro" },
+		{ label: __("Dark", "digiblocks"), value: "dark" },
+		{ label: __("Night", "digiblocks"), value: "night" },
+		{ label: __("Aubergine", "digiblocks"), value: "aubergine" },
+		{ label: __("Custom", "digiblocks"), value: "custom" }
+	];
+
+	// Predefined map styles
+	const predefinedMapStyles = {
+		default: [],
+		silver: [
+			{ elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
+			{ elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+			{ elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+			{ elementType: "labels.text.stroke", stylers: [{ color: "#f5f5f5" }] },
+			{ featureType: "administrative.land_parcel", elementType: "labels.text.fill", stylers: [{ color: "#bdbdbd" }] },
+			{ featureType: "poi", elementType: "geometry", stylers: [{ color: "#eeeeee" }] },
+			{ featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+			{ featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#e5e5e5" }] },
+			{ featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] },
+			{ featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+			{ featureType: "road.arterial", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+			{ featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#dadada" }] },
+			{ featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+			{ featureType: "road.local", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] },
+			{ featureType: "transit.line", elementType: "geometry", stylers: [{ color: "#e5e5e5" }] },
+			{ featureType: "transit.station", elementType: "geometry", stylers: [{ color: "#eeeeee" }] },
+			{ featureType: "water", elementType: "geometry", stylers: [{ color: "#c9c9c9" }] },
+			{ featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] }
+		],
+		retro: [
+			{ elementType: "geometry", stylers: [{ color: "#ebe3cd" }] },
+			{ elementType: "labels.text.fill", stylers: [{ color: "#523735" }] },
+			{ elementType: "labels.text.stroke", stylers: [{ color: "#f5f1e6" }] },
+			{ featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#c9b2a6" }] },
+			{ featureType: "administrative.land_parcel", elementType: "geometry.stroke", stylers: [{ color: "#dcd2be" }] },
+			{ featureType: "administrative.land_parcel", elementType: "labels.text.fill", stylers: [{ color: "#ae9e90" }] },
+			{ featureType: "landscape.natural", elementType: "geometry", stylers: [{ color: "#dfd2ae" }] },
+			{ featureType: "poi", elementType: "geometry", stylers: [{ color: "#dfd2ae" }] },
+			{ featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#93817c" }] },
+			{ featureType: "poi.park", elementType: "geometry.fill", stylers: [{ color: "#a5b076" }] },
+			{ featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#447530" }] },
+			{ featureType: "road", elementType: "geometry", stylers: [{ color: "#f5f1e6" }] },
+			{ featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#fdfcf8" }] },
+			{ featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#f8c967" }] },
+			{ featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#e9bc62" }] },
+			{ featureType: "road.highway.controlled_access", elementType: "geometry", stylers: [{ color: "#e98d58" }] },
+			{ featureType: "road.highway.controlled_access", elementType: "geometry.stroke", stylers: [{ color: "#db8555" }] },
+			{ featureType: "road.local", elementType: "labels.text.fill", stylers: [{ color: "#806b63" }] },
+			{ featureType: "transit.line", elementType: "geometry", stylers: [{ color: "#dfd2ae" }] },
+			{ featureType: "transit.line", elementType: "labels.text.fill", stylers: [{ color: "#8f7d77" }] },
+			{ featureType: "transit.line", elementType: "labels.text.stroke", stylers: [{ color: "#ebe3cd" }] },
+			{ featureType: "transit.station", elementType: "geometry", stylers: [{ color: "#dfd2ae" }] },
+			{ featureType: "water", elementType: "geometry.fill", stylers: [{ color: "#b9d3c2" }] },
+			{ featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#92998d" }] }
+		],
+		dark: [
+			{ elementType: "geometry", stylers: [{ color: "#212121" }] },
+			{ elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+			{ elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+			{ elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
+			{ featureType: "administrative", elementType: "geometry", stylers: [{ color: "#757575" }] },
+			{ featureType: "administrative.country", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] },
+			{ featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+			{ featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#bdbdbd" }] },
+			{ featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+			{ featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#181818" }] },
+			{ featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+			{ featureType: "poi.park", elementType: "labels.text.stroke", stylers: [{ color: "#1b1b1b" }] },
+			{ featureType: "road", elementType: "geometry.fill", stylers: [{ color: "#2c2c2c" }] },
+			{ featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] },
+			{ featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#373737" }] },
+			{ featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#3c3c3c" }] },
+			{ featureType: "road.highway.controlled_access", elementType: "geometry", stylers: [{ color: "#4e4e4e" }] },
+			{ featureType: "road.local", elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+			{ featureType: "transit", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+			{ featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] },
+			{ featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3d3d3d" }] }
+		],
+		night: [
+			{ elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+			{ elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+			{ elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+			{ featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+			{ featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+			{ featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#263c3f" }] },
+			{ featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#6b9a76" }] },
+			{ featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
+			{ featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }] },
+			{ featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
+			{ featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#746855" }] },
+			{ featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#1f2835" }] },
+			{ featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#f3d19c" }] },
+			{ featureType: "transit", elementType: "geometry", stylers: [{ color: "#2f3948" }] },
+			{ featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+			{ featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] },
+			{ featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
+			{ featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] }
+		],
+		aubergine: [
+			{ elementType: "geometry", stylers: [{ color: "#1d2c4d" }] },
+			{ elementType: "labels.text.fill", stylers: [{ color: "#8ec3b9" }] },
+			{ elementType: "labels.text.stroke", stylers: [{ color: "#1a3646" }] },
+			{ featureType: "administrative.country", elementType: "geometry.stroke", stylers: [{ color: "#4b6878" }] },
+			{ featureType: "administrative.land_parcel", elementType: "labels.text.fill", stylers: [{ color: "#64779e" }] },
+			{ featureType: "administrative.province", elementType: "geometry.stroke", stylers: [{ color: "#4b6878" }] },
+			{ featureType: "landscape.man_made", elementType: "geometry.stroke", stylers: [{ color: "#334e87" }] },
+			{ featureType: "landscape.natural", elementType: "geometry", stylers: [{ color: "#023e58" }] },
+			{ featureType: "poi", elementType: "geometry", stylers: [{ color: "#283d6a" }] },
+			{ featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#6f9ba5" }] },
+			{ featureType: "poi", elementType: "labels.text.stroke", stylers: [{ color: "#1d2c4d" }] },
+			{ featureType: "poi.park", elementType: "geometry.fill", stylers: [{ color: "#023e58" }] },
+			{ featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#3C7680" }] },
+			{ featureType: "road", elementType: "geometry", stylers: [{ color: "#304a7d" }] },
+			{ featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#98a5be" }] },
+			{ featureType: "road", elementType: "labels.text.stroke", stylers: [{ color: "#1d2c4d" }] },
+			{ featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#2c6675" }] },
+			{ featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#255763" }] },
+			{ featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#b0d5ce" }] },
+			{ featureType: "road.highway", elementType: "labels.text.stroke", stylers: [{ color: "#023e58" }] },
+			{ featureType: "transit", elementType: "labels.text.fill", stylers: [{ color: "#98a5be" }] },
+			{ featureType: "transit", elementType: "labels.text.stroke", stylers: [{ color: "#1d2c4d" }] },
+			{ featureType: "transit.line", elementType: "geometry.fill", stylers: [{ color: "#283d6a" }] },
+			{ featureType: "transit.station", elementType: "geometry", stylers: [{ color: "#3a4762" }] },
+			{ featureType: "water", elementType: "geometry", stylers: [{ color: "#0e1626" }] },
+			{ featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#4e6d70" }] }
+		]
+	};
+
+    // Animation options
+    const animationOptions = [
+        { label: __("None", "digiblocks"), value: "none" },
+        ...Object.keys(animations).map((animation) => ({
+            label: animation
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase()),
+            value: animation,
+        })),
+    ];
+
+    // Define the tabs for our custom tab panel
+    const tabList = [
+        { 
+            name: 'options', 
+            title: __('Options', 'digiblocks'),
+            icon: tabIcons.optionsIcon
+        },
+        { 
+            name: 'style', 
+            title: __('Style', 'digiblocks'),
+            icon: tabIcons.styleIcon
+        },
+        { 
+            name: 'advanced', 
+            title: __('Advanced', 'digiblocks'),
+            icon: tabIcons.advancedIcon
+        }
+    ];
+    
+    // Generate CSS for block styling
+    const generateCSS = () => {
+        const activeDevice = window.digi.responsiveState.activeDevice;
+        const blockId = id;
+        
+        // Set map height based on device
+        const currentHeight = mapHeight && mapHeight[activeDevice] 
+            ? mapHeight[activeDevice] 
+            : (activeDevice === 'desktop' ? 400 : activeDevice === 'tablet' ? 350 : 300);
+        
+        // Border styles
+        let borderCSS = '';
+        if (borderStyle && borderStyle !== 'none') {
+            const currentBorderWidth = borderWidth && borderWidth[activeDevice] 
+                ? borderWidth[activeDevice] 
+                : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
+            
+            const currentBorderRadius = borderRadius && borderRadius[activeDevice] 
+                ? borderRadius[activeDevice] 
+                : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' };
+                
+            borderCSS = `
+                border-style: ${borderStyle};
+                border-color: ${borderColor || '#e0e0e0'};
+                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
+                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+            `;
+        }
+        
+        // Box shadow
+        let boxShadowCSS = '';
+        if (boxShadow && boxShadow.enable) {
+            const inset = boxShadow.position === 'inset' ? 'inset ' : '';
+            boxShadowCSS = `box-shadow: ${inset}${boxShadow.horizontal}px ${boxShadow.vertical}px ${boxShadow.blur}px ${boxShadow.spread}px ${boxShadow.color};`;
+        }
+        
+        // Box shadow hover style
+        let boxShadowHoverCSS = '';
+        if (boxShadowHover && boxShadowHover.enable) {
+            const inset = boxShadowHover.position === 'inset' ? 'inset ' : '';
+            boxShadowHoverCSS = `box-shadow: ${inset}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
+        }
+        
+        // Animation CSS
+        let animationCSS = '';
+        if (animation && animation !== 'none' && animations[animation]) {
+            animationCSS = animations[animation].keyframes;
+        }
+        
+        return `
+            /* Google Map Block - ${blockId} */
+            [data-custom-id="${blockId}"] {
+                height: ${currentHeight}px;
+                width: 100%;
+                overflow: hidden;
+                ${borderCSS}
+                ${boxShadowCSS}
+				transition: all .3s ease;
+            }
+
+            [data-custom-id="${blockId}"]:hover {
+                ${boxShadowHoverCSS}
+            }
+            
+            /* Animation keyframes */
+            ${animationCSS}
+            
+            /* Responsive styles */
+            @media (max-width: 991px) {
+                [data-custom-id="${blockId}"] {
+                    height: ${mapHeight && mapHeight.tablet ? mapHeight.tablet : 350}px;
+                }
+            }
+            
+            @media (max-width: 767px) {
+                [data-custom-id="${blockId}"] {
+                    height: ${mapHeight && mapHeight.mobile ? mapHeight.mobile : 300}px;
+                }
+            }
+        `;
+    };
+
+	const renderMarkerSettings = () => {
+		// Get the current number of markers - ensure it's a proper array check
+		const markerCount = Array.isArray(markers) ? markers.length : 0;
+		
+		// Check if Map ID is configured in global settings
+		const hasMapId = !!digiBlocksData.googleMapsMapId;
+		
+		if (markerCount > 0 && !hasMapId) {
+			return (
+				<div className="components-notice is-warning" style={{ margin: '0 0 16px 0' }}>
+					<div className="components-notice__content">
+						<p>{__("A Map ID is required to use markers with the Google Maps block.", "digiblocks")}</p>
+						<p>{__("Please configure a Map ID in the DigiBlocks settings before adding markers.", "digiblocks")}</p>
+						<Button
+							isPrimary
+							href={`${window.ajaxurl ? window.ajaxurl.replace('admin-ajax.php', '') : '/wp-admin/'}admin.php?page=digiblocks-settings`}
+							target="_blank"
+							style={{ marginTop: '10px' }}
+						>
+							{__("Go to Settings", "digiblocks")}
+						</Button>
+					</div>
+				</div>
+			);
+		}
+		
+		return (
+			<>
+				{Array.isArray(markers) && markers.length > 0 ? (
+					<div>
+						{markers.map((marker, index) => (
+							<div 
+								key={marker.id || `marker-${index}`}
+								className="digiblocks-google-map-marker"
+								style={{
+									marginBottom: '16px',
+									padding: '16px',
+									backgroundColor: '#f0f0f0',
+									borderRadius: '4px',
+								}}
+							>
+								<h3 style={{ margin: '0 0 10px 0' }}>
+									{__("Marker", "digiblocks")} #{index + 1}
+								</h3>
+								
+								<TextControl
+									label={__("Title", "digiblocks")}
+									value={marker.title || ""}
+									onChange={(value) => updateMarker(index, 'title', value)}
+									placeholder={__("Enter marker title", "digiblocks")}
+									__next40pxDefaultSize={true}
+									__nextHasNoMarginBottom={true}
+								/>
+	
+								<TextareaControl
+									label={__("Description", "digiblocks")}
+									value={marker.description || ""}
+									onChange={(value) => updateMarker(index, 'description', value)}
+									placeholder={__("Enter marker description (will appear above marker)", "digiblocks")}
+									__next40pxDefaultSize={true}
+									__nextHasNoMarginBottom={true}
+								/>
+								
+								<TextControl
+									label={__("Address", "digiblocks")}
+									value={marker.address || ""}
+									onChange={(value) => {
+										// Just update the address text field
+										const updatedMarkers = [...markers];
+										updatedMarkers[index] = {
+											...updatedMarkers[index],
+											address: value
+										};
+										setAttributes({ markers: updatedMarkers });
+									}}
+									onBlur={() => {
+										// Only geocode when user is done typing
+										if (markers[index]?.address && geocoder.current && mapInstance) {
+											geocodeAddress(markers[index].address, mapInstance, index);
+										}
+									}}
+									placeholder={__("Enter marker address", "digiblocks")}
+									__next40pxDefaultSize={true}
+									__nextHasNoMarginBottom={true}
+								/>
+								
+								<div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
+									<Button
+										isDestructive
+										onClick={() => removeMarker(index)}
+									>
+										{__("Remove Marker", "digiblocks")}
+									</Button>
+								</div>
+							</div>
+						))}
+						
+						<Button
+							isPrimary
+							onClick={addNewMarker}
+							style={{ marginTop: '10px', width: '100%', justifyContent: 'center' }}
+						>
+							{__("Add Marker", "digiblocks")}
+						</Button>
+					</div>
+				) : (
+					<div>
+						<p>{__("No markers added yet. Add your first marker!", "digiblocks")}</p>
+						<Button
+							isPrimary
+							onClick={addNewMarker}
+							style={{ width: '100%', justifyContent: 'center' }}
+						>
+							{__("Add Marker", "digiblocks")}
+						</Button>
+					</div>
+				)}
+			</>
+		);
+	};
+
+    // Render tab content based on the active tab
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'options':
+                return (
+                    <>
+                        <TabPanelBody
+                            tab="options"
+                            name="map-settings"
+                            title={__("Map Settings", "digiblocks")}
+                            initialOpen={true}
+                        >
+                            <TextControl
+                                label={__("Address", "digiblocks")}
+                                value={address || ""}
+                                onChange={(value) => {
+                                    setAttributes({ address: value });
+                                    if (value && geocoder.current && mapInstance) {
+                                        geocodeAddress(value, mapInstance);
+                                    }
+                                }}
+                                placeholder={__("Enter location address", "digiblocks")}
+                                __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                            
+                            {geocodeError && (
+                                <div className="components-notice is-error" style={{ margin: '0 0 16px 0' }}>
+                                    <div className="components-notice__content">{geocodeError}</div>
+                                </div>
+                            )}
+                            
+                            <SelectControl
+                                label={__("Map Type", "digiblocks")}
+                                value={mapType}
+                                options={mapTypeOptions}
+                                onChange={(value) => setAttributes({ mapType: value })}
+                                __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+
+							{/* Only show Map Style if no markers or if markers are empty */}
+							{(!markers || markers.length === 0) && (
+								<>
+									<SelectControl
+										label={__("Map Style", "digiblocks")}
+										value={mapStyle}
+										options={mapStyleOptions}
+										onChange={(value) => setAttributes({ mapStyle: value })}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+
+									{mapStyle === 'custom' && (
+										<TextareaControl
+											label={__("Custom Map Style JSON", "digiblocks")}
+											help={__("Paste a valid Google Maps style JSON. You can create styles with the Google Maps Styling Wizard.", "digiblocks")}
+											value={customMapStyle || ''}
+											onChange={(value) => setAttributes({ customMapStyle: value })}
+											rows={6}
+											__next40pxDefaultSize={true}
+											__nextHasNoMarginBottom={true}
+										/>
+									)}
+								</>
+							)}
+
+							{/* Show a note about Map Style when markers are present */}
+							{markers && markers.length > 0 && (
+								<div className="components-notice is-info" style={{ margin: '0 0 16px 0' }}>
+									<div className="components-notice__content">
+										{__("Map Style options are not available when markers are present, as markers require a Map ID which overrides custom styling.", "digiblocks")}
+									</div>
+								</div>
+							)}
+                            
+                            <RangeControl
+                                label={__("Zoom Level", "digiblocks")}
+                                value={zoom}
+                                onChange={(value) => setAttributes({ zoom: value })}
+                                min={1}
+                                max={20}
+                                __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+							tab="options"
+							name="marker-settings"
+							title={__("Markers", "digiblocks")}
+							initialOpen={false}
+						>
+							{renderMarkerSettings()}
+						</TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="options"
+                            name="map-controls"
+                            title={__("Map Controls", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            <BaseControl id={`${id}-map-controls`}>
+                                <ToggleControl
+                                    label={__("Enable Zoom Control", "digiblocks")}
+                                    checked={enableZoom !== false}
+                                    onChange={(value) => setAttributes({ enableZoom: value })}
+                                />
+                                
+                                <ToggleControl
+                                    label={__("Enable Mousewheel Zoom", "digiblocks")}
+                                    checked={enableScroll !== false}
+                                    onChange={(value) => setAttributes({ enableScroll: value })}
+                                />
+                                
+                                <ToggleControl
+                                    label={__("Enable Fullscreen Control", "digiblocks")}
+                                    checked={enableFullscreenControl !== false}
+                                    onChange={(value) => setAttributes({ enableFullscreenControl: value })}
+                                />
+                                
+                                <ToggleControl
+                                    label={__("Enable Street View Control", "digiblocks")}
+                                    checked={enableStreetViewControl !== false}
+                                    onChange={(value) => setAttributes({ enableStreetViewControl: value })}
+                                />
+                                
+                                <ToggleControl
+                                    label={__("Enable Map Type Control", "digiblocks")}
+                                    checked={enableMapTypeControl !== false}
+                                    onChange={(value) => setAttributes({ enableMapTypeControl: value })}
+                                />
+                            </BaseControl>
+                        </TabPanelBody>
+                    </>
+                );
+                
+            case 'style':
+                return (
+                    <>
+                        <TabPanelBody
+                            tab="style"
+                            name="map-dimensions"
+                            title={__("Map Size", "digiblocks")}
+                            initialOpen={true}
+                        >
+                            <ResponsiveControl
+                                label={__("Map Height", "digiblocks")}
+                            >
+                                <RangeControl
+                                    value={mapHeight && mapHeight[localActiveDevice] 
+                                        ? mapHeight[localActiveDevice] 
+                                        : (localActiveDevice === 'desktop' ? 400 : localActiveDevice === 'tablet' ? 350 : 300)
+                                    }
+                                    onChange={(value) => {
+                                        setAttributes({
+                                            mapHeight: {
+                                                ...mapHeight,
+                                                [localActiveDevice]: value,
+                                            },
+                                        });
+                                    }}
+                                    min={150}
+                                    max={800}
+                                    __next40pxDefaultSize={true}
+                                    __nextHasNoMarginBottom={true}
+                                />
+                            </ResponsiveControl>
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="style"
+                            name="map-border"
+                            title={__("Border", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            <SelectControl
+                                label={__("Border Style", "digiblocks")}
+                                value={borderStyle || 'none'}
+                                options={borderStyleOptions}
+                                onChange={(value) => {
+                                    // Initialize border width and radius with defaults when a style is first selected
+                                    if (value !== 'none' && (borderStyle === 'none' || !borderStyle)) {
+                                        // Set initial border width if not already set
+                                        if (!borderWidth || Object.keys(borderWidth).length === 0) {
+                                            setAttributes({
+                                                borderWidth: {
+                                                    desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                                                    tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                                                    mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                                                }
+                                            });
+                                        }
+                                        
+                                        // Set initial border radius if not already set
+                                        if (!borderRadius || Object.keys(borderRadius).length === 0) {
+                                            setAttributes({
+                                                borderRadius: {
+                                                    desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                                                    tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                                                    mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                                                }
+                                            });
+                                        }
+                                    }
+                                    
+                                    setAttributes({ borderStyle: value });
+                                }}
+                                __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                            
+                            {borderStyle && borderStyle !== 'none' && (
+                                <>
+                                    <PanelColorSettings
+                                        title={__("Border Color", "digiblocks")}
+                                        enableAlpha={true}
+                                        colorSettings={[
+                                            {
+                                                value: borderColor,
+                                                onChange: (value) => setAttributes({ borderColor: value }),
+                                                label: __("Border Color", "digiblocks")
+                                            }
+                                        ]}
+                                    />
+                                    
+                                    <ResponsiveControl
+                                        label={__("Border Width", "digiblocks")}
+                                    >
+                                        <DimensionControl
+                                            values={borderWidth && borderWidth[localActiveDevice] 
+                                                ? borderWidth[localActiveDevice] 
+                                                : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                                            }
+                                            onChange={(value) =>
+                                                setAttributes({
+                                                    borderWidth: {
+                                                        ...borderWidth,
+                                                        [localActiveDevice]: value,
+                                                    },
+                                                })
+                                            }
+                                        />
+                                    </ResponsiveControl>
+                                    
+                                    <ResponsiveControl
+                                        label={__("Border Radius", "digiblocks")}
+                                    >
+                                        <DimensionControl
+                                            values={borderRadius && borderRadius[localActiveDevice] 
+                                                ? borderRadius[localActiveDevice] 
+                                                : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                                            }
+                                            onChange={(value) =>
+                                                setAttributes({
+                                                    borderRadius: {
+                                                        ...borderRadius,
+                                                        [localActiveDevice]: value,
+                                                    },
+                                                })
+                                            }
+                                            units={[
+                                                { label: 'px', value: 'px' },
+                                                { label: '%', value: '%' }
+                                            ]}
+                                        />
+                                    </ResponsiveControl>
+                                </>
+                            )}
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="style"
+                            name="box-shadow"
+                            title={__("Box Shadow", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            <BoxShadowControl
+                                normalValue={boxShadow}
+								hoverValue={boxShadowHover}
+								onNormalChange={(value) =>
+									setAttributes({
+										boxShadow: value,
+									})
+								}
+								onHoverChange={(value) =>
+									setAttributes({
+										boxShadowHover: value,
+									})
+								}
+                            />
+                        </TabPanelBody>
+                    </>
+                );
+                
+            case 'advanced':
+                return (
+                    <>
+                        <TabPanelBody
+                            tab="advanced"
+                            name="animation"
+                            title={__("Animation", "digiblocks")}
+                            initialOpen={true}
+                        >
+                            <SelectControl
+                                label={__("Animation Effect", "digiblocks")}
+                                value={animation}
+                                options={animationOptions}
+                                onChange={(value) => setAttributes({ animation: value })}
+                                __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                            
+                            {/* Animation Preview Button */}
+                            {animation && animation !== 'none' && (
+                                <div style={{ marginTop: '10px' }}>
+                                    <Button
+                                        variant="secondary"
+                                        isSecondary
+                                        onClick={triggerAnimationPreview}
+                                        style={{ width: '100%' }}
+                                    >
+                                        {__("Preview Animation", "digiblocks")}
+                                    </Button>
+                                </div>
+                            )}
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="advanced"
+                            name="additional"
+                            title={__("Additional", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            {/* HTML Anchor field */}
+                            <div className="components-base-control html-anchor-control">
+                                <div className="components-base-control__field">
+                                    <label className="components-base-control__label" htmlFor="html-anchor">
+                                        {__("HTML anchor", "digiblocks")}
+                                    </label>
+                                    <input
+                                        className="components-text-control__input"
+                                        type="text"
+                                        id="html-anchor"
+                                        value={anchor || ""}
+                                        onChange={(e) => setAttributes({ anchor: e.target.value })}
+                                        aria-describedby="html-anchor-help"
+                                        autoCapitalize="none"
+                                        autoComplete="off"
+                                    />
+                                </div>
+                                <p id="html-anchor-help" className="components-base-control__help">
+                                    {__("Enter a word or two — without spaces — to make a unique web address just for this block, called an \"anchor\". Then, you'll be able to link directly to this section of your page.", "digiblocks")}
+                                    {' '}
+                                    <a 
+                                        className="components-external-link" 
+                                        href="https://wordpress.org/documentation/article/page-jumps/" 
+                                        target="_blank" 
+                                        rel="external noreferrer noopener"
+                                    >
+                                        <span className="components-external-link__contents">
+                                            {__("Learn more about anchors", "digiblocks")}
+                                        </span>
+                                        <span className="components-external-link__icon" aria-label="(opens in a new tab)">↗</span>
+                                    </a>
+                                </p>
+                            </div>
+
+                            {/* Additional CSS classes field */}
+                            <div className="components-base-control">
+                                <div className="components-base-control__field">
+                                    <label className="components-base-control__label" htmlFor="additional-css-classes">
+                                        {__("Additional CSS class(es)", "digiblocks")}
+                                    </label>
+                                    <input
+                                        className="components-text-control__input"
+                                        type="text"
+                                        id="additional-css-classes"
+                                        value={customClasses || ""}
+                                        onChange={(e) => setAttributes({ customClasses: e.target.value })}
+                                        aria-describedby="additional-css-classes-help"
+                                        autoComplete="off"
+                                    />
+                                </div>
+                                <p id="additional-css-classes-help" className="components-base-control__help">
+                                    {__("Separate multiple classes with spaces.", "digiblocks")}
+                                </p>
+                            </div>
+                        </TabPanelBody>
+                    </>
+                );
+                
+            default:
+                return null;
+        }
+    };
+
+    // Block props
+    const blockProps = useBlockProps({
+        className: `digiblocks-google-map ${animation !== 'none' ? `animate-${animation}` : ''} ${customClasses || ''}`,
+        id: anchor || null, // Set the anchor as ID if provided
+        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
+    });
+    
+    // Render placeholder or map
+    return (
+        <>
+            <InspectorControls>
+                <CustomTabPanel
+                    tabs={tabList}
+                    activeTab={activeTab}
+                    onSelect={setActiveTab}
+                >
+                    {renderTabContent()}
+                </CustomTabPanel>
+            </InspectorControls>
+
+            <style dangerouslySetInnerHTML={{ __html: generateCSS() }} />
+
+            <div {...blockProps}>
+                {!digiBlocksData.googleMapsApiKey ? (
+                    <Placeholder
+                        icon="location-alt"
+                        label={__("Google Map", "digiblocks")}
+                        instructions={__("You need to add your Google Maps API key in the DigiBlocks settings to use this block.", "digiblocks")}
+                    >
+                        <Button
+                            isPrimary
+                            href={`${window.ajaxurl ? window.ajaxurl.replace('admin-ajax.php', '') : '/wp-admin/'}admin.php?page=digiblocks-settings`}
+                            target="_blank"
+                        >
+                            {__("Go to Settings", "digiblocks")}
+                        </Button>
+                    </Placeholder>
+                ) : isLoading ? (
+                    <div className="digiblocks-google-map-loading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                        <Spinner />
+                        <span style={{ marginLeft: '10px' }}>{__("Loading map...", "digiblocks")}</span>
+                    </div>
+                ) : (
+                    <div 
+                        ref={mapContainerRef}
+                        className="digiblocks-google-map-container"
+                        style={{ width: '100%', height: '100%' }}
+                    />
+                )}
+            </div>
+        </>
+    );
+};
+
+export default GoogleMapEdit;

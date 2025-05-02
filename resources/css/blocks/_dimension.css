@@ -1,0 +1,196 @@
+body .components-base-control__field {
+    margin: 0;
+}
+
+/* Control Header */
+.digiblocks-responsive-control-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.digiblocks-control__header {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Control Actions */
+.digiblocks-control__actions {
+    position: relative;
+    top: 0;
+    display: flex;
+    direction: initial;
+}
+
+/* Reset Button */
+.digiblocks-reset.components-button.is-small.has-icon:not(.has-text) {
+    min-width: auto;
+    padding: 0;
+    width: auto;
+}
+
+body .components-button.is-secondary.digiblocks-reset.is-small {
+    box-shadow: unset;
+    background: transparent;
+    color: #ccc;
+    padding: 0 4px;
+
+	&:not(:disabled) {
+		color: #007cba;
+	}
+}
+
+.digiblocks-reset .dashicons-image-rotate {
+    width: 10px;
+    height: 10px;
+    font-size: 10px;
+}
+
+.digiblocks-reset.is-small.is-pressed,
+.digiblocks-reset.is-small:focus:not(:disabled) {
+    border: 0;
+}
+
+/* Unit Controls */
+.digiblocks-control__units {
+    direction: initial;
+    display: flex;
+    align-items: center;
+	gap: .25rem;
+}
+
+.digiblocks-control__units .components-button {
+    font-size: 10px;
+    justify-content: center;
+    padding: 0;
+    text-align: center;
+    text-shadow: none;
+    text-transform: uppercase;
+    width: 100%;
+    cursor: pointer;
+}
+
+.digiblocks-control__units .components-button.is-pressed,
+.digiblocks-control__units .components-button:focus:not(:disabled) {
+    border: 0;
+}
+
+.digiblocks-control__units .components-button.is-primary.is-small,
+.digiblocks-control__units .components-button.is-secondary.is-small {
+    box-shadow: unset;
+}
+
+.digiblocks-control__units .components-button.is-primary {
+    background: unset;
+    background-color: unset;
+    color: #007cba;
+    box-shadow: unset;
+}
+
+.digiblocks-control__units .components-button.is-secondary,
+.digiblocks-control__units .components-button.is-tertiary {
+    background: unset;
+    background-color: unset;
+    color: #50575e;
+}
+
+.digiblocks-control__units .components-button.is-secondary:hover:not(:disabled),
+.digiblocks-control__units .components-button.is-tertiary:hover:not(:disabled) {
+    color: #007cba;
+}
+
+.digiblocks-control__units .components-button:last-child {
+    padding: 0;
+}
+
+/* Spacing Inputs */
+.digiblocks-spacing-inputs {
+    display: flex;
+}
+
+.digiblocks-spacing-input[type="number"] {
+    border-left: 1px solid;
+    border-right: 1px solid;
+    border-color: #e6e7e9;
+    color: #50575e;
+    border-radius: 0;
+    box-shadow: none !important;
+    height: 30px;
+    margin: 0 -1px 0 0;
+    padding-right: 1px;
+    flex: 1;
+    font-size: 14px;
+    line-height: 20px;
+    padding-left: 4px;
+    text-align: center;
+}
+
+.digiblocks-spacing-input::-webkit-outer-spin-button,
+.digiblocks-spacing-input::-webkit-inner-spin-button {
+    margin: 0;
+}
+
+.digiblocks-spacing-input:focus {
+    z-index: 1;
+    outline-offset: -1px;
+    outline: 1px solid #cccccc;
+}
+
+.digiblocks-spacing-input::placeholder {
+    color: #aaa;
+}
+
+.digiblocks-spacing-inputs > .digiblocks-spacing-input:first-child {
+    border-radius: 3px 0 0 3px;
+}
+
+/* Link/Unlink Button */
+.digiblocks-spacing-link {
+    border: 1px solid #959595;
+    background-color: #959595;
+    color: #ffffff;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+	flex: 1;
+	height: auto;
+    font-size: 12px;
+    cursor: pointer;
+    transition: none;
+    border-radius: 0 3px 3px 0;
+}
+
+.digiblocks-spacing-link.digiblocks-spacing-control-disconnected {
+    border-color: #e6e7e9;
+    background-color: #ffffff;
+    color: #959595;
+}
+
+/* Labels */
+.digiblocks-spacing-labels {
+    display: flex;
+    margin-top: 5px;
+}
+
+.digiblocks-spacing-label {
+    color: #cccccc;
+    display: block;
+    font-size: 10px;
+    text-align: center;
+    flex: 1;
+}
+
+.digiblocks-spacing-label.digiblocks-spacing-link-label {
+	flex: 1;
+}
+
+/* Main Container */
+.digiblocks-dimension-control {
+    margin-bottom: 25px;
+}
+
+.digiblocks-dimension-control.is-responsive {
+    margin-bottom: 0;
+}

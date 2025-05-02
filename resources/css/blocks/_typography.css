@@ -1,0 +1,153 @@
+/* Typography options container */
+.digiblocks-typography-options {
+    margin-bottom: 24px;
+
+	.digiblocks-select-control .components-select-control,
+	.digiblocks-typography-advanced > .components-base-control {
+		display: grid;
+		grid-template-columns: 50% 50%;
+		align-items: center;
+		gap: 0;
+
+		label {
+			margin-bottom: 0;
+		}
+	}
+}
+
+/* Typography toggle button and header */
+.digiblocks-control-popup__options--action-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+body .components-button.digiblocks-typography-button {
+    background: transparent !important;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    margin: 0;
+    height: 28px;
+    width: 28px;
+    padding: 5px;
+    border: 1px solid #e6e7e9;
+    border-radius: 14px;
+    color: #50575e;
+}
+
+body .components-button.digiblocks-typography-button .dashicons-edit {
+    font-size: 15px;
+    line-height: 20px;
+	outline: none;
+}
+
+body .components-button.digiblocks-typography-button:hover {
+    color: #007cba;
+}
+
+body .components-button.digiblocks-typography-button.is-pressed {
+    color: #007cba;
+    background-color: #fff;
+}
+
+/* Typography advanced settings panel */
+.digiblocks-typography-advanced {
+    position: relative;
+    top: 5px;
+    width: 100%;
+    border-radius: 2px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    background: #fff;
+}
+
+/* Font family control */
+.digiblocks-font-family-searchable-select__wrapper {
+    margin-bottom: 15px;
+}
+
+.digiblocks-font-family-searchable-select__wrapper .components-input-control__label {
+    color: #50575e;
+    font-size: 13px !important;
+    line-height: 1.4em !important;
+    margin-bottom: 10px;
+    text-transform: none !important;
+    font-weight: 400 !important;
+}
+
+/* Size type field tabs */
+.digiblocks-size-type-field-tabs {
+    margin-bottom: 15px;
+}
+
+.digiblocks-size-type-field-tabs:last-child {
+    margin-bottom: 0;
+}
+
+/* Control header and label */
+.digiblocks-control__header {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.digiblocks-responsive-label-wrap {
+    display: flex;
+    align-items: center;
+}
+
+/* Range control actions and units */
+.digiblocks-control__header .digiblocks-control__actions {
+    gap: .25rem;
+}
+
+/* Range control mobile controls */
+.digiblocks-range-control__mobile-controls {
+    display: flex;
+    align-items: center;
+
+	> .components-base-control {
+		width: 100%;
+	}
+}
+
+/* Select control layout */
+.digiblocks-select-control {
+    margin-bottom: 15px;
+}
+
+.digiblocks-select-control--layout-inline .components-base-control__field {
+    display: flex;
+    flex-direction: column;
+}
+
+.digiblocks-select-control--layout-inline .components-base-control__label,
+.digiblocks-select-control--layout-inline .components-input-control__label {
+    margin-bottom: 8px;
+    color: #50575e;
+    font-size: 13px !important;
+    line-height: 1.4em !important;
+    text-transform: none !important;
+    font-weight: 400 !important;
+}
+
+.digiblocks-select-control--layout-inline .components-select-control__input {
+    color: #50575e;
+    text-transform: capitalize;
+    line-height: 30px;
+}
+
+/* Typography decoration */
+.digiblocks-typography-decoration {
+    margin-bottom: 15px;
+}
+
+/* Make sure the dropdown menu is on top of other elements */
+.components-popover.components-dropdown-menu__popover {
+    z-index: 1000;
+}

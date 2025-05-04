@@ -1144,34 +1144,1069 @@
   };
   var save_default = AccordionSave;
 
-  // blocks/call-to-action/edit.js
+  // blocks/buttons/edit.js
   var { __: __2 } = window.wp.i18n;
   var {
     useBlockProps: useBlockProps3,
+    useInnerBlocksProps,
+    InspectorControls: InspectorControls2
+  } = window.wp.blockEditor;
+  var {
+    SelectControl: SelectControl2,
+    RangeControl: RangeControl2,
+    TabPanel: TabPanel2,
+    Button: Button2,
+    __experimentalToggleGroupControl: ToggleGroupControl2,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption2
+  } = window.wp.components;
+  var { useState: useState2, useEffect: useEffect2 } = window.wp.element;
+  var { animations: animations2 } = digi.utils;
+  var { tabIcons: tabIcons2 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl2, CustomTabPanel: CustomTabPanel2, TabPanelBody: TabPanelBody2 } = digi.components;
+  var ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
+    const {
+      id,
+      anchor,
+      customClasses,
+      layout,
+      align,
+      buttonSpacing,
+      animation
+    } = attributes;
+    const [localActiveDevice, setLocalActiveDevice] = useState2(window.digi.responsiveState.activeDevice);
+    const [activeTab, setActiveTab] = useState2("options");
+    useEffect2(() => {
+      const unsubscribe = window.digi.responsiveState.subscribe((device) => {
+        setLocalActiveDevice(device);
+      });
+      return unsubscribe;
+    }, []);
+    useEffect2(() => {
+      if (!id || !id.includes(clientId.substr(0, 8))) {
+        setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
+      }
+    }, [clientId, setAttributes]);
+    const animationOptions = [
+      { label: __2("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations2).map((animation2) => ({
+        label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+        value: animation2
+      }))
+    ];
+    const tabList = [
+      {
+        name: "options",
+        title: __2("Options", "digiblocks"),
+        icon: tabIcons2.optionsIcon
+      },
+      {
+        name: "advanced",
+        title: __2("Advanced", "digiblocks"),
+        icon: tabIcons2.advancedIcon
+      }
+    ];
+    const generateCSS = () => {
+      const activeDevice = window.digi.responsiveState.activeDevice;
+      const blockId = id;
+      return `
+            /* Buttons Block - ${blockId} */
+            [data-custom-id="${blockId}"] {
+                display: flex;
+                flex-wrap: wrap;
+                ${layout === "vertical" ? "flex-direction: column;" : ""}
+                align-items: ${align};
+                gap: ${buttonSpacing[activeDevice]}px;
+                transition: all 0.3s ease;
+            }
+
+			/* Editor Style */
+			.digiblocks-button-inserter {
+				display: flex;
+				position: absolute;
+				bottom: 0;
+				right: 0;
+			}
+        `;
+    };
+    const renderTabContent = () => {
+      switch (activeTab) {
+        case "options":
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "components-panel__body is-opened" }, /* @__PURE__ */ wp.element.createElement(
+            ToggleGroupControl2,
+            {
+              label: __2("Layout", "digiblocks"),
+              value: layout,
+              onChange: (value) => setAttributes({ layout: value }),
+              isBlock: true,
+              __nextHasNoMarginBottom: true,
+              __next40pxDefaultSize: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControlOption2,
+              {
+                value: "horizontal",
+                label: __2("Horizontal", "digiblocks")
+              }
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControlOption2,
+              {
+                value: "vertical",
+                label: __2("Vertical", "digiblocks")
+              }
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            ToggleGroupControl2,
+            {
+              label: __2("Alignment", "digiblocks"),
+              value: align,
+              onChange: (value) => setAttributes({ align: value }),
+              isBlock: true,
+              __nextHasNoMarginBottom: true,
+              __next40pxDefaultSize: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControlOption2,
+              {
+                value: "flex-start",
+                label: layout === "horizontal" ? __2("Top", "digiblocks") : __2("Left", "digiblocks")
+              }
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControlOption2,
+              {
+                value: "center",
+                label: __2("Center", "digiblocks")
+              }
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControlOption2,
+              {
+                value: "flex-end",
+                label: layout === "horizontal" ? __2("Bottom", "digiblocks") : __2("Right", "digiblocks")
+              }
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            ResponsiveControl2,
+            {
+              label: __2("Button Spacing", "digiblocks")
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              RangeControl2,
+              {
+                value: buttonSpacing[localActiveDevice],
+                onChange: (value) => setAttributes({
+                  buttonSpacing: {
+                    ...buttonSpacing,
+                    [localActiveDevice]: value
+                  }
+                }),
+                min: 0,
+                max: 50,
+                step: 1,
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            )
+          )));
+        case "advanced":
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody2,
+            {
+              tab: "advanced",
+              name: "animation",
+              title: __2("Animation", "digiblocks"),
+              initialOpen: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              SelectControl2,
+              {
+                label: __2("Animation Effect", "digiblocks"),
+                value: animation,
+                options: animationOptions,
+                onChange: (value) => setAttributes({ animation: value }),
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody2,
+            {
+              tab: "advanced",
+              name: "additional",
+              title: __2("Additional", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __2("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+              "input",
+              {
+                className: "components-text-control__input",
+                type: "text",
+                id: "html-anchor",
+                value: anchor || "",
+                onChange: (e) => setAttributes({ anchor: e.target.value }),
+                "aria-describedby": "html-anchor-help",
+                autoCapitalize: "none",
+                autoComplete: "off"
+              }
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __2(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+              "a",
+              {
+                className: "components-external-link",
+                href: "https://wordpress.org/documentation/article/page-jumps/",
+                target: "_blank",
+                rel: "external noreferrer noopener"
+              },
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __2("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
+            ))),
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __2("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+              "input",
+              {
+                className: "components-text-control__input",
+                type: "text",
+                id: "additional-css-classes",
+                value: customClasses || "",
+                onChange: (e) => setAttributes({ customClasses: e.target.value }),
+                "aria-describedby": "additional-css-classes-help",
+                autoComplete: "off"
+              }
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __2("Separate multiple classes with spaces.", "digiblocks")))
+          ));
+        default:
+          return null;
+      }
+    };
+    const blockProps = useBlockProps3({
+      className: `digiblocks-buttons-block ${customClasses || ""}`,
+      id: anchor || null,
+      "data-custom-id": id
+    });
+    const ALLOWED_BLOCKS = ["digiblocks/button"];
+    const BUTTON_TEMPLATE = [
+      ["digiblocks/button", {}]
+    ];
+    const innerBlocksProps = useInnerBlocksProps(blockProps, {
+      allowedBlocks: ALLOWED_BLOCKS,
+      template: BUTTON_TEMPLATE,
+      renderAppender: false,
+      orientation: layout === "vertical" ? "vertical" : "horizontal"
+    });
+    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls2, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel2,
+      {
+        tabs: tabList,
+        activeTab,
+        onSelect: setActiveTab
+      },
+      renderTabContent()
+    )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...innerBlocksProps }, innerBlocksProps.children, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-button-inserter" }, /* @__PURE__ */ wp.element.createElement(
+      Button2,
+      {
+        variant: "primary",
+        isSmall: true,
+        icon: "plus",
+        onClick: () => {
+          const buttonBlock = window.wp.blocks.createBlock("digiblocks/button");
+          window.wp.data.dispatch("core/block-editor").insertBlock(buttonBlock, void 0, clientId);
+        }
+      },
+      __2("Add", "digiblocks")
+    ))));
+  };
+  var edit_default2 = ButtonsEdit;
+
+  // blocks/buttons/save.js
+  var { useBlockProps: useBlockProps4, useInnerBlocksProps: useInnerBlocksProps2 } = window.wp.blockEditor;
+  var ButtonsSave = ({ attributes }) => {
+    const {
+      id,
+      anchor,
+      customClasses,
+      animation
+    } = attributes;
+    const blockClasses = [
+      "digiblocks-buttons-block",
+      animation !== "none" ? `animate-${animation}` : "",
+      customClasses || ""
+    ].filter(Boolean).join(" ");
+    const blockProps = useBlockProps4.save({
+      className: blockClasses,
+      id: anchor || null,
+      "data-custom-id": id
+    });
+    const innerBlocksProps = useInnerBlocksProps2.save(blockProps);
+    return /* @__PURE__ */ wp.element.createElement("div", { ...innerBlocksProps });
+  };
+  var save_default2 = ButtonsSave;
+
+  // blocks/button/edit.js
+  var { __: __3 } = window.wp.i18n;
+  var {
+    useBlockProps: useBlockProps5,
     RichText: RichText3,
-    InspectorControls: InspectorControls2,
+    InspectorControls: InspectorControls3,
     PanelColorSettings: PanelColorSettings2,
-    __experimentalLinkControl: LinkControl,
+    LinkControl
+  } = window.wp.blockEditor;
+  var {
+    SelectControl: SelectControl3,
+    TabPanel: TabPanel3,
+    ToggleControl: ToggleControl2,
+    __experimentalToggleGroupControl: ToggleGroupControl3,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption3
+  } = window.wp.components;
+  var { useState: useState3, useEffect: useEffect3 } = window.wp.element;
+  var { animations: animations3 } = digi.utils;
+  var { tabIcons: tabIcons3 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl3, DimensionControl: DimensionControl2, BoxShadowControl: BoxShadowControl2, TypographyControl: TypographyControl2, CustomTabPanel: CustomTabPanel3, TabPanelBody: TabPanelBody3, FontAwesomeControl } = digi.components;
+  var ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
+    const {
+      id,
+      anchor,
+      customClasses,
+      text,
+      url,
+      opensInNewTab,
+      rel,
+      iconValue,
+      iconPosition,
+      size,
+      fill,
+      textColor,
+      textHoverColor,
+      backgroundColor,
+      backgroundHoverColor,
+      borderStyle,
+      borderWidth,
+      borderRadius,
+      borderColor,
+      borderHoverColor,
+      boxShadow,
+      boxShadowHover,
+      padding,
+      margin,
+      onlyIcon,
+      buttonTypography
+    } = attributes;
+    const [localActiveDevice, setLocalActiveDevice] = useState3(window.digi.responsiveState.activeDevice);
+    const [isEditingURL, setIsEditingURL] = useState3(false);
+    const [activeTab, setActiveTab] = useState3("options");
+    useEffect3(() => {
+      const unsubscribe = window.digi.responsiveState.subscribe((device) => {
+        setLocalActiveDevice(device);
+      });
+      return unsubscribe;
+    }, []);
+    useEffect3(() => {
+      if (!id || !id.includes(clientId.substr(0, 8))) {
+        setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
+      }
+    }, [clientId, setAttributes]);
+    const borderStyleOptions = [
+      { label: __3("Default", "digiblocks"), value: "default" },
+      { label: __3("None", "digiblocks"), value: "none" },
+      { label: __3("Solid", "digiblocks"), value: "solid" },
+      { label: __3("Dotted", "digiblocks"), value: "dotted" },
+      { label: __3("Dashed", "digiblocks"), value: "dashed" },
+      { label: __3("Double", "digiblocks"), value: "double" },
+      { label: __3("Groove", "digiblocks"), value: "groove" },
+      { label: __3("Inset", "digiblocks"), value: "inset" },
+      { label: __3("Outset", "digiblocks"), value: "outset" },
+      { label: __3("Ridge", "digiblocks"), value: "ridge" }
+    ];
+    const sizeOptions = [
+      { label: __3("Small", "digiblocks"), value: "small" },
+      { label: __3("Medium", "digiblocks"), value: "medium" },
+      { label: __3("Large", "digiblocks"), value: "large" },
+      { label: __3("Custom", "digiblocks"), value: "custom" }
+    ];
+    const tabList = [
+      {
+        name: "options",
+        title: __3("Options", "digiblocks"),
+        icon: tabIcons3.optionsIcon
+      },
+      {
+        name: "style",
+        title: __3("Style", "digiblocks"),
+        icon: tabIcons3.styleIcon
+      },
+      {
+        name: "advanced",
+        title: __3("Advanced", "digiblocks"),
+        icon: tabIcons3.advancedIcon
+      }
+    ];
+    const stateTabList = [
+      {
+        name: "normal",
+        title: __3("Normal", "digiblocks"),
+        className: "digiblocks-tab-1 normal"
+      },
+      {
+        name: "hover",
+        title: __3("Hover", "digiblocks"),
+        className: "digiblocks-tab-2 hover"
+      }
+    ];
+    const generateCSS = () => {
+      const activeDevice = localActiveDevice;
+      const blockId = id;
+      let sizeCSS = "";
+      if (size === "custom") {
+        const currentPadding = padding[activeDevice];
+        sizeCSS = `padding: ${currentPadding.top}${currentPadding.unit} ${currentPadding.right}${currentPadding.unit} ${currentPadding.bottom}${currentPadding.unit} ${currentPadding.left}${currentPadding.unit};`;
+      } else if (size === "small") {
+        sizeCSS = "padding: 8px 16px;";
+      } else if (size === "large") {
+        sizeCSS = "padding: 16px 32px;";
+      } else {
+        sizeCSS = "padding: 12px 24px;";
+      }
+      let borderCSS = "";
+      if (borderStyle && borderStyle !== "default" && borderStyle !== "none") {
+        const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: "px" };
+        const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 4, right: 4, bottom: 4, left: 4, unit: "px" };
+        borderCSS = `
+                border-style: ${borderStyle};
+                border-color: ${borderColor || "#333333"};
+                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
+                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+            `;
+      } else {
+        borderCSS = "border: none;";
+      }
+      let boxShadowCSS = "box-shadow: none;";
+      if (boxShadow && boxShadow.enable) {
+        const inset = boxShadow.position === "inset" ? "inset " : "";
+        boxShadowCSS = `box-shadow: ${inset}${boxShadow.horizontal}px ${boxShadow.vertical}px ${boxShadow.blur}px ${boxShadow.spread}px ${boxShadow.color};`;
+      }
+      const marginCSS = `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};`;
+      let hoverCSS = "";
+      if (boxShadowHover && boxShadowHover.enable) {
+        const insetHover = boxShadowHover.position === "inset" ? "inset " : "";
+        hoverCSS += `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
+      }
+      let buttonTypographyCSS = "";
+      if (buttonTypography) {
+        if (buttonTypography.fontFamily) {
+          buttonTypographyCSS += `font-family: ${buttonTypography.fontFamily};`;
+        }
+        if (buttonTypography.fontSize && buttonTypography.fontSize[activeDevice]) {
+          buttonTypographyCSS += `font-size: ${buttonTypography.fontSize[activeDevice]}${buttonTypography.fontSizeUnit || "px"};`;
+        }
+        if (buttonTypography.fontWeight) {
+          buttonTypographyCSS += `font-weight: ${buttonTypography.fontWeight};`;
+        }
+        if (buttonTypography.fontStyle) {
+          buttonTypographyCSS += `font-style: ${buttonTypography.fontStyle};`;
+        }
+        if (buttonTypography.textTransform) {
+          buttonTypographyCSS += `text-transform: ${buttonTypography.textTransform};`;
+        }
+        if (buttonTypography.textDecoration) {
+          buttonTypographyCSS += `text-decoration: ${buttonTypography.textDecoration};`;
+        }
+        if (buttonTypography.lineHeight && buttonTypography.lineHeight[activeDevice]) {
+          buttonTypographyCSS += `line-height: ${buttonTypography.lineHeight[activeDevice]}${buttonTypography.lineHeightUnit || "em"};`;
+        }
+        if (buttonTypography.letterSpacing && buttonTypography.letterSpacing[activeDevice]) {
+          buttonTypographyCSS += `letter-spacing: ${buttonTypography.letterSpacing[activeDevice]}${buttonTypography.letterSpacingUnit || "px"};`;
+        }
+      }
+      return `
+            /* Button Block - ${blockId} */
+            [data-custom-id="${blockId}"] {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                ${sizeCSS}
+                ${borderCSS}
+                ${boxShadowCSS}
+                ${marginCSS}
+                ${fill ? "width: 100%;" : ""}
+                gap: 8px; /* Space between icon and text */
+                ${backgroundColor ? `background-color: ${backgroundColor};` : ""}
+                ${textColor ? `color: ${textColor};` : ""}
+            }
+            
+            [data-custom-id="${blockId}"]:hover {
+                ${textHoverColor ? `color: ${textHoverColor};` : ""}
+                ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ""}
+                ${borderHoverColor ? `border-color: ${borderHoverColor};` : ""}
+                ${hoverCSS}
+            }
+            
+            /* Icon styles */
+            [data-custom-id="${blockId}"] .digiblocks-button-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-button-icon svg {
+                width: 1em;
+                height: 1em;
+                fill: currentColor;
+            }
+            
+            /* Button typography */
+            [data-custom-id="${blockId}"] {
+                ${buttonTypographyCSS}
+            }
+        `;
+    };
+    const renderButtonContent = () => {
+      const iconElement = iconValue && iconValue.svg ? /* @__PURE__ */ wp.element.createElement(
+        "span",
+        {
+          key: "icon",
+          className: "digiblocks-button-icon",
+          dangerouslySetInnerHTML: { __html: iconValue.svg }
+        }
+      ) : null;
+      const textElement = !onlyIcon ? /* @__PURE__ */ wp.element.createElement(
+        RichText3,
+        {
+          key: "text",
+          value: text,
+          onChange: (value) => setAttributes({ text: value }),
+          placeholder: __3("Add text\u2026", "digiblocks"),
+          allowedFormats: [],
+          withoutInteractiveFormatting: true,
+          identifier: "text"
+        }
+      ) : null;
+      if (iconPosition === "left") {
+        return [iconElement, textElement].filter(Boolean);
+      } else {
+        return [textElement, iconElement].filter(Boolean);
+      }
+    };
+    const renderTabContent = () => {
+      switch (activeTab) {
+        case "options":
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody3,
+            {
+              tab: "options",
+              name: "icon",
+              title: __3("Icon", "digiblocks"),
+              initialOpen: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              FontAwesomeControl,
+              {
+                label: __3("Select Icon", "digiblocks"),
+                value: iconValue,
+                onChange: (value) => setAttributes({ iconValue: value })
+              }
+            ),
+            iconValue && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+              ToggleControl2,
+              {
+                label: __3("Only Icon", "digiblocks"),
+                checked: onlyIcon,
+                onChange: (value) => setAttributes({ onlyIcon: value }),
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            ), !onlyIcon && /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControl3,
+              {
+                label: __3("Icon Position", "digiblocks"),
+                value: iconPosition,
+                onChange: (value) => setAttributes({ iconPosition: value }),
+                isBlock: true,
+                __nextHasNoMarginBottom: true,
+                __next40pxDefaultSize: true
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                ToggleGroupControlOption3,
+                {
+                  value: "left",
+                  label: __3("Left", "digiblocks")
+                }
+              ),
+              /* @__PURE__ */ wp.element.createElement(
+                ToggleGroupControlOption3,
+                {
+                  value: "right",
+                  label: __3("Right", "digiblocks")
+                }
+              )
+            ))
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody3,
+            {
+              tab: "options",
+              name: "link",
+              title: __3("Link", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              LinkControl,
+              {
+                value: url ? { url, opensInNewTab, rel } : void 0,
+                onChange: (newLink) => {
+                  setAttributes({
+                    url: newLink.url,
+                    opensInNewTab: newLink.opensInNewTab,
+                    rel: newLink.rel || ""
+                  });
+                  setIsEditingURL(false);
+                },
+                settings: [
+                  {
+                    id: "opensInNewTab",
+                    title: __3("Open in new tab")
+                  },
+                  {
+                    id: "rel",
+                    title: __3("Add noopener noreferrer")
+                  }
+                ],
+                onRemove: () => {
+                  setAttributes({ url: "", opensInNewTab: false, rel: "" });
+                  setIsEditingURL(false);
+                }
+              }
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody3,
+            {
+              tab: "options",
+              name: "size",
+              title: __3("Size and Fill", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              SelectControl3,
+              {
+                label: __3("Size", "digiblocks"),
+                value: size,
+                options: sizeOptions,
+                onChange: (value) => setAttributes({ size: value }),
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleControl2,
+              {
+                label: __3("Expand to Container Width", "digiblocks"),
+                checked: fill,
+                onChange: (value) => setAttributes({ fill: value }),
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            )
+          ));
+        case "style":
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody3,
+            {
+              tab: "style",
+              name: "typography",
+              title: __3("Typography", "digiblocks"),
+              initialOpen: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              TypographyControl2,
+              {
+                label: __3("Button Typography", "digiblocks"),
+                value: buttonTypography,
+                onChange: (value) => setAttributes({ buttonTypography: value }),
+                defaults: {
+                  fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                  fontSizeUnit: "px",
+                  lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                  lineHeightUnit: "em"
+                }
+              }
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody3,
+            {
+              tab: "style",
+              name: "colors",
+              title: __3("Colors", "digiblocks"),
+              initialOpen: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              TabPanel3,
+              {
+                className: "digiblocks-control-tabs",
+                activeClass: "active-tab",
+                tabs: stateTabList
+              },
+              (tab) => /* @__PURE__ */ wp.element.createElement(
+                PanelColorSettings2,
+                {
+                  title: tab.name === "normal" ? __3("Normal Colors", "digiblocks") : __3("Hover Colors", "digiblocks"),
+                  initialOpen: true,
+                  enableAlpha: true,
+                  colorSettings: [
+                    {
+                      value: tab.name === "normal" ? textColor : textHoverColor,
+                      onChange: (value) => setAttributes(
+                        tab.name === "normal" ? { textColor: value } : { textHoverColor: value }
+                      ),
+                      label: __3("Text Color", "digiblocks")
+                    },
+                    {
+                      value: tab.name === "normal" ? backgroundColor : backgroundHoverColor,
+                      onChange: (value) => setAttributes(
+                        tab.name === "normal" ? { backgroundColor: value } : { backgroundHoverColor: value }
+                      ),
+                      label: __3("Background Color", "digiblocks")
+                    }
+                  ]
+                }
+              )
+            )
+          ), size === "custom" && /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody3,
+            {
+              tab: "style",
+              name: "spacing",
+              title: __3("Spacing", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl3,
+              {
+                label: __3("Padding", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                DimensionControl2,
+                {
+                  values: padding[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    padding: {
+                      ...padding,
+                      [localActiveDevice]: value
+                    }
+                  })
+                }
+              )
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody3,
+            {
+              tab: "style",
+              name: "margin",
+              title: __3("Margin", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl3,
+              {
+                label: __3("Margin", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                DimensionControl2,
+                {
+                  values: margin[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    margin: {
+                      ...margin,
+                      [localActiveDevice]: value
+                    }
+                  })
+                }
+              )
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody3,
+            {
+              tab: "style",
+              name: "box-style",
+              title: __3("Box Style", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              SelectControl3,
+              {
+                label: __3("Border Style", "digiblocks"),
+                value: borderStyle || "default",
+                options: borderStyleOptions,
+                onChange: (value) => {
+                  if (value !== "default" && value !== "none" && (borderStyle === "default" || borderStyle === "none" || !borderStyle)) {
+                    if (!borderWidth || Object.keys(borderWidth).length === 0) {
+                      setAttributes({
+                        borderWidth: {
+                          desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
+                          tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
+                          mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" }
+                        }
+                      });
+                    }
+                    if (!borderRadius || Object.keys(borderRadius).length === 0) {
+                      setAttributes({
+                        borderRadius: {
+                          desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: "px" },
+                          tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: "px" },
+                          mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: "px" }
+                        }
+                      });
+                    }
+                  }
+                  setAttributes({ borderStyle: value });
+                },
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            ),
+            borderStyle && borderStyle !== "default" && borderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+              TabPanel3,
+              {
+                className: "digiblocks-control-tabs",
+                activeClass: "active-tab",
+                tabs: stateTabList
+              },
+              (tab) => /* @__PURE__ */ wp.element.createElement(
+                PanelColorSettings2,
+                {
+                  title: __3("Border Colors", "digiblocks"),
+                  enableAlpha: true,
+                  colorSettings: [
+                    {
+                      value: tab.name === "normal" ? borderColor : borderHoverColor,
+                      onChange: (value) => setAttributes(
+                        tab.name === "normal" ? { borderColor: value } : { borderHoverColor: value }
+                      ),
+                      label: __3("Border Color", "digiblocks")
+                    }
+                  ]
+                }
+              )
+            ), /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl3,
+              {
+                label: __3("Border Width", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                DimensionControl2,
+                {
+                  values: borderWidth[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    borderWidth: {
+                      ...borderWidth,
+                      [localActiveDevice]: value
+                    }
+                  })
+                }
+              )
+            ), /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl3,
+              {
+                label: __3("Border Radius", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                DimensionControl2,
+                {
+                  values: borderRadius[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    borderRadius: {
+                      ...borderRadius,
+                      [localActiveDevice]: value
+                    }
+                  }),
+                  units: [
+                    { label: "px", value: "px" },
+                    { label: "%", value: "%" }
+                  ]
+                }
+              )
+            ))
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody3,
+            {
+              tab: "style",
+              name: "shadow",
+              title: __3("Box Shadow", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              BoxShadowControl2,
+              {
+                normalValue: boxShadow,
+                hoverValue: boxShadowHover,
+                onNormalChange: (value) => setAttributes({ boxShadow: value }),
+                onHoverChange: (value) => setAttributes({ boxShadowHover: value })
+              }
+            )
+          ));
+        case "advanced":
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody3,
+            {
+              tab: "advanced",
+              name: "additional",
+              title: __3("Additional", "digiblocks"),
+              initialOpen: true
+            },
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __3("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+              "input",
+              {
+                className: "components-text-control__input",
+                type: "text",
+                id: "html-anchor",
+                value: anchor || "",
+                onChange: (e) => setAttributes({ anchor: e.target.value }),
+                "aria-describedby": "html-anchor-help",
+                autoCapitalize: "none",
+                autoComplete: "off"
+              }
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __3(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+              "a",
+              {
+                className: "components-external-link",
+                href: "https://wordpress.org/documentation/article/page-jumps/",
+                target: "_blank",
+                rel: "external noreferrer noopener"
+              },
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __3("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
+            ))),
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __3("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+              "input",
+              {
+                className: "components-text-control__input",
+                type: "text",
+                id: "additional-css-classes",
+                value: customClasses || "",
+                onChange: (e) => setAttributes({ customClasses: e.target.value }),
+                "aria-describedby": "additional-css-classes-help",
+                autoComplete: "off"
+              }
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __3("Separate multiple classes with spaces.", "digiblocks")))
+          ));
+        default:
+          return null;
+      }
+    };
+    const blockProps = useBlockProps5({
+      className: `digiblocks-button ${size} ${fill ? "is-fill" : ""} ${customClasses || ""}`,
+      id: anchor || null,
+      "data-custom-id": id
+    });
+    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls3, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel3,
+      {
+        tabs: tabList,
+        activeTab,
+        onSelect: setActiveTab
+      },
+      renderTabContent()
+    )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, renderButtonContent()));
+  };
+  var edit_default3 = ButtonEdit;
+
+  // blocks/button/save.js
+  var { useBlockProps: useBlockProps6, RichText: RichText4 } = window.wp.blockEditor;
+  var ButtonSave = ({ attributes }) => {
+    const {
+      id,
+      anchor,
+      customClasses,
+      text,
+      url,
+      opensInNewTab,
+      rel,
+      iconValue,
+      iconPosition,
+      size,
+      fill,
+      onlyIcon
+    } = attributes;
+    const blockClasses = [
+      "digiblocks-button",
+      size,
+      fill ? "is-fill" : "",
+      customClasses || ""
+    ].filter(Boolean).join(" ");
+    const buttonContent = /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, iconValue && iconValue.svg && iconPosition === "left" && /* @__PURE__ */ wp.element.createElement(
+      "span",
+      {
+        className: "digiblocks-button-icon",
+        dangerouslySetInnerHTML: { __html: iconValue.svg }
+      }
+    ), !onlyIcon && /* @__PURE__ */ wp.element.createElement(
+      RichText4.Content,
+      {
+        value: text
+      }
+    ), iconValue && iconValue.svg && iconPosition === "right" && /* @__PURE__ */ wp.element.createElement(
+      "span",
+      {
+        className: "digiblocks-button-icon",
+        dangerouslySetInnerHTML: { __html: iconValue.svg }
+      }
+    ));
+    if (url) {
+      return /* @__PURE__ */ wp.element.createElement(
+        "a",
+        {
+          ...useBlockProps6.save({
+            className: blockClasses,
+            id: anchor || null,
+            "data-custom-id": id,
+            href: url,
+            target: opensInNewTab ? "_blank" : void 0,
+            rel: rel ? "noopener noreferrer" : void 0
+          })
+        },
+        buttonContent
+      );
+    }
+    return /* @__PURE__ */ wp.element.createElement(
+      "div",
+      {
+        ...useBlockProps6.save({
+          className: blockClasses,
+          id: anchor || null,
+          "data-custom-id": id
+        })
+      },
+      buttonContent
+    );
+  };
+  var save_default3 = ButtonSave;
+
+  // blocks/call-to-action/edit.js
+  var { __: __4 } = window.wp.i18n;
+  var {
+    useBlockProps: useBlockProps7,
+    RichText: RichText5,
+    InspectorControls: InspectorControls4,
+    PanelColorSettings: PanelColorSettings3,
+    __experimentalLinkControl: LinkControl2,
     BlockControls,
     AlignmentToolbar,
     MediaUpload,
     MediaUploadCheck
   } = window.wp.blockEditor;
   var {
-    SelectControl: SelectControl2,
-    RangeControl: RangeControl2,
-    ToggleControl: ToggleControl2,
-    Button: Button2,
-    __experimentalToggleGroupControl: ToggleGroupControl2,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption2,
-    TabPanel: TabPanel2,
+    SelectControl: SelectControl4,
+    RangeControl: RangeControl3,
+    ToggleControl: ToggleControl3,
+    Button: Button3,
+    __experimentalToggleGroupControl: ToggleGroupControl4,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption4,
+    TabPanel: TabPanel4,
     TextControl,
     BaseControl
   } = window.wp.components;
-  var { useState: useState2, useEffect: useEffect2, useRef: useRef2 } = window.wp.element;
-  var { animations: animations2 } = digi.utils;
-  var { tabIcons: tabIcons2 } = digi.icons;
-  var { ResponsiveControl: ResponsiveControl2, DimensionControl: DimensionControl2, TypographyControl: TypographyControl2, BoxShadowControl: BoxShadowControl2, CustomTabPanel: CustomTabPanel2, TabPanelBody: TabPanelBody2 } = digi.components;
+  var { useState: useState4, useEffect: useEffect4, useRef: useRef2 } = window.wp.element;
+  var { animations: animations4 } = digi.utils;
+  var { tabIcons: tabIcons4 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl4, DimensionControl: DimensionControl3, TypographyControl: TypographyControl3, BoxShadowControl: BoxShadowControl3, CustomTabPanel: CustomTabPanel4, TabPanelBody: TabPanelBody4 } = digi.components;
   var CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
     const {
       id,
@@ -1225,17 +2260,17 @@
       reverseColumnsMobile,
       minHeight
     } = attributes;
-    const [localActiveDevice, setLocalActiveDevice] = useState2(window.digi.responsiveState.activeDevice);
-    const [isAnimating, setIsAnimating] = useState2(false);
+    const [localActiveDevice, setLocalActiveDevice] = useState4(window.digi.responsiveState.activeDevice);
+    const [isAnimating, setIsAnimating] = useState4(false);
     const previewTimeoutRef = useRef2(null);
-    useEffect2(() => {
+    useEffect4(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    const [activeTab, setActiveTab] = useState2("options");
-    useEffect2(() => {
+    const [activeTab, setActiveTab] = useState4("options");
+    useEffect4(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
@@ -1244,7 +2279,7 @@
           buttons: [
             {
               id: "button-1",
-              text: __2("Click Here", "digiblocks"),
+              text: __4("Click Here", "digiblocks"),
               url: "#",
               openInNewTab: false,
               rel: "",
@@ -1325,7 +2360,7 @@
         });
       }
     }, [clientId, id, buttons, titleTypography, contentTypography, buttonTypography, boxShadowHover, setAttributes]);
-    useEffect2(() => {
+    useEffect4(() => {
       return () => {
         if (previewTimeoutRef.current) {
           clearTimeout(previewTimeoutRef.current);
@@ -1344,8 +2379,8 @@
         return;
       }
       const timestamp = Date.now();
-      if (animations2[animation]) {
-        const originalKeyframes = animations2[animation].keyframes;
+      if (animations4[animation]) {
+        const originalKeyframes = animations4[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
           console.error("Could not extract animation name from keyframes");
@@ -1386,7 +2421,7 @@
         }, 1500);
       }
     };
-    useEffect2(() => {
+    useEffect4(() => {
       if (animation && animation !== "none") {
         const timeoutId = setTimeout(() => {
           triggerAnimationPreview();
@@ -1395,33 +2430,33 @@
       }
     }, [animation]);
     const borderStyleOptions = [
-      { label: __2("None", "digiblocks"), value: "none" },
-      { label: __2("Solid", "digiblocks"), value: "solid" },
-      { label: __2("Dotted", "digiblocks"), value: "dotted" },
-      { label: __2("Dashed", "digiblocks"), value: "dashed" },
-      { label: __2("Double", "digiblocks"), value: "double" },
-      { label: __2("Groove", "digiblocks"), value: "groove" },
-      { label: __2("Ridge", "digiblocks"), value: "ridge" },
-      { label: __2("Inset", "digiblocks"), value: "inset" },
-      { label: __2("Outset", "digiblocks"), value: "outset" }
+      { label: __4("None", "digiblocks"), value: "none" },
+      { label: __4("Solid", "digiblocks"), value: "solid" },
+      { label: __4("Dotted", "digiblocks"), value: "dotted" },
+      { label: __4("Dashed", "digiblocks"), value: "dashed" },
+      { label: __4("Double", "digiblocks"), value: "double" },
+      { label: __4("Groove", "digiblocks"), value: "groove" },
+      { label: __4("Ridge", "digiblocks"), value: "ridge" },
+      { label: __4("Inset", "digiblocks"), value: "inset" },
+      { label: __4("Outset", "digiblocks"), value: "outset" }
     ];
     const animationOptions = [
-      { label: __2("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations2).map((animation2) => ({
+      { label: __4("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations4).map((animation2) => ({
         label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         value: animation2
       }))
     ];
     const styleOptions = [
-      { label: __2("Basic", "digiblocks"), value: "basic" },
-      { label: __2("Split", "digiblocks"), value: "split" },
-      { label: __2("Cover", "digiblocks"), value: "cover" },
-      { label: __2("Box", "digiblocks"), value: "box" },
-      { label: __2("Modern", "digiblocks"), value: "modern" },
-      { label: __2("Gradient", "digiblocks"), value: "gradient" },
-      { label: __2("Minimal", "digiblocks"), value: "minimal" },
-      { label: __2("Callout", "digiblocks"), value: "callout" },
-      { label: __2("Banner", "digiblocks"), value: "banner" }
+      { label: __4("Basic", "digiblocks"), value: "basic" },
+      { label: __4("Split", "digiblocks"), value: "split" },
+      { label: __4("Cover", "digiblocks"), value: "cover" },
+      { label: __4("Box", "digiblocks"), value: "box" },
+      { label: __4("Modern", "digiblocks"), value: "modern" },
+      { label: __4("Gradient", "digiblocks"), value: "gradient" },
+      { label: __4("Minimal", "digiblocks"), value: "minimal" },
+      { label: __4("Callout", "digiblocks"), value: "callout" },
+      { label: __4("Banner", "digiblocks"), value: "banner" }
     ];
     const headingTagOptions = [
       { label: "H1", value: "h1" },
@@ -1432,75 +2467,75 @@
       { label: "H6", value: "h6" }
     ];
     const backgroundTypeOptions = [
-      { label: __2("Color", "digiblocks"), value: "color" },
-      { label: __2("Image", "digiblocks"), value: "image" },
-      { label: __2("Gradient", "digiblocks"), value: "gradient" }
+      { label: __4("Color", "digiblocks"), value: "color" },
+      { label: __4("Image", "digiblocks"), value: "image" },
+      { label: __4("Gradient", "digiblocks"), value: "gradient" }
     ];
     const backgroundPositionOptions = [
-      { label: __2("Center Center", "digiblocks"), value: "center center" },
-      { label: __2("Center Top", "digiblocks"), value: "center top" },
-      { label: __2("Center Bottom", "digiblocks"), value: "center bottom" },
-      { label: __2("Left Top", "digiblocks"), value: "left top" },
-      { label: __2("Left Center", "digiblocks"), value: "left center" },
-      { label: __2("Left Bottom", "digiblocks"), value: "left bottom" },
-      { label: __2("Right Top", "digiblocks"), value: "right top" },
-      { label: __2("Right Center", "digiblocks"), value: "right center" },
-      { label: __2("Right Bottom", "digiblocks"), value: "right bottom" }
+      { label: __4("Center Center", "digiblocks"), value: "center center" },
+      { label: __4("Center Top", "digiblocks"), value: "center top" },
+      { label: __4("Center Bottom", "digiblocks"), value: "center bottom" },
+      { label: __4("Left Top", "digiblocks"), value: "left top" },
+      { label: __4("Left Center", "digiblocks"), value: "left center" },
+      { label: __4("Left Bottom", "digiblocks"), value: "left bottom" },
+      { label: __4("Right Top", "digiblocks"), value: "right top" },
+      { label: __4("Right Center", "digiblocks"), value: "right center" },
+      { label: __4("Right Bottom", "digiblocks"), value: "right bottom" }
     ];
     const backgroundSizeOptions = [
-      { label: __2("Cover", "digiblocks"), value: "cover" },
-      { label: __2("Contain", "digiblocks"), value: "contain" },
-      { label: __2("Auto", "digiblocks"), value: "auto" }
+      { label: __4("Cover", "digiblocks"), value: "cover" },
+      { label: __4("Contain", "digiblocks"), value: "contain" },
+      { label: __4("Auto", "digiblocks"), value: "auto" }
     ];
     const backgroundRepeatOptions = [
-      { label: __2("No Repeat", "digiblocks"), value: "no-repeat" },
-      { label: __2("Repeat", "digiblocks"), value: "repeat" },
-      { label: __2("Repeat X", "digiblocks"), value: "repeat-x" },
-      { label: __2("Repeat Y", "digiblocks"), value: "repeat-y" }
+      { label: __4("No Repeat", "digiblocks"), value: "no-repeat" },
+      { label: __4("Repeat", "digiblocks"), value: "repeat" },
+      { label: __4("Repeat X", "digiblocks"), value: "repeat-x" },
+      { label: __4("Repeat Y", "digiblocks"), value: "repeat-y" }
     ];
     const buttonsAlignOptions = [
-      { label: __2("Left", "digiblocks"), value: "left" },
-      { label: __2("Center", "digiblocks"), value: "center" },
-      { label: __2("Right", "digiblocks"), value: "right" }
+      { label: __4("Left", "digiblocks"), value: "left" },
+      { label: __4("Center", "digiblocks"), value: "center" },
+      { label: __4("Right", "digiblocks"), value: "right" }
     ];
     const verticalAlignOptions = [
-      { label: __2("Top", "digiblocks"), value: "flex-start" },
-      { label: __2("Center", "digiblocks"), value: "center" },
-      { label: __2("Bottom", "digiblocks"), value: "flex-end" }
+      { label: __4("Top", "digiblocks"), value: "flex-start" },
+      { label: __4("Center", "digiblocks"), value: "center" },
+      { label: __4("Bottom", "digiblocks"), value: "flex-end" }
     ];
     const highlightTypeOptions = [
-      { label: __2("None", "digiblocks"), value: "none" },
-      { label: __2("Background", "digiblocks"), value: "background" },
-      { label: __2("Text", "digiblocks"), value: "text" },
-      { label: __2("Underline", "digiblocks"), value: "underline" }
+      { label: __4("None", "digiblocks"), value: "none" },
+      { label: __4("Background", "digiblocks"), value: "background" },
+      { label: __4("Text", "digiblocks"), value: "text" },
+      { label: __4("Underline", "digiblocks"), value: "underline" }
     ];
     const DEFAULT_IMAGE_SIZE = { width: 300, height: 200 };
     const tabList = [
       {
         name: "options",
-        title: __2("Options", "digiblocks"),
-        icon: tabIcons2.optionsIcon
+        title: __4("Options", "digiblocks"),
+        icon: tabIcons4.optionsIcon
       },
       {
         name: "style",
-        title: __2("Style", "digiblocks"),
-        icon: tabIcons2.styleIcon
+        title: __4("Style", "digiblocks"),
+        icon: tabIcons4.styleIcon
       },
       {
         name: "advanced",
-        title: __2("Advanced", "digiblocks"),
-        icon: tabIcons2.advancedIcon
+        title: __4("Advanced", "digiblocks"),
+        icon: tabIcons4.advancedIcon
       }
     ];
     const stateTabList = [
       {
         name: "normal",
-        title: __2("Normal", "digiblocks"),
+        title: __4("Normal", "digiblocks"),
         className: "digiblocks-tab-1 normal"
       },
       {
         name: "hover",
-        title: __2("Hover", "digiblocks"),
+        title: __4("Hover", "digiblocks"),
         className: "digiblocks-tab-2 hover"
       }
     ];
@@ -1508,7 +2543,7 @@
       const newButtonId = `button-${buttons.length + 1}`;
       const newButtons = [...buttons, {
         id: newButtonId,
-        text: __2("Click Here", "digiblocks"),
+        text: __4("Click Here", "digiblocks"),
         url: "#",
         openInNewTab: false,
         rel: "",
@@ -2423,27 +3458,27 @@
       return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, before, /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cta-highlight" }, highlight), after);
     };
     const renderButtonEditor = (button, index) => {
-      return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-button-editor", key: button.id, style: { marginBottom: "20px", padding: "15px", border: "1px solid #ddd", borderRadius: "5px" } }, /* @__PURE__ */ wp.element.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" } }, /* @__PURE__ */ wp.element.createElement("h3", { style: { margin: 0 } }, __2("Button", "digiblocks"), " ", index + 1), buttons.length > 1 && /* @__PURE__ */ wp.element.createElement(
-        Button2,
+      return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-button-editor", key: button.id, style: { marginBottom: "20px", padding: "15px", border: "1px solid #ddd", borderRadius: "5px" } }, /* @__PURE__ */ wp.element.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" } }, /* @__PURE__ */ wp.element.createElement("h3", { style: { margin: 0 } }, __4("Button", "digiblocks"), " ", index + 1), buttons.length > 1 && /* @__PURE__ */ wp.element.createElement(
+        Button3,
         {
           isDestructive: true,
           onClick: () => removeButton(button.id),
           icon: "trash"
         },
-        __2("Remove", "digiblocks")
+        __4("Remove", "digiblocks")
       )), /* @__PURE__ */ wp.element.createElement(
         TextControl,
         {
-          label: __2("Button Text", "digiblocks"),
+          label: __4("Button Text", "digiblocks"),
           value: button.text || "",
           onChange: (value) => updateButton(button.id, "text", value),
           __next40pxDefaultSize: true,
           __nextHasNoMarginBottom: true
         }
       ), /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-        LinkControl,
+        LinkControl2,
         {
-          label: __2("Button Link", "digiblocks"),
+          label: __4("Button Link", "digiblocks"),
           value: {
             url: button.url || "",
             opensInNewTab: button.openInNewTab,
@@ -2452,11 +3487,11 @@
           settings: [
             {
               id: "opensInNewTab",
-              title: __2("Open in new tab", "digiblocks")
+              title: __4("Open in new tab", "digiblocks")
             },
             {
               id: "rel",
-              title: __2("Add noopener noreferrer", "digiblocks")
+              title: __4("Add noopener noreferrer", "digiblocks")
             }
           ],
           onChange: (linkObject) => {
@@ -2466,65 +3501,65 @@
           }
         }
       )), /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "15px" } }, /* @__PURE__ */ wp.element.createElement(
-        ToggleControl2,
+        ToggleControl3,
         {
-          label: __2("Primary Button", "digiblocks"),
+          label: __4("Primary Button", "digiblocks"),
           checked: button.isPrimary || false,
           onChange: (value) => updateButton(button.id, "isPrimary", value),
           __next40pxDefaultSize: true,
           __nextHasNoMarginBottom: true
         }
       ), /* @__PURE__ */ wp.element.createElement(
-        ToggleControl2,
+        ToggleControl3,
         {
-          label: __2("Full Width Button", "digiblocks"),
+          label: __4("Full Width Button", "digiblocks"),
           checked: button.isFullWidth || false,
           onChange: (value) => updateButton(button.id, "isFullWidth", value),
           __next40pxDefaultSize: true,
           __nextHasNoMarginBottom: true
         }
       ), /* @__PURE__ */ wp.element.createElement(
-        ToggleControl2,
+        ToggleControl3,
         {
-          label: __2("Custom Colors", "digiblocks"),
+          label: __4("Custom Colors", "digiblocks"),
           checked: button.customColors || false,
           onChange: (value) => updateButton(button.id, "customColors", value),
           __next40pxDefaultSize: true,
           __nextHasNoMarginBottom: true
         }
       )), button.customColors && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "15px" } }, /* @__PURE__ */ wp.element.createElement(
-        PanelColorSettings2,
+        PanelColorSettings3,
         {
-          title: __2("Button Colors", "digiblocks"),
+          title: __4("Button Colors", "digiblocks"),
           initialOpen: true,
           enableAlpha: true,
           colorSettings: [
             {
               value: button.backgroundColor,
               onChange: (value) => updateButton(button.id, "backgroundColor", value),
-              label: __2("Background Color", "digiblocks")
+              label: __4("Background Color", "digiblocks")
             },
             {
               value: button.textColor,
               onChange: (value) => updateButton(button.id, "textColor", value),
-              label: __2("Text Color", "digiblocks")
+              label: __4("Text Color", "digiblocks")
             },
             {
               value: button.hoverBackgroundColor,
               onChange: (value) => updateButton(button.id, "hoverBackgroundColor", value),
-              label: __2("Hover Background Color", "digiblocks")
+              label: __4("Hover Background Color", "digiblocks")
             },
             {
               value: button.hoverTextColor,
               onChange: (value) => updateButton(button.id, "hoverTextColor", value),
-              label: __2("Hover Text Color", "digiblocks")
+              label: __4("Hover Text Color", "digiblocks")
             }
           ]
         }
       ), /* @__PURE__ */ wp.element.createElement(
         TextControl,
         {
-          label: __2("Border Radius", "digiblocks"),
+          label: __4("Border Radius", "digiblocks"),
           type: "number",
           value: button.borderRadius || "",
           onChange: (value) => updateButton(button.id, "borderRadius", value),
@@ -2537,27 +3572,27 @@
       switch (activeTab) {
         case "options":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody2,
+            TabPanelBody4,
             {
               tab: "options",
               name: "general",
-              title: __2("General", "digiblocks"),
+              title: __4("General", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
               BaseControl,
               {
-                label: __2("CTA Style", "digiblocks"),
+                label: __4("CTA Style", "digiblocks"),
                 id: "cta-style-selector",
                 className: "digiblocks-cta-style-selector"
               },
               /* @__PURE__ */ wp.element.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "4px", justifyContent: "center", margin: "0 -5px" } }, styleOptions.map((styleOption) => /* @__PURE__ */ wp.element.createElement("div", { key: styleOption.value }, renderStylePreview(styleOption))))
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl2,
+              ToggleControl3,
               {
-                label: __2("Horizontal Layout", "digiblocks"),
-                help: __2("Display content and buttons side by side", "digiblocks"),
+                label: __4("Horizontal Layout", "digiblocks"),
+                help: __4("Display content and buttons side by side", "digiblocks"),
                 checked: horizontalLayout || false,
                 onChange: (value) => setAttributes({ horizontalLayout: value }),
                 __next40pxDefaultSize: true,
@@ -2565,9 +3600,9 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl2,
+              SelectControl4,
               {
-                label: __2("Heading Tag", "digiblocks"),
+                label: __4("Heading Tag", "digiblocks"),
                 value: headingTag || "h2",
                 options: headingTagOptions,
                 onChange: (value) => setAttributes({ headingTag: value }),
@@ -2576,9 +3611,9 @@
               }
             ),
             style === "split" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControl2,
+              ToggleGroupControl4,
               {
-                label: __2("Vertical Align", "digiblocks"),
+                label: __4("Vertical Align", "digiblocks"),
                 value: verticalAlign || "center",
                 onChange: (value) => setAttributes({ verticalAlign: value }),
                 isBlock: true,
@@ -2586,7 +3621,7 @@
                 __nextHasNoMarginBottom: true
               },
               verticalAlignOptions.map((option) => /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption2,
+                ToggleGroupControlOption4,
                 {
                   key: option.value,
                   value: option.value,
@@ -2594,10 +3629,10 @@
                 }
               ))
             ), /* @__PURE__ */ wp.element.createElement(
-              ToggleControl2,
+              ToggleControl3,
               {
-                label: __2("Reverse Columns on Mobile", "digiblocks"),
-                help: __2("Place the image above the text on mobile devices", "digiblocks"),
+                label: __4("Reverse Columns on Mobile", "digiblocks"),
+                help: __4("Place the image above the text on mobile devices", "digiblocks"),
                 checked: reverseColumnsMobile || false,
                 onChange: (value) => setAttributes({ reverseColumnsMobile: value }),
                 __next40pxDefaultSize: true,
@@ -2605,12 +3640,12 @@
               }
             )),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl2,
+              ResponsiveControl4,
               {
-                label: __2("Content Width", "digiblocks")
+                label: __4("Content Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl2,
+                RangeControl3,
                 {
                   value: contentWidth,
                   onChange: (value) => setAttributes({ contentWidth: value }),
@@ -2623,12 +3658,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl2,
+              ResponsiveControl4,
               {
-                label: __2("Min Height", "digiblocks")
+                label: __4("Min Height", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl2,
+                RangeControl3,
                 {
                   value: minHeight && minHeight[localActiveDevice] ? minHeight[localActiveDevice] : 0,
                   onChange: (value) => setAttributes({
@@ -2646,19 +3681,19 @@
               )
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody2,
+            TabPanelBody4,
             {
               tab: "options",
               name: "content",
-              title: __2("Content", "digiblocks"),
+              title: __4("Content", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
               BaseControl,
               {
-                label: __2("Title Highlight", "digiblocks"),
+                label: __4("Title Highlight", "digiblocks"),
                 id: "title-highlight",
-                help: __2("Enter text within the title to highlight", "digiblocks")
+                help: __4("Enter text within the title to highlight", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
                 TextControl,
@@ -2671,9 +3706,9 @@
               )
             ),
             highlightText && /* @__PURE__ */ wp.element.createElement(
-              SelectControl2,
+              SelectControl4,
               {
-                label: __2("Highlight Type", "digiblocks"),
+                label: __4("Highlight Type", "digiblocks"),
                 value: highlightType || "background",
                 options: highlightTypeOptions,
                 onChange: (value) => setAttributes({ highlightType: value }),
@@ -2682,32 +3717,32 @@
               }
             ),
             highlightText && highlightType && highlightType !== "none" && /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings2,
+              PanelColorSettings3,
               {
-                title: __2("Highlight Color", "digiblocks"),
+                title: __4("Highlight Color", "digiblocks"),
                 initialOpen: true,
                 enableAlpha: true,
                 colorSettings: [
                   {
                     value: highlightColor,
                     onChange: (value) => setAttributes({ highlightColor: value }),
-                    label: __2("Highlight Color", "digiblocks")
+                    label: __4("Highlight Color", "digiblocks")
                   }
                 ]
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody2,
+            TabPanelBody4,
             {
               tab: "options",
               name: "buttons",
-              title: __2("Buttons", "digiblocks"),
+              title: __4("Buttons", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControl2,
+              ToggleGroupControl4,
               {
-                label: __2("Buttons Alignment", "digiblocks"),
+                label: __4("Buttons Alignment", "digiblocks"),
                 value: buttonsAlign || "left",
                 onChange: (value) => setAttributes({ buttonsAlign: value }),
                 isBlock: true,
@@ -2715,7 +3750,7 @@
                 __nextHasNoMarginBottom: true
               },
               buttonsAlignOptions.map((option) => /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption2,
+                ToggleGroupControlOption4,
                 {
                   key: option.value,
                   value: option.value,
@@ -2724,12 +3759,12 @@
               ))
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl2,
+              ResponsiveControl4,
               {
-                label: __2("Padding", "digiblocks")
+                label: __4("Padding", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl2,
+                DimensionControl3,
                 {
                   values: buttonPadding && buttonPadding[localActiveDevice] ? buttonPadding[localActiveDevice] : {
                     top: 10,
@@ -2748,12 +3783,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl2,
+              ResponsiveControl4,
               {
-                label: __2("Border Radius", "digiblocks")
+                label: __4("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl2,
+                DimensionControl3,
                 {
                   values: buttonBorderRadius && buttonBorderRadius[localActiveDevice] ? buttonBorderRadius[localActiveDevice] : {
                     top: 4,
@@ -2777,26 +3812,26 @@
             ),
             /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-button-list" }, buttons && buttons.map((button, i) => renderButtonEditor(button, i))),
             /* @__PURE__ */ wp.element.createElement(
-              Button2,
+              Button3,
               {
                 variant: "secondary",
                 onClick: addButton,
                 style: { marginTop: "10px", width: "100%" }
               },
-              __2("Add Button", "digiblocks")
+              __4("Add Button", "digiblocks")
             )
           ));
         case "style":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody2,
+            TabPanelBody4,
             {
               tab: "style",
               name: "colors",
-              title: __2("Colors", "digiblocks"),
+              title: __4("Colors", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              TabPanel2,
+              TabPanel4,
               {
                 className: "digiblocks-control-tabs",
                 activeClass: "active-tab",
@@ -2805,108 +3840,108 @@
               (tab) => {
                 if (tab.name === "normal") {
                   return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-                    PanelColorSettings2,
+                    PanelColorSettings3,
                     {
-                      title: __2("Text Colors", "digiblocks"),
+                      title: __4("Text Colors", "digiblocks"),
                       initialOpen: true,
                       enableAlpha: true,
                       colorSettings: [
                         {
                           value: titleColor,
                           onChange: (value) => setAttributes({ titleColor: value }),
-                          label: __2("Title Color", "digiblocks")
+                          label: __4("Title Color", "digiblocks")
                         },
                         {
                           value: textColor,
                           onChange: (value) => setAttributes({ textColor: value }),
-                          label: __2("Text Color", "digiblocks")
+                          label: __4("Text Color", "digiblocks")
                         }
                       ]
                     }
                   ), /* @__PURE__ */ wp.element.createElement(
-                    PanelColorSettings2,
+                    PanelColorSettings3,
                     {
-                      title: __2("Button Colors", "digiblocks"),
+                      title: __4("Button Colors", "digiblocks"),
                       initialOpen: false,
                       enableAlpha: true,
                       colorSettings: [
                         {
                           value: buttonColor,
                           onChange: (value) => setAttributes({ buttonColor: value }),
-                          label: __2("Button Color", "digiblocks")
+                          label: __4("Button Color", "digiblocks")
                         },
                         {
                           value: buttonTextColor,
                           onChange: (value) => setAttributes({ buttonTextColor: value }),
-                          label: __2("Button Text Color", "digiblocks")
+                          label: __4("Button Text Color", "digiblocks")
                         }
                       ]
                     }
                   ), borderStyle && borderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(
-                    PanelColorSettings2,
+                    PanelColorSettings3,
                     {
-                      title: __2("Border Color", "digiblocks"),
+                      title: __4("Border Color", "digiblocks"),
                       initialOpen: false,
                       enableAlpha: true,
                       colorSettings: [
                         {
                           value: borderColor,
                           onChange: (value) => setAttributes({ borderColor: value }),
-                          label: __2("Border Color", "digiblocks")
+                          label: __4("Border Color", "digiblocks")
                         }
                       ]
                     }
                   ));
                 } else {
                   return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-                    PanelColorSettings2,
+                    PanelColorSettings3,
                     {
-                      title: __2("Text Hover Colors", "digiblocks"),
+                      title: __4("Text Hover Colors", "digiblocks"),
                       initialOpen: true,
                       enableAlpha: true,
                       colorSettings: [
                         {
                           value: titleHoverColor,
                           onChange: (value) => setAttributes({ titleHoverColor: value }),
-                          label: __2("Title Hover Color", "digiblocks")
+                          label: __4("Title Hover Color", "digiblocks")
                         },
                         {
                           value: textHoverColor,
                           onChange: (value) => setAttributes({ textHoverColor: value }),
-                          label: __2("Text Hover Color", "digiblocks")
+                          label: __4("Text Hover Color", "digiblocks")
                         }
                       ]
                     }
                   ), /* @__PURE__ */ wp.element.createElement(
-                    PanelColorSettings2,
+                    PanelColorSettings3,
                     {
-                      title: __2("Button Hover Colors", "digiblocks"),
+                      title: __4("Button Hover Colors", "digiblocks"),
                       initialOpen: false,
                       enableAlpha: true,
                       colorSettings: [
                         {
                           value: buttonHoverColor,
                           onChange: (value) => setAttributes({ buttonHoverColor: value }),
-                          label: __2("Button Hover Color", "digiblocks")
+                          label: __4("Button Hover Color", "digiblocks")
                         },
                         {
                           value: buttonTextHoverColor,
                           onChange: (value) => setAttributes({ buttonTextHoverColor: value }),
-                          label: __2("Button Text Hover Color", "digiblocks")
+                          label: __4("Button Text Hover Color", "digiblocks")
                         }
                       ]
                     }
                   ), backgroundType === "color" && style !== "gradient" && /* @__PURE__ */ wp.element.createElement(
-                    PanelColorSettings2,
+                    PanelColorSettings3,
                     {
-                      title: __2("Background Hover Color", "digiblocks"),
+                      title: __4("Background Hover Color", "digiblocks"),
                       initialOpen: false,
                       enableAlpha: true,
                       colorSettings: [
                         {
                           value: backgroundHoverColor,
                           onChange: (value) => setAttributes({ backgroundHoverColor: value }),
-                          label: __2("Background Hover Color", "digiblocks")
+                          label: __4("Background Hover Color", "digiblocks")
                         }
                       ]
                     }
@@ -2915,17 +3950,17 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody2,
+            TabPanelBody4,
             {
               tab: "style",
               name: "background",
-              title: __2("Background", "digiblocks"),
+              title: __4("Background", "digiblocks"),
               initialOpen: false
             },
             style !== "gradient" && /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControl2,
+              ToggleGroupControl4,
               {
-                label: __2("Background Type", "digiblocks"),
+                label: __4("Background Type", "digiblocks"),
                 value: backgroundType || "color",
                 onChange: (value) => setAttributes({ backgroundType: value }),
                 isBlock: true,
@@ -2933,7 +3968,7 @@
                 __nextHasNoMarginBottom: true
               },
               backgroundTypeOptions.map((option) => /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption2,
+                ToggleGroupControlOption4,
                 {
                   key: option.value,
                   value: option.value,
@@ -2942,36 +3977,36 @@
               ))
             ),
             backgroundType === "color" && style !== "gradient" && /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings2,
+              PanelColorSettings3,
               {
-                title: __2("Background Color", "digiblocks"),
+                title: __4("Background Color", "digiblocks"),
                 initialOpen: true,
                 enableAlpha: true,
                 colorSettings: [
                   {
                     value: backgroundColor,
                     onChange: (value) => setAttributes({ backgroundColor: value }),
-                    label: __2("Background Color", "digiblocks")
+                    label: __4("Background Color", "digiblocks")
                   }
                 ]
               }
             ),
             backgroundType === "gradient" || style === "gradient" ? /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings2,
+              PanelColorSettings3,
               {
-                title: __2("Gradient Colors", "digiblocks"),
+                title: __4("Gradient Colors", "digiblocks"),
                 initialOpen: true,
                 enableAlpha: true,
                 colorSettings: [
                   {
                     value: backgroundColor,
                     onChange: (value) => setAttributes({ backgroundColor: value }),
-                    label: __2("Start Color", "digiblocks")
+                    label: __4("Start Color", "digiblocks")
                   },
                   {
                     value: backgroundHoverColor,
                     onChange: (value) => setAttributes({ backgroundHoverColor: value }),
-                    label: __2("End Color", "digiblocks")
+                    label: __4("End Color", "digiblocks")
                   }
                 ]
               }
@@ -2993,14 +4028,14 @@
                 allowedTypes: ["image"],
                 value: backgroundImage?.id,
                 render: ({ open }) => /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, !backgroundImage?.url ? /* @__PURE__ */ wp.element.createElement("div", { style: { marginBottom: "8px" } }, /* @__PURE__ */ wp.element.createElement(
-                  Button2,
+                  Button3,
                   {
                     variant: "secondary",
                     onClick: open,
                     icon: "format-image",
                     style: { width: "100%" }
                   },
-                  __2("Select Image", "digiblocks")
+                  __4("Select Image", "digiblocks")
                 )) : /* @__PURE__ */ wp.element.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ wp.element.createElement(
                   "img",
                   {
@@ -3016,27 +4051,27 @@
                     }
                   }
                 ), /* @__PURE__ */ wp.element.createElement("div", { style: { display: "flex", gap: "8px" } }, /* @__PURE__ */ wp.element.createElement(
-                  Button2,
+                  Button3,
                   {
                     variant: "secondary",
                     onClick: open,
                     style: { flexGrow: 1 }
                   },
-                  __2("Replace", "digiblocks")
+                  __4("Replace", "digiblocks")
                 ), /* @__PURE__ */ wp.element.createElement(
-                  Button2,
+                  Button3,
                   {
                     variant: "secondary",
                     onClick: () => setAttributes({ backgroundImage: null }),
                     isDestructive: true
                   },
-                  __2("Remove", "digiblocks")
+                  __4("Remove", "digiblocks")
                 ))))
               }
             ))), backgroundImage?.url && !style.includes("split") && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              RangeControl2,
+              RangeControl3,
               {
-                label: __2("Overlay Opacity (%)", "digiblocks"),
+                label: __4("Overlay Opacity (%)", "digiblocks"),
                 value: backgroundOverlayOpacity || 50,
                 onChange: (value) => setAttributes({ backgroundOverlayOpacity: value }),
                 min: 0,
@@ -3046,22 +4081,22 @@
                 __nextHasNoMarginBottom: true
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings2,
+              PanelColorSettings3,
               {
-                title: __2("Overlay Color", "digiblocks"),
+                title: __4("Overlay Color", "digiblocks"),
                 enableAlpha: true,
                 colorSettings: [
                   {
                     value: backgroundOverlayColor,
                     onChange: (value) => setAttributes({ backgroundOverlayColor: value }),
-                    label: __2("Overlay Color", "digiblocks")
+                    label: __4("Overlay Color", "digiblocks")
                   }
                 ]
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              SelectControl2,
+              SelectControl4,
               {
-                label: __2("Background Position", "digiblocks"),
+                label: __4("Background Position", "digiblocks"),
                 value: backgroundPosition || "center center",
                 options: backgroundPositionOptions,
                 onChange: (value) => setAttributes({ backgroundPosition: value }),
@@ -3069,9 +4104,9 @@
                 __nextHasNoMarginBottom: true
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              SelectControl2,
+              SelectControl4,
               {
-                label: __2("Background Size", "digiblocks"),
+                label: __4("Background Size", "digiblocks"),
                 value: backgroundSize || "cover",
                 options: backgroundSizeOptions,
                 onChange: (value) => setAttributes({ backgroundSize: value }),
@@ -3079,9 +4114,9 @@
                 __nextHasNoMarginBottom: true
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              SelectControl2,
+              SelectControl4,
               {
-                label: __2("Background Repeat", "digiblocks"),
+                label: __4("Background Repeat", "digiblocks"),
                 value: backgroundRepeat || "no-repeat",
                 options: backgroundRepeatOptions,
                 onChange: (value) => setAttributes({ backgroundRepeat: value }),
@@ -3090,49 +4125,49 @@
               }
             )))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody2,
+            TabPanelBody4,
             {
               tab: "style",
               name: "typography",
-              title: __2("Typography", "digiblocks"),
+              title: __4("Typography", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl2,
+              TypographyControl3,
               {
-                label: __2("Title Typography", "digiblocks"),
+                label: __4("Title Typography", "digiblocks"),
                 value: titleTypography,
                 onChange: (value) => setAttributes({ titleTypography: value })
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl2,
+              TypographyControl3,
               {
-                label: __2("Content Typography", "digiblocks"),
+                label: __4("Content Typography", "digiblocks"),
                 value: contentTypography,
                 onChange: (value) => setAttributes({ contentTypography: value })
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl2,
+              TypographyControl3,
               {
-                label: __2("Button Typography", "digiblocks"),
+                label: __4("Button Typography", "digiblocks"),
                 value: buttonTypography,
                 onChange: (value) => setAttributes({ buttonTypography: value })
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody2,
+            TabPanelBody4,
             {
               tab: "style",
               name: "border",
-              title: __2("Border", "digiblocks"),
+              title: __4("Border", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl2,
+              SelectControl4,
               {
-                label: __2("Border Style", "digiblocks"),
+                label: __4("Border Style", "digiblocks"),
                 value: borderStyle || "none",
                 options: borderStyleOptions,
                 onChange: (value) => setAttributes({ borderStyle: value }),
@@ -3141,12 +4176,12 @@
               }
             ),
             borderStyle && borderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl2,
+              ResponsiveControl4,
               {
-                label: __2("Border Width", "digiblocks")
+                label: __4("Border Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl2,
+                DimensionControl3,
                 {
                   values: borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : {
                     top: 1,
@@ -3164,12 +4199,12 @@
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl2,
+              ResponsiveControl4,
               {
-                label: __2("Border Radius", "digiblocks")
+                label: __4("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl2,
+                DimensionControl3,
                 {
                   values: borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
                     top: 0,
@@ -3192,20 +4227,20 @@
               )
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody2,
+            TabPanelBody4,
             {
               tab: "style",
               name: "spacing",
-              title: __2("Spacing", "digiblocks"),
+              title: __4("Spacing", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl2,
+              ResponsiveControl4,
               {
-                label: __2("Padding", "digiblocks")
+                label: __4("Padding", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl2,
+                DimensionControl3,
                 {
                   values: padding && padding[localActiveDevice] ? padding[localActiveDevice] : {
                     top: 40,
@@ -3224,12 +4259,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl2,
+              ResponsiveControl4,
               {
-                label: __2("Margin", "digiblocks")
+                label: __4("Margin", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl2,
+                DimensionControl3,
                 {
                   values: margin && margin[localActiveDevice] ? margin[localActiveDevice] : {
                     top: 0,
@@ -3248,15 +4283,15 @@
               )
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody2,
+            TabPanelBody4,
             {
               tab: "style",
               name: "shadow",
-              title: __2("Box Shadow", "digiblocks"),
+              title: __4("Box Shadow", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              BoxShadowControl2,
+              BoxShadowControl3,
               {
                 normalValue: boxShadow || {
                   enable: false,
@@ -3283,17 +4318,17 @@
           ));
         case "advanced":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody2,
+            TabPanelBody4,
             {
               tab: "advanced",
               name: "animation",
-              title: __2("Animation", "digiblocks"),
+              title: __4("Animation", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl2,
+              SelectControl4,
               {
-                label: __2("Animation Effect", "digiblocks"),
+                label: __4("Animation Effect", "digiblocks"),
                 value: animation || "none",
                 options: animationOptions,
                 onChange: (value) => setAttributes({ animation: value }),
@@ -3302,24 +4337,24 @@
               }
             ),
             animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button2,
+              Button3,
               {
                 variant: "secondary",
                 isSecondary: true,
                 onClick: triggerAnimationPreview,
                 style: { width: "100%" }
               },
-              __2("Preview Animation", "digiblocks")
+              __4("Preview Animation", "digiblocks")
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody2,
+            TabPanelBody4,
             {
               tab: "advanced",
               name: "additional",
-              title: __2("Additional", "digiblocks"),
+              title: __4("Additional", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __2("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __4("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -3331,7 +4366,7 @@
                 autoCapitalize: "none",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __2(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __4(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
               "a",
               {
                 className: "components-external-link",
@@ -3339,10 +4374,10 @@
                 target: "_blank",
                 rel: "external noreferrer noopener"
               },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __2("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __4("Learn more about anchors", "digiblocks")),
               /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
             ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __2("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __4("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -3353,13 +4388,13 @@
                 "aria-describedby": "additional-css-classes-help",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __2("Separate multiple classes with spaces.", "digiblocks")))
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __4("Separate multiple classes with spaces.", "digiblocks")))
           ));
         default:
           return null;
       }
     };
-    const blockProps = useBlockProps3({
+    const blockProps = useBlockProps7({
       className: `digiblocks-cta style-${style} ${animation !== "none" ? `animate-${animation}` : ""} ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
@@ -3390,7 +4425,7 @@
             className: buttonClasses,
             style: button.customColors ? buttonStyle : {}
           },
-          button.text || __2("Click Here", "digiblocks")
+          button.text || __4("Click Here", "digiblocks")
         );
       }));
     };
@@ -3399,23 +4434,23 @@
       switch (style) {
         case "split":
           return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-split-container" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-content-container" }, /* @__PURE__ */ wp.element.createElement("div", { className: `digiblocks-cta-container ${horizontalLayout ? "digiblocks-cta-horizontal" : ""}` }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-content-wrapper" }, /* @__PURE__ */ wp.element.createElement(
-            RichText3,
+            RichText5,
             {
               tagName: HeadingTag,
               className: "digiblocks-cta-title",
               value: title,
               onChange: (value) => setAttributes({ title: value }),
-              placeholder: __2("Add title...", "digiblocks"),
+              placeholder: __4("Add title...", "digiblocks"),
               allowedFormats: ["core/bold", "core/italic"]
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            RichText3,
+            RichText5,
             {
               tagName: "p",
               className: "digiblocks-cta-content",
               value: content,
               onChange: (value) => setAttributes({ content: value }),
-              placeholder: __2("Add content...", "digiblocks")
+              placeholder: __4("Add content...", "digiblocks")
             }
           )), renderButtons())), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-image-container" }, !backgroundImage?.url && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-image-placeholder" }, /* @__PURE__ */ wp.element.createElement(MediaUploadCheck, null, /* @__PURE__ */ wp.element.createElement(
             MediaUpload,
@@ -3434,35 +4469,35 @@
               allowedTypes: ["image"],
               value: backgroundImage?.id,
               render: ({ open }) => /* @__PURE__ */ wp.element.createElement(
-                Button2,
+                Button3,
                 {
                   variant: "secondary",
                   onClick: open,
                   icon: "format-image"
                 },
-                __2("Select Image", "digiblocks")
+                __4("Select Image", "digiblocks")
               )
             }
           )))));
         case "cover":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-background" }), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-overlay" }), /* @__PURE__ */ wp.element.createElement("div", { className: `digiblocks-cta-container ${horizontalLayout ? "digiblocks-cta-horizontal" : ""}` }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-content-wrapper" }, /* @__PURE__ */ wp.element.createElement(
-            RichText3,
+            RichText5,
             {
               tagName: HeadingTag,
               className: "digiblocks-cta-title",
               value: title,
               onChange: (value) => setAttributes({ title: value }),
-              placeholder: __2("Add title...", "digiblocks"),
+              placeholder: __4("Add title...", "digiblocks"),
               allowedFormats: ["core/bold", "core/italic"]
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            RichText3,
+            RichText5,
             {
               tagName: "p",
               className: "digiblocks-cta-content",
               value: content,
               onChange: (value) => setAttributes({ content: value }),
-              placeholder: __2("Add content...", "digiblocks")
+              placeholder: __4("Add content...", "digiblocks")
             }
           )), renderButtons()), !backgroundImage?.url && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-image-placeholder" }, /* @__PURE__ */ wp.element.createElement(MediaUploadCheck, null, /* @__PURE__ */ wp.element.createElement(
             MediaUpload,
@@ -3481,43 +4516,43 @@
               allowedTypes: ["image"],
               value: backgroundImage?.id,
               render: ({ open }) => /* @__PURE__ */ wp.element.createElement(
-                Button2,
+                Button3,
                 {
                   variant: "secondary",
                   onClick: open,
                   icon: "format-image"
                 },
-                __2("Select Background Image", "digiblocks")
+                __4("Select Background Image", "digiblocks")
               )
             }
           ))));
         default:
           return /* @__PURE__ */ wp.element.createElement("div", { className: `digiblocks-cta-container ${horizontalLayout ? "digiblocks-cta-horizontal" : ""}` }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-content-wrapper" }, /* @__PURE__ */ wp.element.createElement(
-            RichText3,
+            RichText5,
             {
               tagName: HeadingTag,
               className: "digiblocks-cta-title",
               value: title,
               onChange: (value) => setAttributes({ title: value }),
-              placeholder: __2("Add title...", "digiblocks"),
+              placeholder: __4("Add title...", "digiblocks"),
               allowedFormats: ["core/bold", "core/italic"],
               withoutInteractiveFormatting: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            RichText3,
+            RichText5,
             {
               tagName: "p",
               className: "digiblocks-cta-content",
               value: content,
               onChange: (value) => setAttributes({ content: value }),
-              placeholder: __2("Add content...", "digiblocks"),
+              placeholder: __4("Add content...", "digiblocks"),
               withoutInteractiveFormatting: true
             }
           )), renderButtons());
       }
     };
-    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls2, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel2,
+    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls4, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel4,
       {
         tabs: tabList,
         activeTab,
@@ -3532,10 +4567,10 @@
       }
     )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, getBlockContent()));
   };
-  var edit_default2 = CallToActionEdit;
+  var edit_default4 = CallToActionEdit;
 
   // blocks/call-to-action/save.js
-  var { useBlockProps: useBlockProps4, RichText: RichText4 } = window.wp.blockEditor;
+  var { useBlockProps: useBlockProps8, RichText: RichText6 } = window.wp.blockEditor;
   var CallToActionSave = ({ attributes }) => {
     const {
       id,
@@ -3591,14 +4626,14 @@
       switch (style) {
         case "split":
           return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-split-container" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-content-container" }, /* @__PURE__ */ wp.element.createElement("div", { className: `digiblocks-cta-container ${horizontalLayout ? "digiblocks-cta-horizontal" : ""}` }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-content-wrapper" }, /* @__PURE__ */ wp.element.createElement(
-            RichText4.Content,
+            RichText6.Content,
             {
               tagName: HeadingTag,
               className: "digiblocks-cta-title",
               value: title
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            RichText4.Content,
+            RichText6.Content,
             {
               tagName: "p",
               className: "digiblocks-cta-content",
@@ -3607,14 +4642,14 @@
           )), renderButtons())), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-image-container" }));
         case "cover":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-background" }), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-overlay" }), /* @__PURE__ */ wp.element.createElement("div", { className: `digiblocks-cta-container ${horizontalLayout ? "digiblocks-cta-horizontal" : ""}` }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-content-wrapper" }, /* @__PURE__ */ wp.element.createElement(
-            RichText4.Content,
+            RichText6.Content,
             {
               tagName: HeadingTag,
               className: "digiblocks-cta-title",
               value: title
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            RichText4.Content,
+            RichText6.Content,
             {
               tagName: "p",
               className: "digiblocks-cta-content",
@@ -3623,14 +4658,14 @@
           )), renderButtons()));
         default:
           return /* @__PURE__ */ wp.element.createElement("div", { className: `digiblocks-cta-container ${horizontalLayout ? "digiblocks-cta-horizontal" : ""}` }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cta-content-wrapper" }, /* @__PURE__ */ wp.element.createElement(
-            RichText4.Content,
+            RichText6.Content,
             {
               tagName: HeadingTag,
               className: "digiblocks-cta-title",
               value: title
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            RichText4.Content,
+            RichText6.Content,
             {
               tagName: "p",
               className: "digiblocks-cta-content",
@@ -3642,7 +4677,7 @@
     return /* @__PURE__ */ wp.element.createElement(
       "div",
       {
-        ...useBlockProps4.save({
+        ...useBlockProps8.save({
           className: blockClasses,
           id: anchor || null,
           "data-custom-id": id,
@@ -3657,33 +4692,33 @@
       getBlockContent()
     );
   };
-  var save_default2 = CallToActionSave;
+  var save_default4 = CallToActionSave;
 
   // blocks/countdown/edit.js
-  var { __: __3 } = window.wp.i18n;
+  var { __: __5 } = window.wp.i18n;
   var {
-    useBlockProps: useBlockProps5,
-    InspectorControls: InspectorControls3,
-    PanelColorSettings: PanelColorSettings3,
+    useBlockProps: useBlockProps9,
+    InspectorControls: InspectorControls5,
+    PanelColorSettings: PanelColorSettings4,
     BlockControls: BlockControls2,
     AlignmentToolbar: AlignmentToolbar2
   } = window.wp.blockEditor;
   var {
-    SelectControl: SelectControl3,
-    RangeControl: RangeControl3,
-    TabPanel: TabPanel3,
-    ToggleControl: ToggleControl3,
+    SelectControl: SelectControl5,
+    RangeControl: RangeControl4,
+    TabPanel: TabPanel5,
+    ToggleControl: ToggleControl4,
     TextControl: TextControl2,
     DateTimePicker,
-    Button: Button3,
-    __experimentalToggleGroupControl: ToggleGroupControl3,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption3,
+    Button: Button4,
+    __experimentalToggleGroupControl: ToggleGroupControl5,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption5,
     BaseControl: BaseControl2
   } = window.wp.components;
-  var { useState: useState3, useEffect: useEffect3, useRef: useRef3 } = window.wp.element;
-  var { animations: animations3 } = digi.utils;
-  var { tabIcons: tabIcons3 } = digi.icons;
-  var { ResponsiveControl: ResponsiveControl3, DimensionControl: DimensionControl3, TypographyControl: TypographyControl3, BoxShadowControl: BoxShadowControl3, CustomTabPanel: CustomTabPanel3, TabPanelBody: TabPanelBody3 } = digi.components;
+  var { useState: useState5, useEffect: useEffect5, useRef: useRef3 } = window.wp.element;
+  var { animations: animations5 } = digi.utils;
+  var { tabIcons: tabIcons5 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl5, DimensionControl: DimensionControl4, TypographyControl: TypographyControl4, BoxShadowControl: BoxShadowControl4, CustomTabPanel: CustomTabPanel5, TabPanelBody: TabPanelBody5 } = digi.components;
   var CountdownEdit = ({ attributes, setAttributes, clientId }) => {
     const {
       id,
@@ -3728,25 +4763,25 @@
       boxesEqual,
       style
     } = attributes;
-    const [localActiveDevice, setLocalActiveDevice] = useState3(window.digi.responsiveState.activeDevice);
-    const [timeRemaining, setTimeRemaining] = useState3({
+    const [localActiveDevice, setLocalActiveDevice] = useState5(window.digi.responsiveState.activeDevice);
+    const [timeRemaining, setTimeRemaining] = useState5({
       days: 30,
       hours: 23,
       minutes: 59,
       seconds: 59
     });
-    const [isAnimating, setIsAnimating] = useState3(false);
+    const [isAnimating, setIsAnimating] = useState5(false);
     const previewTimeoutRef = useRef3(null);
     const countdownIntervalRef = useRef3(null);
-    useEffect3(() => {
+    useEffect5(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    const [activeTab, setActiveTab] = useState3("options");
-    const [activeStyleTab, setActiveStyleTab] = useState3("normal");
-    useEffect3(() => {
+    const [activeTab, setActiveTab] = useState5("options");
+    const [activeStyleTab, setActiveStyleTab] = useState5("normal");
+    useEffect5(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
@@ -3808,8 +4843,8 @@
       }
       setIsAnimating(true);
       const timestamp = Date.now();
-      if (animations3[animation]) {
-        const originalKeyframes = animations3[animation].keyframes;
+      if (animations5[animation]) {
+        const originalKeyframes = animations5[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
           console.error("Could not extract animation name from keyframes");
@@ -3851,7 +4886,7 @@
         }, 1500);
       }
     };
-    useEffect3(() => {
+    useEffect5(() => {
       if (animation && animation !== "none") {
         const timeoutId = setTimeout(() => {
           triggerAnimationPreview();
@@ -3860,31 +4895,31 @@
       }
     }, [animation]);
     const boxStyleOptions = [
-      { label: __3("Default", "digiblocks"), value: "default" },
-      { label: __3("Filled", "digiblocks"), value: "filled" },
-      { label: __3("Outlined", "digiblocks"), value: "outlined" },
-      { label: __3("Pill", "digiblocks"), value: "pill" },
-      { label: __3("Rounded", "digiblocks"), value: "rounded" },
-      { label: __3("Circle", "digiblocks"), value: "circle" }
+      { label: __5("Default", "digiblocks"), value: "default" },
+      { label: __5("Filled", "digiblocks"), value: "filled" },
+      { label: __5("Outlined", "digiblocks"), value: "outlined" },
+      { label: __5("Pill", "digiblocks"), value: "pill" },
+      { label: __5("Rounded", "digiblocks"), value: "rounded" },
+      { label: __5("Circle", "digiblocks"), value: "circle" }
     ];
     const labelPositionOptions = [
-      { label: __3("Bottom", "digiblocks"), value: "bottom" },
-      { label: __3("Top", "digiblocks"), value: "top" },
-      { label: __3("Inside", "digiblocks"), value: "inside" }
+      { label: __5("Bottom", "digiblocks"), value: "bottom" },
+      { label: __5("Top", "digiblocks"), value: "top" },
+      { label: __5("Inside", "digiblocks"), value: "inside" }
     ];
     const styleOptions = [
-      { label: __3("Boxes", "digiblocks"), value: "boxes" },
-      { label: __3("Simple", "digiblocks"), value: "simple" }
+      { label: __5("Boxes", "digiblocks"), value: "boxes" },
+      { label: __5("Simple", "digiblocks"), value: "simple" }
     ];
     const separatorTypeOptions = [
-      { label: __3("Colon", "digiblocks"), value: "colon" },
-      { label: __3("Hyphen", "digiblocks"), value: "hyphen" },
-      { label: __3("Slash", "digiblocks"), value: "slash" },
-      { label: __3("Dot", "digiblocks"), value: "dot" }
+      { label: __5("Colon", "digiblocks"), value: "colon" },
+      { label: __5("Hyphen", "digiblocks"), value: "hyphen" },
+      { label: __5("Slash", "digiblocks"), value: "slash" },
+      { label: __5("Dot", "digiblocks"), value: "dot" }
     ];
     const animationOptions = [
-      { label: __3("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations3).map((animation2) => ({
+      { label: __5("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations5).map((animation2) => ({
         label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         value: animation2
       }))
@@ -3892,29 +4927,29 @@
     const tabList = [
       {
         name: "options",
-        title: __3("Options", "digiblocks"),
-        icon: tabIcons3.optionsIcon
+        title: __5("Options", "digiblocks"),
+        icon: tabIcons5.optionsIcon
       },
       {
         name: "style",
-        title: __3("Style", "digiblocks"),
-        icon: tabIcons3.styleIcon
+        title: __5("Style", "digiblocks"),
+        icon: tabIcons5.styleIcon
       },
       {
         name: "advanced",
-        title: __3("Advanced", "digiblocks"),
-        icon: tabIcons3.advancedIcon
+        title: __5("Advanced", "digiblocks"),
+        icon: tabIcons5.advancedIcon
       }
     ];
     const stateTabList = [
       {
         name: "normal",
-        title: __3("Normal", "digiblocks"),
+        title: __5("Normal", "digiblocks"),
         className: "digiblocks-tab-1 normal"
       },
       {
         name: "hover",
-        title: __3("Hover", "digiblocks"),
+        title: __5("Hover", "digiblocks"),
         className: "digiblocks-tab-2 hover"
       }
     ];
@@ -4257,9 +5292,9 @@
       switch (activeTab) {
         case "options":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "components-panel__body is-opened" }, /* @__PURE__ */ wp.element.createElement(
-            ToggleGroupControl3,
+            ToggleGroupControl5,
             {
-              label: __3("Style", "digiblocks"),
+              label: __5("Style", "digiblocks"),
               value: style,
               onChange: (value) => setAttributes({ style: value }),
               isBlock: true,
@@ -4267,7 +5302,7 @@
               __nextHasNoMarginBottom: true
             },
             styleOptions.map((option) => /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControlOption3,
+              ToggleGroupControlOption5,
               {
                 key: option.value,
                 value: option.value,
@@ -4275,9 +5310,9 @@
               }
             ))
           ), style === "boxes" && /* @__PURE__ */ wp.element.createElement(
-            SelectControl3,
+            SelectControl5,
             {
-              label: __3("Box Style", "digiblocks"),
+              label: __5("Box Style", "digiblocks"),
               value: boxStyle,
               options: boxStyleOptions,
               onChange: (value) => setAttributes({ boxStyle: value }),
@@ -4285,18 +5320,18 @@
               __nextHasNoMarginBottom: true
             }
           ), style === "boxes" && /* @__PURE__ */ wp.element.createElement(
-            ToggleControl3,
+            ToggleControl4,
             {
-              label: __3("Equal Width Boxes", "digiblocks"),
+              label: __5("Equal Width Boxes", "digiblocks"),
               checked: !!boxesEqual,
               onChange: () => setAttributes({ boxesEqual: !boxesEqual }),
-              help: __3("Make all countdown boxes the same width", "digiblocks"),
+              help: __5("Make all countdown boxes the same width", "digiblocks"),
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            SelectControl3,
+            SelectControl5,
             {
-              label: __3("Label Position", "digiblocks"),
+              label: __5("Label Position", "digiblocks"),
               value: labelPosition,
               options: labelPositionOptions,
               onChange: (value) => setAttributes({ labelPosition: value }),
@@ -4304,17 +5339,17 @@
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            ToggleControl3,
+            ToggleControl4,
             {
-              label: __3("Show Separators", "digiblocks"),
+              label: __5("Show Separators", "digiblocks"),
               checked: !!displaySeparator,
               onChange: () => setAttributes({ displaySeparator: !displaySeparator }),
               __nextHasNoMarginBottom: true
             }
           ), displaySeparator && /* @__PURE__ */ wp.element.createElement(
-            SelectControl3,
+            SelectControl5,
             {
-              label: __3("Separator Type", "digiblocks"),
+              label: __5("Separator Type", "digiblocks"),
               value: separatorType,
               options: separatorTypeOptions,
               onChange: (value) => setAttributes({ separatorType: value }),
@@ -4324,7 +5359,7 @@
           ), /* @__PURE__ */ wp.element.createElement(
             BaseControl2,
             {
-              label: __3("End Date & Time", "digiblocks"),
+              label: __5("End Date & Time", "digiblocks"),
               id: "countdown-date-time",
               __nextHasNoMarginBottom: true
             },
@@ -4339,81 +5374,81 @@
           ), /* @__PURE__ */ wp.element.createElement(
             TextControl2,
             {
-              label: __3("Expired Message", "digiblocks"),
+              label: __5("Expired Message", "digiblocks"),
               value: expiredMessage,
               onChange: (value) => setAttributes({ expiredMessage: value }),
-              placeholder: __3("Time's up!", "digiblocks"),
+              placeholder: __5("Time's up!", "digiblocks"),
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
             TextControl2,
             {
-              label: __3("Days Label", "digiblocks"),
+              label: __5("Days Label", "digiblocks"),
               value: daysLabel,
               onChange: (value) => setAttributes({ daysLabel: value }),
-              placeholder: __3("Days", "digiblocks"),
+              placeholder: __5("Days", "digiblocks"),
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
             TextControl2,
             {
-              label: __3("Hours Label", "digiblocks"),
+              label: __5("Hours Label", "digiblocks"),
               value: hoursLabel,
               onChange: (value) => setAttributes({ hoursLabel: value }),
-              placeholder: __3("Hours", "digiblocks"),
+              placeholder: __5("Hours", "digiblocks"),
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
             TextControl2,
             {
-              label: __3("Minutes Label", "digiblocks"),
+              label: __5("Minutes Label", "digiblocks"),
               value: minutesLabel,
               onChange: (value) => setAttributes({ minutesLabel: value }),
-              placeholder: __3("Minutes", "digiblocks"),
+              placeholder: __5("Minutes", "digiblocks"),
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
             TextControl2,
             {
-              label: __3("Seconds Label", "digiblocks"),
+              label: __5("Seconds Label", "digiblocks"),
               value: secondsLabel,
               onChange: (value) => setAttributes({ secondsLabel: value }),
-              placeholder: __3("Seconds", "digiblocks"),
+              placeholder: __5("Seconds", "digiblocks"),
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            ToggleControl3,
+            ToggleControl4,
             {
-              label: __3("Show Days", "digiblocks"),
+              label: __5("Show Days", "digiblocks"),
               checked: showDays,
               onChange: () => setAttributes({ showDays: !showDays }),
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            ToggleControl3,
+            ToggleControl4,
             {
-              label: __3("Show Hours", "digiblocks"),
+              label: __5("Show Hours", "digiblocks"),
               checked: showHours,
               onChange: () => setAttributes({ showHours: !showHours }),
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            ToggleControl3,
+            ToggleControl4,
             {
-              label: __3("Show Minutes", "digiblocks"),
+              label: __5("Show Minutes", "digiblocks"),
               checked: showMinutes,
               onChange: () => setAttributes({ showMinutes: !showMinutes }),
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            ToggleControl3,
+            ToggleControl4,
             {
-              label: __3("Show Seconds", "digiblocks"),
+              label: __5("Show Seconds", "digiblocks"),
               checked: showSeconds,
               onChange: () => setAttributes({ showSeconds: !showSeconds }),
               __nextHasNoMarginBottom: true
@@ -4421,15 +5456,15 @@
           )));
         case "style":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody3,
+            TabPanelBody5,
             {
               tab: "style",
               name: "colors",
-              title: __3("Colors", "digiblocks"),
+              title: __5("Colors", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              TabPanel3,
+              TabPanel5,
               {
                 className: "digiblocks-control-tabs",
                 activeClass: "active-tab",
@@ -4438,41 +5473,41 @@
               (tab) => {
                 if (tab.name === "normal") {
                   return /* @__PURE__ */ wp.element.createElement(
-                    PanelColorSettings3,
+                    PanelColorSettings4,
                     {
-                      title: __3("Normal Colors", "digiblocks"),
+                      title: __5("Normal Colors", "digiblocks"),
                       initialOpen: true,
                       enableAlpha: true,
                       colorSettings: [
                         {
                           value: digitColor,
                           onChange: (value) => setAttributes({ digitColor: value }),
-                          label: __3("Digit Color", "digiblocks")
+                          label: __5("Digit Color", "digiblocks")
                         },
                         ...style === "boxes" ? [
                           {
                             value: digitBackground,
                             onChange: (value) => setAttributes({ digitBackground: value }),
-                            label: __3("Box Background", "digiblocks")
+                            label: __5("Box Background", "digiblocks")
                           }
                         ] : [],
                         {
                           value: labelColor,
                           onChange: (value) => setAttributes({ labelColor: value }),
-                          label: __3("Label Color", "digiblocks")
+                          label: __5("Label Color", "digiblocks")
                         },
                         ...displaySeparator ? [
                           {
                             value: separatorColor,
                             onChange: (value) => setAttributes({ separatorColor: value }),
-                            label: __3("Separator Color", "digiblocks")
+                            label: __5("Separator Color", "digiblocks")
                           }
                         ] : [],
                         ...style === "boxes" && boxStyle === "outlined" ? [
                           {
                             value: boxBorderColor,
                             onChange: (value) => setAttributes({ boxBorderColor: value }),
-                            label: __3("Border Color", "digiblocks")
+                            label: __5("Border Color", "digiblocks")
                           }
                         ] : []
                       ]
@@ -4480,34 +5515,34 @@
                   );
                 } else {
                   return /* @__PURE__ */ wp.element.createElement(
-                    PanelColorSettings3,
+                    PanelColorSettings4,
                     {
-                      title: __3("Hover Colors", "digiblocks"),
+                      title: __5("Hover Colors", "digiblocks"),
                       initialOpen: true,
                       enableAlpha: true,
                       colorSettings: [
                         {
                           value: digitHoverColor,
                           onChange: (value) => setAttributes({ digitHoverColor: value }),
-                          label: __3("Digit Color", "digiblocks")
+                          label: __5("Digit Color", "digiblocks")
                         },
                         ...style === "boxes" ? [
                           {
                             value: digitHoverBackground,
                             onChange: (value) => setAttributes({ digitHoverBackground: value }),
-                            label: __3("Box Background", "digiblocks")
+                            label: __5("Box Background", "digiblocks")
                           }
                         ] : [],
                         {
                           value: labelHoverColor,
                           onChange: (value) => setAttributes({ labelHoverColor: value }),
-                          label: __3("Label Color", "digiblocks")
+                          label: __5("Label Color", "digiblocks")
                         },
                         ...displaySeparator ? [
                           {
                             value: separatorHoverColor,
                             onChange: (value) => setAttributes({ separatorHoverColor: value }),
-                            label: __3("Separator Color", "digiblocks")
+                            label: __5("Separator Color", "digiblocks")
                           }
                         ] : []
                       ]
@@ -4517,17 +5552,17 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody3,
+            TabPanelBody5,
             {
               tab: "style",
               name: "typography",
-              title: __3("Typography", "digiblocks"),
+              title: __5("Typography", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl3,
+              TypographyControl4,
               {
-                label: __3("Digit Typography", "digiblocks"),
+                label: __5("Digit Typography", "digiblocks"),
                 value: titleTypography,
                 onChange: (value) => setAttributes({ titleTypography: value }),
                 defaults: {
@@ -4540,9 +5575,9 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl3,
+              TypographyControl4,
               {
-                label: __3("Label Typography", "digiblocks"),
+                label: __5("Label Typography", "digiblocks"),
                 value: contentTypography,
                 onChange: (value) => setAttributes({ contentTypography: value }),
                 defaults: {
@@ -4554,20 +5589,20 @@
               }
             )
           ), style === "boxes" && /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody3,
+            TabPanelBody5,
             {
               tab: "style",
               name: "boxStyles",
-              title: __3("Box Style", "digiblocks"),
+              title: __5("Box Style", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl3,
+              ResponsiveControl5,
               {
-                label: __3("Border Radius", "digiblocks")
+                label: __5("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl3,
+                DimensionControl4,
                 {
                   values: boxBorderRadius && boxBorderRadius[localActiveDevice] ? boxBorderRadius[localActiveDevice] : {
                     top: 4,
@@ -4590,12 +5625,12 @@
               )
             ),
             boxStyle === "outlined" && /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl3,
+              ResponsiveControl5,
               {
-                label: __3("Border Width", "digiblocks")
+                label: __5("Border Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl3,
+                DimensionControl4,
                 {
                   values: boxBorderWidth && boxBorderWidth[localActiveDevice] ? boxBorderWidth[localActiveDevice] : {
                     top: 1,
@@ -4614,12 +5649,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl3,
+              ResponsiveControl5,
               {
-                label: __3("Padding", "digiblocks")
+                label: __5("Padding", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl3,
+                DimensionControl4,
                 {
                   values: boxPadding && boxPadding[localActiveDevice] ? boxPadding[localActiveDevice] : {
                     top: 10,
@@ -4638,12 +5673,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl3,
+              ResponsiveControl5,
               {
-                label: __3("Margin", "digiblocks")
+                label: __5("Margin", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl3,
+                DimensionControl4,
                 {
                   values: boxMargin && boxMargin[localActiveDevice] ? boxMargin[localActiveDevice] : {
                     top: 0,
@@ -4662,16 +5697,16 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl3,
+              ToggleControl4,
               {
-                label: __3("Box Shadow", "digiblocks"),
+                label: __5("Box Shadow", "digiblocks"),
                 checked: !!showBoxShadow,
                 onChange: () => setAttributes({ showBoxShadow: !showBoxShadow }),
                 __nextHasNoMarginBottom: true
               }
             ),
             showBoxShadow && /* @__PURE__ */ wp.element.createElement(
-              BoxShadowControl3,
+              BoxShadowControl4,
               {
                 normalValue: boxShadow,
                 hoverValue: boxShadowHover,
@@ -4684,20 +5719,20 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody3,
+            TabPanelBody5,
             {
               tab: "style",
               name: "spacing",
-              title: __3("Spacing", "digiblocks"),
+              title: __5("Spacing", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl3,
+              ResponsiveControl5,
               {
-                label: __3("Items Spacing", "digiblocks")
+                label: __5("Items Spacing", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl3,
+                RangeControl4,
                 {
                   value: itemSpacing && itemSpacing[localActiveDevice] !== void 0 ? itemSpacing[localActiveDevice] : 20,
                   onChange: (value) => setAttributes({
@@ -4714,12 +5749,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl3,
+              ResponsiveControl5,
               {
-                label: __3("Label Spacing", "digiblocks")
+                label: __5("Label Spacing", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl3,
+                RangeControl4,
                 {
                   value: labelSpacing && labelSpacing[localActiveDevice] !== void 0 ? labelSpacing[localActiveDevice] : 5,
                   onChange: (value) => setAttributes({
@@ -4738,17 +5773,17 @@
           ));
         case "advanced":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody3,
+            TabPanelBody5,
             {
               tab: "advanced",
               name: "animation",
-              title: __3("Animation", "digiblocks"),
+              title: __5("Animation", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl3,
+              SelectControl5,
               {
-                label: __3("Animation Effect", "digiblocks"),
+                label: __5("Animation Effect", "digiblocks"),
                 value: animation,
                 options: animationOptions,
                 onChange: (value) => setAttributes({ animation: value }),
@@ -4757,7 +5792,7 @@
               }
             ),
             animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button3,
+              Button4,
               {
                 variant: "secondary",
                 isSecondary: true,
@@ -4765,17 +5800,17 @@
                 disabled: isAnimating,
                 style: { width: "100%" }
               },
-              isAnimating ? __3("Animating...", "digiblocks") : __3("Preview Animation", "digiblocks")
+              isAnimating ? __5("Animating...", "digiblocks") : __5("Preview Animation", "digiblocks")
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody3,
+            TabPanelBody5,
             {
               tab: "advanced",
               name: "additional",
-              title: __3("Additional", "digiblocks"),
+              title: __5("Additional", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __3("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __5("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -4787,7 +5822,7 @@
                 autoCapitalize: "none",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __3(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __5(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
               "a",
               {
                 className: "components-external-link",
@@ -4795,10 +5830,10 @@
                 target: "_blank",
                 rel: "external noreferrer noopener"
               },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __3("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __5("Learn more about anchors", "digiblocks")),
               /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
             ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __3("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __5("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -4809,13 +5844,13 @@
                 "aria-describedby": "additional-css-classes-help",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __3("Separate multiple classes with spaces.", "digiblocks")))
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __5("Separate multiple classes with spaces.", "digiblocks")))
           ));
         default:
           return null;
       }
     };
-    const blockProps = useBlockProps5({
+    const blockProps = useBlockProps9({
       className: `digiblocks-countdown ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
@@ -4823,15 +5858,15 @@
       // Always set the block ID as data attribute for CSS targeting
     });
     if (!showDays && !showHours && !showMinutes && !showSeconds) {
-      return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls3, null, /* @__PURE__ */ wp.element.createElement(
-        CustomTabPanel3,
+      return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls5, null, /* @__PURE__ */ wp.element.createElement(
+        CustomTabPanel5,
         {
           tabs: tabList,
           activeTab,
           onSelect: setActiveTab
         },
         renderTabContent()
-      )), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps, style: { textAlign: align } }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-error" }, __3("Please enable at least one time unit in the block settings.", "digiblocks"))));
+      )), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps, style: { textAlign: align } }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-error" }, __5("Please enable at least one time unit in the block settings.", "digiblocks"))));
     }
     const renderCountdownItems = () => {
       const {
@@ -4843,7 +5878,7 @@
       const items = [];
       if (showDays) {
         items.push(
-          /* @__PURE__ */ wp.element.createElement("div", { key: "days", className: "digiblocks-countdown-item digiblocks-countdown-days" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item-inner" }, labelPosition === "inside" ? /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(days)), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, daysLabel || __3("Days", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(days))), labelPosition !== "inside" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, daysLabel || __3("Days", "digiblocks")))
+          /* @__PURE__ */ wp.element.createElement("div", { key: "days", className: "digiblocks-countdown-item digiblocks-countdown-days" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item-inner" }, labelPosition === "inside" ? /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(days)), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, daysLabel || __5("Days", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(days))), labelPosition !== "inside" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, daysLabel || __5("Days", "digiblocks")))
         );
         if (displaySeparator && (showHours || showMinutes || showSeconds)) {
           items.push(
@@ -4853,7 +5888,7 @@
       }
       if (showHours) {
         items.push(
-          /* @__PURE__ */ wp.element.createElement("div", { key: "hours", className: "digiblocks-countdown-item digiblocks-countdown-hours" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item-inner" }, labelPosition === "inside" ? /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(hours)), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, hoursLabel || __3("Hours", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(hours))), labelPosition !== "inside" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, hoursLabel || __3("Hours", "digiblocks")))
+          /* @__PURE__ */ wp.element.createElement("div", { key: "hours", className: "digiblocks-countdown-item digiblocks-countdown-hours" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item-inner" }, labelPosition === "inside" ? /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(hours)), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, hoursLabel || __5("Hours", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(hours))), labelPosition !== "inside" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, hoursLabel || __5("Hours", "digiblocks")))
         );
         if (displaySeparator && (showMinutes || showSeconds)) {
           items.push(
@@ -4863,7 +5898,7 @@
       }
       if (showMinutes) {
         items.push(
-          /* @__PURE__ */ wp.element.createElement("div", { key: "minutes", className: "digiblocks-countdown-item digiblocks-countdown-minutes" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item-inner" }, labelPosition === "inside" ? /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(minutes)), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, minutesLabel || __3("Minutes", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(minutes))), labelPosition !== "inside" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, minutesLabel || __3("Minutes", "digiblocks")))
+          /* @__PURE__ */ wp.element.createElement("div", { key: "minutes", className: "digiblocks-countdown-item digiblocks-countdown-minutes" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item-inner" }, labelPosition === "inside" ? /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(minutes)), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, minutesLabel || __5("Minutes", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(minutes))), labelPosition !== "inside" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, minutesLabel || __5("Minutes", "digiblocks")))
         );
         if (displaySeparator && showSeconds) {
           items.push(
@@ -4873,7 +5908,7 @@
       }
       if (showSeconds) {
         items.push(
-          /* @__PURE__ */ wp.element.createElement("div", { key: "seconds", className: "digiblocks-countdown-item digiblocks-countdown-seconds" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item-inner" }, labelPosition === "inside" ? /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(seconds)), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, secondsLabel || __3("Seconds", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(seconds))), labelPosition !== "inside" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, secondsLabel || __3("Seconds", "digiblocks")))
+          /* @__PURE__ */ wp.element.createElement("div", { key: "seconds", className: "digiblocks-countdown-item digiblocks-countdown-seconds" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item-inner" }, labelPosition === "inside" ? /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(seconds)), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, secondsLabel || __5("Seconds", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, formatTime(seconds))), labelPosition !== "inside" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, secondsLabel || __5("Seconds", "digiblocks")))
         );
       }
       return items;
@@ -4885,20 +5920,20 @@
         value: align,
         onChange: (value) => setAttributes({ align: value })
       }
-    )), /* @__PURE__ */ wp.element.createElement(InspectorControls3, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel3,
+    )), /* @__PURE__ */ wp.element.createElement(InspectorControls5, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel5,
       {
         tabs: tabList,
         activeTab,
         onSelect: setActiveTab
       },
       renderTabContent()
-    )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, isCountdownExpired ? /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-expired" }, expiredMessage || __3("Time's up!", "digiblocks")) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-container" }, renderCountdownItems())));
+    )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, isCountdownExpired ? /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-expired" }, expiredMessage || __5("Time's up!", "digiblocks")) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-container" }, renderCountdownItems())));
   };
-  var edit_default3 = CountdownEdit;
+  var edit_default5 = CountdownEdit;
 
   // blocks/countdown/save.js
-  var { useBlockProps: useBlockProps6 } = window.wp.blockEditor;
+  var { useBlockProps: useBlockProps10 } = window.wp.blockEditor;
   var CountdownSave = ({ attributes }) => {
     const {
       id,
@@ -4933,7 +5968,7 @@
       displaySeparator ? `digiblocks-countdown-separator-${separatorType}` : "",
       customClasses || ""
     ].filter(Boolean).join(" ");
-    const blockProps = useBlockProps6.save({
+    const blockProps = useBlockProps10.save({
       className: blockClasses,
       id: anchor || null,
       "data-custom-id": id,
@@ -4951,31 +5986,31 @@
     });
     return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-container" }, showDays && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item digiblocks-countdown-days" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item-inner" }, labelPosition === "inside" ? /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, "00"), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, daysLabel || "Days")) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, "00")), labelPosition !== "inside" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, daysLabel || "Days")), displaySeparator && (showHours || showMinutes || showSeconds) && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-separator" })), showHours && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item digiblocks-countdown-hours" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item-inner" }, labelPosition === "inside" ? /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, "00"), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, hoursLabel || "Hours")) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, "00")), labelPosition !== "inside" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, hoursLabel || "Hours")), displaySeparator && (showMinutes || showSeconds) && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-separator" })), showMinutes && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item digiblocks-countdown-minutes" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item-inner" }, labelPosition === "inside" ? /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, "00"), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, minutesLabel || "Minutes")) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, "00")), labelPosition !== "inside" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, minutesLabel || "Minutes")), displaySeparator && showSeconds && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-separator" })), showSeconds && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item digiblocks-countdown-seconds" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-item-inner" }, labelPosition === "inside" ? /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, "00"), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, secondsLabel || "Seconds")) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-digit" }, "00")), labelPosition !== "inside" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-label" }, secondsLabel || "Seconds"))), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-countdown-expired", style: { display: "none" } }, expiredMessage || "Time's up!"));
   };
-  var save_default3 = CountdownSave;
+  var save_default5 = CountdownSave;
 
   // blocks/counter/edit.js
-  var { __: __4 } = window.wp.i18n;
+  var { __: __6 } = window.wp.i18n;
   var {
-    useBlockProps: useBlockProps7,
-    InspectorControls: InspectorControls4,
-    PanelColorSettings: PanelColorSettings4,
+    useBlockProps: useBlockProps11,
+    InspectorControls: InspectorControls6,
+    PanelColorSettings: PanelColorSettings5,
     BlockControls: BlockControls3,
     AlignmentToolbar: AlignmentToolbar3
   } = window.wp.blockEditor;
   var {
-    TabPanel: TabPanel4,
-    SelectControl: SelectControl4,
-    RangeControl: RangeControl4,
+    TabPanel: TabPanel6,
+    SelectControl: SelectControl6,
+    RangeControl: RangeControl5,
     TextControl: TextControl3,
-    ToggleControl: ToggleControl4,
-    Button: Button4,
-    __experimentalToggleGroupControl: ToggleGroupControl4,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption4
+    ToggleControl: ToggleControl5,
+    Button: Button5,
+    __experimentalToggleGroupControl: ToggleGroupControl6,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption6
   } = window.wp.components;
-  var { useState: useState4, useEffect: useEffect4, useRef: useRef4 } = window.wp.element;
-  var { animations: animations4 } = digi.utils;
-  var { tabIcons: tabIcons4 } = digi.icons;
-  var { ResponsiveControl: ResponsiveControl4, DimensionControl: DimensionControl4, TypographyControl: TypographyControl4, BoxShadowControl: BoxShadowControl4, CustomTabPanel: CustomTabPanel4, TabPanelBody: TabPanelBody4 } = digi.components;
+  var { useState: useState6, useEffect: useEffect6, useRef: useRef4 } = window.wp.element;
+  var { animations: animations6 } = digi.utils;
+  var { tabIcons: tabIcons6 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl6, DimensionControl: DimensionControl5, TypographyControl: TypographyControl5, BoxShadowControl: BoxShadowControl5, CustomTabPanel: CustomTabPanel6, TabPanelBody: TabPanelBody6 } = digi.components;
   var CounterEdit = ({ attributes, setAttributes, clientId }) => {
     const {
       id,
@@ -5034,20 +6069,20 @@
       numberWithCommas,
       displayIcon
     } = attributes;
-    const [localActiveDevice, setLocalActiveDevice] = useState4(window.digi.responsiveState.activeDevice);
-    const [isAnimating, setIsAnimating] = useState4(false);
+    const [localActiveDevice, setLocalActiveDevice] = useState6(window.digi.responsiveState.activeDevice);
+    const [isAnimating, setIsAnimating] = useState6(false);
     const previewTimeoutRef = useRef4(null);
-    const [counterValue, setCounterValue] = useState4(startNumber || 0);
-    const [isCounterAnimating, setIsCounterAnimating] = useState4(false);
-    const [activeColorTab, setActiveColorTab] = useState4("normal");
-    useEffect4(() => {
+    const [counterValue, setCounterValue] = useState6(startNumber || 0);
+    const [isCounterAnimating, setIsCounterAnimating] = useState6(false);
+    const [activeColorTab, setActiveColorTab] = useState6("normal");
+    useEffect6(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    const [activeTab, setActiveTab] = useState4("options");
-    useEffect4(() => {
+    const [activeTab, setActiveTab] = useState6("options");
+    useEffect6(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
@@ -5061,15 +6096,15 @@
         });
       }
     }, [clientId, iconMargin, setAttributes]);
-    useEffect4(() => {
+    useEffect6(() => {
       return () => {
         if (previewTimeoutRef.current) {
           clearTimeout(previewTimeoutRef.current);
         }
       };
     }, []);
-    const [componentsLoaded, setComponentsLoaded] = useState4(false);
-    useEffect4(() => {
+    const [componentsLoaded, setComponentsLoaded] = useState6(false);
+    useEffect6(() => {
       const checkComponents = () => {
         if (window.digi && window.digi.components && window.digi.components.FontAwesomeControl) {
           setComponentsLoaded(true);
@@ -5101,8 +6136,8 @@
         return;
       }
       const timestamp = Date.now();
-      if (animations4[animation]) {
-        const originalKeyframes = animations4[animation].keyframes;
+      if (animations6[animation]) {
+        const originalKeyframes = animations6[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
           console.error("Could not extract animation name from keyframes");
@@ -5143,7 +6178,7 @@
         }, 1500);
       }
     };
-    useEffect4(() => {
+    useEffect6(() => {
       if (animation && animation !== "none") {
         const timeoutId = setTimeout(() => {
           triggerAnimationPreview();
@@ -5198,61 +6233,61 @@
       return numberStr;
     };
     const borderStyleOptions = [
-      { label: __4("Default", "digiblocks"), value: "default" },
-      { label: __4("None", "digiblocks"), value: "none" },
-      { label: __4("Solid", "digiblocks"), value: "solid" },
-      { label: __4("Dotted", "digiblocks"), value: "dotted" },
-      { label: __4("Dashed", "digiblocks"), value: "dashed" },
-      { label: __4("Double", "digiblocks"), value: "double" },
-      { label: __4("Groove", "digiblocks"), value: "groove" },
-      { label: __4("Inset", "digiblocks"), value: "inset" },
-      { label: __4("Outset", "digiblocks"), value: "outset" },
-      { label: __4("Ridge", "digiblocks"), value: "ridge" }
+      { label: __6("Default", "digiblocks"), value: "default" },
+      { label: __6("None", "digiblocks"), value: "none" },
+      { label: __6("Solid", "digiblocks"), value: "solid" },
+      { label: __6("Dotted", "digiblocks"), value: "dotted" },
+      { label: __6("Dashed", "digiblocks"), value: "dashed" },
+      { label: __6("Double", "digiblocks"), value: "double" },
+      { label: __6("Groove", "digiblocks"), value: "groove" },
+      { label: __6("Inset", "digiblocks"), value: "inset" },
+      { label: __6("Outset", "digiblocks"), value: "outset" },
+      { label: __6("Ridge", "digiblocks"), value: "ridge" }
     ];
     const hoverEffectOptions = [
-      { label: __4("None", "digiblocks"), value: "none" },
-      { label: __4("Lift", "digiblocks"), value: "lift" },
-      { label: __4("Scale", "digiblocks"), value: "scale" },
-      { label: __4("Glow", "digiblocks"), value: "glow" }
+      { label: __6("None", "digiblocks"), value: "none" },
+      { label: __6("Lift", "digiblocks"), value: "lift" },
+      { label: __6("Scale", "digiblocks"), value: "scale" },
+      { label: __6("Glow", "digiblocks"), value: "glow" }
     ];
     const animationOptions = [
-      { label: __4("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations4).map((animation2) => ({
+      { label: __6("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations6).map((animation2) => ({
         label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         value: animation2
       }))
     ];
     const layoutOptions = [
-      { label: __4("Stacked", "digiblocks"), value: "stacked" },
-      { label: __4("Inline", "digiblocks"), value: "inline" },
-      { label: __4("Centered", "digiblocks"), value: "centered" }
+      { label: __6("Stacked", "digiblocks"), value: "stacked" },
+      { label: __6("Inline", "digiblocks"), value: "inline" },
+      { label: __6("Centered", "digiblocks"), value: "centered" }
     ];
     const tabList = [
       {
         name: "options",
-        title: __4("Options", "digiblocks"),
-        icon: tabIcons4.optionsIcon
+        title: __6("Options", "digiblocks"),
+        icon: tabIcons6.optionsIcon
       },
       {
         name: "style",
-        title: __4("Style", "digiblocks"),
-        icon: tabIcons4.styleIcon
+        title: __6("Style", "digiblocks"),
+        icon: tabIcons6.styleIcon
       },
       {
         name: "advanced",
-        title: __4("Advanced", "digiblocks"),
-        icon: tabIcons4.advancedIcon
+        title: __6("Advanced", "digiblocks"),
+        icon: tabIcons6.advancedIcon
       }
     ];
     const stateTabList = [
       {
         name: "normal",
-        title: __4("Normal", "digiblocks"),
+        title: __6("Normal", "digiblocks"),
         className: "digiblocks-tab-1 normal"
       },
       {
         name: "hover",
-        title: __4("Hover", "digiblocks"),
+        title: __6("Hover", "digiblocks"),
         className: "digiblocks-tab-2 hover"
       }
     ];
@@ -5529,7 +6564,7 @@
             }
         `;
     };
-    const FontAwesomeControl = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
+    const FontAwesomeControl3 = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
     const renderIcon = () => {
       if (!displayIcon || !iconValue || !iconValue.svg || iconValue.svg.trim() === "") {
         return null;
@@ -5546,136 +6581,136 @@
     const renderColorTabContent = (tabName) => {
       if (tabName === "normal") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings4,
+          PanelColorSettings5,
           {
-            title: __4("Counter Colors", "digiblocks"),
+            title: __6("Counter Colors", "digiblocks"),
             initialOpen: true,
             enableAlpha: true,
             colorSettings: [
               {
                 value: counterColor,
                 onChange: (value) => setAttributes({ counterColor: value }),
-                label: __4("Counter Color", "digiblocks")
+                label: __6("Counter Color", "digiblocks")
               }
             ]
           }
         ), /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings4,
+          PanelColorSettings5,
           {
-            title: __4("Content Colors", "digiblocks"),
+            title: __6("Content Colors", "digiblocks"),
             initialOpen: false,
             enableAlpha: true,
             colorSettings: [
               {
                 value: titleColor,
                 onChange: (value) => setAttributes({ titleColor: value }),
-                label: __4("Title Color", "digiblocks")
+                label: __6("Title Color", "digiblocks")
               },
               {
                 value: textColor,
                 onChange: (value) => setAttributes({ textColor: value }),
-                label: __4("Description Color", "digiblocks")
+                label: __6("Description Color", "digiblocks")
               }
             ]
           }
         ), displayIcon && /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings4,
+          PanelColorSettings5,
           {
-            title: __4("Icon Colors", "digiblocks"),
+            title: __6("Icon Colors", "digiblocks"),
             initialOpen: false,
             enableAlpha: true,
             colorSettings: [
               {
                 value: iconColor,
                 onChange: (value) => setAttributes({ iconColor: value }),
-                label: __4("Icon Color", "digiblocks")
+                label: __6("Icon Color", "digiblocks")
               },
               {
                 value: iconBackgroundColor,
                 onChange: (value) => setAttributes({ iconBackgroundColor: value }),
-                label: __4("Icon Background", "digiblocks")
+                label: __6("Icon Background", "digiblocks")
               }
             ]
           }
         ), /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings4,
+          PanelColorSettings5,
           {
-            title: __4("Block Colors", "digiblocks"),
+            title: __6("Block Colors", "digiblocks"),
             initialOpen: false,
             enableAlpha: true,
             colorSettings: [
               {
                 value: backgroundColor,
                 onChange: (value) => setAttributes({ backgroundColor: value }),
-                label: __4("Background Color", "digiblocks")
+                label: __6("Background Color", "digiblocks")
               }
             ]
           }
         ));
       } else if (tabName === "hover") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings4,
+          PanelColorSettings5,
           {
-            title: __4("Counter Hover Colors", "digiblocks"),
+            title: __6("Counter Hover Colors", "digiblocks"),
             initialOpen: true,
             enableAlpha: true,
             colorSettings: [
               {
                 value: counterHoverColor,
                 onChange: (value) => setAttributes({ counterHoverColor: value }),
-                label: __4("Counter Hover Color", "digiblocks")
+                label: __6("Counter Hover Color", "digiblocks")
               }
             ]
           }
         ), /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings4,
+          PanelColorSettings5,
           {
-            title: __4("Content Hover Colors", "digiblocks"),
+            title: __6("Content Hover Colors", "digiblocks"),
             initialOpen: false,
             enableAlpha: true,
             colorSettings: [
               {
                 value: titleHoverColor,
                 onChange: (value) => setAttributes({ titleHoverColor: value }),
-                label: __4("Title Hover Color", "digiblocks")
+                label: __6("Title Hover Color", "digiblocks")
               },
               {
                 value: textHoverColor,
                 onChange: (value) => setAttributes({ textHoverColor: value }),
-                label: __4("Description Hover Color", "digiblocks")
+                label: __6("Description Hover Color", "digiblocks")
               }
             ]
           }
         ), displayIcon && /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings4,
+          PanelColorSettings5,
           {
-            title: __4("Icon Hover Colors", "digiblocks"),
+            title: __6("Icon Hover Colors", "digiblocks"),
             initialOpen: false,
             enableAlpha: true,
             colorSettings: [
               {
                 value: iconHoverColor,
                 onChange: (value) => setAttributes({ iconHoverColor: value }),
-                label: __4("Icon Hover Color", "digiblocks")
+                label: __6("Icon Hover Color", "digiblocks")
               },
               {
                 value: iconHoverBackgroundColor,
                 onChange: (value) => setAttributes({ iconHoverBackgroundColor: value }),
-                label: __4("Icon Hover Background", "digiblocks")
+                label: __6("Icon Hover Background", "digiblocks")
               }
             ]
           }
         ), /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings4,
+          PanelColorSettings5,
           {
-            title: __4("Block Hover Colors", "digiblocks"),
+            title: __6("Block Hover Colors", "digiblocks"),
             initialOpen: false,
             enableAlpha: true,
             colorSettings: [
               {
                 value: backgroundHoverColor,
                 onChange: (value) => setAttributes({ backgroundHoverColor: value }),
-                label: __4("Background Hover Color", "digiblocks")
+                label: __6("Background Hover Color", "digiblocks")
               }
             ]
           }
@@ -5687,23 +6722,23 @@
       switch (activeTab) {
         case "options":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "components-panel__body is-opened" }, /* @__PURE__ */ wp.element.createElement(
-            ToggleControl4,
+            ToggleControl5,
             {
-              label: __4("Display Icon", "digiblocks"),
+              label: __6("Display Icon", "digiblocks"),
               checked: displayIcon,
               onChange: (value) => setAttributes({ displayIcon: value })
             }
-          ), displayIcon && /* @__PURE__ */ wp.element.createElement("div", { style: { marginBottom: "2rem" } }, !componentsLoaded ? /* @__PURE__ */ wp.element.createElement("div", { style: { textAlign: "center", padding: "20px 0" } }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-spinner" }), /* @__PURE__ */ wp.element.createElement("p", null, __4("Loading icon selector...", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement(
-            FontAwesomeControl,
+          ), displayIcon && /* @__PURE__ */ wp.element.createElement("div", { style: { marginBottom: "2rem" } }, !componentsLoaded ? /* @__PURE__ */ wp.element.createElement("div", { style: { textAlign: "center", padding: "20px 0" } }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-spinner" }), /* @__PURE__ */ wp.element.createElement("p", null, __6("Loading icon selector...", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement(
+            FontAwesomeControl3,
             {
-              label: __4("Select Icon", "digiblocks"),
+              label: __6("Select Icon", "digiblocks"),
               value: iconValue,
               onChange: setIconValue
             }
-          ), iconValue && componentsLoaded && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "15px", marginBottom: "15px", padding: "10px", background: "#f0f0f1", borderRadius: "3px" } }, /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0 0 5px 0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __4("Selected Icon:", "digiblocks")), " ", iconValue.name), /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0 0 5px 0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __4("Style:", "digiblocks")), " ", iconValue.style), iconValue.categories && iconValue.categories.length > 0 && /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __4("Categories:", "digiblocks")), " ", iconValue.categories.join(", "))))), /* @__PURE__ */ wp.element.createElement(
-            SelectControl4,
+          ), iconValue && componentsLoaded && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "15px", marginBottom: "15px", padding: "10px", background: "#f0f0f1", borderRadius: "3px" } }, /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0 0 5px 0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __6("Selected Icon:", "digiblocks")), " ", iconValue.name), /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0 0 5px 0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __6("Style:", "digiblocks")), " ", iconValue.style), iconValue.categories && iconValue.categories.length > 0 && /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __6("Categories:", "digiblocks")), " ", iconValue.categories.join(", "))))), /* @__PURE__ */ wp.element.createElement(
+            SelectControl6,
             {
-              label: __4("Layout Style", "digiblocks"),
+              label: __6("Layout Style", "digiblocks"),
               value: layoutStyle || "stacked",
               options: layoutOptions,
               onChange: (value) => setAttributes({ layoutStyle: value }),
@@ -5711,9 +6746,9 @@
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            RangeControl4,
+            RangeControl5,
             {
-              label: __4("Spacing", "digiblocks"),
+              label: __6("Spacing", "digiblocks"),
               value: verticalSpacing || 15,
               onChange: (value) => setAttributes({ verticalSpacing: value }),
               min: 0,
@@ -5724,7 +6759,7 @@
           ), /* @__PURE__ */ wp.element.createElement(
             TextControl3,
             {
-              label: __4("Starting Number", "digiblocks"),
+              label: __6("Starting Number", "digiblocks"),
               type: "number",
               value: startNumber,
               onChange: (value) => setAttributes({ startNumber: value }),
@@ -5734,7 +6769,7 @@
           ), /* @__PURE__ */ wp.element.createElement(
             TextControl3,
             {
-              label: __4("Ending Number", "digiblocks"),
+              label: __6("Ending Number", "digiblocks"),
               type: "number",
               value: endNumber,
               onChange: (value) => setAttributes({ endNumber: value }),
@@ -5744,16 +6779,16 @@
           ), /* @__PURE__ */ wp.element.createElement(
             TextControl3,
             {
-              label: __4("Counter Prefix", "digiblocks"),
+              label: __6("Counter Prefix", "digiblocks"),
               value: counterPrefix || "",
               onChange: (value) => setAttributes({ counterPrefix: value }),
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             }
           ), counterPrefix && /* @__PURE__ */ wp.element.createElement(
-            RangeControl4,
+            RangeControl5,
             {
-              label: __4("Prefix Spacing", "digiblocks"),
+              label: __6("Prefix Spacing", "digiblocks"),
               value: counterPrefixSpacing || 5,
               onChange: (value) => setAttributes({ counterPrefixSpacing: value }),
               min: 0,
@@ -5764,16 +6799,16 @@
           ), /* @__PURE__ */ wp.element.createElement(
             TextControl3,
             {
-              label: __4("Counter Suffix", "digiblocks"),
+              label: __6("Counter Suffix", "digiblocks"),
               value: counterSuffix || "",
               onChange: (value) => setAttributes({ counterSuffix: value }),
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             }
           ), counterSuffix && /* @__PURE__ */ wp.element.createElement(
-            RangeControl4,
+            RangeControl5,
             {
-              label: __4("Suffix Spacing", "digiblocks"),
+              label: __6("Suffix Spacing", "digiblocks"),
               value: counterSuffixSpacing || 5,
               onChange: (value) => setAttributes({ counterSuffixSpacing: value }),
               min: 0,
@@ -5784,7 +6819,7 @@
           ), /* @__PURE__ */ wp.element.createElement(
             TextControl3,
             {
-              label: __4("Title", "digiblocks"),
+              label: __6("Title", "digiblocks"),
               value: title || "",
               onChange: (value) => setAttributes({ title: value }),
               __next40pxDefaultSize: true,
@@ -5793,32 +6828,32 @@
           ), /* @__PURE__ */ wp.element.createElement(
             TextControl3,
             {
-              label: __4("Description", "digiblocks"),
+              label: __6("Description", "digiblocks"),
               value: description || "",
               onChange: (value) => setAttributes({ description: value }),
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            ToggleControl4,
+            ToggleControl5,
             {
-              label: __4("Use Thousand Separator", "digiblocks"),
+              label: __6("Use Thousand Separator", "digiblocks"),
               checked: numberWithCommas,
               onChange: (value) => setAttributes({ numberWithCommas: value })
             }
           ), numberWithCommas && /* @__PURE__ */ wp.element.createElement(
             TextControl3,
             {
-              label: __4("Thousand Separator", "digiblocks"),
+              label: __6("Thousand Separator", "digiblocks"),
               value: thousandSeparator || ",",
               onChange: (value) => setAttributes({ thousandSeparator: value }),
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement(
-            RangeControl4,
+            RangeControl5,
             {
-              label: __4("Decimal Places", "digiblocks"),
+              label: __6("Decimal Places", "digiblocks"),
               value: decimalPlaces || 0,
               onChange: (value) => setAttributes({ decimalPlaces: value }),
               min: 0,
@@ -5829,32 +6864,32 @@
           ), decimalPlaces > 0 && /* @__PURE__ */ wp.element.createElement(
             TextControl3,
             {
-              label: __4("Decimal Separator", "digiblocks"),
+              label: __6("Decimal Separator", "digiblocks"),
               value: decimalSeparator || ".",
               onChange: (value) => setAttributes({ decimalSeparator: value }),
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-            Button4,
+            Button5,
             {
               isPrimary: true,
               onClick: animateCounter,
               disabled: isCounterAnimating
             },
-            __4("Preview Counter Animation", "digiblocks")
+            __6("Preview Counter Animation", "digiblocks")
           ))));
         case "style":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody4,
+            TabPanelBody6,
             {
               tab: "style",
               name: "colors",
-              title: __4("Colors", "digiblocks"),
+              title: __6("Colors", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              TabPanel4,
+              TabPanel6,
               {
                 className: "digiblocks-control-tabs",
                 activeClass: "active-tab",
@@ -5864,17 +6899,17 @@
               (tab) => renderColorTabContent(tab.name)
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody4,
+            TabPanelBody6,
             {
               tab: "style",
               name: "typography",
-              title: __4("Typography", "digiblocks"),
+              title: __6("Typography", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl4,
+              TypographyControl5,
               {
-                label: __4("Counter Typography", "digiblocks"),
+                label: __6("Counter Typography", "digiblocks"),
                 value: typography || {},
                 onChange: (value) => setAttributes({ typography: value }),
                 defaults: {
@@ -5886,9 +6921,9 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl4,
+              TypographyControl5,
               {
-                label: __4("Title Typography", "digiblocks"),
+                label: __6("Title Typography", "digiblocks"),
                 value: titleTypography || {},
                 onChange: (value) => setAttributes({ titleTypography: value }),
                 defaults: {
@@ -5900,9 +6935,9 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl4,
+              TypographyControl5,
               {
-                label: __4("Description Typography", "digiblocks"),
+                label: __6("Description Typography", "digiblocks"),
                 value: contentTypography || {},
                 onChange: (value) => setAttributes({ contentTypography: value }),
                 defaults: {
@@ -5914,20 +6949,20 @@
               }
             )
           ), displayIcon && /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody4,
+            TabPanelBody6,
             {
               tab: "style",
               name: "icon",
-              title: __4("Icon", "digiblocks"),
+              title: __6("Icon", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl4,
+              ResponsiveControl6,
               {
-                label: __4("Icon Size", "digiblocks")
+                label: __6("Icon Size", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl4,
+                RangeControl5,
                 {
                   value: iconSize && iconSize[localActiveDevice] ? iconSize[localActiveDevice] : 32,
                   onChange: (value) => setAttributes({
@@ -5944,9 +6979,9 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl4,
+              SelectControl6,
               {
-                label: __4("Border Style", "digiblocks"),
+                label: __6("Border Style", "digiblocks"),
                 value: iconBorderStyle || "default",
                 options: borderStyleOptions,
                 onChange: (value) => {
@@ -5977,30 +7012,30 @@
               }
             ),
             iconBorderStyle && iconBorderStyle !== "default" && iconBorderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings4,
+              PanelColorSettings5,
               {
-                title: __4("Border Colors", "digiblocks"),
+                title: __6("Border Colors", "digiblocks"),
                 enableAlpha: true,
                 colorSettings: [
                   {
                     value: iconBorderColor,
                     onChange: (value) => setAttributes({ iconBorderColor: value }),
-                    label: __4("Border Color", "digiblocks")
+                    label: __6("Border Color", "digiblocks")
                   },
                   {
                     value: iconHoverBorderColor,
                     onChange: (value) => setAttributes({ iconHoverBorderColor: value }),
-                    label: __4("Border Hover Color", "digiblocks")
+                    label: __6("Border Hover Color", "digiblocks")
                   }
                 ]
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl4,
+              ResponsiveControl6,
               {
-                label: __4("Border Width", "digiblocks")
+                label: __6("Border Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl4,
+                DimensionControl5,
                 {
                   values: iconBorderWidth && iconBorderWidth[localActiveDevice] ? iconBorderWidth[localActiveDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
                   onChange: (value) => setAttributes({
@@ -6012,12 +7047,12 @@
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl4,
+              ResponsiveControl6,
               {
-                label: __4("Border Radius", "digiblocks")
+                label: __6("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl4,
+                DimensionControl5,
                 {
                   values: iconBorderRadius && iconBorderRadius[localActiveDevice] ? iconBorderRadius[localActiveDevice] : { top: 0, right: 0, bottom: 0, left: 0, unit: "px" },
                   onChange: (value) => setAttributes({
@@ -6034,12 +7069,12 @@
               )
             )),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl4,
+              ResponsiveControl6,
               {
-                label: __4("Icon Padding", "digiblocks")
+                label: __6("Icon Padding", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl4,
+                DimensionControl5,
                 {
                   values: iconPadding && iconPadding[localActiveDevice] ? iconPadding[localActiveDevice] : { top: 0, right: 0, bottom: 0, left: 0, unit: "px" },
                   onChange: (value) => setAttributes({
@@ -6052,12 +7087,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl4,
+              ResponsiveControl6,
               {
-                label: __4("Icon Margin", "digiblocks")
+                label: __6("Icon Margin", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl4,
+                DimensionControl5,
                 {
                   values: iconMargin && iconMargin[localActiveDevice] ? iconMargin[localActiveDevice] : {
                     top: 0,
@@ -6080,17 +7115,17 @@
               )
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody4,
+            TabPanelBody6,
             {
               tab: "style",
               name: "animation",
-              title: __4("Counter Animation", "digiblocks"),
+              title: __6("Counter Animation", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              RangeControl4,
+              RangeControl5,
               {
-                label: __4("Animation Duration (ms)", "digiblocks"),
+                label: __6("Animation Duration (ms)", "digiblocks"),
                 value: animationDuration || 2e3,
                 onChange: (value) => setAttributes({ animationDuration: value }),
                 min: 100,
@@ -6101,9 +7136,9 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              RangeControl4,
+              RangeControl5,
               {
-                label: __4("Animation Delay (ms)", "digiblocks"),
+                label: __6("Animation Delay (ms)", "digiblocks"),
                 value: animationDelay || 0,
                 onChange: (value) => setAttributes({ animationDelay: value }),
                 min: 0,
@@ -6114,17 +7149,17 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody4,
+            TabPanelBody6,
             {
               tab: "style",
               name: "border",
-              title: __4("Border & Shadow", "digiblocks"),
+              title: __6("Border & Shadow", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl4,
+              SelectControl6,
               {
-                label: __4("Border Style", "digiblocks"),
+                label: __6("Border Style", "digiblocks"),
                 value: borderStyle || "default",
                 options: borderStyleOptions,
                 onChange: (value) => {
@@ -6155,25 +7190,25 @@
               }
             ),
             borderStyle && borderStyle !== "default" && borderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings4,
+              PanelColorSettings5,
               {
-                title: __4("Border Color", "digiblocks"),
+                title: __6("Border Color", "digiblocks"),
                 enableAlpha: true,
                 colorSettings: [
                   {
                     value: borderColor,
                     onChange: (value) => setAttributes({ borderColor: value }),
-                    label: __4("Border Color", "digiblocks")
+                    label: __6("Border Color", "digiblocks")
                   }
                 ]
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl4,
+              ResponsiveControl6,
               {
-                label: __4("Border Width", "digiblocks")
+                label: __6("Border Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl4,
+                DimensionControl5,
                 {
                   values: borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
                   onChange: (value) => setAttributes({
@@ -6185,12 +7220,12 @@
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl4,
+              ResponsiveControl6,
               {
-                label: __4("Border Radius", "digiblocks")
+                label: __6("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl4,
+                DimensionControl5,
                 {
                   values: borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: "px" },
                   onChange: (value) => setAttributes({
@@ -6207,9 +7242,9 @@
               )
             )),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl4,
+              SelectControl6,
               {
-                label: __4("Hover Effect", "digiblocks"),
+                label: __6("Hover Effect", "digiblocks"),
                 value: hoverEffect || "none",
                 options: hoverEffectOptions,
                 onChange: (value) => setAttributes({ hoverEffect: value }),
@@ -6218,7 +7253,7 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              BoxShadowControl4,
+              BoxShadowControl5,
               {
                 normalValue: boxShadow,
                 hoverValue: boxShadowHover,
@@ -6227,20 +7262,20 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody4,
+            TabPanelBody6,
             {
               tab: "style",
               name: "spacing",
-              title: __4("Spacing", "digiblocks"),
+              title: __6("Spacing", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl4,
+              ResponsiveControl6,
               {
-                label: __4("Padding", "digiblocks")
+                label: __6("Padding", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl4,
+                DimensionControl5,
                 {
                   values: padding && padding[localActiveDevice] ? padding[localActiveDevice] : { top: 30, right: 30, bottom: 30, left: 30, unit: "px" },
                   onChange: (value) => setAttributes({
@@ -6253,12 +7288,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl4,
+              ResponsiveControl6,
               {
-                label: __4("Margin", "digiblocks")
+                label: __6("Margin", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl4,
+                DimensionControl5,
                 {
                   values: margin && margin[localActiveDevice] ? margin[localActiveDevice] : { top: 0, right: 0, bottom: 30, left: 0, unit: "px" },
                   onChange: (value) => setAttributes({
@@ -6273,17 +7308,17 @@
           ));
         case "advanced":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody4,
+            TabPanelBody6,
             {
               tab: "advanced",
               name: "animation",
-              title: __4("Animation", "digiblocks"),
+              title: __6("Animation", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl4,
+              SelectControl6,
               {
-                label: __4("Animation Effect", "digiblocks"),
+                label: __6("Animation Effect", "digiblocks"),
                 value: animation,
                 options: animationOptions,
                 onChange: (value) => setAttributes({ animation: value }),
@@ -6292,24 +7327,24 @@
               }
             ),
             animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button4,
+              Button5,
               {
                 variant: "secondary",
                 isSecondary: true,
                 onClick: triggerAnimationPreview,
                 style: { width: "100%" }
               },
-              __4("Preview Animation", "digiblocks")
+              __6("Preview Animation", "digiblocks")
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody4,
+            TabPanelBody6,
             {
               tab: "advanced",
               name: "additional",
-              title: __4("Additional", "digiblocks"),
+              title: __6("Additional", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __4("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __6("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -6321,7 +7356,7 @@
                 autoCapitalize: "none",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __4(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __6(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
               "a",
               {
                 className: "components-external-link",
@@ -6329,10 +7364,10 @@
                 target: "_blank",
                 rel: "external noreferrer noopener"
               },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __4("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __6("Learn more about anchors", "digiblocks")),
               /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
             ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __4("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __6("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -6343,13 +7378,13 @@
                 "aria-describedby": "additional-css-classes-help",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __4("Separate multiple classes with spaces.", "digiblocks")))
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __6("Separate multiple classes with spaces.", "digiblocks")))
           ));
         default:
           return null;
       }
     };
-    const blockProps = useBlockProps7({
+    const blockProps = useBlockProps11({
       className: `digiblocks-counter align-${align} ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
@@ -6363,8 +7398,8 @@
         value: align,
         onChange: (value) => setAttributes({ align: value })
       }
-    )), /* @__PURE__ */ wp.element.createElement(InspectorControls4, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel4,
+    )), /* @__PURE__ */ wp.element.createElement(InspectorControls6, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel6,
       {
         tabs: tabList,
         activeTab,
@@ -6373,10 +7408,10 @@
       renderTabContent()
     )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-counter-inner" }, displayIcon && renderIcon(), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-counter-content" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-counter-number-wrapper" }, counterPrefix && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-counter-prefix" }, counterPrefix), /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-counter-number" }, formattedCounter), counterSuffix && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-counter-suffix" }, counterSuffix)), title && /* @__PURE__ */ wp.element.createElement("h3", { className: "digiblocks-counter-title" }, title), description && /* @__PURE__ */ wp.element.createElement("p", { className: "digiblocks-counter-description" }, description)))));
   };
-  var edit_default4 = CounterEdit;
+  var edit_default6 = CounterEdit;
 
   // blocks/counter/save.js
-  var { useBlockProps: useBlockProps8 } = window.wp.blockEditor;
+  var { useBlockProps: useBlockProps12 } = window.wp.blockEditor;
   var CounterSave = ({ attributes }) => {
     const {
       id,
@@ -6407,7 +7442,7 @@
       animation !== "none" ? `animate-${animation}` : "",
       customClasses || ""
     ].filter(Boolean).join(" ");
-    const blockProps = useBlockProps8.save({
+    const blockProps = useBlockProps12.save({
       className: blockClasses,
       id: anchor || null,
       "data-custom-id": id,
@@ -6427,31 +7462,31 @@
     };
     return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-counter-inner" }, displayIcon && renderIcon(), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-counter-content" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-counter-number-wrapper" }, counterPrefix && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-counter-prefix" }, counterPrefix), /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-counter-number" }, startNumber || 0), counterSuffix && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-counter-suffix" }, counterSuffix)), title && /* @__PURE__ */ wp.element.createElement("h3", { className: "digiblocks-counter-title" }, title), description && /* @__PURE__ */ wp.element.createElement("p", { className: "digiblocks-counter-description" }, description))));
   };
-  var save_default4 = CounterSave;
+  var save_default6 = CounterSave;
 
   // blocks/faq/edit.js
-  var { __: __5 } = window.wp.i18n;
+  var { __: __7 } = window.wp.i18n;
   var {
-    useBlockProps: useBlockProps9,
-    RichText: RichText5,
-    InspectorControls: InspectorControls5,
-    PanelColorSettings: PanelColorSettings5
+    useBlockProps: useBlockProps13,
+    RichText: RichText7,
+    InspectorControls: InspectorControls7,
+    PanelColorSettings: PanelColorSettings6
   } = window.wp.blockEditor;
   var {
-    SelectControl: SelectControl5,
-    RangeControl: RangeControl5,
-    ToggleControl: ToggleControl5,
-    Button: Button5,
+    SelectControl: SelectControl7,
+    RangeControl: RangeControl6,
+    ToggleControl: ToggleControl6,
+    Button: Button6,
     TextControl: TextControl4,
     Tooltip: Tooltip2,
-    TabPanel: TabPanel5,
-    __experimentalToggleGroupControl: ToggleGroupControl5,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption5
+    TabPanel: TabPanel7,
+    __experimentalToggleGroupControl: ToggleGroupControl7,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption7
   } = window.wp.components;
-  var { useState: useState5, useEffect: useEffect5, useRef: useRef5 } = window.wp.element;
-  var { animations: animations5 } = digi.utils;
-  var { tabIcons: tabIcons5 } = digi.icons;
-  var { ResponsiveControl: ResponsiveControl5, DimensionControl: DimensionControl5, TypographyControl: TypographyControl5, BoxShadowControl: BoxShadowControl5, CustomTabPanel: CustomTabPanel5, TabPanelBody: TabPanelBody5 } = digi.components;
+  var { useState: useState7, useEffect: useEffect7, useRef: useRef5 } = window.wp.element;
+  var { animations: animations7 } = digi.utils;
+  var { tabIcons: tabIcons7 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl7, DimensionControl: DimensionControl6, TypographyControl: TypographyControl6, BoxShadowControl: BoxShadowControl6, CustomTabPanel: CustomTabPanel7, TabPanelBody: TabPanelBody7 } = digi.components;
   var FAQEdit = ({ attributes, setAttributes, clientId }) => {
     const {
       id,
@@ -6496,17 +7531,17 @@
       schemaType,
       schemaName
     } = attributes;
-    const [activeTab, setActiveTab] = useState5("options");
-    const [localActiveDevice, setLocalActiveDevice] = useState5(window.digi.responsiveState.activeDevice);
-    const [isAnimating, setIsAnimating] = useState5(false);
+    const [activeTab, setActiveTab] = useState7("options");
+    const [localActiveDevice, setLocalActiveDevice] = useState7(window.digi.responsiveState.activeDevice);
+    const [isAnimating, setIsAnimating] = useState7(false);
     const previewTimeoutRef = useRef5(null);
-    useEffect5(() => {
+    useEffect7(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    useEffect5(() => {
+    useEffect7(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
@@ -6522,7 +7557,7 @@
         }
       }
     }, [clientId, items, setAttributes]);
-    useEffect5(() => {
+    useEffect7(() => {
       return () => {
         if (previewTimeoutRef.current) {
           clearTimeout(previewTimeoutRef.current);
@@ -6541,8 +7576,8 @@
         return;
       }
       const timestamp = Date.now();
-      if (animations5[animation]) {
-        const originalKeyframes = animations5[animation].keyframes;
+      if (animations7[animation]) {
+        const originalKeyframes = animations7[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
           console.error("Could not extract animation name from keyframes");
@@ -6583,7 +7618,7 @@
         }, 1500);
       }
     };
-    useEffect5(() => {
+    useEffect7(() => {
       if (animation && animation !== "none") {
         const timeoutId = setTimeout(() => {
           triggerAnimationPreview();
@@ -6592,86 +7627,86 @@
       }
     }, [animation]);
     const borderStyleOptions = [
-      { label: __5("Default", "digiblocks"), value: "default" },
-      { label: __5("None", "digiblocks"), value: "none" },
-      { label: __5("Solid", "digiblocks"), value: "solid" },
-      { label: __5("Dotted", "digiblocks"), value: "dotted" },
-      { label: __5("Dashed", "digiblocks"), value: "dashed" },
-      { label: __5("Double", "digiblocks"), value: "double" },
-      { label: __5("Groove", "digiblocks"), value: "groove" },
-      { label: __5("Inset", "digiblocks"), value: "inset" },
-      { label: __5("Outset", "digiblocks"), value: "outset" },
-      { label: __5("Ridge", "digiblocks"), value: "ridge" }
+      { label: __7("Default", "digiblocks"), value: "default" },
+      { label: __7("None", "digiblocks"), value: "none" },
+      { label: __7("Solid", "digiblocks"), value: "solid" },
+      { label: __7("Dotted", "digiblocks"), value: "dotted" },
+      { label: __7("Dashed", "digiblocks"), value: "dashed" },
+      { label: __7("Double", "digiblocks"), value: "double" },
+      { label: __7("Groove", "digiblocks"), value: "groove" },
+      { label: __7("Inset", "digiblocks"), value: "inset" },
+      { label: __7("Outset", "digiblocks"), value: "outset" },
+      { label: __7("Ridge", "digiblocks"), value: "ridge" }
     ];
     const animationOptions = [
-      { label: __5("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations5).map((animation2) => ({
+      { label: __7("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations7).map((animation2) => ({
         label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         value: animation2
       }))
     ];
     const iconTypeOptions = [
-      { label: __5("Plus/Minus", "digiblocks"), value: "plusMinus" },
-      { label: __5("Arrow", "digiblocks"), value: "arrow" },
-      { label: __5("Chevron", "digiblocks"), value: "chevron" },
-      { label: __5("Triangle", "digiblocks"), value: "triangle" },
-      { label: __5("Circle Plus/Minus", "digiblocks"), value: "circlePlusMinus" }
+      { label: __7("Plus/Minus", "digiblocks"), value: "plusMinus" },
+      { label: __7("Arrow", "digiblocks"), value: "arrow" },
+      { label: __7("Chevron", "digiblocks"), value: "chevron" },
+      { label: __7("Triangle", "digiblocks"), value: "triangle" },
+      { label: __7("Circle Plus/Minus", "digiblocks"), value: "circlePlusMinus" }
     ];
     const iconPositionOptions = [
-      { label: __5("Right", "digiblocks"), value: "right" },
-      { label: __5("Left", "digiblocks"), value: "left" }
+      { label: __7("Right", "digiblocks"), value: "right" },
+      { label: __7("Left", "digiblocks"), value: "left" }
     ];
     const titleTagOptions = [
-      { label: __5("H2", "digiblocks"), value: "h2" },
-      { label: __5("H3", "digiblocks"), value: "h3" },
-      { label: __5("H4", "digiblocks"), value: "h4" },
-      { label: __5("H5", "digiblocks"), value: "h5" },
-      { label: __5("H6", "digiblocks"), value: "h6" },
-      { label: __5("p", "digiblocks"), value: "p" },
-      { label: __5("div", "digiblocks"), value: "div" }
+      { label: __7("H2", "digiblocks"), value: "h2" },
+      { label: __7("H3", "digiblocks"), value: "h3" },
+      { label: __7("H4", "digiblocks"), value: "h4" },
+      { label: __7("H5", "digiblocks"), value: "h5" },
+      { label: __7("H6", "digiblocks"), value: "h6" },
+      { label: __7("p", "digiblocks"), value: "p" },
+      { label: __7("div", "digiblocks"), value: "div" }
     ];
     const layoutOptions = [
-      { label: __5("Boxed", "digiblocks"), value: "boxed" },
-      { label: __5("Classic", "digiblocks"), value: "classic" },
-      { label: __5("Separated", "digiblocks"), value: "separated" },
-      { label: __5("Minimalist", "digiblocks"), value: "minimalist" },
-      { label: __5("Bordered", "digiblocks"), value: "bordered" }
+      { label: __7("Boxed", "digiblocks"), value: "boxed" },
+      { label: __7("Classic", "digiblocks"), value: "classic" },
+      { label: __7("Separated", "digiblocks"), value: "separated" },
+      { label: __7("Minimalist", "digiblocks"), value: "minimalist" },
+      { label: __7("Bordered", "digiblocks"), value: "bordered" }
     ];
     const schemaTypeOptions = [
-      { label: __5("Default FAQ Schema", "digiblocks"), value: "FAQPage" },
-      { label: __5("Q&A Schema", "digiblocks"), value: "QAPage" }
+      { label: __7("Default FAQ Schema", "digiblocks"), value: "FAQPage" },
+      { label: __7("Q&A Schema", "digiblocks"), value: "QAPage" }
     ];
     const tabList = [
       {
         name: "options",
-        title: __5("Options", "digiblocks"),
-        icon: tabIcons5.optionsIcon
+        title: __7("Options", "digiblocks"),
+        icon: tabIcons7.optionsIcon
       },
       {
         name: "style",
-        title: __5("Style", "digiblocks"),
-        icon: tabIcons5.styleIcon
+        title: __7("Style", "digiblocks"),
+        icon: tabIcons7.styleIcon
       },
       {
         name: "advanced",
-        title: __5("Advanced", "digiblocks"),
-        icon: tabIcons5.advancedIcon
+        title: __7("Advanced", "digiblocks"),
+        icon: tabIcons7.advancedIcon
       }
     ];
     const stateTabList = [
       {
         name: "normal",
-        title: __5("Normal", "digiblocks"),
+        title: __7("Normal", "digiblocks"),
         className: "digiblocks-tab-1 normal"
       },
       {
         name: "hover",
-        title: __5("Hover", "digiblocks"),
+        title: __7("Hover", "digiblocks"),
         className: "digiblocks-tab-2 hover"
       },
       {
         name: "active",
-        title: __5("Active", "digiblocks"),
+        title: __7("Active", "digiblocks"),
         className: "digiblocks-tab-3 active"
       }
     ];
@@ -6679,8 +7714,8 @@
       const newItemIndex = items.length;
       const newItem = {
         id: `faq-item-${clientId.substr(0, 8)}-${newItemIndex}`,
-        title: __5("New FAQ Question", "digiblocks"),
-        content: __5("Add your answer here. Edit or remove this text inline or in the module Content settings.", "digiblocks"),
+        title: __7("New FAQ Question", "digiblocks"),
+        content: __7("Add your answer here. Edit or remove this text inline or in the module Content settings.", "digiblocks"),
         isOpen: false
       };
       setAttributes({
@@ -7276,8 +8311,8 @@
 			}
 		`;
       let animationCSS = "";
-      if (animation && animation !== "none" && animations5[animation]) {
-        animationCSS = animations5[animation].keyframes;
+      if (animation && animation !== "none" && animations7[animation]) {
+        animationCSS = animations7[animation].keyframes;
       }
       return `
 			${baseCSS}
@@ -7291,9 +8326,9 @@
     const renderTitleTabContent = (tabName) => {
       if (tabName === "normal") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings5,
+          PanelColorSettings6,
           {
-            title: __5(
+            title: __7(
               "Question Colors",
               "digiblocks"
             ),
@@ -7305,7 +8340,7 @@
                 onChange: (value) => setAttributes({
                   titleColor: value
                 }),
-                label: __5(
+                label: __7(
                   "Text Color",
                   "digiblocks"
                 )
@@ -7315,7 +8350,7 @@
                 onChange: (value) => setAttributes({
                   backgroundColor: value
                 }),
-                label: __5(
+                label: __7(
                   "Background Color",
                   "digiblocks"
                 )
@@ -7325,7 +8360,7 @@
                 onChange: (value) => setAttributes({
                   questionPrefixColor: value
                 }),
-                label: __5(
+                label: __7(
                   "Prefix Color",
                   "digiblocks"
                 ),
@@ -7336,9 +8371,9 @@
         ));
       } else if (tabName === "hover") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings5,
+          PanelColorSettings6,
           {
-            title: __5(
+            title: __7(
               "Question Hover Colors",
               "digiblocks"
             ),
@@ -7350,7 +8385,7 @@
                 onChange: (value) => setAttributes({
                   titleHoverColor: value
                 }),
-                label: __5(
+                label: __7(
                   "Text Color",
                   "digiblocks"
                 )
@@ -7360,7 +8395,7 @@
                 onChange: (value) => setAttributes({
                   backgroundHoverColor: value
                 }),
-                label: __5(
+                label: __7(
                   "Background Color",
                   "digiblocks"
                 )
@@ -7370,9 +8405,9 @@
         ));
       } else if (tabName === "active") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings5,
+          PanelColorSettings6,
           {
-            title: __5(
+            title: __7(
               "Question Active Colors",
               "digiblocks"
             ),
@@ -7384,7 +8419,7 @@
                 onChange: (value) => setAttributes({
                   titleActiveColor: value
                 }),
-                label: __5(
+                label: __7(
                   "Text Color",
                   "digiblocks"
                 )
@@ -7394,7 +8429,7 @@
                 onChange: (value) => setAttributes({
                   backgroundActiveColor: value
                 }),
-                label: __5(
+                label: __7(
                   "Background Color",
                   "digiblocks"
                 )
@@ -7408,9 +8443,9 @@
     const renderIconTabContent = (tabName) => {
       if (tabName === "normal") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings5,
+          PanelColorSettings6,
           {
-            title: __5(
+            title: __7(
               "Icon Colors",
               "digiblocks"
             ),
@@ -7422,7 +8457,7 @@
                 onChange: (value) => setAttributes({
                   iconColor: value
                 }),
-                label: __5(
+                label: __7(
                   "Icon Color",
                   "digiblocks"
                 )
@@ -7432,9 +8467,9 @@
         ));
       } else if (tabName === "hover") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings5,
+          PanelColorSettings6,
           {
-            title: __5(
+            title: __7(
               "Icon Hover Colors",
               "digiblocks"
             ),
@@ -7446,7 +8481,7 @@
                 onChange: (value) => setAttributes({
                   iconHoverColor: value
                 }),
-                label: __5(
+                label: __7(
                   "Icon Color",
                   "digiblocks"
                 )
@@ -7456,9 +8491,9 @@
         ));
       } else if (tabName === "active") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings5,
+          PanelColorSettings6,
           {
-            title: __5(
+            title: __7(
               "Icon Active Colors",
               "digiblocks"
             ),
@@ -7470,7 +8505,7 @@
                 onChange: (value) => setAttributes({
                   iconActiveColor: value
                 }),
-                label: __5(
+                label: __7(
                   "Icon Color",
                   "digiblocks"
                 )
@@ -7483,9 +8518,9 @@
     };
     const renderContentTabContent = () => {
       return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-        PanelColorSettings5,
+        PanelColorSettings6,
         {
-          title: __5(
+          title: __7(
             "Answer Colors",
             "digiblocks"
           ),
@@ -7497,7 +8532,7 @@
               onChange: (value) => setAttributes({
                 contentColor: value
               }),
-              label: __5(
+              label: __7(
                 "Text Color",
                 "digiblocks"
               )
@@ -7507,7 +8542,7 @@
               onChange: (value) => setAttributes({
                 contentBackgroundColor: value
               }),
-              label: __5(
+              label: __7(
                 "Background Color",
                 "digiblocks"
               )
@@ -7517,7 +8552,7 @@
               onChange: (value) => setAttributes({
                 answerPrefixColor: value
               }),
-              label: __5(
+              label: __7(
                 "Prefix Color",
                 "digiblocks"
               ),
@@ -7531,26 +8566,26 @@
       switch (activeTab) {
         case "options":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody5,
+            TabPanelBody7,
             {
               tab: "options",
               name: "content-settings",
-              title: __5("Items", "digiblocks"),
+              title: __7("Items", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl5,
+              ToggleControl6,
               {
-                label: __5("Allow Multiple Open", "digiblocks"),
+                label: __7("Allow Multiple Open", "digiblocks"),
                 checked: allowMultipleOpen,
                 onChange: () => setAttributes({ allowMultipleOpen: !allowMultipleOpen }),
-                help: __5("When enabled, multiple FAQ items can be open at the same time.", "digiblocks")
+                help: __7("When enabled, multiple FAQ items can be open at the same time.", "digiblocks")
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl5,
+              SelectControl7,
               {
-                label: __5("Layout", "digiblocks"),
+                label: __7("Layout", "digiblocks"),
                 value: layout,
                 options: layoutOptions,
                 onChange: (value) => setAttributes({ layout: value }),
@@ -7558,31 +8593,31 @@
                 __nextHasNoMarginBottom: true
               }
             ),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { htmlFor: "question-prefix", className: "components-base-control__label" }, __5("Question Prefix", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { htmlFor: "question-prefix", className: "components-base-control__label" }, __7("Question Prefix", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               TextControl4,
               {
                 id: "question-prefix",
                 value: questionPrefix || "",
                 onChange: (value) => setAttributes({ questionPrefix: value }),
-                placeholder: __5("Example: Q:", "digiblocks")
+                placeholder: __7("Example: Q:", "digiblocks")
               }
-            ), /* @__PURE__ */ wp.element.createElement("p", { className: "components-base-control__help" }, __5("Add a prefix to questions (e.g., 'Q:').", "digiblocks")))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { htmlFor: "answer-prefix", className: "components-base-control__label" }, __5("Answer Prefix", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            ), /* @__PURE__ */ wp.element.createElement("p", { className: "components-base-control__help" }, __7("Add a prefix to questions (e.g., 'Q:').", "digiblocks")))),
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { htmlFor: "answer-prefix", className: "components-base-control__label" }, __7("Answer Prefix", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               TextControl4,
               {
                 id: "answer-prefix",
                 value: answerPrefix || "",
                 onChange: (value) => setAttributes({ answerPrefix: value }),
-                placeholder: __5("Example: A:", "digiblocks")
+                placeholder: __7("Example: A:", "digiblocks")
               }
-            ), /* @__PURE__ */ wp.element.createElement("p", { className: "components-base-control__help" }, __5("Add a prefix to answers (e.g., 'A:').", "digiblocks")))),
+            ), /* @__PURE__ */ wp.element.createElement("p", { className: "components-base-control__help" }, __7("Add a prefix to answers (e.g., 'A:').", "digiblocks")))),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl5,
+              ResponsiveControl7,
               {
-                label: __5("Items Spacing", "digiblocks")
+                label: __7("Items Spacing", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl5,
+                RangeControl6,
                 {
                   value: itemsSpacing[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -7600,17 +8635,17 @@
               )
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody5,
+            TabPanelBody7,
             {
               tab: "options",
               name: "icon-settings",
-              title: __5("Icon Settings", "digiblocks"),
+              title: __7("Icon Settings", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl5,
+              SelectControl7,
               {
-                label: __5("Icon Type", "digiblocks"),
+                label: __7("Icon Type", "digiblocks"),
                 value: iconType,
                 options: iconTypeOptions,
                 onChange: (value) => setAttributes({ iconType: value }),
@@ -7619,9 +8654,9 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl5,
+              SelectControl7,
               {
-                label: __5("Icon Position", "digiblocks"),
+                label: __7("Icon Position", "digiblocks"),
                 value: iconPosition,
                 options: iconPositionOptions,
                 onChange: (value) => setAttributes({ iconPosition: value }),
@@ -7630,12 +8665,12 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl5,
+              ResponsiveControl7,
               {
-                label: __5("Icon Size", "digiblocks")
+                label: __7("Icon Size", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl5,
+                RangeControl6,
                 {
                   value: iconSize[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -7653,26 +8688,26 @@
               )
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody5,
+            TabPanelBody7,
             {
               tab: "options",
               name: "schema-settings",
-              title: __5("SEO Schema", "digiblocks"),
+              title: __7("SEO Schema", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl5,
+              ToggleControl6,
               {
-                label: __5("Enable Schema Markup", "digiblocks"),
+                label: __7("Enable Schema Markup", "digiblocks"),
                 checked: schemaEnabled,
                 onChange: () => setAttributes({ schemaEnabled: !schemaEnabled }),
-                help: __5("Add JSON-LD schema markup for better SEO results.", "digiblocks")
+                help: __7("Add JSON-LD schema markup for better SEO results.", "digiblocks")
               }
             ),
             schemaEnabled && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              SelectControl5,
+              SelectControl7,
               {
-                label: __5("Schema Type", "digiblocks"),
+                label: __7("Schema Type", "digiblocks"),
                 value: schemaType,
                 options: schemaTypeOptions,
                 onChange: (value) => setAttributes({ schemaType: value }),
@@ -7682,31 +8717,31 @@
             ), /* @__PURE__ */ wp.element.createElement(
               TextControl4,
               {
-                label: __5("Schema Name", "digiblocks"),
+                label: __7("Schema Name", "digiblocks"),
                 value: schemaName,
                 onChange: (value) => setAttributes({ schemaName: value }),
-                placeholder: __5("Example: Product FAQ", "digiblocks"),
-                help: __5("Name for your FAQ schema (e.g., Company FAQ, Product FAQ).", "digiblocks"),
+                placeholder: __7("Example: Product FAQ", "digiblocks"),
+                help: __7("Name for your FAQ schema (e.g., Company FAQ, Product FAQ).", "digiblocks"),
                 __next40pxDefaultSize: true,
                 __nextHasNoMarginBottom: true
               }
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody5,
+            TabPanelBody7,
             {
               tab: "options",
               name: "heading-settings",
-              title: __5("HTML Settings", "digiblocks"),
+              title: __7("HTML Settings", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl5,
+              SelectControl7,
               {
-                label: __5("Question Tag", "digiblocks"),
+                label: __7("Question Tag", "digiblocks"),
                 value: titleTag,
                 options: titleTagOptions,
                 onChange: (value) => setAttributes({ titleTag: value }),
-                help: __5("HTML tag for questions. Default is h3.", "digiblocks"),
+                help: __7("HTML tag for questions. Default is h3.", "digiblocks"),
                 __next40pxDefaultSize: true,
                 __nextHasNoMarginBottom: true
               }
@@ -7714,15 +8749,15 @@
           ));
         case "style":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody5,
+            TabPanelBody7,
             {
               tab: "style",
               name: "question-styles",
-              title: __5("Question Styles", "digiblocks"),
+              title: __7("Question Styles", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              TabPanel5,
+              TabPanel7,
               {
                 className: "digiblocks-control-tabs",
                 activeClass: "active-tab",
@@ -7731,9 +8766,9 @@
               (tab) => renderTitleTabContent(tab.name)
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl5,
+              TypographyControl6,
               {
-                label: __5(
+                label: __7(
                   "Question Typography",
                   "digiblocks"
                 ),
@@ -7750,18 +8785,18 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody5,
+            TabPanelBody7,
             {
               tab: "style",
               name: "answer-styles",
-              title: __5("Answer Styles", "digiblocks"),
+              title: __7("Answer Styles", "digiblocks"),
               initialOpen: false
             },
             renderContentTabContent(),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl5,
+              TypographyControl6,
               {
-                label: __5(
+                label: __7(
                   "Answer Typography",
                   "digiblocks"
                 ),
@@ -7778,15 +8813,15 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody5,
+            TabPanelBody7,
             {
               tab: "style",
               name: "icon-styles",
-              title: __5("Icon Styles", "digiblocks"),
+              title: __7("Icon Styles", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              TabPanel5,
+              TabPanel7,
               {
                 className: "digiblocks-control-tabs",
                 activeClass: "active-tab",
@@ -7795,17 +8830,17 @@
               (tab) => renderIconTabContent(tab.name)
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody5,
+            TabPanelBody7,
             {
               tab: "style",
               name: "border-box",
-              title: __5("Border & Shadow", "digiblocks"),
+              title: __7("Border & Shadow", "digiblocks"),
               initialOpen: false
             },
             layout !== "classic" && layout !== "minimalist" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              SelectControl5,
+              SelectControl7,
               {
-                label: __5("Border Style", "digiblocks"),
+                label: __7("Border Style", "digiblocks"),
                 value: borderStyle || "default",
                 options: borderStyleOptions,
                 onChange: (value) => {
@@ -7837,9 +8872,9 @@
                 __nextHasNoMarginBottom: true
               }
             ), borderStyle && borderStyle !== "default" && borderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings5,
+              PanelColorSettings6,
               {
-                title: __5(
+                title: __7(
                   "Border Colors",
                   "digiblocks"
                 ),
@@ -7850,7 +8885,7 @@
                     onChange: (value) => setAttributes({
                       borderColor: value
                     }),
-                    label: __5(
+                    label: __7(
                       "Border Color",
                       "digiblocks"
                     )
@@ -7860,7 +8895,7 @@
                     onChange: (value) => setAttributes({
                       borderHoverColor: value
                     }),
-                    label: __5(
+                    label: __7(
                       "Border Hover Color",
                       "digiblocks"
                     )
@@ -7868,12 +8903,12 @@
                 ]
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl5,
+              ResponsiveControl7,
               {
-                label: __5("Border Width", "digiblocks")
+                label: __7("Border Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl5,
+                DimensionControl6,
                 {
                   values: borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : {
                     top: 1,
@@ -7891,12 +8926,12 @@
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl5,
+              ResponsiveControl7,
               {
-                label: __5("Border Radius", "digiblocks")
+                label: __7("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl5,
+                DimensionControl6,
                 {
                   values: borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
                     top: 8,
@@ -7919,7 +8954,7 @@
               )
             ))),
             /* @__PURE__ */ wp.element.createElement(
-              BoxShadowControl5,
+              BoxShadowControl6,
               {
                 normalValue: boxShadow,
                 hoverValue: boxShadowHover,
@@ -7932,20 +8967,20 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody5,
+            TabPanelBody7,
             {
               tab: "style",
               name: "spacing",
-              title: __5("Spacing", "digiblocks"),
+              title: __7("Spacing", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl5,
+              ResponsiveControl7,
               {
-                label: __5("Padding", "digiblocks")
+                label: __7("Padding", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl5,
+                DimensionControl6,
                 {
                   values: padding[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -7958,12 +8993,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl5,
+              ResponsiveControl7,
               {
-                label: __5("Margin", "digiblocks")
+                label: __7("Margin", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl5,
+                DimensionControl6,
                 {
                   values: margin[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -7978,17 +9013,17 @@
           ));
         case "advanced":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody5,
+            TabPanelBody7,
             {
               tab: "advanced",
               name: "animation",
-              title: __5("Animation", "digiblocks"),
+              title: __7("Animation", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl5,
+              SelectControl7,
               {
-                label: __5("Animation Effect", "digiblocks"),
+                label: __7("Animation Effect", "digiblocks"),
                 value: animation,
                 options: animationOptions,
                 onChange: (value) => setAttributes({ animation: value }),
@@ -7997,24 +9032,24 @@
               }
             ),
             animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button5,
+              Button6,
               {
                 variant: "secondary",
                 isSecondary: true,
                 onClick: triggerAnimationPreview,
                 style: { width: "100%" }
               },
-              __5("Preview Animation", "digiblocks")
+              __7("Preview Animation", "digiblocks")
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody5,
+            TabPanelBody7,
             {
               tab: "advanced",
               name: "additional",
-              title: __5("Additional", "digiblocks"),
+              title: __7("Additional", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __5("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __7("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -8026,7 +9061,7 @@
                 autoCapitalize: "none",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __5(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __7(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
               "a",
               {
                 className: "components-external-link",
@@ -8034,10 +9069,10 @@
                 target: "_blank",
                 rel: "external noreferrer noopener"
               },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __5("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __7("Learn more about anchors", "digiblocks")),
               /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
             ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __5("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __7("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -8048,13 +9083,13 @@
                 "aria-describedby": "additional-css-classes-help",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __5("Separate multiple classes with spaces.", "digiblocks")))
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __7("Separate multiple classes with spaces.", "digiblocks")))
           ));
       }
     };
     const renderFAQItems = () => {
       if (!items || items.length === 0) {
-        return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-no-items" }, /* @__PURE__ */ wp.element.createElement("p", null, __5("No FAQ items found. Please add some items.", "digiblocks")));
+        return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-no-items" }, /* @__PURE__ */ wp.element.createElement("p", null, __7("No FAQ items found. Please add some items.", "digiblocks")));
       }
       return items.map((item, index) => {
         const isLast = index === items.length - 1;
@@ -8072,12 +9107,12 @@
               onClick: () => toggleItem(index)
             },
             /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-question-text" }, questionPrefix && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-question-prefix" }, questionPrefix), /* @__PURE__ */ wp.element.createElement(
-              RichText5,
+              RichText7,
               {
                 tagName: "span",
                 value: item.title,
                 onChange: (value) => updateItemTitle(value, index),
-                placeholder: __5("Enter question...", "digiblocks"),
+                placeholder: __7("Enter question...", "digiblocks"),
                 allowedFormats: ["core/bold", "core/italic"],
                 className: "digiblocks-faq-question-text-content"
               }
@@ -8085,18 +9120,18 @@
             /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-question-icon" }, getIcon(item.isOpen))
           ),
           /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-answer" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-answer-content" }, answerPrefix && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-answer-prefix" }, answerPrefix), /* @__PURE__ */ wp.element.createElement(
-            RichText5,
+            RichText7,
             {
               tagName: "div",
               value: item.content,
               onChange: (value) => updateItemContent(value, index),
-              placeholder: __5("Enter answer...", "digiblocks"),
+              placeholder: __7("Enter answer...", "digiblocks"),
               allowedFormats: ["core/bold", "core/italic", "core/link", "core/image", "core/list"],
               className: "digiblocks-faq-answer-text"
             }
           ))),
-          /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-item-controls" }, /* @__PURE__ */ wp.element.createElement(Tooltip2, { text: __5("Move Up", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-            Button5,
+          /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-item-controls" }, /* @__PURE__ */ wp.element.createElement(Tooltip2, { text: __7("Move Up", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+            Button6,
             {
               className: "digiblocks-faq-item-move-up",
               onClick: () => moveItemUp(index),
@@ -8104,8 +9139,8 @@
               disabled: index === 0,
               isSmall: true
             }
-          )), /* @__PURE__ */ wp.element.createElement(Tooltip2, { text: __5("Move Down", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-            Button5,
+          )), /* @__PURE__ */ wp.element.createElement(Tooltip2, { text: __7("Move Down", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+            Button6,
             {
               className: "digiblocks-faq-item-move-down",
               onClick: () => moveItemDown(index),
@@ -8113,16 +9148,16 @@
               disabled: index === items.length - 1,
               isSmall: true
             }
-          )), /* @__PURE__ */ wp.element.createElement(Tooltip2, { text: __5("Duplicate", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-            Button5,
+          )), /* @__PURE__ */ wp.element.createElement(Tooltip2, { text: __7("Duplicate", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+            Button6,
             {
               className: "digiblocks-faq-item-duplicate",
               onClick: () => duplicateItem(index),
               icon: "admin-page",
               isSmall: true
             }
-          )), /* @__PURE__ */ wp.element.createElement(Tooltip2, { text: __5("Remove", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-            Button5,
+          )), /* @__PURE__ */ wp.element.createElement(Tooltip2, { text: __7("Remove", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+            Button6,
             {
               className: "digiblocks-faq-item-remove",
               onClick: () => removeItem(index),
@@ -8133,15 +9168,15 @@
         );
       });
     };
-    const blockProps = useBlockProps9({
+    const blockProps = useBlockProps13({
       className: `digiblocks-faq-block ${layout || "boxed"} ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
       "data-custom-id": id
       // Always set the block ID as data attribute for CSS targeting
     });
-    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls5, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel5,
+    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls7, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel7,
       {
         tabs: tabList,
         activeTab,
@@ -8149,20 +9184,20 @@
       },
       renderTabContent()
     )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-items" }, renderFAQItems()), /* @__PURE__ */ wp.element.createElement(
-      Button5,
+      Button6,
       {
         variant: "primary",
         icon: "plus",
         onClick: addNewItem,
         style: { width: "100%", marginTop: "20px", justifyContent: "center" }
       },
-      __5("Add FAQ Item", "digiblocks")
+      __7("Add FAQ Item", "digiblocks")
     )));
   };
-  var edit_default5 = FAQEdit;
+  var edit_default7 = FAQEdit;
 
   // blocks/faq/save.js
-  var { useBlockProps: useBlockProps10, RichText: RichText6 } = window.wp.blockEditor;
+  var { useBlockProps: useBlockProps14, RichText: RichText8 } = window.wp.blockEditor;
   var FAQSave = ({ attributes }) => {
     const {
       id,
@@ -8201,7 +9236,7 @@
           return isOpen ? /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-minus" }, "\u2014") : /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-plus" }, "+");
       }
     };
-    const blockProps = useBlockProps10.save({
+    const blockProps = useBlockProps14.save({
       className: blockClasses,
       id: anchor || null,
       "data-custom-id": id,
@@ -8220,7 +9255,7 @@
             "data-item-id": item.id
           },
           /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-question" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-question-text" }, questionPrefix && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-question-prefix" }, questionPrefix), /* @__PURE__ */ wp.element.createElement(
-            RichText6.Content,
+            RichText8.Content,
             {
               tagName: titleTag || "h3",
               value: item.title,
@@ -8228,7 +9263,7 @@
             }
           )), /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-question-icon" }, getIcon(item.isOpen))),
           /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-answer" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-answer-content" }, answerPrefix && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-answer-prefix" }, answerPrefix), /* @__PURE__ */ wp.element.createElement(
-            RichText6.Content,
+            RichText8.Content,
             {
               tagName: "div",
               className: "digiblocks-faq-answer-text",
@@ -8240,39 +9275,39 @@
     };
     return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-items" }, renderFAQItems()));
   };
-  var save_default5 = FAQSave;
+  var save_default7 = FAQSave;
 
   // blocks/google-map/edit.js
-  var { __: __6 } = window.wp.i18n;
+  var { __: __8 } = window.wp.i18n;
   var {
-    useBlockProps: useBlockProps11,
-    InspectorControls: InspectorControls6,
-    PanelColorSettings: PanelColorSettings6,
+    useBlockProps: useBlockProps15,
+    InspectorControls: InspectorControls8,
+    PanelColorSettings: PanelColorSettings7,
     BlockControls: BlockControls4
   } = window.wp.blockEditor;
   var {
     PanelBody,
     TextControl: TextControl5,
     TextareaControl,
-    RangeControl: RangeControl6,
-    SelectControl: SelectControl6,
-    Button: Button6,
+    RangeControl: RangeControl7,
+    SelectControl: SelectControl8,
+    Button: Button7,
     Placeholder,
     Spinner,
-    ToggleControl: ToggleControl6,
+    ToggleControl: ToggleControl7,
     BaseControl: BaseControl3,
-    __experimentalToggleGroupControl: ToggleGroupControl6,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption6
+    __experimentalToggleGroupControl: ToggleGroupControl8,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption8
   } = window.wp.components;
-  var { useState: useState6, useEffect: useEffect6, useRef: useRef6 } = window.wp.element;
-  var { animations: animations6, debounce } = digi.utils;
-  var { tabIcons: tabIcons6 } = digi.icons;
+  var { useState: useState8, useEffect: useEffect8, useRef: useRef6 } = window.wp.element;
+  var { animations: animations8, debounce } = digi.utils;
+  var { tabIcons: tabIcons8 } = digi.icons;
   var {
-    ResponsiveControl: ResponsiveControl6,
-    DimensionControl: DimensionControl6,
-    CustomTabPanel: CustomTabPanel6,
-    BoxShadowControl: BoxShadowControl6,
-    TabPanelBody: TabPanelBody6
+    ResponsiveControl: ResponsiveControl8,
+    DimensionControl: DimensionControl7,
+    CustomTabPanel: CustomTabPanel8,
+    BoxShadowControl: BoxShadowControl7,
+    TabPanelBody: TabPanelBody8
   } = digi.components;
   var GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
     const {
@@ -8299,23 +9334,23 @@
       boxShadow,
       boxShadowHover
     } = attributes;
-    const [localActiveDevice, setLocalActiveDevice] = useState6(window.digi.responsiveState.activeDevice);
-    const [isLoading, setIsLoading] = useState6(false);
-    const [geocodeError, setGeocodeError] = useState6(null);
-    const [mapLoaded, setMapLoaded] = useState6(false);
-    const [mapInstance, setMapInstance] = useState6(null);
-    const [markerInstances, setMarkerInstances] = useState6([]);
+    const [localActiveDevice, setLocalActiveDevice] = useState8(window.digi.responsiveState.activeDevice);
+    const [isLoading, setIsLoading] = useState8(false);
+    const [geocodeError, setGeocodeError] = useState8(null);
+    const [mapLoaded, setMapLoaded] = useState8(false);
+    const [mapInstance, setMapInstance] = useState8(null);
+    const [markerInstances, setMarkerInstances] = useState8([]);
     const mapContainerRef = useRef6(null);
     const geocoder = useRef6(null);
-    const [activeTab, setActiveTab] = useState6("options");
+    const [activeTab, setActiveTab] = useState8("options");
     const previewTimeoutRef = useRef6(null);
-    useEffect6(() => {
+    useEffect8(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    useEffect6(() => {
+    useEffect8(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
@@ -8323,17 +9358,17 @@
         setAttributes({ markers: [] });
       }
     }, [clientId, id, setAttributes]);
-    useEffect6(() => {
+    useEffect8(() => {
       return () => {
         if (previewTimeoutRef.current) {
           clearTimeout(previewTimeoutRef.current);
         }
       };
     }, []);
-    useEffect6(() => {
+    useEffect8(() => {
       if (!mapLoaded && typeof google === "undefined" && !window.googleMapsLoading) {
         if (!digiBlocksData.googleMapsApiKey) {
-          setGeocodeError(__6("Google Maps API key not found. Please add it in the DigiBlocks settings.", "digiblocks"));
+          setGeocodeError(__8("Google Maps API key not found. Please add it in the DigiBlocks settings.", "digiblocks"));
           return;
         }
         window.googleMapsLoading = true;
@@ -8383,7 +9418,7 @@
         };
       }
     }, [mapLoaded]);
-    useEffect6(() => {
+    useEffect8(() => {
       if (mapLoaded && mapContainerRef.current && !mapInstance) {
         const center = { lat: 40.7128, lng: -74.006 };
         const mapOptions = {
@@ -8429,7 +9464,7 @@
         }
       }
     }, [mapLoaded, mapContainerRef, mapInstance, zoom, mapType, mapStyle, customMapStyle, address, markers, enableZoom, enableScroll, enableFullscreenControl, enableStreetViewControl, enableMapTypeControl, attributes.mapId]);
-    useEffect6(() => {
+    useEffect8(() => {
       if (mapInstance) {
         mapInstance.setZoom(zoom);
         mapInstance.setMapTypeId(mapType);
@@ -8493,7 +9528,7 @@
             }
           }
         } else {
-          setGeocodeError(__6("Could not find address. Please try a different one or use the map to position your marker.", "digiblocks"));
+          setGeocodeError(__8("Could not find address. Please try a different one or use the map to position your marker.", "digiblocks"));
         }
       });
     };
@@ -8640,8 +9675,8 @@
         return;
       }
       const timestamp = Date.now();
-      if (animations6[animation]) {
-        const originalKeyframes = animations6[animation].keyframes;
+      if (animations8[animation]) {
+        const originalKeyframes = animations8[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
           console.error("Could not extract animation name from keyframes");
@@ -8682,7 +9717,7 @@
         }, 1500);
       }
     };
-    useEffect6(() => {
+    useEffect8(() => {
       if (animation && animation !== "none") {
         const timeoutId = setTimeout(() => {
           triggerAnimationPreview();
@@ -8691,30 +9726,30 @@
       }
     }, [animation]);
     const borderStyleOptions = [
-      { label: __6("None", "digiblocks"), value: "none" },
-      { label: __6("Solid", "digiblocks"), value: "solid" },
-      { label: __6("Dotted", "digiblocks"), value: "dotted" },
-      { label: __6("Dashed", "digiblocks"), value: "dashed" },
-      { label: __6("Double", "digiblocks"), value: "double" },
-      { label: __6("Groove", "digiblocks"), value: "groove" },
-      { label: __6("Ridge", "digiblocks"), value: "ridge" },
-      { label: __6("Inset", "digiblocks"), value: "inset" },
-      { label: __6("Outset", "digiblocks"), value: "outset" }
+      { label: __8("None", "digiblocks"), value: "none" },
+      { label: __8("Solid", "digiblocks"), value: "solid" },
+      { label: __8("Dotted", "digiblocks"), value: "dotted" },
+      { label: __8("Dashed", "digiblocks"), value: "dashed" },
+      { label: __8("Double", "digiblocks"), value: "double" },
+      { label: __8("Groove", "digiblocks"), value: "groove" },
+      { label: __8("Ridge", "digiblocks"), value: "ridge" },
+      { label: __8("Inset", "digiblocks"), value: "inset" },
+      { label: __8("Outset", "digiblocks"), value: "outset" }
     ];
     const mapTypeOptions = [
-      { label: __6("Roadmap", "digiblocks"), value: "roadmap" },
-      { label: __6("Satellite", "digiblocks"), value: "satellite" },
-      { label: __6("Hybrid", "digiblocks"), value: "hybrid" },
-      { label: __6("Terrain", "digiblocks"), value: "terrain" }
+      { label: __8("Roadmap", "digiblocks"), value: "roadmap" },
+      { label: __8("Satellite", "digiblocks"), value: "satellite" },
+      { label: __8("Hybrid", "digiblocks"), value: "hybrid" },
+      { label: __8("Terrain", "digiblocks"), value: "terrain" }
     ];
     const mapStyleOptions = [
-      { label: __6("Default", "digiblocks"), value: "default" },
-      { label: __6("Silver", "digiblocks"), value: "silver" },
-      { label: __6("Retro", "digiblocks"), value: "retro" },
-      { label: __6("Dark", "digiblocks"), value: "dark" },
-      { label: __6("Night", "digiblocks"), value: "night" },
-      { label: __6("Aubergine", "digiblocks"), value: "aubergine" },
-      { label: __6("Custom", "digiblocks"), value: "custom" }
+      { label: __8("Default", "digiblocks"), value: "default" },
+      { label: __8("Silver", "digiblocks"), value: "silver" },
+      { label: __8("Retro", "digiblocks"), value: "retro" },
+      { label: __8("Dark", "digiblocks"), value: "dark" },
+      { label: __8("Night", "digiblocks"), value: "night" },
+      { label: __8("Aubergine", "digiblocks"), value: "aubergine" },
+      { label: __8("Custom", "digiblocks"), value: "custom" }
     ];
     const predefinedMapStyles = {
       default: [],
@@ -8837,8 +9872,8 @@
       ]
     };
     const animationOptions = [
-      { label: __6("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations6).map((animation2) => ({
+      { label: __8("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations8).map((animation2) => ({
         label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         value: animation2
       }))
@@ -8846,18 +9881,18 @@
     const tabList = [
       {
         name: "options",
-        title: __6("Options", "digiblocks"),
-        icon: tabIcons6.optionsIcon
+        title: __8("Options", "digiblocks"),
+        icon: tabIcons8.optionsIcon
       },
       {
         name: "style",
-        title: __6("Style", "digiblocks"),
-        icon: tabIcons6.styleIcon
+        title: __8("Style", "digiblocks"),
+        icon: tabIcons8.styleIcon
       },
       {
         name: "advanced",
-        title: __6("Advanced", "digiblocks"),
-        icon: tabIcons6.advancedIcon
+        title: __8("Advanced", "digiblocks"),
+        icon: tabIcons8.advancedIcon
       }
     ];
     const generateCSS = () => {
@@ -8886,8 +9921,8 @@
         boxShadowHoverCSS = `box-shadow: ${inset}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
       }
       let animationCSS = "";
-      if (animation && animation !== "none" && animations6[animation]) {
-        animationCSS = animations6[animation].keyframes;
+      if (animation && animation !== "none" && animations8[animation]) {
+        animationCSS = animations8[animation].keyframes;
       }
       return `
             /* Google Map Block - ${blockId} */
@@ -8925,15 +9960,15 @@
       const markerCount = Array.isArray(markers) ? markers.length : 0;
       const hasMapId = !!digiBlocksData.googleMapsMapId;
       if (markerCount > 0 && !hasMapId) {
-        return /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice is-warning", style: { margin: "0 0 16px 0" } }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice__content" }, /* @__PURE__ */ wp.element.createElement("p", null, __6("A Map ID is required to use markers with the Google Maps block.", "digiblocks")), /* @__PURE__ */ wp.element.createElement("p", null, __6("Please configure a Map ID in the DigiBlocks settings before adding markers.", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
-          Button6,
+        return /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice is-warning", style: { margin: "0 0 16px 0" } }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice__content" }, /* @__PURE__ */ wp.element.createElement("p", null, __8("A Map ID is required to use markers with the Google Maps block.", "digiblocks")), /* @__PURE__ */ wp.element.createElement("p", null, __8("Please configure a Map ID in the DigiBlocks settings before adding markers.", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+          Button7,
           {
             isPrimary: true,
             href: `${window.ajaxurl ? window.ajaxurl.replace("admin-ajax.php", "") : "/wp-admin/"}admin.php?page=digiblocks-settings`,
             target: "_blank",
             style: { marginTop: "10px" }
           },
-          __6("Go to Settings", "digiblocks")
+          __8("Go to Settings", "digiblocks")
         )));
       }
       return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, Array.isArray(markers) && markers.length > 0 ? /* @__PURE__ */ wp.element.createElement("div", null, markers.map((marker, index) => /* @__PURE__ */ wp.element.createElement(
@@ -8948,14 +9983,14 @@
             borderRadius: "4px"
           }
         },
-        /* @__PURE__ */ wp.element.createElement("h3", { style: { margin: "0 0 10px 0" } }, __6("Marker", "digiblocks"), " #", index + 1),
+        /* @__PURE__ */ wp.element.createElement("h3", { style: { margin: "0 0 10px 0" } }, __8("Marker", "digiblocks"), " #", index + 1),
         /* @__PURE__ */ wp.element.createElement(
           TextControl5,
           {
-            label: __6("Title", "digiblocks"),
+            label: __8("Title", "digiblocks"),
             value: marker.title || "",
             onChange: (value) => updateMarker(index, "title", value),
-            placeholder: __6("Enter marker title", "digiblocks"),
+            placeholder: __8("Enter marker title", "digiblocks"),
             __next40pxDefaultSize: true,
             __nextHasNoMarginBottom: true
           }
@@ -8963,10 +9998,10 @@
         /* @__PURE__ */ wp.element.createElement(
           TextareaControl,
           {
-            label: __6("Description", "digiblocks"),
+            label: __8("Description", "digiblocks"),
             value: marker.description || "",
             onChange: (value) => updateMarker(index, "description", value),
-            placeholder: __6("Enter marker description (will appear above marker)", "digiblocks"),
+            placeholder: __8("Enter marker description (will appear above marker)", "digiblocks"),
             __next40pxDefaultSize: true,
             __nextHasNoMarginBottom: true
           }
@@ -8974,7 +10009,7 @@
         /* @__PURE__ */ wp.element.createElement(
           TextControl5,
           {
-            label: __6("Address", "digiblocks"),
+            label: __8("Address", "digiblocks"),
             value: marker.address || "",
             onChange: (value) => {
               const updatedMarkers = [...markers];
@@ -8989,52 +10024,52 @@
                 geocodeAddress(markers[index].address, mapInstance, index);
               }
             },
-            placeholder: __6("Enter marker address", "digiblocks"),
+            placeholder: __8("Enter marker address", "digiblocks"),
             __next40pxDefaultSize: true,
             __nextHasNoMarginBottom: true
           }
         ),
         /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px", display: "flex", justifyContent: "flex-end" } }, /* @__PURE__ */ wp.element.createElement(
-          Button6,
+          Button7,
           {
             isDestructive: true,
             onClick: () => removeMarker(index)
           },
-          __6("Remove Marker", "digiblocks")
+          __8("Remove Marker", "digiblocks")
         ))
       )), /* @__PURE__ */ wp.element.createElement(
-        Button6,
+        Button7,
         {
           isPrimary: true,
           onClick: addNewMarker,
           style: { marginTop: "10px", width: "100%", justifyContent: "center" }
         },
-        __6("Add Marker", "digiblocks")
-      )) : /* @__PURE__ */ wp.element.createElement("div", null, /* @__PURE__ */ wp.element.createElement("p", null, __6("No markers added yet. Add your first marker!", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
-        Button6,
+        __8("Add Marker", "digiblocks")
+      )) : /* @__PURE__ */ wp.element.createElement("div", null, /* @__PURE__ */ wp.element.createElement("p", null, __8("No markers added yet. Add your first marker!", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+        Button7,
         {
           isPrimary: true,
           onClick: addNewMarker,
           style: { width: "100%", justifyContent: "center" }
         },
-        __6("Add Marker", "digiblocks")
+        __8("Add Marker", "digiblocks")
       )));
     };
     const renderTabContent = () => {
       switch (activeTab) {
         case "options":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody6,
+            TabPanelBody8,
             {
               tab: "options",
               name: "map-settings",
-              title: __6("Map Settings", "digiblocks"),
+              title: __8("Map Settings", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
               TextControl5,
               {
-                label: __6("Address", "digiblocks"),
+                label: __8("Address", "digiblocks"),
                 value: address || "",
                 onChange: (value) => {
                   setAttributes({ address: value });
@@ -9042,16 +10077,16 @@
                     geocodeAddress(value, mapInstance);
                   }
                 },
-                placeholder: __6("Enter location address", "digiblocks"),
+                placeholder: __8("Enter location address", "digiblocks"),
                 __next40pxDefaultSize: true,
                 __nextHasNoMarginBottom: true
               }
             ),
             geocodeError && /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice is-error", style: { margin: "0 0 16px 0" } }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice__content" }, geocodeError)),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl6,
+              SelectControl8,
               {
-                label: __6("Map Type", "digiblocks"),
+                label: __8("Map Type", "digiblocks"),
                 value: mapType,
                 options: mapTypeOptions,
                 onChange: (value) => setAttributes({ mapType: value }),
@@ -9060,9 +10095,9 @@
               }
             ),
             (!markers || markers.length === 0) && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              SelectControl6,
+              SelectControl8,
               {
-                label: __6("Map Style", "digiblocks"),
+                label: __8("Map Style", "digiblocks"),
                 value: mapStyle,
                 options: mapStyleOptions,
                 onChange: (value) => setAttributes({ mapStyle: value }),
@@ -9072,8 +10107,8 @@
             ), mapStyle === "custom" && /* @__PURE__ */ wp.element.createElement(
               TextareaControl,
               {
-                label: __6("Custom Map Style JSON", "digiblocks"),
-                help: __6("Paste a valid Google Maps style JSON. You can create styles with the Google Maps Styling Wizard.", "digiblocks"),
+                label: __8("Custom Map Style JSON", "digiblocks"),
+                help: __8("Paste a valid Google Maps style JSON. You can create styles with the Google Maps Styling Wizard.", "digiblocks"),
                 value: customMapStyle || "",
                 onChange: (value) => setAttributes({ customMapStyle: value }),
                 rows: 6,
@@ -9081,11 +10116,11 @@
                 __nextHasNoMarginBottom: true
               }
             )),
-            markers && markers.length > 0 && /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice is-info", style: { margin: "0 0 16px 0" } }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice__content" }, __6("Map Style options are not available when markers are present, as markers require a Map ID which overrides custom styling.", "digiblocks"))),
+            markers && markers.length > 0 && /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice is-info", style: { margin: "0 0 16px 0" } }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice__content" }, __8("Map Style options are not available when markers are present, as markers require a Map ID which overrides custom styling.", "digiblocks"))),
             /* @__PURE__ */ wp.element.createElement(
-              RangeControl6,
+              RangeControl7,
               {
-                label: __6("Zoom Level", "digiblocks"),
+                label: __8("Zoom Level", "digiblocks"),
                 value: zoom,
                 onChange: (value) => setAttributes({ zoom: value }),
                 min: 1,
@@ -9095,54 +10130,54 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody6,
+            TabPanelBody8,
             {
               tab: "options",
               name: "marker-settings",
-              title: __6("Markers", "digiblocks"),
+              title: __8("Markers", "digiblocks"),
               initialOpen: false
             },
             renderMarkerSettings()
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody6,
+            TabPanelBody8,
             {
               tab: "options",
               name: "map-controls",
-              title: __6("Map Controls", "digiblocks"),
+              title: __8("Map Controls", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(BaseControl3, { id: `${id}-map-controls` }, /* @__PURE__ */ wp.element.createElement(
-              ToggleControl6,
+              ToggleControl7,
               {
-                label: __6("Enable Zoom Control", "digiblocks"),
+                label: __8("Enable Zoom Control", "digiblocks"),
                 checked: enableZoom !== false,
                 onChange: (value) => setAttributes({ enableZoom: value })
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              ToggleControl6,
+              ToggleControl7,
               {
-                label: __6("Enable Mousewheel Zoom", "digiblocks"),
+                label: __8("Enable Mousewheel Zoom", "digiblocks"),
                 checked: enableScroll !== false,
                 onChange: (value) => setAttributes({ enableScroll: value })
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              ToggleControl6,
+              ToggleControl7,
               {
-                label: __6("Enable Fullscreen Control", "digiblocks"),
+                label: __8("Enable Fullscreen Control", "digiblocks"),
                 checked: enableFullscreenControl !== false,
                 onChange: (value) => setAttributes({ enableFullscreenControl: value })
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              ToggleControl6,
+              ToggleControl7,
               {
-                label: __6("Enable Street View Control", "digiblocks"),
+                label: __8("Enable Street View Control", "digiblocks"),
                 checked: enableStreetViewControl !== false,
                 onChange: (value) => setAttributes({ enableStreetViewControl: value })
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              ToggleControl6,
+              ToggleControl7,
               {
-                label: __6("Enable Map Type Control", "digiblocks"),
+                label: __8("Enable Map Type Control", "digiblocks"),
                 checked: enableMapTypeControl !== false,
                 onChange: (value) => setAttributes({ enableMapTypeControl: value })
               }
@@ -9150,20 +10185,20 @@
           ));
         case "style":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody6,
+            TabPanelBody8,
             {
               tab: "style",
               name: "map-dimensions",
-              title: __6("Map Size", "digiblocks"),
+              title: __8("Map Size", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl6,
+              ResponsiveControl8,
               {
-                label: __6("Map Height", "digiblocks")
+                label: __8("Map Height", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl6,
+                RangeControl7,
                 {
                   value: mapHeight && mapHeight[localActiveDevice] ? mapHeight[localActiveDevice] : localActiveDevice === "desktop" ? 400 : localActiveDevice === "tablet" ? 350 : 300,
                   onChange: (value) => {
@@ -9182,17 +10217,17 @@
               )
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody6,
+            TabPanelBody8,
             {
               tab: "style",
               name: "map-border",
-              title: __6("Border", "digiblocks"),
+              title: __8("Border", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl6,
+              SelectControl8,
               {
-                label: __6("Border Style", "digiblocks"),
+                label: __8("Border Style", "digiblocks"),
                 value: borderStyle || "none",
                 options: borderStyleOptions,
                 onChange: (value) => {
@@ -9223,25 +10258,25 @@
               }
             ),
             borderStyle && borderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings6,
+              PanelColorSettings7,
               {
-                title: __6("Border Color", "digiblocks"),
+                title: __8("Border Color", "digiblocks"),
                 enableAlpha: true,
                 colorSettings: [
                   {
                     value: borderColor,
                     onChange: (value) => setAttributes({ borderColor: value }),
-                    label: __6("Border Color", "digiblocks")
+                    label: __8("Border Color", "digiblocks")
                   }
                 ]
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl6,
+              ResponsiveControl8,
               {
-                label: __6("Border Width", "digiblocks")
+                label: __8("Border Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl6,
+                DimensionControl7,
                 {
                   values: borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
                   onChange: (value) => setAttributes({
@@ -9253,12 +10288,12 @@
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl6,
+              ResponsiveControl8,
               {
-                label: __6("Border Radius", "digiblocks")
+                label: __8("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl6,
+                DimensionControl7,
                 {
                   values: borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : { top: 0, right: 0, bottom: 0, left: 0, unit: "px" },
                   onChange: (value) => setAttributes({
@@ -9275,15 +10310,15 @@
               )
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody6,
+            TabPanelBody8,
             {
               tab: "style",
               name: "box-shadow",
-              title: __6("Box Shadow", "digiblocks"),
+              title: __8("Box Shadow", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              BoxShadowControl6,
+              BoxShadowControl7,
               {
                 normalValue: boxShadow,
                 hoverValue: boxShadowHover,
@@ -9298,17 +10333,17 @@
           ));
         case "advanced":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody6,
+            TabPanelBody8,
             {
               tab: "advanced",
               name: "animation",
-              title: __6("Animation", "digiblocks"),
+              title: __8("Animation", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl6,
+              SelectControl8,
               {
-                label: __6("Animation Effect", "digiblocks"),
+                label: __8("Animation Effect", "digiblocks"),
                 value: animation,
                 options: animationOptions,
                 onChange: (value) => setAttributes({ animation: value }),
@@ -9317,24 +10352,24 @@
               }
             ),
             animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button6,
+              Button7,
               {
                 variant: "secondary",
                 isSecondary: true,
                 onClick: triggerAnimationPreview,
                 style: { width: "100%" }
               },
-              __6("Preview Animation", "digiblocks")
+              __8("Preview Animation", "digiblocks")
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody6,
+            TabPanelBody8,
             {
               tab: "advanced",
               name: "additional",
-              title: __6("Additional", "digiblocks"),
+              title: __8("Additional", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __6("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __8("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -9346,7 +10381,7 @@
                 autoCapitalize: "none",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __6(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __8(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
               "a",
               {
                 className: "components-external-link",
@@ -9354,10 +10389,10 @@
                 target: "_blank",
                 rel: "external noreferrer noopener"
               },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __6("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __8("Learn more about anchors", "digiblocks")),
               /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
             ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __6("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __8("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -9368,21 +10403,21 @@
                 "aria-describedby": "additional-css-classes-help",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __6("Separate multiple classes with spaces.", "digiblocks")))
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __8("Separate multiple classes with spaces.", "digiblocks")))
           ));
         default:
           return null;
       }
     };
-    const blockProps = useBlockProps11({
+    const blockProps = useBlockProps15({
       className: `digiblocks-google-map ${animation !== "none" ? `animate-${animation}` : ""} ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
       "data-custom-id": id
       // Always set the block ID as data attribute for CSS targeting
     });
-    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls6, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel6,
+    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls8, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel8,
       {
         tabs: tabList,
         activeTab,
@@ -9393,19 +10428,19 @@
       Placeholder,
       {
         icon: "location-alt",
-        label: __6("Google Map", "digiblocks"),
-        instructions: __6("You need to add your Google Maps API key in the DigiBlocks settings to use this block.", "digiblocks")
+        label: __8("Google Map", "digiblocks"),
+        instructions: __8("You need to add your Google Maps API key in the DigiBlocks settings to use this block.", "digiblocks")
       },
       /* @__PURE__ */ wp.element.createElement(
-        Button6,
+        Button7,
         {
           isPrimary: true,
           href: `${window.ajaxurl ? window.ajaxurl.replace("admin-ajax.php", "") : "/wp-admin/"}admin.php?page=digiblocks-settings`,
           target: "_blank"
         },
-        __6("Go to Settings", "digiblocks")
+        __8("Go to Settings", "digiblocks")
       )
-    ) : isLoading ? /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-google-map-loading", style: { display: "flex", alignItems: "center", justifyContent: "center", height: "100%" } }, /* @__PURE__ */ wp.element.createElement(Spinner, null), /* @__PURE__ */ wp.element.createElement("span", { style: { marginLeft: "10px" } }, __6("Loading map...", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement(
+    ) : isLoading ? /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-google-map-loading", style: { display: "flex", alignItems: "center", justifyContent: "center", height: "100%" } }, /* @__PURE__ */ wp.element.createElement(Spinner, null), /* @__PURE__ */ wp.element.createElement("span", { style: { marginLeft: "10px" } }, __8("Loading map...", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement(
       "div",
       {
         ref: mapContainerRef,
@@ -9414,10 +10449,10 @@
       }
     )));
   };
-  var edit_default6 = GoogleMapEdit;
+  var edit_default8 = GoogleMapEdit;
 
   // blocks/google-map/save.js
-  var { useBlockProps: useBlockProps12 } = window.wp.blockEditor;
+  var { useBlockProps: useBlockProps16 } = window.wp.blockEditor;
   var GoogleMapSave = ({ attributes }) => {
     const {
       id,
@@ -9443,7 +10478,7 @@
       animation !== "none" ? `animate-${animation}` : "",
       customClasses || ""
     ].filter(Boolean).join(" ");
-    const blockProps = useBlockProps12.save({
+    const blockProps = useBlockProps16.save({
       className: blockClasses,
       id: anchor || null,
       "data-custom-id": id,
@@ -9471,33 +10506,33 @@
       }
     ))), address && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-google-map-address", style: { display: "none" }, "data-address": address }));
   };
-  var save_default6 = GoogleMapSave;
+  var save_default8 = GoogleMapSave;
 
   // blocks/heading/edit.js
-  var { __: __7 } = window.wp.i18n;
+  var { __: __9 } = window.wp.i18n;
   var {
-    useBlockProps: useBlockProps13,
-    RichText: RichText7,
-    InspectorControls: InspectorControls7,
-    PanelColorSettings: PanelColorSettings7,
-    LinkControl: LinkControl2,
+    useBlockProps: useBlockProps17,
+    RichText: RichText9,
+    InspectorControls: InspectorControls9,
+    PanelColorSettings: PanelColorSettings8,
+    LinkControl: LinkControl3,
     BlockControls: BlockControls5,
     AlignmentToolbar: AlignmentToolbar4
   } = window.wp.blockEditor;
   var {
-    SelectControl: SelectControl7,
-    RangeControl: RangeControl7,
-    ToggleControl: ToggleControl7,
-    Button: Button7,
-    __experimentalToggleGroupControl: ToggleGroupControl7,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption7,
-    TabPanel: TabPanel6,
+    SelectControl: SelectControl9,
+    RangeControl: RangeControl8,
+    ToggleControl: ToggleControl8,
+    Button: Button8,
+    __experimentalToggleGroupControl: ToggleGroupControl9,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption9,
+    TabPanel: TabPanel8,
     BaseControl: BaseControl4
   } = window.wp.components;
-  var { useState: useState7, useEffect: useEffect7, useRef: useRef7 } = window.wp.element;
-  var { animations: animations7 } = digi.utils;
-  var { tabIcons: tabIcons7 } = digi.icons;
-  var { ResponsiveControl: ResponsiveControl7, DimensionControl: DimensionControl7, TypographyControl: TypographyControl6, CustomTabPanel: CustomTabPanel7, TabPanelBody: TabPanelBody7 } = digi.components;
+  var { useState: useState9, useEffect: useEffect9, useRef: useRef7 } = window.wp.element;
+  var { animations: animations9 } = digi.utils;
+  var { tabIcons: tabIcons9 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl9, DimensionControl: DimensionControl8, TypographyControl: TypographyControl7, CustomTabPanel: CustomTabPanel9, TabPanelBody: TabPanelBody9 } = digi.components;
   var HeadingEdit = ({ attributes, setAttributes, clientId }) => {
     const {
       id,
@@ -9533,22 +10568,22 @@
       shadowEnabled,
       textShadow
     } = attributes;
-    const [localActiveDevice, setLocalActiveDevice] = useState7(window.digi.responsiveState.activeDevice);
-    const [isAnimating, setIsAnimating] = useState7(false);
+    const [localActiveDevice, setLocalActiveDevice] = useState9(window.digi.responsiveState.activeDevice);
+    const [isAnimating, setIsAnimating] = useState9(false);
     const previewTimeoutRef = useRef7(null);
-    useEffect7(() => {
+    useEffect9(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    const [activeTab, setActiveTab] = useState7("options");
-    useEffect7(() => {
+    const [activeTab, setActiveTab] = useState9("options");
+    useEffect9(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
     }, [clientId]);
-    useEffect7(() => {
+    useEffect9(() => {
       return () => {
         if (previewTimeoutRef.current) {
           clearTimeout(previewTimeoutRef.current);
@@ -9567,8 +10602,8 @@
         return;
       }
       const timestamp = Date.now();
-      if (animations7[animation]) {
-        const originalKeyframes = animations7[animation].keyframes;
+      if (animations9[animation]) {
+        const originalKeyframes = animations9[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
           console.error("Could not extract animation name from keyframes");
@@ -9609,7 +10644,7 @@
         }, 1500);
       }
     };
-    useEffect7(() => {
+    useEffect9(() => {
       if (animation && animation !== "none") {
         const timeoutId = setTimeout(() => {
           triggerAnimationPreview();
@@ -9618,8 +10653,8 @@
       }
     }, [animation]);
     const animationOptions = [
-      { label: __7("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations7).map((animation2) => ({
+      { label: __9("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations9).map((animation2) => ({
         label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         value: animation2
       }))
@@ -9633,36 +10668,36 @@
       { label: "H6", value: 6 }
     ];
     const highlightTypeOptions = [
-      { label: __7("Background", "digiblocks"), value: "background" },
-      { label: __7("Text Color", "digiblocks"), value: "color" },
-      { label: __7("Underline", "digiblocks"), value: "underline" }
+      { label: __9("Background", "digiblocks"), value: "background" },
+      { label: __9("Text Color", "digiblocks"), value: "color" },
+      { label: __9("Underline", "digiblocks"), value: "underline" }
     ];
     const tabList = [
       {
         name: "options",
-        title: __7("Options", "digiblocks"),
-        icon: tabIcons7.optionsIcon
+        title: __9("Options", "digiblocks"),
+        icon: tabIcons9.optionsIcon
       },
       {
         name: "style",
-        title: __7("Style", "digiblocks"),
-        icon: tabIcons7.styleIcon
+        title: __9("Style", "digiblocks"),
+        icon: tabIcons9.styleIcon
       },
       {
         name: "advanced",
-        title: __7("Advanced", "digiblocks"),
-        icon: tabIcons7.advancedIcon
+        title: __9("Advanced", "digiblocks"),
+        icon: tabIcons9.advancedIcon
       }
     ];
     const stateTabList = [
       {
         name: "normal",
-        title: __7("Normal", "digiblocks"),
+        title: __9("Normal", "digiblocks"),
         className: "digiblocks-tab-1 normal"
       },
       {
         name: "hover",
-        title: __7("Hover", "digiblocks"),
+        title: __9("Hover", "digiblocks"),
         className: "digiblocks-tab-2 hover"
       }
     ];
@@ -9703,8 +10738,8 @@
       const paddingCSS = `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};`;
       const marginCSS = `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};`;
       let animationCSS = "";
-      if (animation && animation !== "none" && animations7[animation]) {
-        animationCSS = animations7[animation].keyframes;
+      if (animation && animation !== "none" && animations9[animation]) {
+        animationCSS = animations9[animation].keyframes;
       }
       let separatorCSS = "";
       if (displaySeparator && separatorColor) {
@@ -10110,15 +11145,15 @@
     };
     const renderSeparatorStyleGrid = () => {
       const separatorStyleOptions = [
-        { label: __7("Solid Line", "digiblocks"), value: "line-solid" },
-        { label: __7("Gradient Line", "digiblocks"), value: "line-gradient" },
-        { label: __7("Double Line", "digiblocks"), value: "line-double" },
-        { label: __7("Dashed Line", "digiblocks"), value: "line-dashed" },
-        { label: __7("Dotted Line", "digiblocks"), value: "line-dotted" },
-        { label: __7("Wave", "digiblocks"), value: "wave" },
-        { label: __7("Dot Pattern", "digiblocks"), value: "dots" },
-        { label: __7("Glow", "digiblocks"), value: "glow" },
-        { label: __7("Faded Edges", "digiblocks"), value: "faded" }
+        { label: __9("Solid Line", "digiblocks"), value: "line-solid" },
+        { label: __9("Gradient Line", "digiblocks"), value: "line-gradient" },
+        { label: __9("Double Line", "digiblocks"), value: "line-double" },
+        { label: __9("Dashed Line", "digiblocks"), value: "line-dashed" },
+        { label: __9("Dotted Line", "digiblocks"), value: "line-dotted" },
+        { label: __9("Wave", "digiblocks"), value: "wave" },
+        { label: __9("Dot Pattern", "digiblocks"), value: "dots" },
+        { label: __9("Glow", "digiblocks"), value: "glow" },
+        { label: __9("Faded Edges", "digiblocks"), value: "faded" }
       ];
       const containerStyle = {
         display: "flex",
@@ -10149,17 +11184,17 @@
       switch (activeTab) {
         case "options":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody7,
+            TabPanelBody9,
             {
               tab: "options",
               name: "heading-settings",
-              title: __7("Heading Settings", "digiblocks"),
+              title: __9("Heading Settings", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl7,
+              SelectControl9,
               {
-                label: __7("Heading Level", "digiblocks"),
+                label: __9("Heading Level", "digiblocks"),
                 value: level,
                 options: headingLevelOptions,
                 onChange: (value) => setAttributes({ level: parseInt(value) }),
@@ -10173,9 +11208,9 @@
                 className: "components-button width-full is-primary",
                 onClick: () => setAttributes({ linkEnabled: true })
               },
-              __7("Add Link", "digiblocks")
+              __9("Add Link", "digiblocks")
             ))) : /* @__PURE__ */ wp.element.createElement(
-              LinkControl2,
+              LinkControl3,
               {
                 key: "link-control",
                 value: {
@@ -10186,11 +11221,11 @@
                 settings: [
                   {
                     id: "opensInNewTab",
-                    title: __7("Open in new tab", "digiblocks")
+                    title: __9("Open in new tab", "digiblocks")
                   },
                   {
                     id: "rel",
-                    title: __7("Add noopener noreferrer", "digiblocks")
+                    title: __9("Add noopener noreferrer", "digiblocks")
                   }
                 ],
                 onChange: (newLink) => {
@@ -10216,17 +11251,17 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody7,
+            TabPanelBody9,
             {
               tab: "options",
               name: "separator",
-              title: __7("Separator", "digiblocks"),
+              title: __9("Separator", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl7,
+              ToggleControl8,
               {
-                label: __7("Display Separator", "digiblocks"),
+                label: __9("Display Separator", "digiblocks"),
                 checked: displaySeparator,
                 onChange: (value) => setAttributes({ displaySeparator: value }),
                 __nextHasNoMarginBottom: true
@@ -10235,14 +11270,14 @@
             displaySeparator && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
               BaseControl4,
               {
-                label: __7("Separator Style", "digiblocks"),
+                label: __9("Separator Style", "digiblocks"),
                 className: "digiblocks-separator-style-selector"
               },
               renderSeparatorStyleGrid()
             ), /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControl7,
+              ToggleGroupControl9,
               {
-                label: __7("Position", "digiblocks"),
+                label: __9("Position", "digiblocks"),
                 value: separatorPosition,
                 onChange: (value) => setAttributes({ separatorPosition: value }),
                 isBlock: true,
@@ -10250,44 +11285,44 @@
                 __next40pxDefaultSize: true
               },
               /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption7,
+                ToggleGroupControlOption9,
                 {
                   value: "bottom",
-                  label: __7("Bottom", "digiblocks")
+                  label: __9("Bottom", "digiblocks")
                 }
               ),
               /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption7,
+                ToggleGroupControlOption9,
                 {
                   value: "top",
-                  label: __7("Top", "digiblocks")
+                  label: __9("Top", "digiblocks")
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings7,
+              PanelColorSettings8,
               {
-                title: __7("Separator Colors", "digiblocks"),
+                title: __9("Separator Colors", "digiblocks"),
                 initialOpen: true,
                 colorSettings: [
                   {
                     value: separatorColor,
                     onChange: (value) => setAttributes({ separatorColor: value }),
-                    label: __7("Primary Color", "digiblocks")
+                    label: __9("Primary Color", "digiblocks")
                   },
                   ...separatorStyle === "line-gradient" || separatorStyle === "line-double" ? [{
                     value: separatorSecondaryColor,
                     onChange: (value) => setAttributes({ separatorSecondaryColor: value }),
-                    label: __7("Secondary Color", "digiblocks")
+                    label: __9("Secondary Color", "digiblocks")
                   }] : []
                 ]
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl7,
+              ResponsiveControl9,
               {
-                label: __7("Width", "digiblocks")
+                label: __9("Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl7,
+                RangeControl8,
                 {
                   value: separatorWidth[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -10304,12 +11339,12 @@
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl7,
+              ResponsiveControl9,
               {
-                label: __7("Height", "digiblocks")
+                label: __9("Height", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl7,
+                RangeControl8,
                 {
                   value: separatorHeight[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -10326,12 +11361,12 @@
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl7,
+              ResponsiveControl9,
               {
-                label: __7("Spacing", "digiblocks")
+                label: __9("Spacing", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl7,
+                RangeControl8,
                 {
                   value: separatorSpacing[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -10348,12 +11383,12 @@
                 }
               )
             ), ["line-solid", "line-gradient", "line-double", "line-dashed", "line-dotted", "glow", "faded"].includes(separatorStyle) && /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl7,
+              ResponsiveControl9,
               {
-                label: __7("Border Radius", "digiblocks")
+                label: __9("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl7,
+                DimensionControl8,
                 {
                   values: separatorBorderRadius && separatorBorderRadius[localActiveDevice] ? separatorBorderRadius[localActiveDevice] : {
                     top: 0,
@@ -10376,14 +11411,14 @@
               )
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody7,
+            TabPanelBody9,
             {
               tab: "options",
               name: "text-highlight",
-              title: __7("Text Highlight", "digiblocks"),
+              title: __9("Text Highlight", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "highlight-text" }, __7("Text to Highlight", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "highlight-text" }, __9("Text to Highlight", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -10391,13 +11426,13 @@
                 id: "highlight-text",
                 value: highlightText || "",
                 onChange: (e) => setAttributes({ highlightText: e.target.value }),
-                placeholder: __7("Enter text to highlight", "digiblocks")
+                placeholder: __9("Enter text to highlight", "digiblocks")
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { className: "components-base-control__help" }, __7("The text you enter here will be highlighted in your heading.", "digiblocks"))),
+            )), /* @__PURE__ */ wp.element.createElement("p", { className: "components-base-control__help" }, __9("The text you enter here will be highlighted in your heading.", "digiblocks"))),
             highlightText && highlightText.trim() !== "" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControl7,
+              ToggleGroupControl9,
               {
-                label: __7("Highlight Type", "digiblocks"),
+                label: __9("Highlight Type", "digiblocks"),
                 value: highlightType,
                 onChange: (value) => setAttributes({ highlightType: value }),
                 isBlock: true,
@@ -10405,36 +11440,36 @@
                 __next40pxDefaultSize: true
               },
               /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption7,
+                ToggleGroupControlOption9,
                 {
                   value: "background",
-                  label: __7("Background", "digiblocks")
+                  label: __9("Background", "digiblocks")
                 }
               ),
               /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption7,
+                ToggleGroupControlOption9,
                 {
                   value: "color",
-                  label: __7("Text", "digiblocks")
+                  label: __9("Text", "digiblocks")
                 }
               ),
               /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption7,
+                ToggleGroupControlOption9,
                 {
                   value: "underline",
-                  label: __7("Underline", "digiblocks")
+                  label: __9("Underline", "digiblocks")
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings7,
+              PanelColorSettings8,
               {
-                title: __7("Highlight Color", "digiblocks"),
+                title: __9("Highlight Color", "digiblocks"),
                 initialOpen: true,
                 colorSettings: [
                   {
                     value: highlightColor,
                     onChange: (value) => setAttributes({ highlightColor: value }),
-                    label: __7("Color", "digiblocks")
+                    label: __9("Color", "digiblocks")
                   }
                 ]
               }
@@ -10442,15 +11477,15 @@
           ));
         case "style":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody7,
+            TabPanelBody9,
             {
               tab: "style",
               name: "colors",
-              title: __7("Colors", "digiblocks"),
+              title: __9("Colors", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              TabPanel6,
+              TabPanel8,
               {
                 className: "digiblocks-control-tabs",
                 activeClass: "active-tab",
@@ -10459,42 +11494,42 @@
               (tab) => {
                 if (tab.name === "normal") {
                   return /* @__PURE__ */ wp.element.createElement(
-                    PanelColorSettings7,
+                    PanelColorSettings8,
                     {
-                      title: __7("Color Settings", "digiblocks"),
+                      title: __9("Color Settings", "digiblocks"),
                       initialOpen: true,
                       enableAlpha: true,
                       colorSettings: [
                         {
                           value: textColor,
                           onChange: (value) => setAttributes({ textColor: value }),
-                          label: __7("Text Color", "digiblocks")
+                          label: __9("Text Color", "digiblocks")
                         },
                         {
                           value: backgroundColor,
                           onChange: (value) => setAttributes({ backgroundColor: value }),
-                          label: __7("Background Color", "digiblocks")
+                          label: __9("Background Color", "digiblocks")
                         }
                       ]
                     }
                   );
                 } else {
                   return /* @__PURE__ */ wp.element.createElement(
-                    PanelColorSettings7,
+                    PanelColorSettings8,
                     {
-                      title: __7("Hover Color Settings", "digiblocks"),
+                      title: __9("Hover Color Settings", "digiblocks"),
                       initialOpen: true,
                       enableAlpha: true,
                       colorSettings: [
                         {
                           value: textHoverColor,
                           onChange: (value) => setAttributes({ textHoverColor: value }),
-                          label: __7("Text Hover Color", "digiblocks")
+                          label: __9("Text Hover Color", "digiblocks")
                         },
                         {
                           value: backgroundHoverColor,
                           onChange: (value) => setAttributes({ backgroundHoverColor: value }),
-                          label: __7("Background Hover Color", "digiblocks")
+                          label: __9("Background Hover Color", "digiblocks")
                         }
                       ]
                     }
@@ -10503,17 +11538,17 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody7,
+            TabPanelBody9,
             {
               tab: "style",
               name: "typo",
-              title: __7("Typography", "digiblocks"),
+              title: __9("Typography", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl6,
+              TypographyControl7,
               {
-                label: __7("Typography Settings", "digiblocks"),
+                label: __9("Typography Settings", "digiblocks"),
                 value: typography,
                 onChange: (value) => setAttributes({ typography: value }),
                 defaults: {
@@ -10525,26 +11560,26 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody7,
+            TabPanelBody9,
             {
               tab: "style",
               name: "text-shadow",
-              title: __7("Text Shadow", "digiblocks"),
+              title: __9("Text Shadow", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl7,
+              ToggleControl8,
               {
-                label: __7("Enable Text Shadow", "digiblocks"),
+                label: __9("Enable Text Shadow", "digiblocks"),
                 checked: shadowEnabled,
                 onChange: (value) => setAttributes({ shadowEnabled: value }),
                 __nextHasNoMarginBottom: true
               }
             ),
             shadowEnabled && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings7,
+              PanelColorSettings8,
               {
-                title: __7("Shadow Color", "digiblocks"),
+                title: __9("Shadow Color", "digiblocks"),
                 initialOpen: true,
                 enableAlpha: true,
                 colorSettings: [
@@ -10556,14 +11591,14 @@
                         color: value
                       }
                     }),
-                    label: __7("Color", "digiblocks")
+                    label: __9("Color", "digiblocks")
                   }
                 ]
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              RangeControl7,
+              RangeControl8,
               {
-                label: __7("Horizontal Offset", "digiblocks"),
+                label: __9("Horizontal Offset", "digiblocks"),
                 value: textShadow.horizontal,
                 onChange: (value) => setAttributes({
                   textShadow: {
@@ -10578,9 +11613,9 @@
                 __next40pxDefaultSize: true
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              RangeControl7,
+              RangeControl8,
               {
-                label: __7("Vertical Offset", "digiblocks"),
+                label: __9("Vertical Offset", "digiblocks"),
                 value: textShadow.vertical,
                 onChange: (value) => setAttributes({
                   textShadow: {
@@ -10595,9 +11630,9 @@
                 __next40pxDefaultSize: true
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              RangeControl7,
+              RangeControl8,
               {
-                label: __7("Blur Radius", "digiblocks"),
+                label: __9("Blur Radius", "digiblocks"),
                 value: textShadow.blur,
                 onChange: (value) => setAttributes({
                   textShadow: {
@@ -10613,20 +11648,20 @@
               }
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody7,
+            TabPanelBody9,
             {
               tab: "style",
               name: "spacing",
-              title: __7("Spacing", "digiblocks"),
+              title: __9("Spacing", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl7,
+              ResponsiveControl9,
               {
-                label: __7("Padding", "digiblocks")
+                label: __9("Padding", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl7,
+                DimensionControl8,
                 {
                   values: padding[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -10639,12 +11674,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl7,
+              ResponsiveControl9,
               {
-                label: __7("Margin", "digiblocks")
+                label: __9("Margin", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl7,
+                DimensionControl8,
                 {
                   values: margin[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -10659,17 +11694,17 @@
           ));
         case "advanced":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody7,
+            TabPanelBody9,
             {
               tab: "advanced",
               name: "animation",
-              title: __7("Animation", "digiblocks"),
+              title: __9("Animation", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl7,
+              SelectControl9,
               {
-                label: __7("Animation Effect", "digiblocks"),
+                label: __9("Animation Effect", "digiblocks"),
                 value: animation,
                 options: animationOptions,
                 onChange: (value) => setAttributes({ animation: value }),
@@ -10678,24 +11713,24 @@
               }
             ),
             animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button7,
+              Button8,
               {
                 variant: "secondary",
                 isSecondary: true,
                 onClick: triggerAnimationPreview,
                 style: { width: "100%" }
               },
-              __7("Preview Animation", "digiblocks")
+              __9("Preview Animation", "digiblocks")
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody7,
+            TabPanelBody9,
             {
               tab: "advanced",
               name: "additional",
-              title: __7("Additional", "digiblocks"),
+              title: __9("Additional", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __7("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __9("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -10707,7 +11742,7 @@
                 autoCapitalize: "none",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __7(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __9(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
               "a",
               {
                 className: "components-external-link",
@@ -10715,10 +11750,10 @@
                 target: "_blank",
                 rel: "external noreferrer noopener"
               },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __7("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __9("Learn more about anchors", "digiblocks")),
               /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
             ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __7("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __9("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -10729,13 +11764,13 @@
                 "aria-describedby": "additional-css-classes-help",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __7("Separate multiple classes with spaces.", "digiblocks")))
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __9("Separate multiple classes with spaces.", "digiblocks")))
           ));
         default:
           return null;
       }
     };
-    const blockProps = useBlockProps13({
+    const blockProps = useBlockProps17({
       className: `digiblocks-heading align-${align} ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
@@ -10749,8 +11784,8 @@
         value: align,
         onChange: (value) => setAttributes({ align: value })
       }
-    )), /* @__PURE__ */ wp.element.createElement(InspectorControls7, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel7,
+    )), /* @__PURE__ */ wp.element.createElement(InspectorControls9, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel9,
       {
         tabs: tabList,
         activeTab,
@@ -10758,19 +11793,19 @@
       },
       renderTabContent()
     )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement(HeadingTag, { className: "digiblocks-heading-text" }, /* @__PURE__ */ wp.element.createElement(
-      RichText7,
+      RichText9,
       {
         value: content,
         onChange: (value) => setAttributes({ content: value }),
-        placeholder: __7("Add Your Heading", "digiblocks"),
+        placeholder: __9("Add Your Heading", "digiblocks"),
         allowedFormats: ["core/bold", "core/italic"]
       }
     ))));
   };
-  var edit_default7 = HeadingEdit;
+  var edit_default9 = HeadingEdit;
 
   // blocks/heading/save.js
-  var { useBlockProps: useBlockProps14, RichText: RichText8 } = window.wp.blockEditor;
+  var { useBlockProps: useBlockProps18, RichText: RichText10 } = window.wp.blockEditor;
   var HeadingSave = ({ attributes }) => {
     const {
       id,
@@ -10817,7 +11852,7 @@
       }).join("");
     };
     const HeadingTag = `h${level}`;
-    const processedContent = highlightText && highlightText.trim() !== "" ? /* @__PURE__ */ wp.element.createElement("span", { dangerouslySetInnerHTML: { __html: renderHeadingWithHighlight() } }) : /* @__PURE__ */ wp.element.createElement(RichText8.Content, { value: content });
+    const processedContent = highlightText && highlightText.trim() !== "" ? /* @__PURE__ */ wp.element.createElement("span", { dangerouslySetInnerHTML: { __html: renderHeadingWithHighlight() } }) : /* @__PURE__ */ wp.element.createElement(RichText10.Content, { value: content });
     if (linkEnabled && linkUrl) {
       return /* @__PURE__ */ wp.element.createElement(
         "a",
@@ -10832,31 +11867,31 @@
     }
     return /* @__PURE__ */ wp.element.createElement("div", { ...commonProps }, /* @__PURE__ */ wp.element.createElement(HeadingTag, { className: "digiblocks-heading-text" }, processedContent));
   };
-  var save_default7 = HeadingSave;
+  var save_default9 = HeadingSave;
 
   // blocks/icon/edit.js
-  var { __: __8 } = window.wp.i18n;
+  var { __: __10 } = window.wp.i18n;
   var {
-    useBlockProps: useBlockProps15,
-    InspectorControls: InspectorControls8,
-    PanelColorSettings: PanelColorSettings8,
-    LinkControl: LinkControl3,
+    useBlockProps: useBlockProps19,
+    InspectorControls: InspectorControls10,
+    PanelColorSettings: PanelColorSettings9,
+    LinkControl: LinkControl4,
     BlockControls: BlockControls6,
     AlignmentToolbar: AlignmentToolbar5
   } = window.wp.blockEditor;
   var {
-    SelectControl: SelectControl8,
-    RangeControl: RangeControl8,
-    TabPanel: TabPanel7,
+    SelectControl: SelectControl10,
+    RangeControl: RangeControl9,
+    TabPanel: TabPanel9,
     Spinner: Spinner2,
-    Button: Button8,
-    __experimentalToggleGroupControl: ToggleGroupControl8,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption8
+    Button: Button9,
+    __experimentalToggleGroupControl: ToggleGroupControl10,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption10
   } = window.wp.components;
-  var { useState: useState8, useEffect: useEffect8, useRef: useRef8 } = window.wp.element;
-  var { animations: animations8 } = digi.utils;
-  var { tabIcons: tabIcons8 } = digi.icons;
-  var { ResponsiveControl: ResponsiveControl8, DimensionControl: DimensionControl8, BoxShadowControl: BoxShadowControl7, CustomTabPanel: CustomTabPanel8, TabPanelBody: TabPanelBody8 } = digi.components;
+  var { useState: useState10, useEffect: useEffect10, useRef: useRef8 } = window.wp.element;
+  var { animations: animations10 } = digi.utils;
+  var { tabIcons: tabIcons10 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl10, DimensionControl: DimensionControl9, BoxShadowControl: BoxShadowControl8, CustomTabPanel: CustomTabPanel10, TabPanelBody: TabPanelBody10 } = digi.components;
   var IconEdit = ({ attributes, setAttributes, clientId }) => {
     const {
       id,
@@ -10894,17 +11929,17 @@
       flipHorizontal,
       flipVertical
     } = attributes;
-    const [localActiveDevice, setLocalActiveDevice] = useState8(window.digi.responsiveState.activeDevice);
-    const [isAnimating, setIsAnimating] = useState8(false);
+    const [localActiveDevice, setLocalActiveDevice] = useState10(window.digi.responsiveState.activeDevice);
+    const [isAnimating, setIsAnimating] = useState10(false);
     const previewTimeoutRef = useRef8(null);
-    useEffect8(() => {
+    useEffect10(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    const [activeTab, setActiveTab] = useState8("options");
-    useEffect8(() => {
+    const [activeTab, setActiveTab] = useState10("options");
+    useEffect10(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
@@ -10918,15 +11953,15 @@
         });
       }
     }, [clientId, iconMargin, setAttributes]);
-    useEffect8(() => {
+    useEffect10(() => {
       return () => {
         if (previewTimeoutRef.current) {
           clearTimeout(previewTimeoutRef.current);
         }
       };
     }, []);
-    const [componentsLoaded, setComponentsLoaded] = useState8(false);
-    useEffect8(() => {
+    const [componentsLoaded, setComponentsLoaded] = useState10(false);
+    useEffect10(() => {
       const checkComponents = () => {
         if (window.digi && window.digi.components && window.digi.components.FontAwesomeControl) {
           setComponentsLoaded(true);
@@ -10958,8 +11993,8 @@
         return;
       }
       const timestamp = Date.now();
-      if (animations8[animation]) {
-        const originalKeyframes = animations8[animation].keyframes;
+      if (animations10[animation]) {
+        const originalKeyframes = animations10[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
           console.error("Could not extract animation name from keyframes");
@@ -11000,7 +12035,7 @@
         }, 1500);
       }
     };
-    useEffect8(() => {
+    useEffect10(() => {
       if (animation && animation !== "none") {
         const timeoutId = setTimeout(() => {
           triggerAnimationPreview();
@@ -11009,29 +12044,29 @@
       }
     }, [animation]);
     const borderStyleOptions = [
-      { label: __8("Default", "digiblocks"), value: "default" },
-      { label: __8("None", "digiblocks"), value: "none" },
-      { label: __8("Solid", "digiblocks"), value: "solid" },
-      { label: __8("Dotted", "digiblocks"), value: "dotted" },
-      { label: __8("Dashed", "digiblocks"), value: "dashed" },
-      { label: __8("Double", "digiblocks"), value: "double" },
-      { label: __8("Groove", "digiblocks"), value: "groove" },
-      { label: __8("Inset", "digiblocks"), value: "inset" },
-      { label: __8("Outset", "digiblocks"), value: "outset" },
-      { label: __8("Ridge", "digiblocks"), value: "ridge" }
+      { label: __10("Default", "digiblocks"), value: "default" },
+      { label: __10("None", "digiblocks"), value: "none" },
+      { label: __10("Solid", "digiblocks"), value: "solid" },
+      { label: __10("Dotted", "digiblocks"), value: "dotted" },
+      { label: __10("Dashed", "digiblocks"), value: "dashed" },
+      { label: __10("Double", "digiblocks"), value: "double" },
+      { label: __10("Groove", "digiblocks"), value: "groove" },
+      { label: __10("Inset", "digiblocks"), value: "inset" },
+      { label: __10("Outset", "digiblocks"), value: "outset" },
+      { label: __10("Ridge", "digiblocks"), value: "ridge" }
     ];
     const hoverEffectOptions = [
-      { label: __8("None", "digiblocks"), value: "none" },
-      { label: __8("Lift", "digiblocks"), value: "lift" },
-      { label: __8("Scale", "digiblocks"), value: "scale" },
-      { label: __8("Glow", "digiblocks"), value: "glow" },
-      { label: __8("Spin", "digiblocks"), value: "spin" },
-      { label: __8("Pulse", "digiblocks"), value: "pulse" },
-      { label: __8("Shake", "digiblocks"), value: "shake" }
+      { label: __10("None", "digiblocks"), value: "none" },
+      { label: __10("Lift", "digiblocks"), value: "lift" },
+      { label: __10("Scale", "digiblocks"), value: "scale" },
+      { label: __10("Glow", "digiblocks"), value: "glow" },
+      { label: __10("Spin", "digiblocks"), value: "spin" },
+      { label: __10("Pulse", "digiblocks"), value: "pulse" },
+      { label: __10("Shake", "digiblocks"), value: "shake" }
     ];
     const animationOptions = [
-      { label: __8("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations8).map((animation2) => ({
+      { label: __10("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations10).map((animation2) => ({
         label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         value: animation2
       }))
@@ -11039,29 +12074,29 @@
     const tabList = [
       {
         name: "options",
-        title: __8("Options", "digiblocks"),
-        icon: tabIcons8.optionsIcon
+        title: __10("Options", "digiblocks"),
+        icon: tabIcons10.optionsIcon
       },
       {
         name: "style",
-        title: __8("Style", "digiblocks"),
-        icon: tabIcons8.styleIcon
+        title: __10("Style", "digiblocks"),
+        icon: tabIcons10.styleIcon
       },
       {
         name: "advanced",
-        title: __8("Advanced", "digiblocks"),
-        icon: tabIcons8.advancedIcon
+        title: __10("Advanced", "digiblocks"),
+        icon: tabIcons10.advancedIcon
       }
     ];
     const stateTabList = [
       {
         name: "normal",
-        title: __8("Normal", "digiblocks"),
+        title: __10("Normal", "digiblocks"),
         className: "digiblocks-tab-1 normal"
       },
       {
         name: "hover",
-        title: __8("Hover", "digiblocks"),
+        title: __10("Hover", "digiblocks"),
         className: "digiblocks-tab-2 hover"
       }
     ];
@@ -11227,7 +12262,7 @@
             }
         `;
     };
-    const FontAwesomeControl = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
+    const FontAwesomeControl3 = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
     const renderIcon = () => {
       if (!iconValue || !iconValue.svg || iconValue.svg.trim() === "") {
         return null;
@@ -11244,9 +12279,9 @@
     const renderIconTabContent = (tabName) => {
       if (tabName === "normal") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings8,
+          PanelColorSettings9,
           {
-            title: __8(
+            title: __10(
               "Icon Colors",
               "digiblocks"
             ),
@@ -11258,7 +12293,7 @@
                 onChange: (value) => setAttributes({
                   iconColor: value
                 }),
-                label: __8(
+                label: __10(
                   "Icon Color",
                   "digiblocks"
                 )
@@ -11268,7 +12303,7 @@
                 onChange: (value) => setAttributes({
                   iconBackgroundColor: value
                 }),
-                label: __8(
+                label: __10(
                   "Background Color",
                   "digiblocks"
                 )
@@ -11276,9 +12311,9 @@
             ]
           }
         ), /* @__PURE__ */ wp.element.createElement(
-          SelectControl8,
+          SelectControl10,
           {
-            label: __8("Border Style", "digiblocks"),
+            label: __10("Border Style", "digiblocks"),
             value: iconBorderStyle || "default",
             options: borderStyleOptions,
             onChange: (value) => {
@@ -11310,9 +12345,9 @@
             __nextHasNoMarginBottom: true
           }
         ), iconBorderStyle && iconBorderStyle !== "default" && iconBorderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings8,
+          PanelColorSettings9,
           {
-            title: __8(
+            title: __10(
               "Border Color",
               "digiblocks"
             ),
@@ -11323,7 +12358,7 @@
                 onChange: (value) => setAttributes({
                   iconBorderColor: value
                 }),
-                label: __8(
+                label: __10(
                   "Border Color",
                   "digiblocks"
                 )
@@ -11331,12 +12366,12 @@
             ]
           }
         ), /* @__PURE__ */ wp.element.createElement(
-          ResponsiveControl8,
+          ResponsiveControl10,
           {
-            label: __8("Border Width", "digiblocks")
+            label: __10("Border Width", "digiblocks")
           },
           /* @__PURE__ */ wp.element.createElement(
-            DimensionControl8,
+            DimensionControl9,
             {
               values: iconBorderWidth && iconBorderWidth[localActiveDevice] ? iconBorderWidth[localActiveDevice] : {
                 top: 1,
@@ -11354,12 +12389,12 @@
             }
           )
         ), /* @__PURE__ */ wp.element.createElement(
-          ResponsiveControl8,
+          ResponsiveControl10,
           {
-            label: __8("Border Radius", "digiblocks")
+            label: __10("Border Radius", "digiblocks")
           },
           /* @__PURE__ */ wp.element.createElement(
-            DimensionControl8,
+            DimensionControl9,
             {
               values: iconBorderRadius && iconBorderRadius[localActiveDevice] ? iconBorderRadius[localActiveDevice] : {
                 top: 0,
@@ -11381,12 +12416,12 @@
             }
           )
         )), /* @__PURE__ */ wp.element.createElement(
-          ResponsiveControl8,
+          ResponsiveControl10,
           {
-            label: __8("Padding", "digiblocks")
+            label: __10("Padding", "digiblocks")
           },
           /* @__PURE__ */ wp.element.createElement(
-            DimensionControl8,
+            DimensionControl9,
             {
               values: iconPadding && iconPadding[localActiveDevice] ? iconPadding[localActiveDevice] : {
                 top: 0,
@@ -11404,12 +12439,12 @@
             }
           )
         ), /* @__PURE__ */ wp.element.createElement(
-          ResponsiveControl8,
+          ResponsiveControl10,
           {
-            label: __8("Margin", "digiblocks")
+            label: __10("Margin", "digiblocks")
           },
           /* @__PURE__ */ wp.element.createElement(
-            DimensionControl8,
+            DimensionControl9,
             {
               values: iconMargin && iconMargin[localActiveDevice] ? iconMargin[localActiveDevice] : {
                 top: 0,
@@ -11433,9 +12468,9 @@
         ));
       } else if (tabName === "hover") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings8,
+          PanelColorSettings9,
           {
-            title: __8(
+            title: __10(
               "Icon Hover Colors",
               "digiblocks"
             ),
@@ -11447,7 +12482,7 @@
                 onChange: (value) => setAttributes({
                   iconHoverColor: value
                 }),
-                label: __8(
+                label: __10(
                   "Icon Color",
                   "digiblocks"
                 )
@@ -11457,7 +12492,7 @@
                 onChange: (value) => setAttributes({
                   iconHoverBackgroundColor: value
                 }),
-                label: __8(
+                label: __10(
                   "Background Color",
                   "digiblocks"
                 )
@@ -11467,7 +12502,7 @@
                 onChange: (value) => setAttributes({
                   iconHoverBorderColor: value
                 }),
-                label: __8(
+                label: __10(
                   "Border Color",
                   "digiblocks"
                 )
@@ -11481,9 +12516,9 @@
     const renderContainerTabContent = (tabName) => {
       if (tabName === "normal") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings8,
+          PanelColorSettings9,
           {
-            title: __8(
+            title: __10(
               "Container Colors",
               "digiblocks"
             ),
@@ -11495,7 +12530,7 @@
                 onChange: (value) => setAttributes({
                   backgroundColor: value
                 }),
-                label: __8(
+                label: __10(
                   "Background Color",
                   "digiblocks"
                 )
@@ -11505,9 +12540,9 @@
         ));
       } else if (tabName === "hover") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings8,
+          PanelColorSettings9,
           {
-            title: __8(
+            title: __10(
               "Container Hover Colors",
               "digiblocks"
             ),
@@ -11519,7 +12554,7 @@
                 onChange: (value) => setAttributes({
                   backgroundHoverColor: value
                 }),
-                label: __8(
+                label: __10(
                   "Background Color",
                   "digiblocks"
                 )
@@ -11533,17 +12568,17 @@
     const renderTabContent = () => {
       switch (activeTab) {
         case "options":
-          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "components-panel__body is-opened" }, /* @__PURE__ */ wp.element.createElement("div", { style: { marginBottom: "2rem" } }, !componentsLoaded ? /* @__PURE__ */ wp.element.createElement("div", { style: { textAlign: "center", padding: "20px 0" } }, /* @__PURE__ */ wp.element.createElement(Spinner2, null), /* @__PURE__ */ wp.element.createElement("p", null, __8("Loading icon selector...", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement(
-            FontAwesomeControl,
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "components-panel__body is-opened" }, /* @__PURE__ */ wp.element.createElement("div", { style: { marginBottom: "2rem" } }, !componentsLoaded ? /* @__PURE__ */ wp.element.createElement("div", { style: { textAlign: "center", padding: "20px 0" } }, /* @__PURE__ */ wp.element.createElement(Spinner2, null), /* @__PURE__ */ wp.element.createElement("p", null, __10("Loading icon selector...", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement(
+            FontAwesomeControl3,
             {
-              label: __8("Select Icon", "digiblocks"),
+              label: __10("Select Icon", "digiblocks"),
               value: iconValue,
               onChange: setIconValue
             }
-          ), iconValue && componentsLoaded && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "15px", marginBottom: "15px", padding: "10px", background: "#f0f0f1", borderRadius: "3px" } }, /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0 0 5px 0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __8("Selected Icon:", "digiblocks")), " ", iconValue.name), /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0 0 5px 0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __8("Style:", "digiblocks")), " ", iconValue.style), iconValue.categories && iconValue.categories.length > 0 && /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __8("Categories:", "digiblocks")), " ", iconValue.categories.join(", "))))), /* @__PURE__ */ wp.element.createElement("div", { className: "icon-transform-controls" }, /* @__PURE__ */ wp.element.createElement(
-            RangeControl8,
+          ), iconValue && componentsLoaded && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "15px", marginBottom: "15px", padding: "10px", background: "#f0f0f1", borderRadius: "3px" } }, /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0 0 5px 0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __10("Selected Icon:", "digiblocks")), " ", iconValue.name), /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0 0 5px 0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __10("Style:", "digiblocks")), " ", iconValue.style), iconValue.categories && iconValue.categories.length > 0 && /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __10("Categories:", "digiblocks")), " ", iconValue.categories.join(", "))))), /* @__PURE__ */ wp.element.createElement("div", { className: "icon-transform-controls" }, /* @__PURE__ */ wp.element.createElement(
+            RangeControl9,
             {
-              label: __8("Rotate", "digiblocks"),
+              label: __10("Rotate", "digiblocks"),
               value: rotateIcon || 0,
               onChange: (value) => setAttributes({ rotateIcon: value }),
               min: 0,
@@ -11553,38 +12588,38 @@
               __nextHasNoMarginBottom: true
             }
           ), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-toggle-controls", style: { display: "flex", justifyContent: "space-between", marginBottom: "20px" } }, /* @__PURE__ */ wp.element.createElement(
-            ToggleGroupControl8,
+            ToggleGroupControl10,
             {
-              label: __8("Flip Horizontal", "digiblocks"),
+              label: __10("Flip Horizontal", "digiblocks"),
               value: flipHorizontal ? "yes" : "no",
               onChange: (value) => setAttributes({ flipHorizontal: value === "yes" }),
               isBlock: true,
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             },
-            /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption8, { value: "no", label: __8("Off", "digiblocks") }),
-            /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption8, { value: "yes", label: __8("On", "digiblocks") })
+            /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption10, { value: "no", label: __10("Off", "digiblocks") }),
+            /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption10, { value: "yes", label: __10("On", "digiblocks") })
           )), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-toggle-controls", style: { display: "flex", justifyContent: "space-between", marginBottom: "20px" } }, /* @__PURE__ */ wp.element.createElement(
-            ToggleGroupControl8,
+            ToggleGroupControl10,
             {
-              label: __8("Flip Vertical", "digiblocks"),
+              label: __10("Flip Vertical", "digiblocks"),
               value: flipVertical ? "yes" : "no",
               onChange: (value) => setAttributes({ flipVertical: value === "yes" }),
               isBlock: true,
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             },
-            /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption8, { value: "no", label: __8("Off", "digiblocks") }),
-            /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption8, { value: "yes", label: __8("On", "digiblocks") })
+            /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption10, { value: "no", label: __10("Off", "digiblocks") }),
+            /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption10, { value: "yes", label: __10("On", "digiblocks") })
           ))), !linkEnabled ? /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement(
             "button",
             {
               className: "components-button width-full is-primary",
               onClick: () => setAttributes({ linkEnabled: true })
             },
-            __8("Add Link", "digiblocks")
+            __10("Add Link", "digiblocks")
           ))) : /* @__PURE__ */ wp.element.createElement(
-            LinkControl3,
+            LinkControl4,
             {
               key: "link-control",
               value: {
@@ -11595,11 +12630,11 @@
               settings: [
                 {
                   id: "opensInNewTab",
-                  title: __8("Open in new tab", "digiblocks")
+                  title: __10("Open in new tab", "digiblocks")
                 },
                 {
                   id: "rel",
-                  title: __8("Add noopener noreferrer", "digiblocks")
+                  title: __10("Add noopener noreferrer", "digiblocks")
                 }
               ],
               onChange: (newLink) => {
@@ -11626,23 +12661,23 @@
           )));
         case "style":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody8,
+            TabPanelBody10,
             {
               tab: "style",
               name: "icon",
-              title: __8("Icon", "digiblocks"),
+              title: __10("Icon", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl8,
+              ResponsiveControl10,
               {
-                label: __8(
+                label: __10(
                   "Icon Size",
                   "digiblocks"
                 )
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl8,
+                RangeControl9,
                 {
                   value: iconSize[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -11660,7 +12695,7 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TabPanel7,
+              TabPanel9,
               {
                 className: "digiblocks-control-tabs",
                 activeClass: "active-tab",
@@ -11669,15 +12704,15 @@
               (tab) => renderIconTabContent(tab.name)
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody8,
+            TabPanelBody10,
             {
               tab: "style",
               name: "container",
-              title: __8("Container", "digiblocks"),
+              title: __10("Container", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              TabPanel7,
+              TabPanel9,
               {
                 className: "digiblocks-control-tabs",
                 activeClass: "active-tab",
@@ -11686,9 +12721,9 @@
               (tab) => renderContainerTabContent(tab.name)
             ),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl8,
+              SelectControl10,
               {
-                label: __8("Border Style", "digiblocks"),
+                label: __10("Border Style", "digiblocks"),
                 value: borderStyle || "default",
                 options: borderStyleOptions,
                 onChange: (value) => {
@@ -11721,9 +12756,9 @@
               }
             ),
             borderStyle && borderStyle !== "default" && borderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings8,
+              PanelColorSettings9,
               {
-                title: __8(
+                title: __10(
                   "Border Color",
                   "digiblocks"
                 ),
@@ -11734,7 +12769,7 @@
                     onChange: (value) => setAttributes({
                       borderColor: value
                     }),
-                    label: __8(
+                    label: __10(
                       "Border Color",
                       "digiblocks"
                     )
@@ -11742,12 +12777,12 @@
                 ]
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl8,
+              ResponsiveControl10,
               {
-                label: __8("Border Width", "digiblocks")
+                label: __10("Border Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl8,
+                DimensionControl9,
                 {
                   values: borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : {
                     top: 1,
@@ -11765,12 +12800,12 @@
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl8,
+              ResponsiveControl10,
               {
-                label: __8("Border Radius", "digiblocks")
+                label: __10("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl8,
+                DimensionControl9,
                 {
                   values: borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
                     top: 0,
@@ -11793,9 +12828,9 @@
               )
             )),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl8,
+              SelectControl10,
               {
-                label: __8(
+                label: __10(
                   "Hover Effect",
                   "digiblocks"
                 ),
@@ -11809,15 +12844,15 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody8,
+            TabPanelBody10,
             {
               tab: "style",
               name: "shadow",
-              title: __8("Box Shadow", "digiblocks"),
+              title: __10("Box Shadow", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              BoxShadowControl7,
+              BoxShadowControl8,
               {
                 normalValue: boxShadow,
                 hoverValue: boxShadowHover,
@@ -11832,17 +12867,17 @@
           ));
         case "advanced":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody8,
+            TabPanelBody10,
             {
               tab: "advanced",
               name: "animation",
-              title: __8("Animation", "digiblocks"),
+              title: __10("Animation", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl8,
+              SelectControl10,
               {
-                label: __8(
+                label: __10(
                   "Animation Effect",
                   "digiblocks"
                 ),
@@ -11856,24 +12891,24 @@
               }
             ),
             animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button8,
+              Button9,
               {
                 variant: "secondary",
                 isSecondary: true,
                 onClick: triggerAnimationPreview,
                 style: { width: "100%" }
               },
-              __8("Preview Animation", "digiblocks")
+              __10("Preview Animation", "digiblocks")
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody8,
+            TabPanelBody10,
             {
               tab: "advanced",
               name: "additional",
-              title: __8("Additional", "digiblocks"),
+              title: __10("Additional", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __8("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __10("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -11885,7 +12920,7 @@
                 autoCapitalize: "none",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __8(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __10(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
               "a",
               {
                 className: "components-external-link",
@@ -11893,10 +12928,10 @@
                 target: "_blank",
                 rel: "external noreferrer noopener"
               },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __8("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __10("Learn more about anchors", "digiblocks")),
               /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
             ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __8("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __10("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -11907,13 +12942,13 @@
                 "aria-describedby": "additional-css-classes-help",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __8("Separate multiple classes with spaces.", "digiblocks")))
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __10("Separate multiple classes with spaces.", "digiblocks")))
           ));
         default:
           return null;
       }
     };
-    const blockProps = useBlockProps15({
+    const blockProps = useBlockProps19({
       className: `digiblocks-icon align-${align} ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
@@ -11926,8 +12961,8 @@
         value: align,
         onChange: (value) => setAttributes({ align: value })
       }
-    )), /* @__PURE__ */ wp.element.createElement(InspectorControls8, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel8,
+    )), /* @__PURE__ */ wp.element.createElement(InspectorControls10, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel10,
       {
         tabs: tabList,
         activeTab,
@@ -11936,10 +12971,10 @@
       renderTabContent()
     )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, renderIcon()));
   };
-  var edit_default8 = IconEdit;
+  var edit_default10 = IconEdit;
 
   // blocks/icon/save.js
-  var { useBlockProps: useBlockProps16 } = window.wp.blockEditor;
+  var { useBlockProps: useBlockProps20 } = window.wp.blockEditor;
   var IconSave = ({ attributes }) => {
     const {
       id,
@@ -11990,32 +13025,32 @@
     }
     return /* @__PURE__ */ wp.element.createElement("div", { ...commonProps }, renderIcon());
   };
-  var save_default8 = IconSave;
+  var save_default10 = IconSave;
 
   // blocks/icon-box/edit.js
-  var { __: __9 } = window.wp.i18n;
+  var { __: __11 } = window.wp.i18n;
   var {
-    useBlockProps: useBlockProps17,
-    RichText: RichText9,
-    InspectorControls: InspectorControls9,
-    PanelColorSettings: PanelColorSettings9,
-    LinkControl: LinkControl4,
+    useBlockProps: useBlockProps21,
+    RichText: RichText11,
+    InspectorControls: InspectorControls11,
+    PanelColorSettings: PanelColorSettings10,
+    LinkControl: LinkControl5,
     BlockControls: BlockControls7,
     AlignmentToolbar: AlignmentToolbar6
   } = window.wp.blockEditor;
   var {
-    SelectControl: SelectControl9,
-    RangeControl: RangeControl9,
-    TabPanel: TabPanel8,
+    SelectControl: SelectControl11,
+    RangeControl: RangeControl10,
+    TabPanel: TabPanel10,
     Spinner: Spinner3,
-    Button: Button9,
-    __experimentalToggleGroupControl: ToggleGroupControl9,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption9
+    Button: Button10,
+    __experimentalToggleGroupControl: ToggleGroupControl11,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption11
   } = window.wp.components;
-  var { useState: useState9, useEffect: useEffect9, useRef: useRef9 } = window.wp.element;
-  var { animations: animations9 } = digi.utils;
-  var { tabIcons: tabIcons9 } = digi.icons;
-  var { ResponsiveControl: ResponsiveControl9, DimensionControl: DimensionControl9, TypographyControl: TypographyControl7, BoxShadowControl: BoxShadowControl8, CustomTabPanel: CustomTabPanel9, TabPanelBody: TabPanelBody9 } = digi.components;
+  var { useState: useState11, useEffect: useEffect11, useRef: useRef9 } = window.wp.element;
+  var { animations: animations11 } = digi.utils;
+  var { tabIcons: tabIcons11 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl11, DimensionControl: DimensionControl10, TypographyControl: TypographyControl8, BoxShadowControl: BoxShadowControl9, CustomTabPanel: CustomTabPanel11, TabPanelBody: TabPanelBody11 } = digi.components;
   var IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
     const {
       id,
@@ -12060,17 +13095,17 @@
       linkOpenInNewTab,
       linkRel
     } = attributes;
-    const [localActiveDevice, setLocalActiveDevice] = useState9(window.digi.responsiveState.activeDevice);
-    const [isAnimating, setIsAnimating] = useState9(false);
+    const [localActiveDevice, setLocalActiveDevice] = useState11(window.digi.responsiveState.activeDevice);
+    const [isAnimating, setIsAnimating] = useState11(false);
     const previewTimeoutRef = useRef9(null);
-    useEffect9(() => {
+    useEffect11(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    const [activeTab, setActiveTab] = useState9("options");
-    useEffect9(() => {
+    const [activeTab, setActiveTab] = useState11("options");
+    useEffect11(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
@@ -12084,15 +13119,15 @@
         });
       }
     }, [clientId, iconMargin, setAttributes]);
-    useEffect9(() => {
+    useEffect11(() => {
       return () => {
         if (previewTimeoutRef.current) {
           clearTimeout(previewTimeoutRef.current);
         }
       };
     }, []);
-    const [componentsLoaded, setComponentsLoaded] = useState9(false);
-    useEffect9(() => {
+    const [componentsLoaded, setComponentsLoaded] = useState11(false);
+    useEffect11(() => {
       const checkComponents = () => {
         if (window.digi && window.digi.components && window.digi.components.FontAwesomeControl) {
           setComponentsLoaded(true);
@@ -12124,8 +13159,8 @@
         return;
       }
       const timestamp = Date.now();
-      if (animations9[animation]) {
-        const originalKeyframes = animations9[animation].keyframes;
+      if (animations11[animation]) {
+        const originalKeyframes = animations11[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
           console.error("Could not extract animation name from keyframes");
@@ -12166,7 +13201,7 @@
         }, 1500);
       }
     };
-    useEffect9(() => {
+    useEffect11(() => {
       if (animation && animation !== "none") {
         const timeoutId = setTimeout(() => {
           triggerAnimationPreview();
@@ -12175,26 +13210,26 @@
       }
     }, [animation]);
     const borderStyleOptions = [
-      { label: __9("Default", "digiblocks"), value: "default" },
-      { label: __9("None", "digiblocks"), value: "none" },
-      { label: __9("Solid", "digiblocks"), value: "solid" },
-      { label: __9("Dotted", "digiblocks"), value: "dotted" },
-      { label: __9("Dashed", "digiblocks"), value: "dashed" },
-      { label: __9("Double", "digiblocks"), value: "double" },
-      { label: __9("Groove", "digiblocks"), value: "groove" },
-      { label: __9("Inset", "digiblocks"), value: "inset" },
-      { label: __9("Outset", "digiblocks"), value: "outset" },
-      { label: __9("Ridge", "digiblocks"), value: "ridge" }
+      { label: __11("Default", "digiblocks"), value: "default" },
+      { label: __11("None", "digiblocks"), value: "none" },
+      { label: __11("Solid", "digiblocks"), value: "solid" },
+      { label: __11("Dotted", "digiblocks"), value: "dotted" },
+      { label: __11("Dashed", "digiblocks"), value: "dashed" },
+      { label: __11("Double", "digiblocks"), value: "double" },
+      { label: __11("Groove", "digiblocks"), value: "groove" },
+      { label: __11("Inset", "digiblocks"), value: "inset" },
+      { label: __11("Outset", "digiblocks"), value: "outset" },
+      { label: __11("Ridge", "digiblocks"), value: "ridge" }
     ];
     const hoverEffectOptions = [
-      { label: __9("None", "digiblocks"), value: "none" },
-      { label: __9("Lift", "digiblocks"), value: "lift" },
-      { label: __9("Scale", "digiblocks"), value: "scale" },
-      { label: __9("Glow", "digiblocks"), value: "glow" }
+      { label: __11("None", "digiblocks"), value: "none" },
+      { label: __11("Lift", "digiblocks"), value: "lift" },
+      { label: __11("Scale", "digiblocks"), value: "scale" },
+      { label: __11("Glow", "digiblocks"), value: "glow" }
     ];
     const animationOptions = [
-      { label: __9("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations9).map((animation2) => ({
+      { label: __11("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations11).map((animation2) => ({
         label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         value: animation2
       }))
@@ -12202,29 +13237,29 @@
     const tabList = [
       {
         name: "options",
-        title: __9("Options", "digiblocks"),
-        icon: tabIcons9.optionsIcon
+        title: __11("Options", "digiblocks"),
+        icon: tabIcons11.optionsIcon
       },
       {
         name: "style",
-        title: __9("Style", "digiblocks"),
-        icon: tabIcons9.styleIcon
+        title: __11("Style", "digiblocks"),
+        icon: tabIcons11.styleIcon
       },
       {
         name: "advanced",
-        title: __9("Advanced", "digiblocks"),
-        icon: tabIcons9.advancedIcon
+        title: __11("Advanced", "digiblocks"),
+        icon: tabIcons11.advancedIcon
       }
     ];
     const stateTabList = [
       {
         name: "normal",
-        title: __9("Normal", "digiblocks"),
+        title: __11("Normal", "digiblocks"),
         className: "digiblocks-tab-1 normal"
       },
       {
         name: "hover",
-        title: __9("Hover", "digiblocks"),
+        title: __11("Hover", "digiblocks"),
         className: "digiblocks-tab-2 hover"
       }
     ];
@@ -12436,7 +13471,7 @@
             }
         `;
     };
-    const FontAwesomeControl = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
+    const FontAwesomeControl3 = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
     const renderIcon = () => {
       if (!iconValue || !iconValue.svg || iconValue.svg.trim() === "") {
         return null;
@@ -12453,9 +13488,9 @@
     const renderIconTabContent = (tabName) => {
       if (tabName === "normal") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings9,
+          PanelColorSettings10,
           {
-            title: __9(
+            title: __11(
               "Icon Colors",
               "digiblocks"
             ),
@@ -12467,7 +13502,7 @@
                 onChange: (value) => setAttributes({
                   iconColor: value
                 }),
-                label: __9(
+                label: __11(
                   "Icon Color",
                   "digiblocks"
                 )
@@ -12477,7 +13512,7 @@
                 onChange: (value) => setAttributes({
                   iconBackgroundColor: value
                 }),
-                label: __9(
+                label: __11(
                   "Background Color",
                   "digiblocks"
                 )
@@ -12485,9 +13520,9 @@
             ]
           }
         ), /* @__PURE__ */ wp.element.createElement(
-          SelectControl9,
+          SelectControl11,
           {
-            label: __9("Border Style", "digiblocks"),
+            label: __11("Border Style", "digiblocks"),
             value: iconBorderStyle || "default",
             options: borderStyleOptions,
             onChange: (value) => {
@@ -12519,9 +13554,9 @@
             __nextHasNoMarginBottom: true
           }
         ), iconBorderStyle && iconBorderStyle !== "default" && iconBorderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings9,
+          PanelColorSettings10,
           {
-            title: __9(
+            title: __11(
               "Border Color",
               "digiblocks"
             ),
@@ -12532,7 +13567,7 @@
                 onChange: (value) => setAttributes({
                   iconBorderColor: value
                 }),
-                label: __9(
+                label: __11(
                   "Border Color",
                   "digiblocks"
                 )
@@ -12540,12 +13575,12 @@
             ]
           }
         ), /* @__PURE__ */ wp.element.createElement(
-          ResponsiveControl9,
+          ResponsiveControl11,
           {
-            label: __9("Border Width", "digiblocks")
+            label: __11("Border Width", "digiblocks")
           },
           /* @__PURE__ */ wp.element.createElement(
-            DimensionControl9,
+            DimensionControl10,
             {
               values: iconBorderWidth && iconBorderWidth[localActiveDevice] ? iconBorderWidth[localActiveDevice] : {
                 top: 1,
@@ -12563,12 +13598,12 @@
             }
           )
         ), /* @__PURE__ */ wp.element.createElement(
-          ResponsiveControl9,
+          ResponsiveControl11,
           {
-            label: __9("Border Radius", "digiblocks")
+            label: __11("Border Radius", "digiblocks")
           },
           /* @__PURE__ */ wp.element.createElement(
-            DimensionControl9,
+            DimensionControl10,
             {
               values: iconBorderRadius && iconBorderRadius[localActiveDevice] ? iconBorderRadius[localActiveDevice] : {
                 top: 0,
@@ -12590,12 +13625,12 @@
             }
           )
         )), /* @__PURE__ */ wp.element.createElement(
-          ResponsiveControl9,
+          ResponsiveControl11,
           {
-            label: __9("Padding", "digiblocks")
+            label: __11("Padding", "digiblocks")
           },
           /* @__PURE__ */ wp.element.createElement(
-            DimensionControl9,
+            DimensionControl10,
             {
               values: iconPadding && iconPadding[localActiveDevice] ? iconPadding[localActiveDevice] : {
                 top: 0,
@@ -12613,12 +13648,12 @@
             }
           )
         ), /* @__PURE__ */ wp.element.createElement(
-          ResponsiveControl9,
+          ResponsiveControl11,
           {
-            label: __9("Margin", "digiblocks")
+            label: __11("Margin", "digiblocks")
           },
           /* @__PURE__ */ wp.element.createElement(
-            DimensionControl9,
+            DimensionControl10,
             {
               values: iconMargin && iconMargin[localActiveDevice] ? iconMargin[localActiveDevice] : {
                 top: 0,
@@ -12642,9 +13677,9 @@
         ));
       } else if (tabName === "hover") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings9,
+          PanelColorSettings10,
           {
-            title: __9(
+            title: __11(
               "Icon Hover Colors",
               "digiblocks"
             ),
@@ -12656,7 +13691,7 @@
                 onChange: (value) => setAttributes({
                   iconHoverColor: value
                 }),
-                label: __9(
+                label: __11(
                   "Icon Color",
                   "digiblocks"
                 )
@@ -12666,7 +13701,7 @@
                 onChange: (value) => setAttributes({
                   iconHoverBackgroundColor: value
                 }),
-                label: __9(
+                label: __11(
                   "Background Color",
                   "digiblocks"
                 )
@@ -12676,7 +13711,7 @@
                 onChange: (value) => setAttributes({
                   iconHoverBorderColor: value
                 }),
-                label: __9(
+                label: __11(
                   "Border Color",
                   "digiblocks"
                 )
@@ -12690,9 +13725,9 @@
     const renderColorTabContent = (tabName) => {
       if (tabName === "normal") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings9,
+          PanelColorSettings10,
           {
-            title: __9(
+            title: __11(
               "Color Settings",
               "digiblocks"
             ),
@@ -12704,7 +13739,7 @@
                 onChange: (value) => setAttributes({
                   titleColor: value
                 }),
-                label: __9(
+                label: __11(
                   "Title Color",
                   "digiblocks"
                 )
@@ -12714,7 +13749,7 @@
                 onChange: (value) => setAttributes({
                   textColor: value
                 }),
-                label: __9(
+                label: __11(
                   "Text Color",
                   "digiblocks"
                 )
@@ -12724,7 +13759,7 @@
                 onChange: (value) => setAttributes({
                   backgroundColor: value
                 }),
-                label: __9(
+                label: __11(
                   "Background Color",
                   "digiblocks"
                 )
@@ -12734,9 +13769,9 @@
         ));
       } else if (tabName === "hover") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings9,
+          PanelColorSettings10,
           {
-            title: __9(
+            title: __11(
               "Hover Color Settings",
               "digiblocks"
             ),
@@ -12748,7 +13783,7 @@
                 onChange: (value) => setAttributes({
                   titleHoverColor: value
                 }),
-                label: __9(
+                label: __11(
                   "Title Color",
                   "digiblocks"
                 )
@@ -12758,7 +13793,7 @@
                 onChange: (value) => setAttributes({
                   textHoverColor: value
                 }),
-                label: __9(
+                label: __11(
                   "Text Color",
                   "digiblocks"
                 )
@@ -12768,7 +13803,7 @@
                 onChange: (value) => setAttributes({
                   backgroundHoverColor: value
                 }),
-                label: __9(
+                label: __11(
                   "Background Color",
                   "digiblocks"
                 )
@@ -12782,22 +13817,22 @@
     const renderTabContent = () => {
       switch (activeTab) {
         case "options":
-          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "components-panel__body is-opened" }, /* @__PURE__ */ wp.element.createElement("div", { style: { marginBottom: "2rem" } }, !componentsLoaded ? /* @__PURE__ */ wp.element.createElement("div", { style: { textAlign: "center", padding: "20px 0" } }, /* @__PURE__ */ wp.element.createElement(Spinner3, null), /* @__PURE__ */ wp.element.createElement("p", null, __9("Loading icon selector...", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement(
-            FontAwesomeControl,
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "components-panel__body is-opened" }, /* @__PURE__ */ wp.element.createElement("div", { style: { marginBottom: "2rem" } }, !componentsLoaded ? /* @__PURE__ */ wp.element.createElement("div", { style: { textAlign: "center", padding: "20px 0" } }, /* @__PURE__ */ wp.element.createElement(Spinner3, null), /* @__PURE__ */ wp.element.createElement("p", null, __11("Loading icon selector...", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement(
+            FontAwesomeControl3,
             {
-              label: __9("Select Icon", "digiblocks"),
+              label: __11("Select Icon", "digiblocks"),
               value: iconValue,
               onChange: setIconValue
             }
-          ), iconValue && componentsLoaded && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "15px", marginBottom: "15px", padding: "10px", background: "#f0f0f1", borderRadius: "3px" } }, /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0 0 5px 0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __9("Selected Icon:", "digiblocks")), " ", iconValue.name), /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0 0 5px 0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __9("Style:", "digiblocks")), " ", iconValue.style), iconValue.categories && iconValue.categories.length > 0 && /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __9("Categories:", "digiblocks")), " ", iconValue.categories.join(", "))))), !linkEnabled ? /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement(
+          ), iconValue && componentsLoaded && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "15px", marginBottom: "15px", padding: "10px", background: "#f0f0f1", borderRadius: "3px" } }, /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0 0 5px 0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __11("Selected Icon:", "digiblocks")), " ", iconValue.name), /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0 0 5px 0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __11("Style:", "digiblocks")), " ", iconValue.style), iconValue.categories && iconValue.categories.length > 0 && /* @__PURE__ */ wp.element.createElement("p", { style: { margin: "0" } }, /* @__PURE__ */ wp.element.createElement("strong", null, __11("Categories:", "digiblocks")), " ", iconValue.categories.join(", "))))), !linkEnabled ? /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement(
             "button",
             {
               className: "components-button width-full is-primary",
               onClick: () => setAttributes({ linkEnabled: true })
             },
-            __9("Add Link", "digiblocks")
+            __11("Add Link", "digiblocks")
           ))) : /* @__PURE__ */ wp.element.createElement(
-            LinkControl4,
+            LinkControl5,
             {
               key: "link-control",
               value: {
@@ -12808,11 +13843,11 @@
               settings: [
                 {
                   id: "opensInNewTab",
-                  title: __9("Open in new tab", "digiblocks")
+                  title: __11("Open in new tab", "digiblocks")
                 },
                 {
                   id: "rel",
-                  title: __9("Add noopener noreferrer", "digiblocks")
+                  title: __11("Add noopener noreferrer", "digiblocks")
                 }
               ],
               onChange: (newLink) => {
@@ -12839,15 +13874,15 @@
           )));
         case "style":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody9,
+            TabPanelBody11,
             {
               tab: "style",
               name: "colors",
-              title: __9("Colors", "digiblocks"),
+              title: __11("Colors", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              TabPanel8,
+              TabPanel10,
               {
                 className: "digiblocks-control-tabs",
                 activeClass: "active-tab",
@@ -12856,17 +13891,17 @@
               (tab) => renderColorTabContent(tab.name)
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody9,
+            TabPanelBody11,
             {
               tab: "style",
               name: "typo",
-              title: __9("Typography", "digiblocks"),
+              title: __11("Typography", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl7,
+              TypographyControl8,
               {
-                label: __9(
+                label: __11(
                   "Title Typography",
                   "digiblocks"
                 ),
@@ -12883,9 +13918,9 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl7,
+              TypographyControl8,
               {
-                label: __9(
+                label: __11(
                   "Content Typography",
                   "digiblocks"
                 ),
@@ -12902,23 +13937,23 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody9,
+            TabPanelBody11,
             {
               tab: "style",
               name: "icon",
-              title: __9("Icon", "digiblocks"),
+              title: __11("Icon", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl9,
+              ResponsiveControl11,
               {
-                label: __9(
+                label: __11(
                   "Icon Size",
                   "digiblocks"
                 )
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl9,
+                RangeControl10,
                 {
                   value: iconSize[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -12936,7 +13971,7 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TabPanel8,
+              TabPanel10,
               {
                 className: "digiblocks-control-tabs",
                 activeClass: "active-tab",
@@ -12945,17 +13980,17 @@
               (tab) => renderIconTabContent(tab.name)
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody9,
+            TabPanelBody11,
             {
               tab: "style",
               name: "box-style",
-              title: __9("Box Style", "digiblocks"),
+              title: __11("Box Style", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl9,
+              SelectControl11,
               {
-                label: __9("Border Style", "digiblocks"),
+                label: __11("Border Style", "digiblocks"),
                 value: borderStyle || "default",
                 options: borderStyleOptions,
                 onChange: (value) => {
@@ -12988,9 +14023,9 @@
               }
             ),
             borderStyle && borderStyle !== "default" && borderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings9,
+              PanelColorSettings10,
               {
-                title: __9(
+                title: __11(
                   "Border Color",
                   "digiblocks"
                 ),
@@ -13001,7 +14036,7 @@
                     onChange: (value) => setAttributes({
                       borderColor: value
                     }),
-                    label: __9(
+                    label: __11(
                       "Border Color",
                       "digiblocks"
                     )
@@ -13009,12 +14044,12 @@
                 ]
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl9,
+              ResponsiveControl11,
               {
-                label: __9("Border Width", "digiblocks")
+                label: __11("Border Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl9,
+                DimensionControl10,
                 {
                   values: borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : {
                     top: 1,
@@ -13032,12 +14067,12 @@
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl9,
+              ResponsiveControl11,
               {
-                label: __9("Border Radius", "digiblocks")
+                label: __11("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl9,
+                DimensionControl10,
                 {
                   values: borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
                     top: 0,
@@ -13060,9 +14095,9 @@
               )
             )),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl9,
+              SelectControl11,
               {
-                label: __9(
+                label: __11(
                   "Hover Effect",
                   "digiblocks"
                 ),
@@ -13076,15 +14111,15 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody9,
+            TabPanelBody11,
             {
               tab: "style",
               name: "shadow",
-              title: __9("Box Shadow", "digiblocks"),
+              title: __11("Box Shadow", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              BoxShadowControl8,
+              BoxShadowControl9,
               {
                 normalValue: boxShadow,
                 hoverValue: boxShadowHover,
@@ -13097,20 +14132,20 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody9,
+            TabPanelBody11,
             {
               tab: "style",
               name: "spacing",
-              title: __9("Spacing", "digiblocks"),
+              title: __11("Spacing", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl9,
+              ResponsiveControl11,
               {
-                label: __9("Padding", "digiblocks")
+                label: __11("Padding", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl9,
+                DimensionControl10,
                 {
                   values: padding[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -13123,12 +14158,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl9,
+              ResponsiveControl11,
               {
-                label: __9("Margin", "digiblocks")
+                label: __11("Margin", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl9,
+                DimensionControl10,
                 {
                   values: margin[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -13143,17 +14178,17 @@
           ));
         case "advanced":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody9,
+            TabPanelBody11,
             {
               tab: "advanced",
               name: "animation",
-              title: __9("Animation", "digiblocks"),
+              title: __11("Animation", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl9,
+              SelectControl11,
               {
-                label: __9(
+                label: __11(
                   "Animation Effect",
                   "digiblocks"
                 ),
@@ -13167,24 +14202,24 @@
               }
             ),
             animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button9,
+              Button10,
               {
                 variant: "secondary",
                 isSecondary: true,
                 onClick: triggerAnimationPreview,
                 style: { width: "100%" }
               },
-              __9("Preview Animation", "digiblocks")
+              __11("Preview Animation", "digiblocks")
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody9,
+            TabPanelBody11,
             {
               tab: "advanced",
               name: "additional",
-              title: __9("Additional", "digiblocks"),
+              title: __11("Additional", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __9("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __11("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -13196,7 +14231,7 @@
                 autoCapitalize: "none",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __9(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __11(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
               "a",
               {
                 className: "components-external-link",
@@ -13204,10 +14239,10 @@
                 target: "_blank",
                 rel: "external noreferrer noopener"
               },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __9("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __11("Learn more about anchors", "digiblocks")),
               /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
             ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __9("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __11("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -13218,13 +14253,13 @@
                 "aria-describedby": "additional-css-classes-help",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __9("Separate multiple classes with spaces.", "digiblocks")))
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __11("Separate multiple classes with spaces.", "digiblocks")))
           ));
         default:
           return null;
       }
     };
-    const blockProps = useBlockProps17({
+    const blockProps = useBlockProps21({
       className: `digiblocks-icon-box align-${align} ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
@@ -13232,22 +14267,22 @@
       // Always set the block ID as data attribute for CSS targeting
     });
     const boxContent = /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-icon-box-content" }, renderIcon(), /* @__PURE__ */ wp.element.createElement(
-      RichText9,
+      RichText11,
       {
         tagName: "h3",
         className: "digiblocks-icon-box-title",
         value: title,
         onChange: (value) => setAttributes({ title: value }),
-        placeholder: __9("Feature Title", "digiblocks")
+        placeholder: __11("Feature Title", "digiblocks")
       }
     ), /* @__PURE__ */ wp.element.createElement(
-      RichText9,
+      RichText11,
       {
         tagName: "p",
         className: "digiblocks-icon-box-text",
         value: content,
         onChange: (value) => setAttributes({ content: value }),
-        placeholder: __9(
+        placeholder: __11(
           "Add your feature description here.",
           "digiblocks"
         )
@@ -13259,8 +14294,8 @@
         value: align,
         onChange: (value) => setAttributes({ align: value })
       }
-    )), /* @__PURE__ */ wp.element.createElement(InspectorControls9, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel9,
+    )), /* @__PURE__ */ wp.element.createElement(InspectorControls11, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel11,
       {
         tabs: tabList,
         activeTab,
@@ -13269,10 +14304,10 @@
       renderTabContent()
     )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, boxContent));
   };
-  var edit_default9 = IconBoxEdit;
+  var edit_default11 = IconBoxEdit;
 
   // blocks/icon-box/save.js
-  var { useBlockProps: useBlockProps18, RichText: RichText10 } = window.wp.blockEditor;
+  var { useBlockProps: useBlockProps22, RichText: RichText12 } = window.wp.blockEditor;
   var IconBoxSave = ({ attributes }) => {
     const {
       id,
@@ -13303,14 +14338,14 @@
       "data-custom-id": id
     };
     const boxContent = /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-icon-box-content" }, iconValue && iconValue.svg && iconValue.svg.trim() !== "" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-icon-box-icon" }, /* @__PURE__ */ wp.element.createElement("span", { dangerouslySetInnerHTML: { __html: iconValue.svg } })), /* @__PURE__ */ wp.element.createElement(
-      RichText10.Content,
+      RichText12.Content,
       {
         tagName: "h3",
         className: "digiblocks-icon-box-title",
         value: title
       }
     ), /* @__PURE__ */ wp.element.createElement(
-      RichText10.Content,
+      RichText12.Content,
       {
         tagName: "p",
         className: "digiblocks-icon-box-text",
@@ -13331,30 +14366,1334 @@
     }
     return /* @__PURE__ */ wp.element.createElement("div", { ...commonProps }, boxContent);
   };
-  var save_default9 = IconBoxSave;
+  var save_default11 = IconBoxSave;
+
+  // blocks/icon-list/edit.js
+  var { __: __12 } = window.wp.i18n;
+  var {
+    useBlockProps: useBlockProps23,
+    RichText: RichText13,
+    InspectorControls: InspectorControls12,
+    PanelColorSettings: PanelColorSettings11,
+    LinkControl: LinkControl6
+  } = window.wp.blockEditor;
+  var {
+    SelectControl: SelectControl12,
+    RangeControl: RangeControl11,
+    TabPanel: TabPanel11,
+    Button: Button11,
+    PanelBody: PanelBody2,
+    Modal,
+    Tooltip: Tooltip3,
+    __experimentalToggleGroupControl: ToggleGroupControl12,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption12
+  } = window.wp.components;
+  var { useState: useState12, useEffect: useEffect12, useRef: useRef10 } = window.wp.element;
+  var { animations: animations12 } = digi.utils;
+  var { tabIcons: tabIcons12 } = digi.icons;
+  var {
+    ResponsiveControl: ResponsiveControl12,
+    DimensionControl: DimensionControl11,
+    TypographyControl: TypographyControl9,
+    BoxShadowControl: BoxShadowControl10,
+    CustomTabPanel: CustomTabPanel12,
+    TabPanelBody: TabPanelBody12,
+    FontAwesomeControl: FontAwesomeControl2
+  } = digi.components;
+  var IconListEdit = ({ attributes, setAttributes, clientId }) => {
+    const {
+      id,
+      anchor,
+      customClasses,
+      items,
+      defaultIcon,
+      contentTypography,
+      listLayout,
+      listAlign,
+      iconPosition,
+      iconSize,
+      iconSpace,
+      itemSpace,
+      iconColor,
+      iconHoverColor,
+      textColor,
+      textHoverColor,
+      animation,
+      padding,
+      margin,
+      borderStyle,
+      borderWidth,
+      borderRadius,
+      borderColor,
+      borderHoverColor,
+      boxShadow,
+      boxShadowHover,
+      backgroundColor,
+      backgroundHoverColor,
+      hoverEffect
+    } = attributes;
+    const [localActiveDevice, setLocalActiveDevice] = useState12(
+      window.digi.responsiveState.activeDevice
+    );
+    const [iconModalOpen, setIconModalOpen] = useState12(false);
+    const [linkModalOpen, setLinkModalOpen] = useState12(false);
+    const [currentEditingItem, setCurrentEditingItem] = useState12(null);
+    const [isAnimating, setIsAnimating] = useState12(false);
+    const previewTimeoutRef = useRef10(null);
+    useEffect12(() => {
+      const unsubscribe = window.digi.responsiveState.subscribe((device) => {
+        setLocalActiveDevice(device);
+      });
+      return unsubscribe;
+    }, []);
+    const [activeTab, setActiveTab] = useState12("options");
+    useEffect12(() => {
+      if (!id || !id.includes(clientId.substr(0, 8))) {
+        setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
+      }
+    }, [clientId, setAttributes]);
+    useEffect12(() => {
+      return () => {
+        if (previewTimeoutRef.current) {
+          clearTimeout(previewTimeoutRef.current);
+        }
+      };
+    }, []);
+    const triggerAnimationPreview = () => {
+      if (!animation || animation === "none") {
+        return;
+      }
+      if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current);
+      }
+      const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
+      if (!blockElement) {
+        return;
+      }
+      const timestamp = Date.now();
+      if (animations12[animation]) {
+        const originalKeyframes = animations12[animation].keyframes;
+        const originalAnimNameMatch = originalKeyframes.match(
+          /@keyframes\s+([a-zA-Z0-9]+)/
+        );
+        if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
+          console.error(
+            "Could not extract animation name from keyframes"
+          );
+          return;
+        }
+        const originalAnimName = originalAnimNameMatch[1];
+        const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
+        const styleElement = document.createElement("style");
+        styleElement.id = `animation-style-${id}_${timestamp}`;
+        const updatedKeyframes = originalKeyframes.replace(
+          new RegExp(originalAnimName, "g"),
+          uniqueAnimName
+        );
+        styleElement.textContent = `
+                ${updatedKeyframes}
+                
+                [data-custom-id="${id}"] {
+                    animation: none; /* Reset first */
+                }
+            `;
+        document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach((el) => {
+          el.remove();
+        });
+        document.head.appendChild(styleElement);
+        blockElement.offsetHeight;
+        const animationStyleElement = document.createElement("style");
+        animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
+        animationStyleElement.textContent = `
+                [data-custom-id="${id}"] {
+                    animation: ${uniqueAnimName} 1.5s forwards !important;
+                }
+            `;
+        document.head.appendChild(animationStyleElement);
+        previewTimeoutRef.current = setTimeout(() => {
+          styleElement.remove();
+          animationStyleElement.remove();
+          blockElement.style.animation = "";
+        }, 1500);
+      }
+    };
+    useEffect12(() => {
+      if (animation && animation !== "none") {
+        const timeoutId = setTimeout(() => {
+          triggerAnimationPreview();
+        }, 100);
+        return () => clearTimeout(timeoutId);
+      }
+    }, [animation]);
+    const borderStyleOptions = [
+      { label: __12("Default", "digiblocks"), value: "default" },
+      { label: __12("None", "digiblocks"), value: "none" },
+      { label: __12("Solid", "digiblocks"), value: "solid" },
+      { label: __12("Dotted", "digiblocks"), value: "dotted" },
+      { label: __12("Dashed", "digiblocks"), value: "dashed" },
+      { label: __12("Double", "digiblocks"), value: "double" },
+      { label: __12("Groove", "digiblocks"), value: "groove" },
+      { label: __12("Inset", "digiblocks"), value: "inset" },
+      { label: __12("Outset", "digiblocks"), value: "outset" },
+      { label: __12("Ridge", "digiblocks"), value: "ridge" }
+    ];
+    const hoverEffectOptions = [
+      { label: __12("None", "digiblocks"), value: "none" },
+      { label: __12("Lift", "digiblocks"), value: "lift" },
+      { label: __12("Scale", "digiblocks"), value: "scale" },
+      { label: __12("Glow", "digiblocks"), value: "glow" }
+    ];
+    const animationOptions = [
+      { label: __12("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations12).map((animation2) => ({
+        label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+        value: animation2
+      }))
+    ];
+    const tabList = [
+      {
+        name: "options",
+        title: __12("Options", "digiblocks"),
+        icon: tabIcons12.optionsIcon
+      },
+      {
+        name: "style",
+        title: __12("Style", "digiblocks"),
+        icon: tabIcons12.styleIcon
+      },
+      {
+        name: "advanced",
+        title: __12("Advanced", "digiblocks"),
+        icon: tabIcons12.advancedIcon
+      }
+    ];
+    const stateTabList = [
+      {
+        name: "normal",
+        title: __12("Normal", "digiblocks"),
+        className: "digiblocks-tab-1 normal"
+      },
+      {
+        name: "hover",
+        title: __12("Hover", "digiblocks"),
+        className: "digiblocks-tab-2 hover"
+      }
+    ];
+    const addListItem = () => {
+      const newItems = [...items];
+      newItems.push({
+        id: `item-${Date.now()}`,
+        content: __12("New list item", "digiblocks"),
+        icon: { ...defaultIcon },
+        linkEnabled: false,
+        linkUrl: "",
+        linkOpenInNewTab: false,
+        linkRel: ""
+      });
+      setAttributes({ items: newItems });
+    };
+    const removeListItem = (index) => {
+      const newItems = [...items];
+      newItems.splice(index, 1);
+      setAttributes({ items: newItems });
+    };
+    const updateListItem = (index, field, value) => {
+      const newItems = [...items];
+      newItems[index][field] = value;
+      setAttributes({ items: newItems });
+    };
+    const moveItemUp = (index) => {
+      if (index === 0)
+        return;
+      const newItems = [...items];
+      [newItems[index - 1], newItems[index]] = [
+        newItems[index],
+        newItems[index - 1]
+      ];
+      setAttributes({ items: newItems });
+    };
+    const moveItemDown = (index) => {
+      if (index === items.length - 1)
+        return;
+      const newItems = [...items];
+      [newItems[index], newItems[index + 1]] = [
+        newItems[index + 1],
+        newItems[index]
+      ];
+      setAttributes({ items: newItems });
+    };
+    const duplicateItem = (index) => {
+      const newItems = [...items];
+      const duplicatedItem = { ...items[index], id: `item-${Date.now()}` };
+      newItems.splice(index + 1, 0, duplicatedItem);
+      setAttributes({ items: newItems });
+    };
+    const setItemIcon = (index, icon) => {
+      const newItems = [...items];
+      newItems[index].icon = icon;
+      setAttributes({ items: newItems });
+    };
+    const generateCSS = () => {
+      const activeDevice = window.digi.responsiveState.activeDevice;
+      const blockId = id;
+      let borderCSS = "";
+      if (borderStyle && borderStyle !== "default" && borderStyle !== "none") {
+        const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: "px" };
+        const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: "px" };
+        borderCSS = `
+                border-style: ${borderStyle};
+                border-color: ${borderColor || "#e0e0e0"};
+                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
+                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+            `;
+      } else {
+        borderCSS = "border: none;";
+      }
+      let boxShadowCSS = "box-shadow: none;";
+      if (boxShadow && boxShadow.enable) {
+        const inset = boxShadow.position === "inset" ? "inset " : "";
+        boxShadowCSS = `box-shadow: ${inset}${boxShadow.horizontal}px ${boxShadow.vertical}px ${boxShadow.blur}px ${boxShadow.spread}px ${boxShadow.color};`;
+      }
+      const paddingCSS = `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};`;
+      const marginCSS = `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};`;
+      let contentTypographyCSS = "";
+      if (contentTypography) {
+        if (contentTypography.fontFamily) {
+          contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
+        }
+        if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
+          contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || "px"};`;
+        }
+        if (contentTypography.fontWeight) {
+          contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
+        }
+        if (contentTypography.fontStyle) {
+          contentTypographyCSS += `font-style: ${contentTypography.fontStyle};`;
+        }
+        if (contentTypography.textTransform) {
+          contentTypographyCSS += `text-transform: ${contentTypography.textTransform};`;
+        }
+        if (contentTypography.textDecoration) {
+          contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
+        }
+        if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
+          contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || "em"};`;
+        }
+        if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
+          contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || "px"};`;
+        }
+      }
+      let hoverCSS = "";
+      if (boxShadowHover && boxShadowHover.enable) {
+        const insetHover = boxShadowHover.position === "inset" ? "inset " : "";
+        hoverCSS += `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
+      }
+      if (hoverEffect === "lift") {
+        hoverCSS += "transform: translateY(-10px);";
+      } else if (hoverEffect === "scale") {
+        hoverCSS += "transform: scale(1.05);";
+      } else if (hoverEffect === "glow") {
+        hoverCSS += "filter: brightness(1.1);";
+      }
+      return `
+            /* Icon List Block - ${blockId} */
+            [data-custom-id="${blockId}"] {
+                ${paddingCSS}
+                ${marginCSS}
+                ${borderCSS}
+                ${boxShadowCSS}
+                ${backgroundColor ? `background-color: ${backgroundColor};` : ""}
+                transition: all 0.3s ease;
+            }
+            
+            [data-custom-id="${blockId}"]:hover {
+                ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ""}
+                ${borderHoverColor ? `border-color: ${borderHoverColor};` : ""}
+                ${hoverCSS}
+            }
+            
+            /* List container */
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-wrapper {
+                text-align: ${listAlign};
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-icon-list {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+				flex-direction: ${listLayout === "horizontal" ? "row" : "column"};
+				flex-wrap: wrap;
+				gap: ${itemSpace[activeDevice] !== void 0 ? itemSpace[activeDevice] : 16}px;
+            }
+            
+            /* List item */
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-item {
+                display: inline-flex;
+                align-items: center;
+				gap: ${iconSpace[activeDevice] !== void 0 ? iconSpace[activeDevice] : 12}px;
+				justify-content: ${listAlign === "center" ? "center" : listAlign === "right" ? "flex-end" : "flex-start"};
+                transition: all 0.3s ease;
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-item:last-child {
+                margin-bottom: 0;
+            }
+            
+            /* Icon */
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-icon {
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: ${iconColor || "#1e73be"};
+                transition: color 0.3s ease;
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-icon span {
+                display: flex;
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-icon svg {
+                width: ${iconSize[activeDevice] !== void 0 ? iconSize[activeDevice] : 24}px;
+                height: ${iconSize[activeDevice] !== void 0 ? iconSize[activeDevice] : 24}px;
+                fill: currentColor;
+            }
+            
+            /* Text content */
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-content {
+                color: ${textColor || "#333333"};
+                ${contentTypographyCSS}
+                transition: color 0.3s ease;
+            }
+            
+            /* Hover states */
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-item:hover .digiblocks-icon-list-icon {
+                color: ${iconHoverColor};
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-item:hover .digiblocks-icon-list-content {
+                color: ${textHoverColor};
+            }
+
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-child {
+                display: inline-flex;
+                ${iconPosition === "after" ? "flex-direction: row-reverse;" : ""}
+				gap: ${iconSpace[activeDevice] !== void 0 ? iconSpace[activeDevice] : 12}px;
+                align-items: center;
+            }
+            
+            /* Link cursor for clickable items */
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-item a {
+                cursor: pointer;
+                text-decoration: none;
+                color: inherit;
+            }
+            
+            /* Editor specific styles */
+            .digiblocks-icon-list-item-controls {
+                display: flex;
+                gap: 5px;
+                position: absolute;
+                right: 0;
+                top: 0;
+                background-color: #fff;
+                padding: 2px;
+                border-radius: 3px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+                z-index: 10;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-item {
+                position: relative;
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-icon-list-item:hover .digiblocks-icon-list-item-controls {
+                opacity: 1;
+            }
+        `;
+    };
+    const renderTabContent = () => {
+      switch (activeTab) {
+        case "options":
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody12,
+            {
+              tab: "options",
+              name: "list-items",
+              title: __12("List Items", "digiblocks"),
+              initialOpen: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              FontAwesomeControl2,
+              {
+                label: __12("Set Default Icon", "digiblocks"),
+                value: defaultIcon,
+                onChange: (value) => setAttributes({ defaultIcon: value })
+              }
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControl12,
+              {
+                label: __12("List Layout", "digiblocks"),
+                value: listLayout,
+                onChange: (value) => setAttributes({ listLayout: value }),
+                isBlock: true,
+                __nextHasNoMarginBottom: true,
+                __next40pxDefaultSize: true
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                ToggleGroupControlOption12,
+                {
+                  value: "horizontal",
+                  label: __12("Horizontal", "digiblocks")
+                }
+              ),
+              /* @__PURE__ */ wp.element.createElement(
+                ToggleGroupControlOption12,
+                {
+                  value: "vertical",
+                  label: __12("Vertical", "digiblocks")
+                }
+              )
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControl12,
+              {
+                label: __12("List Alignment", "digiblocks"),
+                value: listAlign,
+                onChange: (value) => setAttributes({ listAlign: value }),
+                isBlock: true,
+                __nextHasNoMarginBottom: true,
+                __next40pxDefaultSize: true
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                ToggleGroupControlOption12,
+                {
+                  value: "left",
+                  label: __12("Left", "digiblocks")
+                }
+              ),
+              /* @__PURE__ */ wp.element.createElement(
+                ToggleGroupControlOption12,
+                {
+                  value: "center",
+                  label: __12("Center", "digiblocks")
+                }
+              ),
+              /* @__PURE__ */ wp.element.createElement(
+                ToggleGroupControlOption12,
+                {
+                  value: "right",
+                  label: __12("Right", "digiblocks")
+                }
+              )
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControl12,
+              {
+                label: __12("Icon Position", "digiblocks"),
+                value: iconPosition,
+                onChange: (value) => setAttributes({ iconPosition: value }),
+                isBlock: true,
+                __nextHasNoMarginBottom: true,
+                __next40pxDefaultSize: true
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                ToggleGroupControlOption12,
+                {
+                  value: "before",
+                  label: __12("Before", "digiblocks")
+                }
+              ),
+              /* @__PURE__ */ wp.element.createElement(
+                ToggleGroupControlOption12,
+                {
+                  value: "after",
+                  label: __12("After", "digiblocks")
+                }
+              )
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl12,
+              {
+                label: __12("Item Spacing", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                RangeControl11,
+                {
+                  value: itemSpace[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    itemSpace: {
+                      ...itemSpace,
+                      [localActiveDevice]: value
+                    }
+                  }),
+                  min: 0,
+                  max: 100,
+                  step: 1,
+                  __next40pxDefaultSize: true,
+                  __nextHasNoMarginBottom: true
+                }
+              )
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl12,
+              {
+                label: __12("Icon Spacing", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                RangeControl11,
+                {
+                  value: iconSpace[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    iconSpace: {
+                      ...iconSpace,
+                      [localActiveDevice]: value
+                    }
+                  }),
+                  min: 0,
+                  max: 50,
+                  step: 1,
+                  __next40pxDefaultSize: true,
+                  __nextHasNoMarginBottom: true
+                }
+              )
+            )
+          ));
+        case "style":
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody12,
+            {
+              tab: "style",
+              name: "icon-style",
+              title: __12("Icon Style", "digiblocks"),
+              initialOpen: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl12,
+              {
+                label: __12("Icon Size", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                RangeControl11,
+                {
+                  value: iconSize[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    iconSize: {
+                      ...iconSize,
+                      [localActiveDevice]: value
+                    }
+                  }),
+                  min: 8,
+                  max: 100,
+                  step: 1,
+                  __next40pxDefaultSize: true,
+                  __nextHasNoMarginBottom: true
+                }
+              )
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              TabPanel11,
+              {
+                className: "digiblocks-control-tabs",
+                activeClass: "active-tab",
+                tabs: stateTabList
+              },
+              (tab) => /* @__PURE__ */ wp.element.createElement(
+                PanelColorSettings11,
+                {
+                  title: tab.name === "normal" ? __12(
+                    "Icon Colors",
+                    "digiblocks"
+                  ) : __12(
+                    "Icon Hover Colors",
+                    "digiblocks"
+                  ),
+                  initialOpen: true,
+                  enableAlpha: true,
+                  colorSettings: [
+                    {
+                      value: tab.name === "normal" ? iconColor : iconHoverColor,
+                      onChange: (value) => setAttributes(
+                        tab.name === "normal" ? {
+                          iconColor: value
+                        } : {
+                          iconHoverColor: value
+                        }
+                      ),
+                      label: __12(
+                        "Icon Color",
+                        "digiblocks"
+                      )
+                    }
+                  ]
+                }
+              )
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody12,
+            {
+              tab: "style",
+              name: "text-style",
+              title: __12("Text Style", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              TabPanel11,
+              {
+                className: "digiblocks-control-tabs",
+                activeClass: "active-tab",
+                tabs: stateTabList
+              },
+              (tab) => /* @__PURE__ */ wp.element.createElement(
+                PanelColorSettings11,
+                {
+                  title: tab.name === "normal" ? __12(
+                    "Text Colors",
+                    "digiblocks"
+                  ) : __12(
+                    "Text Hover Colors",
+                    "digiblocks"
+                  ),
+                  initialOpen: true,
+                  enableAlpha: true,
+                  colorSettings: [
+                    {
+                      value: tab.name === "normal" ? textColor : textHoverColor,
+                      onChange: (value) => setAttributes(
+                        tab.name === "normal" ? {
+                          textColor: value
+                        } : {
+                          textHoverColor: value
+                        }
+                      ),
+                      label: __12(
+                        "Text Color",
+                        "digiblocks"
+                      )
+                    }
+                  ]
+                }
+              )
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              TypographyControl9,
+              {
+                label: __12("Typography", "digiblocks"),
+                value: contentTypography,
+                onChange: (value) => setAttributes({ contentTypography: value }),
+                defaults: {
+                  fontSize: {
+                    desktop: 16,
+                    tablet: 15,
+                    mobile: 14
+                  },
+                  fontSizeUnit: "px",
+                  lineHeight: {
+                    desktop: 1.5,
+                    tablet: 1.4,
+                    mobile: 1.3
+                  },
+                  lineHeightUnit: "em"
+                }
+              }
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody12,
+            {
+              tab: "style",
+              name: "box-style",
+              title: __12("Box Style", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              SelectControl12,
+              {
+                label: __12("Border Style", "digiblocks"),
+                value: borderStyle || "default",
+                options: borderStyleOptions,
+                onChange: (value) => {
+                  setAttributes({ borderStyle: value });
+                },
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            ),
+            borderStyle && borderStyle !== "default" && borderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+              PanelColorSettings11,
+              {
+                title: __12(
+                  "Border Colors",
+                  "digiblocks"
+                ),
+                enableAlpha: true,
+                colorSettings: [
+                  {
+                    value: borderColor,
+                    onChange: (value) => setAttributes({
+                      borderColor: value
+                    }),
+                    label: __12(
+                      "Border Color",
+                      "digiblocks"
+                    )
+                  },
+                  {
+                    value: borderHoverColor,
+                    onChange: (value) => setAttributes({
+                      borderHoverColor: value
+                    }),
+                    label: __12(
+                      "Border Hover Color",
+                      "digiblocks"
+                    )
+                  }
+                ]
+              }
+            ), /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl12,
+              {
+                label: __12(
+                  "Border Width",
+                  "digiblocks"
+                )
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                DimensionControl11,
+                {
+                  values: borderWidth && borderWidth[localActiveDevice] || {
+                    top: 1,
+                    right: 1,
+                    bottom: 1,
+                    left: 1,
+                    unit: "px"
+                  },
+                  onChange: (value) => setAttributes({
+                    borderWidth: {
+                      ...borderWidth,
+                      [localActiveDevice]: value
+                    }
+                  })
+                }
+              )
+            ), /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl12,
+              {
+                label: __12(
+                  "Border Radius",
+                  "digiblocks"
+                )
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                DimensionControl11,
+                {
+                  values: borderRadius && borderRadius[localActiveDevice] || {
+                    top: 8,
+                    right: 8,
+                    bottom: 8,
+                    left: 8,
+                    unit: "px"
+                  },
+                  onChange: (value) => setAttributes({
+                    borderRadius: {
+                      ...borderRadius,
+                      [localActiveDevice]: value
+                    }
+                  }),
+                  units: [
+                    {
+                      label: "px",
+                      value: "px"
+                    },
+                    { label: "%", value: "%" }
+                  ]
+                }
+              )
+            )),
+            /* @__PURE__ */ wp.element.createElement(
+              TabPanel11,
+              {
+                className: "digiblocks-control-tabs",
+                activeClass: "active-tab",
+                tabs: stateTabList
+              },
+              (tab) => /* @__PURE__ */ wp.element.createElement(
+                PanelColorSettings11,
+                {
+                  title: tab.name === "normal" ? __12(
+                    "Background Colors",
+                    "digiblocks"
+                  ) : __12(
+                    "Background Hover Colors",
+                    "digiblocks"
+                  ),
+                  initialOpen: true,
+                  enableAlpha: true,
+                  colorSettings: [
+                    {
+                      value: tab.name === "normal" ? backgroundColor : backgroundHoverColor,
+                      onChange: (value) => setAttributes(
+                        tab.name === "normal" ? {
+                          backgroundColor: value
+                        } : {
+                          backgroundHoverColor: value
+                        }
+                      ),
+                      label: __12(
+                        "Background Color",
+                        "digiblocks"
+                      )
+                    }
+                  ]
+                }
+              )
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              SelectControl12,
+              {
+                label: __12("Hover Effect", "digiblocks"),
+                value: hoverEffect,
+                options: hoverEffectOptions,
+                onChange: (value) => setAttributes({ hoverEffect: value }),
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody12,
+            {
+              tab: "style",
+              name: "shadow",
+              title: __12("Box Shadow", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              BoxShadowControl10,
+              {
+                normalValue: boxShadow,
+                hoverValue: boxShadowHover,
+                onNormalChange: (value) => setAttributes({ boxShadow: value }),
+                onHoverChange: (value) => setAttributes({ boxShadowHover: value })
+              }
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody12,
+            {
+              tab: "style",
+              name: "spacing",
+              title: __12("Spacing", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl12,
+              {
+                label: __12("Padding", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                DimensionControl11,
+                {
+                  values: padding[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    padding: {
+                      ...padding,
+                      [localActiveDevice]: value
+                    }
+                  })
+                }
+              )
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl12,
+              {
+                label: __12("Margin", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                DimensionControl11,
+                {
+                  values: margin[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    margin: {
+                      ...margin,
+                      [localActiveDevice]: value
+                    }
+                  })
+                }
+              )
+            )
+          ));
+        case "advanced":
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody12,
+            {
+              tab: "advanced",
+              name: "animation",
+              title: __12("Animation", "digiblocks"),
+              initialOpen: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              SelectControl12,
+              {
+                label: __12("Animation Effect", "digiblocks"),
+                value: animation,
+                options: animationOptions,
+                onChange: (value) => setAttributes({ animation: value }),
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            ),
+            animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
+              Button11,
+              {
+                variant: "secondary",
+                isSecondary: true,
+                onClick: triggerAnimationPreview,
+                style: { width: "100%" }
+              },
+              __12("Preview Animation", "digiblocks")
+            ))
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody12,
+            {
+              tab: "advanced",
+              name: "additional",
+              title: __12("Additional", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement(
+              "label",
+              {
+                className: "components-base-control__label",
+                htmlFor: "html-anchor"
+              },
+              __12("HTML anchor", "digiblocks")
+            ), /* @__PURE__ */ wp.element.createElement(
+              "input",
+              {
+                className: "components-text-control__input",
+                type: "text",
+                id: "html-anchor",
+                value: anchor || "",
+                onChange: (e) => setAttributes({
+                  anchor: e.target.value
+                }),
+                "aria-describedby": "html-anchor-help",
+                autoCapitalize: "none",
+                autoComplete: "off"
+              }
+            )), /* @__PURE__ */ wp.element.createElement(
+              "p",
+              {
+                id: "html-anchor-help",
+                className: "components-base-control__help"
+              },
+              __12(
+                `Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`,
+                "digiblocks"
+              )
+            )),
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement(
+              "label",
+              {
+                className: "components-base-control__label",
+                htmlFor: "additional-css-classes"
+              },
+              __12(
+                "Additional CSS class(es)",
+                "digiblocks"
+              )
+            ), /* @__PURE__ */ wp.element.createElement(
+              "input",
+              {
+                className: "components-text-control__input",
+                type: "text",
+                id: "additional-css-classes",
+                value: customClasses || "",
+                onChange: (e) => setAttributes({
+                  customClasses: e.target.value
+                }),
+                "aria-describedby": "additional-css-classes-help",
+                autoComplete: "off"
+              }
+            )), /* @__PURE__ */ wp.element.createElement(
+              "p",
+              {
+                id: "additional-css-classes-help",
+                className: "components-base-control__help"
+              },
+              __12(
+                "Separate multiple classes with spaces.",
+                "digiblocks"
+              )
+            ))
+          ));
+        default:
+          return null;
+      }
+    };
+    const renderListItems = () => {
+      return items.map((item, index) => {
+        const isLast = index === items.length - 1;
+        const itemContent = /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, item.icon && item.icon.svg && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-icon-list-icon" }, /* @__PURE__ */ wp.element.createElement(
+          "span",
+          {
+            dangerouslySetInnerHTML: {
+              __html: item.icon.svg
+            }
+          }
+        )), /* @__PURE__ */ wp.element.createElement(
+          RichText13,
+          {
+            className: "digiblocks-icon-list-content",
+            value: item.content,
+            onChange: (value) => updateListItem(index, "content", value),
+            placeholder: __12(
+              "Enter list item text...",
+              "digiblocks"
+            ),
+            allowedFormats: [
+              "core/bold",
+              "core/italic",
+              "core/inline-code"
+            ]
+          }
+        ));
+        return /* @__PURE__ */ wp.element.createElement(
+          "li",
+          {
+            key: item.id,
+            className: "digiblocks-icon-list-item",
+            style: isLast ? { marginBottom: 0 } : {}
+          },
+          item.linkEnabled && item.linkUrl ? /* @__PURE__ */ wp.element.createElement("a", { href: "#", className: "digiblocks-icon-list-child" }, itemContent) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-icon-list-child" }, itemContent),
+          /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-icon-list-item-controls" }, /* @__PURE__ */ wp.element.createElement(Tooltip3, { text: __12("Edit Icon", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+            Button11,
+            {
+              icon: "admin-customizer",
+              onClick: () => {
+                setCurrentEditingItem(index);
+                setIconModalOpen(true);
+              },
+              isSmall: true
+            }
+          )), /* @__PURE__ */ wp.element.createElement(Tooltip3, { text: __12("Link", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+            Button11,
+            {
+              icon: "admin-links",
+              onClick: () => {
+                setCurrentEditingItem(index);
+                setLinkModalOpen(true);
+              },
+              isSmall: true,
+              variant: item.linkEnabled ? "primary" : "secondary"
+            }
+          )), /* @__PURE__ */ wp.element.createElement(Tooltip3, { text: __12("Move Up", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+            Button11,
+            {
+              icon: "arrow-up-alt2",
+              onClick: () => moveItemUp(index),
+              disabled: index === 0,
+              isSmall: true
+            }
+          )), /* @__PURE__ */ wp.element.createElement(Tooltip3, { text: __12("Move Down", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+            Button11,
+            {
+              icon: "arrow-down-alt2",
+              onClick: () => moveItemDown(index),
+              disabled: index === items.length - 1,
+              isSmall: true
+            }
+          )), /* @__PURE__ */ wp.element.createElement(Tooltip3, { text: __12("Duplicate", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+            Button11,
+            {
+              icon: "admin-page",
+              onClick: () => duplicateItem(index),
+              isSmall: true
+            }
+          )), /* @__PURE__ */ wp.element.createElement(Tooltip3, { text: __12("Remove", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+            Button11,
+            {
+              icon: "trash",
+              onClick: () => removeListItem(index),
+              isSmall: true
+            }
+          )))
+        );
+      });
+    };
+    const blockProps = useBlockProps23({
+      className: `digiblocks-icon-list-block ${customClasses || ""}`,
+      id: anchor || null,
+      "data-custom-id": id
+    });
+    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls12, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel12,
+      {
+        tabs: tabList,
+        activeTab,
+        onSelect: setActiveTab
+      },
+      renderTabContent()
+    )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-icon-list-wrapper" }, /* @__PURE__ */ wp.element.createElement("ul", { className: "digiblocks-icon-list" }, renderListItems())), iconModalOpen && currentEditingItem !== null && /* @__PURE__ */ wp.element.createElement(
+      Modal,
+      {
+        title: __12("Choose Icon", "digiblocks"),
+        onRequestClose: () => setIconModalOpen(false),
+        className: "digiblocks-icon-modal"
+      },
+      /* @__PURE__ */ wp.element.createElement(
+        FontAwesomeControl2,
+        {
+          value: items[currentEditingItem].icon,
+          onChange: (newIcon) => {
+            setItemIcon(currentEditingItem, newIcon);
+            setIconModalOpen(false);
+          }
+        }
+      )
+    ), linkModalOpen && currentEditingItem !== null && /* @__PURE__ */ wp.element.createElement(
+      Modal,
+      {
+        title: __12("Link Settings", "digiblocks"),
+        onRequestClose: () => setLinkModalOpen(false),
+        className: "digiblocks-link-modal"
+      },
+      /* @__PURE__ */ wp.element.createElement(
+        LinkControl6,
+        {
+          value: items[currentEditingItem].linkUrl ? {
+            url: items[currentEditingItem].linkUrl,
+            opensInNewTab: items[currentEditingItem].linkOpenInNewTab,
+            rel: items[currentEditingItem].linkRel
+          } : void 0,
+          settings: [
+            {
+              id: "opensInNewTab",
+              title: __12("Open in new tab", "digiblocks")
+            },
+            {
+              id: "rel",
+              title: __12("Add nofollow", "digiblocks")
+            }
+          ],
+          onChange: (newLink) => {
+            if (newLink && newLink.url) {
+              updateListItem(currentEditingItem, "linkEnabled", true);
+              updateListItem(currentEditingItem, "linkUrl", newLink.url);
+              updateListItem(currentEditingItem, "linkOpenInNewTab", !!newLink.opensInNewTab);
+              updateListItem(currentEditingItem, "linkRel", newLink.rel || "");
+              setLinkModalOpen(false);
+            }
+          },
+          onRemove: () => {
+            updateListItem(currentEditingItem, "linkEnabled", false);
+            updateListItem(currentEditingItem, "linkUrl", "");
+            updateListItem(currentEditingItem, "linkOpenInNewTab", false);
+            updateListItem(currentEditingItem, "linkRel", "");
+            setLinkModalOpen(false);
+          },
+          forceIsEditingLink: !items[currentEditingItem].linkUrl,
+          allowDirectEntry: true,
+          suggestionsQuery: {
+            type: "post",
+            subtype: "any"
+          }
+        }
+      )
+    ), /* @__PURE__ */ wp.element.createElement(
+      Button11,
+      {
+        variant: "primary",
+        icon: "plus",
+        onClick: addListItem,
+        style: {
+          marginTop: "20px",
+          width: "100%",
+          justifyContent: "center"
+        }
+      },
+      __12("Add Icon List Item", "digiblocks")
+    )));
+  };
+  var edit_default12 = IconListEdit;
+
+  // blocks/icon-list/save.js
+  var { useBlockProps: useBlockProps24, RichText: RichText14 } = window.wp.blockEditor;
+  var IconListSave = ({ attributes }) => {
+    const {
+      id,
+      anchor,
+      customClasses,
+      items,
+      animation,
+      hoverEffect
+    } = attributes;
+    const blockClasses = [
+      "digiblocks-icon-list-block",
+      animation !== "none" ? `animate-${animation}` : "",
+      hoverEffect !== "none" ? `has-hover-${hoverEffect}` : "",
+      customClasses || ""
+    ].filter(Boolean).join(" ");
+    const blockProps = useBlockProps24.save({
+      className: blockClasses,
+      id: anchor || null,
+      "data-custom-id": id
+    });
+    const renderListItems = () => {
+      return items.map((item) => {
+        const itemContent = /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, item.icon && item.icon.svg && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-icon-list-icon" }, /* @__PURE__ */ wp.element.createElement("span", { dangerouslySetInnerHTML: { __html: item.icon.svg } })), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-icon-list-content" }, /* @__PURE__ */ wp.element.createElement(
+          RichText14.Content,
+          {
+            value: item.content
+          }
+        )));
+        if (item.linkEnabled && item.linkUrl) {
+          const relProps = {};
+          if (item.linkOpenInNewTab) {
+            relProps.rel = "noopener noreferrer";
+          }
+          return /* @__PURE__ */ wp.element.createElement("li", { key: item.id, className: "digiblocks-icon-list-item" }, /* @__PURE__ */ wp.element.createElement(
+            "a",
+            {
+              className: "digiblocks-icon-list-child",
+              href: item.linkUrl,
+              target: item.linkOpenInNewTab ? "_blank" : "_self",
+              ...relProps
+            },
+            itemContent
+          ));
+        }
+        return /* @__PURE__ */ wp.element.createElement("li", { key: item.id, className: "digiblocks-icon-list-item" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-icon-list-child" }, itemContent));
+      });
+    };
+    return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-icon-list-wrapper" }, /* @__PURE__ */ wp.element.createElement("ul", { className: "digiblocks-icon-list" }, renderListItems())));
+  };
+  var save_default12 = IconListSave;
 
   // blocks/separator/edit.js
-  var { __: __10 } = window.wp.i18n;
+  var { __: __13 } = window.wp.i18n;
   var {
-    useBlockProps: useBlockProps19,
-    InspectorControls: InspectorControls10,
-    PanelColorSettings: PanelColorSettings10,
+    useBlockProps: useBlockProps25,
+    InspectorControls: InspectorControls13,
+    PanelColorSettings: PanelColorSettings12,
     BlockControls: BlockControls8,
     AlignmentToolbar: AlignmentToolbar7
   } = window.wp.blockEditor;
   var {
-    SelectControl: SelectControl10,
-    RangeControl: RangeControl10,
-    Button: Button10,
+    SelectControl: SelectControl13,
+    RangeControl: RangeControl12,
+    Button: Button12,
     TextControl: TextControl6,
-    __experimentalToggleGroupControl: ToggleGroupControl10,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption10,
+    __experimentalToggleGroupControl: ToggleGroupControl13,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption13,
     BaseControl: BaseControl5
   } = window.wp.components;
-  var { useState: useState10, useEffect: useEffect10, useRef: useRef10 } = window.wp.element;
-  var { animations: animations10 } = digi.utils;
-  var { tabIcons: tabIcons10 } = digi.icons;
-  var { ResponsiveControl: ResponsiveControl10, TypographyControl: TypographyControl8, CustomTabPanel: CustomTabPanel10, TabPanelBody: TabPanelBody10 } = digi.components;
+  var { useState: useState13, useEffect: useEffect13, useRef: useRef11 } = window.wp.element;
+  var { animations: animations13 } = digi.utils;
+  var { tabIcons: tabIcons13 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl13, TypographyControl: TypographyControl10, CustomTabPanel: CustomTabPanel13, TabPanelBody: TabPanelBody13 } = digi.components;
   var SeparatorStylePreview = ({ style, primaryColor, secondaryColor, isSelected, onClick }) => {
     const containerStyle = {
       display: "inline-flex",
@@ -13499,29 +15838,29 @@
       gap,
       textColor
     } = attributes;
-    const [localActiveDevice, setLocalActiveDevice] = useState10(window.digi.responsiveState.activeDevice);
-    const previewTimeoutRef = useRef10(null);
-    useEffect10(() => {
+    const [localActiveDevice, setLocalActiveDevice] = useState13(window.digi.responsiveState.activeDevice);
+    const previewTimeoutRef = useRef11(null);
+    useEffect13(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    const [activeTab, setActiveTab] = useState10("options");
-    useEffect10(() => {
+    const [activeTab, setActiveTab] = useState13("options");
+    useEffect13(() => {
       return () => {
         if (previewTimeoutRef.current) {
           clearTimeout(previewTimeoutRef.current);
         }
       };
     }, []);
-    useEffect10(() => {
+    useEffect13(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
     }, [clientId]);
-    const [componentsLoaded, setComponentsLoaded] = useState10(false);
-    useEffect10(() => {
+    const [componentsLoaded, setComponentsLoaded] = useState13(false);
+    useEffect13(() => {
       const checkComponents = () => {
         if (window.digi && window.digi.components && window.digi.components.FontAwesomeControl) {
           setComponentsLoaded(true);
@@ -13553,8 +15892,8 @@
         return;
       }
       const timestamp = Date.now();
-      if (animations10[animation]) {
-        const originalKeyframes = animations10[animation].keyframes;
+      if (animations13[animation]) {
+        const originalKeyframes = animations13[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
           console.error("Could not extract animation name from keyframes");
@@ -13595,7 +15934,7 @@
         }, 1500);
       }
     };
-    useEffect10(() => {
+    useEffect13(() => {
       if (animation && animation !== "none") {
         const timeoutId = setTimeout(() => {
           triggerAnimationPreview();
@@ -13612,13 +15951,13 @@
       { label: "%", value: "%" }
     ];
     const contentTypeOptions = [
-      { label: __10("None", "digiblocks"), value: "none" },
-      { label: __10("Text", "digiblocks"), value: "text" },
-      { label: __10("Icon", "digiblocks"), value: "icon" }
+      { label: __13("None", "digiblocks"), value: "none" },
+      { label: __13("Text", "digiblocks"), value: "text" },
+      { label: __13("Icon", "digiblocks"), value: "icon" }
     ];
     const animationOptions = [
-      { label: __10("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations10).map((animation2) => ({
+      { label: __13("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations13).map((animation2) => ({
         label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         value: animation2
       }))
@@ -13626,21 +15965,21 @@
     const tabList = [
       {
         name: "options",
-        title: __10("Options", "digiblocks"),
-        icon: tabIcons10.optionsIcon
+        title: __13("Options", "digiblocks"),
+        icon: tabIcons13.optionsIcon
       },
       {
         name: "style",
-        title: __10("Style", "digiblocks"),
-        icon: tabIcons10.styleIcon
+        title: __13("Style", "digiblocks"),
+        icon: tabIcons13.styleIcon
       },
       {
         name: "advanced",
-        title: __10("Advanced", "digiblocks"),
-        icon: tabIcons10.advancedIcon
+        title: __13("Advanced", "digiblocks"),
+        icon: tabIcons13.advancedIcon
       }
     ];
-    const FontAwesomeControl = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
+    const FontAwesomeControl3 = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
     const renderStyleSVG = () => {
       switch (separatorStyle) {
         case "wave":
@@ -13799,8 +16138,8 @@
             `;
       }
       let animationCSS = "";
-      if (animation && animation !== "none" && animations10[animation]) {
-        animationCSS = animations10[animation].keyframes;
+      if (animation && animation !== "none" && animations13[animation]) {
+        animationCSS = animations13[animation].keyframes;
       }
       let alignmentStyles = "";
       switch (align) {
@@ -13949,14 +16288,14 @@
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "components-panel__body is-opened" }, /* @__PURE__ */ wp.element.createElement(
             BaseControl5,
             {
-              label: __10("Separator Style", "digiblocks"),
+              label: __13("Separator Style", "digiblocks"),
               id: "separator-style-selector"
             },
             renderSeparatorStyleGrid()
           ), !["wave", "zigzag", "slant"].includes(separatorStyle) ? /* @__PURE__ */ wp.element.createElement(
-            ToggleGroupControl10,
+            ToggleGroupControl13,
             {
-              label: __10("Content Type", "digiblocks"),
+              label: __13("Content Type", "digiblocks"),
               value: contentType,
               onChange: (value) => setAttributes({ contentType: value }),
               isBlock: true,
@@ -13964,81 +16303,81 @@
               __nextHasNoMarginBottom: true
             },
             contentTypeOptions.map((option) => /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControlOption10,
+              ToggleGroupControlOption13,
               {
                 key: option.value,
                 value: option.value,
                 label: option.label
               }
             ))
-          ) : /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice is-warning", style: { margin: "0 0 16px 0" } }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice__content" }, __10("Content is not available with this separator style.", "digiblocks"))), contentType === "text" && /* @__PURE__ */ wp.element.createElement(
+          ) : /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice is-warning", style: { margin: "0 0 16px 0" } }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-notice__content" }, __13("Content is not available with this separator style.", "digiblocks"))), contentType === "text" && /* @__PURE__ */ wp.element.createElement(
             TextControl6,
             {
-              label: __10("Text Content", "digiblocks"),
+              label: __13("Text Content", "digiblocks"),
               value: content,
               onChange: (value) => setAttributes({ content: value }),
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             }
-          ), contentType === "icon" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "15px" } }, !componentsLoaded ? /* @__PURE__ */ wp.element.createElement("div", { style: { textAlign: "center", padding: "20px 0" } }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-spinner" }), /* @__PURE__ */ wp.element.createElement("p", null, __10("Loading icon selector...", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement(
-            FontAwesomeControl,
+          ), contentType === "icon" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "15px" } }, !componentsLoaded ? /* @__PURE__ */ wp.element.createElement("div", { style: { textAlign: "center", padding: "20px 0" } }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-spinner" }), /* @__PURE__ */ wp.element.createElement("p", null, __13("Loading icon selector...", "digiblocks"))) : /* @__PURE__ */ wp.element.createElement(
+            FontAwesomeControl3,
             {
-              label: __10("Select Icon", "digiblocks"),
+              label: __13("Select Icon", "digiblocks"),
               value: iconValue,
               onChange: setIconValue
             }
           ))));
         case "style":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody10,
+            TabPanelBody13,
             {
               tab: "style",
               name: "colors",
-              title: __10("Colors", "digiblocks"),
+              title: __13("Colors", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings10,
+              PanelColorSettings12,
               {
-                title: __10("Separator Colors", "digiblocks"),
+                title: __13("Separator Colors", "digiblocks"),
                 initialOpen: true,
                 enableAlpha: true,
                 colorSettings: [
                   {
                     value: primaryColor,
                     onChange: (value) => setAttributes({ primaryColor: value }),
-                    label: __10("Primary Color", "digiblocks")
+                    label: __13("Primary Color", "digiblocks")
                   },
                   ...separatorStyle === "gradient" ? [
                     {
                       value: secondaryColor,
                       onChange: (value) => setAttributes({ secondaryColor: value }),
-                      label: __10("Secondary Color", "digiblocks")
+                      label: __13("Secondary Color", "digiblocks")
                     }
                   ] : [],
                   ...contentType !== "none" ? [
                     {
                       value: textColor,
                       onChange: (value) => setAttributes({ textColor: value }),
-                      label: contentType === "text" ? __10("Text Color", "digiblocks") : __10("Icon Color", "digiblocks")
+                      label: contentType === "text" ? __13("Text Color", "digiblocks") : __13("Icon Color", "digiblocks")
                     }
                   ] : []
                 ]
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody10,
+            TabPanelBody13,
             {
               tab: "style",
               name: "dimensions",
-              title: __10("Dimensions", "digiblocks"),
+              title: __13("Dimensions", "digiblocks"),
               initialOpen: false
             },
-            !["wave", "zigzag", "slant"].includes(separatorStyle) && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-size-type-field-tabs" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control-inner" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-range-control digiblocks-size-type-field-tabs" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-control__header" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-label-wrap" }, /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-control-label" }, __10("Width", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            !["wave", "zigzag", "slant"].includes(separatorStyle) && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-size-type-field-tabs" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control-inner" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-range-control digiblocks-size-type-field-tabs" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-control__header" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-label-wrap" }, /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-control-label" }, __13("Width", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "button",
               {
                 type: "button",
-                "aria-label": __10(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks"),
+                "aria-label": __13(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks"),
                 className: `components-button digiblocks-responsive-common-button digiblocks-device-${localActiveDevice}`,
                 onClick: () => window.digi.responsiveState.toggleDevice()
               },
@@ -14058,19 +16397,19 @@
               },
               /* @__PURE__ */ wp.element.createElement("span", { className: "dashicon dashicons dashicons-image-rotate" })
             )), /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControl10,
+              ToggleGroupControl13,
               {
                 value: widthUnit,
                 onChange: (value) => setAttributes({ widthUnit: value }),
                 isBlock: true,
                 isSmall: true,
                 hideLabelFromVision: true,
-                "aria-label": __10("Width Unit", "digiblocks"),
+                "aria-label": __13("Width Unit", "digiblocks"),
                 __next40pxDefaultSize: true,
                 __nextHasNoMarginBottom: true
               },
               widthUnitOptions.map((option) => /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption10,
+                ToggleGroupControlOption13,
                 {
                   key: option.value,
                   value: option.value,
@@ -14078,7 +16417,7 @@
                 }
               ))
             ))), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-range-control__mobile-controls" }, /* @__PURE__ */ wp.element.createElement(
-              RangeControl10,
+              RangeControl12,
               {
                 value: width[localActiveDevice],
                 onChange: (value) => setAttributes({
@@ -14093,11 +16432,11 @@
                 __next40pxDefaultSize: true,
                 __nextHasNoMarginBottom: true
               }
-            )))))), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-size-type-field-tabs" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control-inner" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-range-control digiblocks-size-type-field-tabs" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-control__header" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-label-wrap" }, /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-control-label" }, __10("Height", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            )))))), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-size-type-field-tabs" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control-inner" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-range-control digiblocks-size-type-field-tabs" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-control__header" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-label-wrap" }, /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-control-label" }, __13("Height", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "button",
               {
                 type: "button",
-                "aria-label": __10(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks"),
+                "aria-label": __13(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks"),
                 className: `components-button digiblocks-responsive-common-button digiblocks-device-${localActiveDevice}`,
                 onClick: () => window.digi.responsiveState.toggleDevice()
               },
@@ -14117,19 +16456,19 @@
               },
               /* @__PURE__ */ wp.element.createElement("span", { className: "dashicon dashicons dashicons-image-rotate" })
             )), /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControl10,
+              ToggleGroupControl13,
               {
                 value: heightUnit,
                 onChange: (value) => setAttributes({ heightUnit: value }),
                 isBlock: true,
                 isSmall: true,
                 hideLabelFromVision: true,
-                "aria-label": __10("Height Unit", "digiblocks"),
+                "aria-label": __13("Height Unit", "digiblocks"),
                 __next40pxDefaultSize: true,
                 __nextHasNoMarginBottom: true
               },
               heightUnitOptions.map((option) => /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption10,
+                ToggleGroupControlOption13,
                 {
                   key: option.value,
                   value: option.value,
@@ -14137,7 +16476,7 @@
                 }
               ))
             ))), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-range-control__mobile-controls" }, /* @__PURE__ */ wp.element.createElement(
-              RangeControl10,
+              RangeControl12,
               {
                 value: height[localActiveDevice],
                 onChange: (value) => setAttributes({
@@ -14153,17 +16492,17 @@
                 __nextHasNoMarginBottom: true
               }
             ))))))),
-            ["line", "gradient", "shadow"].includes(separatorStyle) && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-control__header" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-label-wrap" }, /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-control-label" }, __10("Border Radius", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            ["line", "gradient", "shadow"].includes(separatorStyle) && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-control__header" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-label-wrap" }, /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-control-label" }, __13("Border Radius", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "button",
               {
                 type: "button",
-                "aria-label": __10(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks"),
+                "aria-label": __13(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks"),
                 className: `components-button digiblocks-responsive-common-button digiblocks-device-${localActiveDevice}`,
                 onClick: () => window.digi.responsiveState.toggleDevice()
               },
               window.digi.icons.deviceIcons[localActiveDevice]
             ))), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control-content" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-unit-control" }, /* @__PURE__ */ wp.element.createElement(
-              RangeControl10,
+              RangeControl12,
               {
                 value: borderRadius[localActiveDevice],
                 onChange: (value) => setAttributes({
@@ -14178,17 +16517,17 @@
                 __nextHasNoMarginBottom: true
               }
             )))),
-            (contentType === "text" || contentType === "icon") && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-control__header" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-label-wrap" }, /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-control-label" }, __10("Gap", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            (contentType === "text" || contentType === "icon") && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-control__header" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-label-wrap" }, /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-control-label" }, __13("Gap", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "button",
               {
                 type: "button",
-                "aria-label": __10(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks"),
+                "aria-label": __13(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks"),
                 className: `components-button digiblocks-responsive-common-button digiblocks-device-${localActiveDevice}`,
                 onClick: () => window.digi.responsiveState.toggleDevice()
               },
               window.digi.icons.deviceIcons[localActiveDevice]
             ))), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control-content" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-unit-control" }, /* @__PURE__ */ wp.element.createElement(
-              RangeControl10,
+              RangeControl12,
               {
                 value: gap[localActiveDevice],
                 onChange: (value) => setAttributes({
@@ -14203,17 +16542,17 @@
                 __nextHasNoMarginBottom: true
               }
             )))),
-            contentType === "icon" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-control__header" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-label-wrap" }, /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-control-label" }, __10("Icon Size", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            contentType === "icon" && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-control__header" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-label-wrap" }, /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-control-label" }, __13("Icon Size", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "button",
               {
                 type: "button",
-                "aria-label": __10(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks"),
+                "aria-label": __13(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks"),
                 className: `components-button digiblocks-responsive-common-button digiblocks-device-${localActiveDevice}`,
                 onClick: () => window.digi.responsiveState.toggleDevice()
               },
               window.digi.icons.deviceIcons[localActiveDevice]
             ))), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-responsive-control-content" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-unit-control" }, /* @__PURE__ */ wp.element.createElement(
-              RangeControl10,
+              RangeControl12,
               {
                 value: iconSize[localActiveDevice],
                 onChange: (value) => setAttributes({
@@ -14229,14 +16568,14 @@
               }
             )))),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl10,
+              ResponsiveControl13,
               {
-                label: __10("Margin", "digiblocks")
+                label: __13("Margin", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-margin-control" }, /* @__PURE__ */ wp.element.createElement(
-                RangeControl10,
+                RangeControl12,
                 {
-                  label: __10("Top", "digiblocks"),
+                  label: __13("Top", "digiblocks"),
                   value: margin[localActiveDevice]?.top || 30,
                   onChange: (value) => {
                     const updatedMargin = {
@@ -14255,9 +16594,9 @@
                   __nextHasNoMarginBottom: true
                 }
               ), /* @__PURE__ */ wp.element.createElement(
-                RangeControl10,
+                RangeControl12,
                 {
-                  label: __10("Bottom", "digiblocks"),
+                  label: __13("Bottom", "digiblocks"),
                   value: margin[localActiveDevice]?.bottom || 30,
                   onChange: (value) => {
                     const updatedMargin = {
@@ -14278,17 +16617,17 @@
               ))
             )
           ), contentType === "text" && /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody10,
+            TabPanelBody13,
             {
               tab: "style",
               name: "typography",
-              title: __10("Typography", "digiblocks"),
+              title: __13("Typography", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl8,
+              TypographyControl10,
               {
-                label: __10("Text Typography", "digiblocks"),
+                label: __13("Text Typography", "digiblocks"),
                 value: typography,
                 onChange: (value) => setAttributes({ typography: value }),
                 defaults: {
@@ -14302,17 +16641,17 @@
           ));
         case "advanced":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody10,
+            TabPanelBody13,
             {
               tab: "advanced",
               name: "animation",
-              title: __10("Animation", "digiblocks"),
+              title: __13("Animation", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl10,
+              SelectControl13,
               {
-                label: __10("Animation Effect", "digiblocks"),
+                label: __13("Animation Effect", "digiblocks"),
                 value: animation,
                 options: animationOptions,
                 onChange: (value) => setAttributes({ animation: value }),
@@ -14321,24 +16660,24 @@
               }
             ),
             animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button10,
+              Button12,
               {
                 variant: "secondary",
                 isSecondary: true,
                 onClick: triggerAnimationPreview,
                 style: { width: "100%" }
               },
-              __10("Preview Animation", "digiblocks")
+              __13("Preview Animation", "digiblocks")
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody10,
+            TabPanelBody13,
             {
               tab: "advanced",
               name: "additional",
-              title: __10("Additional", "digiblocks"),
+              title: __13("Additional", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __10("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __13("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -14350,7 +16689,7 @@
                 autoCapitalize: "none",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __10(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __13(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
               "a",
               {
                 className: "components-external-link",
@@ -14358,10 +16697,10 @@
                 target: "_blank",
                 rel: "external noreferrer noopener"
               },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __10("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __13("Learn more about anchors", "digiblocks")),
               /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
             ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __10("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __13("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -14372,13 +16711,13 @@
                 "aria-describedby": "additional-css-classes-help",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __10("Separate multiple classes with spaces.", "digiblocks")))
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __13("Separate multiple classes with spaces.", "digiblocks")))
           ));
         default:
           return null;
       }
     };
-    const blockProps = useBlockProps19({
+    const blockProps = useBlockProps25({
       className: `digiblocks-separator ${contentType !== "none" && !["wave", "zigzag", "slant"].includes(separatorStyle) ? "digiblocks-separator-has-content" : ""} ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
@@ -14391,8 +16730,8 @@
         value: align,
         onChange: (value) => setAttributes({ align: value })
       }
-    )), /* @__PURE__ */ wp.element.createElement(InspectorControls10, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel10,
+    )), /* @__PURE__ */ wp.element.createElement(InspectorControls13, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel13,
       {
         tabs: tabList,
         activeTab,
@@ -14401,10 +16740,10 @@
       renderTabContent()
     )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-separator-container" }, contentType !== "none" && !["wave", "zigzag", "slant"].includes(separatorStyle) && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-separator-content" }, contentType === "text" && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-separator-text" }, content), contentType === "icon" && renderIcon()), ["wave", "zigzag", "slant"].includes(separatorStyle) ? /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-separator-shape" }, renderStyleSVG()) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-separator-line" }))));
   };
-  var edit_default10 = SeparatorEdit;
+  var edit_default13 = SeparatorEdit;
 
   // blocks/separator/save.js
-  var { useBlockProps: useBlockProps20, RichText: RichText11 } = window.wp.blockEditor;
+  var { useBlockProps: useBlockProps26, RichText: RichText15 } = window.wp.blockEditor;
   var SeparatorSave = ({ attributes }) => {
     const {
       id,
@@ -14444,7 +16783,7 @@
       animation !== "none" ? `animate-${animation}` : "",
       customClasses || ""
     ].filter(Boolean).join(" ");
-    const blockProps = useBlockProps20.save({
+    const blockProps = useBlockProps26.save({
       className: blockClasses,
       id: anchor || null,
       "data-custom-id": id,
@@ -14452,34 +16791,34 @@
     });
     return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-separator-container" }, contentType !== "none" && !["wave", "zigzag", "slant"].includes(separatorStyle) && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-separator-content" }, contentType === "text" && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-separator-text" }, content), contentType === "icon" && renderIcon()), ["wave", "zigzag", "slant"].includes(separatorStyle) ? /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-separator-shape" }, renderStyleSVG()) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-separator-line" })));
   };
-  var save_default10 = SeparatorSave;
+  var save_default13 = SeparatorSave;
 
   // blocks/social-icons/edit.js
-  var { __: __11 } = window.wp.i18n;
+  var { __: __14 } = window.wp.i18n;
   var {
-    useBlockProps: useBlockProps21,
-    InspectorControls: InspectorControls11,
-    PanelColorSettings: PanelColorSettings11,
+    useBlockProps: useBlockProps27,
+    InspectorControls: InspectorControls14,
+    PanelColorSettings: PanelColorSettings13,
     BlockControls: BlockControls9,
     AlignmentToolbar: AlignmentToolbar8
   } = window.wp.blockEditor;
   var {
-    SelectControl: SelectControl11,
-    RangeControl: RangeControl11,
-    TabPanel: TabPanel9,
-    Button: Button11,
-    ToggleControl: ToggleControl8,
-    Tooltip: Tooltip3,
+    SelectControl: SelectControl14,
+    RangeControl: RangeControl13,
+    TabPanel: TabPanel12,
+    Button: Button13,
+    ToggleControl: ToggleControl9,
+    Tooltip: Tooltip4,
     TextControl: TextControl7,
     Popover,
     BaseControl: BaseControl6,
-    __experimentalToggleGroupControl: ToggleGroupControl11,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption11
+    __experimentalToggleGroupControl: ToggleGroupControl14,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption14
   } = window.wp.components;
-  var { useState: useState11, useEffect: useEffect11, useRef: useRef11, Fragment } = window.wp.element;
-  var { animations: animations11 } = digi.utils;
-  var { tabIcons: tabIcons11 } = digi.icons;
-  var { ResponsiveControl: ResponsiveControl11, DimensionControl: DimensionControl10, TypographyControl: TypographyControl9, BoxShadowControl: BoxShadowControl9, CustomTabPanel: CustomTabPanel11, TabPanelBody: TabPanelBody11 } = digi.components;
+  var { useState: useState14, useEffect: useEffect14, useRef: useRef12, Fragment } = window.wp.element;
+  var { animations: animations14 } = digi.utils;
+  var { tabIcons: tabIcons14 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl14, DimensionControl: DimensionControl12, TypographyControl: TypographyControl11, BoxShadowControl: BoxShadowControl11, CustomTabPanel: CustomTabPanel14, TabPanelBody: TabPanelBody14 } = digi.components;
   var socialIconsSVG = {
     facebook: /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 320 512", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z" })),
     twitter: /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z" })),
@@ -14523,18 +16862,18 @@
       labelPosition,
       textTypography
     } = attributes;
-    const [localActiveDevice, setLocalActiveDevice] = useState11(window.digi.responsiveState.activeDevice);
-    const previewTimeoutRef = useRef11(null);
-    const [activeTab, setActiveTab] = useState11("options");
-    const [urlPopover, setUrlPopover] = useState11(null);
-    const [socialSelectPopover, setSocialSelectPopover] = useState11(null);
-    useEffect11(() => {
+    const [localActiveDevice, setLocalActiveDevice] = useState14(window.digi.responsiveState.activeDevice);
+    const previewTimeoutRef = useRef12(null);
+    const [activeTab, setActiveTab] = useState14("options");
+    const [urlPopover, setUrlPopover] = useState14(null);
+    const [socialSelectPopover, setSocialSelectPopover] = useState14(null);
+    useEffect14(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    useEffect11(() => {
+    useEffect14(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
@@ -14557,7 +16896,7 @@
         });
       }
     }, [clientId, icons, setAttributes, id]);
-    useEffect11(() => {
+    useEffect14(() => {
       return () => {
         if (previewTimeoutRef.current) {
           clearTimeout(previewTimeoutRef.current);
@@ -14576,8 +16915,8 @@
         return;
       }
       const timestamp = Date.now();
-      if (animations11[animation]) {
-        const originalKeyframes = animations11[animation].keyframes;
+      if (animations14[animation]) {
+        const originalKeyframes = animations14[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
           console.error("Could not extract animation name from keyframes");
@@ -14618,7 +16957,7 @@
         }, 1500);
       }
     };
-    useEffect11(() => {
+    useEffect14(() => {
       if (animation && animation !== "none") {
         const timeoutId = setTimeout(() => {
           triggerAnimationPreview();
@@ -14627,66 +16966,60 @@
       }
     }, [animation]);
     const borderStyleOptions = [
-      { label: __11("None", "digiblocks"), value: "none" },
-      { label: __11("Solid", "digiblocks"), value: "solid" },
-      { label: __11("Dotted", "digiblocks"), value: "dotted" },
-      { label: __11("Dashed", "digiblocks"), value: "dashed" },
-      { label: __11("Double", "digiblocks"), value: "double" }
-    ];
-    const labelPositionOptions = [
-      { label: __11("Bottom", "digiblocks"), value: "bottom" },
-      { label: __11("Right", "digiblocks"), value: "right" },
-      { label: __11("Left", "digiblocks"), value: "left" },
-      { label: __11("Top", "digiblocks"), value: "top" }
+      { label: __14("None", "digiblocks"), value: "none" },
+      { label: __14("Solid", "digiblocks"), value: "solid" },
+      { label: __14("Dotted", "digiblocks"), value: "dotted" },
+      { label: __14("Dashed", "digiblocks"), value: "dashed" },
+      { label: __14("Double", "digiblocks"), value: "double" }
     ];
     const animationOptions = [
-      { label: __11("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations11).map((animation2) => ({
+      { label: __14("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations14).map((animation2) => ({
         label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         value: animation2
       }))
     ];
     const socialNetworks = [
-      { label: __11("Facebook", "digiblocks"), value: "facebook" },
-      { label: __11("Twitter", "digiblocks"), value: "twitter" },
-      { label: __11("LinkedIn", "digiblocks"), value: "linkedin" },
-      { label: __11("Instagram", "digiblocks"), value: "instagram" },
-      { label: __11("Pinterest", "digiblocks"), value: "pinterest" },
-      { label: __11("YouTube", "digiblocks"), value: "youtube" },
-      { label: __11("Dribbble", "digiblocks"), value: "dribbble" },
-      { label: __11("GitHub", "digiblocks"), value: "github" },
-      { label: __11("Behance", "digiblocks"), value: "behance" },
-      { label: __11("Vimeo", "digiblocks"), value: "vimeo" },
-      { label: __11("TikTok", "digiblocks"), value: "tiktok" },
-      { label: __11("Email", "digiblocks"), value: "email" },
-      { label: __11("Website", "digiblocks"), value: "website" }
+      { label: __14("Facebook", "digiblocks"), value: "facebook" },
+      { label: __14("Twitter", "digiblocks"), value: "twitter" },
+      { label: __14("LinkedIn", "digiblocks"), value: "linkedin" },
+      { label: __14("Instagram", "digiblocks"), value: "instagram" },
+      { label: __14("Pinterest", "digiblocks"), value: "pinterest" },
+      { label: __14("YouTube", "digiblocks"), value: "youtube" },
+      { label: __14("Dribbble", "digiblocks"), value: "dribbble" },
+      { label: __14("GitHub", "digiblocks"), value: "github" },
+      { label: __14("Behance", "digiblocks"), value: "behance" },
+      { label: __14("Vimeo", "digiblocks"), value: "vimeo" },
+      { label: __14("TikTok", "digiblocks"), value: "tiktok" },
+      { label: __14("Email", "digiblocks"), value: "email" },
+      { label: __14("Website", "digiblocks"), value: "website" }
     ];
     const tabList = [
       {
         name: "options",
-        title: __11("Options", "digiblocks"),
-        icon: tabIcons11.optionsIcon
+        title: __14("Options", "digiblocks"),
+        icon: tabIcons14.optionsIcon
       },
       {
         name: "style",
-        title: __11("Style", "digiblocks"),
-        icon: tabIcons11.styleIcon
+        title: __14("Style", "digiblocks"),
+        icon: tabIcons14.styleIcon
       },
       {
         name: "advanced",
-        title: __11("Advanced", "digiblocks"),
-        icon: tabIcons11.advancedIcon
+        title: __14("Advanced", "digiblocks"),
+        icon: tabIcons14.advancedIcon
       }
     ];
     const stateTabList = [
       {
         name: "normal",
-        title: __11("Normal", "digiblocks"),
+        title: __14("Normal", "digiblocks"),
         className: "digiblocks-tab-1 normal"
       },
       {
         name: "hover",
-        title: __11("Hover", "digiblocks"),
+        title: __14("Hover", "digiblocks"),
         className: "digiblocks-tab-2 hover"
       }
     ];
@@ -14804,8 +17137,8 @@
       }
       const paddingCSS = padding && padding[activeDevice] ? `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};` : "";
       let animationCSS = "";
-      if (animation && animation !== "none" && animations11[animation]) {
-        animationCSS = animations11[animation].keyframes;
+      if (animation && animation !== "none" && animations14[animation]) {
+        animationCSS = animations14[animation].keyframes;
       }
       let labelPositionCSS = "";
       if (showLabels && labelPosition) {
@@ -14852,6 +17185,7 @@
             
             [data-custom-id="${blockId}"] .digiblocks-social-wrapper {
                 position: relative;
+				display: flex;
             }
             
             [data-custom-id="${blockId}"] .digiblocks-social-icon {
@@ -14917,8 +17251,8 @@
             /* Editor-specific styles */
             [data-custom-id="${blockId}"] .digiblocks-social-icon-remove {
                 position: absolute;
-                top: -8px;
-                right: -8px;
+                top: -18px;
+                right: -10px;
                 background-color: #fff;
                 border-radius: 50%;
                 padding: 2px;
@@ -15009,32 +17343,32 @@
     const renderStylesTabContent = (tabName) => {
       if (tabName === "normal") {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings11,
+          PanelColorSettings13,
           {
-            title: __11("Icon Colors", "digiblocks"),
+            title: __14("Icon Colors", "digiblocks"),
             initialOpen: true,
             enableAlpha: true,
             colorSettings: [
               {
                 value: iconColor,
                 onChange: (value) => setAttributes({ iconColor: value }),
-                label: __11("Icon Color", "digiblocks")
+                label: __14("Icon Color", "digiblocks")
               },
               {
                 value: iconBackground,
                 onChange: (value) => setAttributes({ iconBackground: value }),
-                label: __11("Background Color", "digiblocks")
+                label: __14("Background Color", "digiblocks")
               },
               {
                 value: iconBorderColor,
                 onChange: (value) => setAttributes({ iconBorderColor: value }),
-                label: __11("Border Color", "digiblocks")
+                label: __14("Border Color", "digiblocks")
               },
               ...showLabels ? [
                 {
                   value: labelColor,
                   onChange: (value) => setAttributes({ labelColor: value }),
-                  label: __11("Label Color", "digiblocks")
+                  label: __14("Label Color", "digiblocks")
                 }
               ] : []
             ]
@@ -15042,32 +17376,32 @@
         ));
       } else {
         return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings11,
+          PanelColorSettings13,
           {
-            title: __11("Icon Hover Colors", "digiblocks"),
+            title: __14("Icon Hover Colors", "digiblocks"),
             initialOpen: true,
             enableAlpha: true,
             colorSettings: [
               {
                 value: iconHoverColor,
                 onChange: (value) => setAttributes({ iconHoverColor: value }),
-                label: __11("Icon Hover Color", "digiblocks")
+                label: __14("Icon Hover Color", "digiblocks")
               },
               {
                 value: iconHoverBackground,
                 onChange: (value) => setAttributes({ iconHoverBackground: value }),
-                label: __11("Hover Background", "digiblocks")
+                label: __14("Hover Background", "digiblocks")
               },
               {
                 value: iconHoverBorderColor,
                 onChange: (value) => setAttributes({ iconHoverBorderColor: value }),
-                label: __11("Hover Border Color", "digiblocks")
+                label: __14("Hover Border Color", "digiblocks")
               },
               ...showLabels ? [
                 {
                   value: labelHoverColor,
                   onChange: (value) => setAttributes({ labelHoverColor: value }),
-                  label: __11("Label Hover Color", "digiblocks")
+                  label: __14("Label Hover Color", "digiblocks")
                 }
               ] : []
             ]
@@ -15098,8 +17432,8 @@
           expandOnMobile: true,
           className: "digiblocks-social-select-popover"
         },
-        /* @__PURE__ */ wp.element.createElement("div", { style: { padding: "12px", width: "280px", maxHeight: "400px", overflowY: "auto" } }, /* @__PURE__ */ wp.element.createElement("div", { style: { marginBottom: "10px", fontWeight: "bold" } }, __11("Select Social Network", "digiblocks")), /* @__PURE__ */ wp.element.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" } }, availableNetworks.map((network) => /* @__PURE__ */ wp.element.createElement(
-          Button11,
+        /* @__PURE__ */ wp.element.createElement("div", { style: { padding: "12px", width: "280px", maxHeight: "400px", overflowY: "auto" } }, /* @__PURE__ */ wp.element.createElement("div", { style: { marginBottom: "10px", fontWeight: "bold" } }, __14("Select Social Network", "digiblocks")), /* @__PURE__ */ wp.element.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" } }, availableNetworks.map((network) => /* @__PURE__ */ wp.element.createElement(
+          Button13,
           {
             key: network.value,
             variant: "secondary",
@@ -15132,9 +17466,9 @@
           className: "digiblocks-social-url-popover"
         },
         /* @__PURE__ */ wp.element.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "1rem", padding: "12px", minWidth: "280px" } }, /* @__PURE__ */ wp.element.createElement(
-          SelectControl11,
+          SelectControl14,
           {
-            label: __11("Social Network", "digiblocks"),
+            label: __14("Social Network", "digiblocks"),
             value: icon.iconValue ? icon.iconValue.network : "",
             options: socialNetworks,
             onChange: (value) => {
@@ -15155,7 +17489,7 @@
         ), /* @__PURE__ */ wp.element.createElement(
           TextControl7,
           {
-            label: __11("URL", "digiblocks"),
+            label: __14("URL", "digiblocks"),
             value: icon.url || "",
             onChange: (value) => updateSocialIcon(index, "url", value),
             placeholder: icon.iconValue && icon.iconValue.network === "email" ? "mailto:example@domain.com" : icon.iconValue && icon.iconValue.network === "website" ? "https://example.com" : `https://${icon.iconValue ? icon.iconValue.network : "example"}.com/username`,
@@ -15165,17 +17499,17 @@
         ), /* @__PURE__ */ wp.element.createElement(
           TextControl7,
           {
-            label: __11("Label", "digiblocks"),
+            label: __14("Label", "digiblocks"),
             value: icon.label || "",
             onChange: (value) => updateSocialIcon(index, "label", value),
-            placeholder: icon.iconValue ? icon.iconValue.name : __11("Social Media", "digiblocks"),
+            placeholder: icon.iconValue ? icon.iconValue.name : __14("Social Media", "digiblocks"),
             __next40pxDefaultSize: true,
             __nextHasNoMarginBottom: true
           }
         ), /* @__PURE__ */ wp.element.createElement(
-          ToggleControl8,
+          ToggleControl9,
           {
-            label: __11("Open in new tab", "digiblocks"),
+            label: __14("Open in new tab", "digiblocks"),
             checked: icon.openInNewTab === void 0 ? true : icon.openInNewTab,
             onChange: (value) => updateSocialIcon(index, "openInNewTab", value),
             __next40pxDefaultSize: true,
@@ -15184,22 +17518,22 @@
         ), /* @__PURE__ */ wp.element.createElement(
           TextControl7,
           {
-            label: __11("Rel Attribute", "digiblocks"),
+            label: __14("Rel Attribute", "digiblocks"),
             value: icon.rel || "",
             onChange: (value) => updateSocialIcon(index, "rel", value),
-            placeholder: __11("e.g. nofollow", "digiblocks"),
-            help: __11('Optional. Add rel attributes like "nofollow", "sponsored", etc.', "digiblocks"),
+            placeholder: __14("e.g. nofollow", "digiblocks"),
+            help: __14('Optional. Add rel attributes like "nofollow", "sponsored", etc.', "digiblocks"),
             __next40pxDefaultSize: true,
             __nextHasNoMarginBottom: true
           }
         ), /* @__PURE__ */ wp.element.createElement(
-          Button11,
+          Button13,
           {
             variant: "primary",
             onClick: closeUrlPopover,
             style: { justifyContent: "center", width: "100%" }
           },
-          __11("Done", "digiblocks")
+          __14("Done", "digiblocks")
         ))
       );
     };
@@ -15207,36 +17541,64 @@
       switch (activeTab) {
         case "options":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "components-panel__body is-opened" }, /* @__PURE__ */ wp.element.createElement(
-            ToggleControl8,
+            ToggleControl9,
             {
-              label: __11("Show Labels", "digiblocks"),
+              label: __14("Show Labels", "digiblocks"),
               checked: showLabels,
               onChange: (value) => setAttributes({ showLabels: value }),
               __next40pxDefaultSize: true,
               __nextHasNoMarginBottom: true
             }
           ), showLabels && /* @__PURE__ */ wp.element.createElement(
-            SelectControl11,
+            ToggleGroupControl14,
             {
-              label: __11("Label Position", "digiblocks"),
+              label: __14("Label Position", "digiblocks"),
               value: labelPosition,
-              options: labelPositionOptions,
               onChange: (value) => setAttributes({ labelPosition: value }),
-              __next40pxDefaultSize: true,
-              __nextHasNoMarginBottom: true
-            }
+              isBlock: true,
+              __nextHasNoMarginBottom: true,
+              __next40pxDefaultSize: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControlOption14,
+              {
+                value: "bottom",
+                label: __14("Bottom", "digiblocks")
+              }
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControlOption14,
+              {
+                value: "right",
+                label: __14("Right", "digiblocks")
+              }
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControlOption14,
+              {
+                value: "left",
+                label: __14("Left", "digiblocks")
+              }
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControlOption14,
+              {
+                value: "top",
+                label: __14("Top", "digiblocks")
+              }
+            )
           )));
         case "style":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody11,
+            TabPanelBody14,
             {
               tab: "style",
               name: "colors",
-              title: __11("Colors", "digiblocks"),
+              title: __14("Colors", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              TabPanel9,
+              TabPanel12,
               {
                 className: "digiblocks-control-tabs",
                 activeClass: "active-tab",
@@ -15245,23 +17607,23 @@
               (tab) => renderStylesTabContent(tab.name)
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody11,
+            TabPanelBody14,
             {
               tab: "style",
               name: "size-shape",
-              title: __11("Size & Shape", "digiblocks"),
+              title: __14("Size & Shape", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl11,
+              ResponsiveControl14,
               {
-                label: __11(
+                label: __14(
                   "Icon Size",
                   "digiblocks"
                 )
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl11,
+                RangeControl13,
                 {
                   value: iconSize[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -15279,15 +17641,15 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl11,
+              ResponsiveControl14,
               {
-                label: __11(
+                label: __14(
                   "Icon Spacing",
                   "digiblocks"
                 )
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl11,
+                RangeControl13,
                 {
                   value: iconSpacing[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -15305,15 +17667,15 @@
               )
             ),
             showLabels && /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl11,
+              ResponsiveControl14,
               {
-                label: __11(
+                label: __14(
                   "Label Spacing",
                   "digiblocks"
                 )
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl11,
+                RangeControl13,
                 {
                   value: labelSpacing[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -15331,9 +17693,9 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl11,
+              SelectControl14,
               {
-                label: __11("Border Style", "digiblocks"),
+                label: __14("Border Style", "digiblocks"),
                 value: iconBorderStyle || "none",
                 options: borderStyleOptions,
                 onChange: (value) => {
@@ -15362,12 +17724,12 @@
               }
             ),
             iconBorderStyle && iconBorderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl11,
+              ResponsiveControl14,
               {
-                label: __11("Border Width", "digiblocks")
+                label: __14("Border Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl11,
+                RangeControl13,
                 {
                   value: iconBorderWidth[localActiveDevice]?.value || 1,
                   onChange: (value) => setAttributes({
@@ -15384,12 +17746,12 @@
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl11,
+              ResponsiveControl14,
               {
-                label: __11("Border Radius", "digiblocks")
+                label: __14("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl11,
+                RangeControl13,
                 {
                   value: iconBorderRadius[localActiveDevice]?.value || 0,
                   onChange: (value) => setAttributes({
@@ -15407,12 +17769,12 @@
               )
             )),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl11,
+              ResponsiveControl14,
               {
-                label: __11("Padding", "digiblocks")
+                label: __14("Padding", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl10,
+                DimensionControl12,
                 {
                   values: padding && padding[localActiveDevice] ? padding[localActiveDevice] : {
                     top: 0,
@@ -15431,17 +17793,17 @@
               )
             )
           ), showLabels && /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody11,
+            TabPanelBody14,
             {
               tab: "style",
               name: "typography",
-              title: __11("Typography", "digiblocks"),
+              title: __14("Typography", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl9,
+              TypographyControl11,
               {
-                label: __11(
+                label: __14(
                   "Label Typography",
                   "digiblocks"
                 ),
@@ -15460,17 +17822,17 @@
           ));
         case "advanced":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody11,
+            TabPanelBody14,
             {
               tab: "advanced",
               name: "animation",
-              title: __11("Animation", "digiblocks"),
+              title: __14("Animation", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl11,
+              SelectControl14,
               {
-                label: __11("Animation Effect", "digiblocks"),
+                label: __14("Animation Effect", "digiblocks"),
                 value: animation,
                 options: animationOptions,
                 onChange: (value) => setAttributes({ animation: value }),
@@ -15479,24 +17841,24 @@
               }
             ),
             animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button11,
+              Button13,
               {
                 variant: "secondary",
                 isSecondary: true,
                 onClick: triggerAnimationPreview,
                 style: { width: "100%" }
               },
-              __11("Preview Animation", "digiblocks")
+              __14("Preview Animation", "digiblocks")
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody11,
+            TabPanelBody14,
             {
               tab: "advanced",
               name: "additional",
-              title: __11("Additional", "digiblocks"),
+              title: __14("Additional", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __11("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __14("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -15508,7 +17870,7 @@
                 autoCapitalize: "none",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __11(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __14(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
               "a",
               {
                 className: "components-external-link",
@@ -15516,10 +17878,10 @@
                 target: "_blank",
                 rel: "external noreferrer noopener"
               },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __11("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __14("Learn more about anchors", "digiblocks")),
               /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
             ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __11("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __14("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -15530,13 +17892,13 @@
                 "aria-describedby": "additional-css-classes-help",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __11("Separate multiple classes with spaces.", "digiblocks")))
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __14("Separate multiple classes with spaces.", "digiblocks")))
           ));
         default:
           return null;
       }
     };
-    const blockProps = useBlockProps21({
+    const blockProps = useBlockProps27({
       className: `digiblocks-social-icons align-${align} ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
@@ -15588,13 +17950,13 @@
             showLabels && icon.label && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-social-icon-label" }, icon.label)
           ),
           icons.length > 1 && /* @__PURE__ */ wp.element.createElement(
-            Button11,
+            Button13,
             {
               className: "digiblocks-social-icon-remove",
               onClick: () => removeSocialIcon(index),
               icon: "no-alt",
               isSmall: true,
-              label: __11("Remove", "digiblocks")
+              label: __14("Remove", "digiblocks")
             }
           )
         );
@@ -15606,7 +17968,7 @@
             key: "add-social-icon",
             className: "digiblocks-social-icon add-social",
             onClick: addSocialIcon,
-            title: __11("Add Social Icon", "digiblocks")
+            title: __14("Add Social Icon", "digiblocks")
           },
           plusIcon
         )
@@ -15619,8 +17981,8 @@
         value: align,
         onChange: (value) => setAttributes({ align: value })
       }
-    )), /* @__PURE__ */ wp.element.createElement(InspectorControls11, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel11,
+    )), /* @__PURE__ */ wp.element.createElement(InspectorControls14, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel14,
       {
         tabs: tabList,
         activeTab,
@@ -15629,10 +17991,10 @@
       renderTabContent()
     )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, renderSocialIcons(), renderSocialSelectPopover(), renderUrlPopover()));
   };
-  var edit_default11 = SocialIconsEdit;
+  var edit_default14 = SocialIconsEdit;
 
   // blocks/social-icons/save.js
-  var { useBlockProps: useBlockProps22 } = window.wp.blockEditor;
+  var { useBlockProps: useBlockProps28 } = window.wp.blockEditor;
   var SocialIconsSave = ({ attributes }) => {
     const {
       id,
@@ -15650,7 +18012,7 @@
       animation !== "none" ? `animate-${animation}` : "",
       customClasses || ""
     ].filter(Boolean).join(" ");
-    const blockProps = useBlockProps22.save({
+    const blockProps = useBlockProps28.save({
       className: blockClasses,
       id: anchor || null,
       "data-custom-id": id
@@ -15688,20 +18050,20 @@
     };
     return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, renderSocialIcons());
   };
-  var save_default11 = SocialIconsSave;
+  var save_default14 = SocialIconsSave;
 
   // blocks/spacer/edit.js
-  var { __: __12 } = window.wp.i18n;
+  var { __: __15 } = window.wp.i18n;
   var {
-    useBlockProps: useBlockProps23,
-    InspectorControls: InspectorControls12
+    useBlockProps: useBlockProps29,
+    InspectorControls: InspectorControls15
   } = window.wp.blockEditor;
   var {
-    RangeControl: RangeControl12
+    RangeControl: RangeControl14
   } = window.wp.components;
-  var { useState: useState12, useEffect: useEffect12 } = window.wp.element;
-  var { tabIcons: tabIcons12 } = digi.icons;
-  var { ResponsiveControl: ResponsiveControl12, CustomTabPanel: CustomTabPanel12 } = digi.components;
+  var { useState: useState15, useEffect: useEffect15 } = window.wp.element;
+  var { tabIcons: tabIcons15 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl15, CustomTabPanel: CustomTabPanel15 } = digi.components;
   var SpacerEdit = ({ attributes, setAttributes, clientId }) => {
     const {
       id,
@@ -15709,15 +18071,15 @@
       customClasses,
       height
     } = attributes;
-    const [localActiveDevice, setLocalActiveDevice] = useState12(window.digi.responsiveState.activeDevice);
-    useEffect12(() => {
+    const [localActiveDevice, setLocalActiveDevice] = useState15(window.digi.responsiveState.activeDevice);
+    useEffect15(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    const [activeTab, setActiveTab] = useState12("options");
-    useEffect12(() => {
+    const [activeTab, setActiveTab] = useState15("options");
+    useEffect15(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
@@ -15725,13 +18087,13 @@
     const tabList = [
       {
         name: "options",
-        title: __12("Options", "digiblocks"),
-        icon: tabIcons12.optionsIcon
+        title: __15("Options", "digiblocks"),
+        icon: tabIcons15.optionsIcon
       },
       {
         name: "advanced",
-        title: __12("Advanced", "digiblocks"),
-        icon: tabIcons12.advancedIcon
+        title: __15("Advanced", "digiblocks"),
+        icon: tabIcons15.advancedIcon
       }
     ];
     const generateCSS = () => {
@@ -15768,12 +18130,12 @@
       switch (activeTab) {
         case "options":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "components-panel__body is-opened" }, /* @__PURE__ */ wp.element.createElement(
-            ResponsiveControl12,
+            ResponsiveControl15,
             {
-              label: __12("Height", "digiblocks")
+              label: __15("Height", "digiblocks")
             },
             /* @__PURE__ */ wp.element.createElement(
-              RangeControl12,
+              RangeControl14,
               {
                 value: height[localActiveDevice],
                 onChange: (value) => setAttributes({
@@ -15791,7 +18153,7 @@
             )
           )));
         case "advanced":
-          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "components-panel__body is-opened" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __12("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement("div", { className: "components-panel__body is-opened" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __15("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
             "input",
             {
               className: "components-text-control__input",
@@ -15803,7 +18165,7 @@
               autoCapitalize: "none",
               autoComplete: "off"
             }
-          )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __12(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+          )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __15(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
             "a",
             {
               className: "components-external-link",
@@ -15811,9 +18173,9 @@
               target: "_blank",
               rel: "external noreferrer noopener"
             },
-            /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __12("Learn more about anchors", "digiblocks")),
+            /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __15("Learn more about anchors", "digiblocks")),
             /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
-          ))), /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __12("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+          ))), /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __15("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
             "input",
             {
               className: "components-text-control__input",
@@ -15824,20 +18186,20 @@
               "aria-describedby": "additional-css-classes-help",
               autoComplete: "off"
             }
-          )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __12("Separate multiple classes with spaces.", "digiblocks")))));
+          )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __15("Separate multiple classes with spaces.", "digiblocks")))));
         default:
           return null;
       }
     };
-    const blockProps = useBlockProps23({
+    const blockProps = useBlockProps29({
       className: `digiblocks-spacer ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
       "data-custom-id": id
       // Always set the block ID as data attribute for CSS targeting
     });
-    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls12, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel12,
+    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls15, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel15,
       {
         tabs: tabList,
         activeTab,
@@ -15850,10 +18212,10 @@
       renderTabContent()
     )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-spacer-icon-wrapper" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M512 464c0-8.8-7.2-16-16-16L16 448c-8.8 0-16 7.2-16 16s7.2 16 16 16l480 0c8.8 0 16-7.2 16-16zM144 320c-8.8 0-16-7.2-16-16l0-96c0-8.8 7.2-16 16-16l224 0c8.8 0 16 7.2 16 16l0 96c0 8.8-7.2 16-16 16l-224 0zm224 32c26.5 0 48-21.5 48-48l0-96c0-26.5-21.5-48-48-48l-224 0c-26.5 0-48 21.5-48 48l0 96c0 26.5 21.5 48 48 48l224 0zM496 64c8.8 0 16-7.2 16-16s-7.2-16-16-16L16 32C7.2 32 0 39.2 0 48s7.2 16 16 16l480 0z" })))));
   };
-  var edit_default12 = SpacerEdit;
+  var edit_default15 = SpacerEdit;
 
   // blocks/spacer/save.js
-  var { useBlockProps: useBlockProps24 } = window.wp.blockEditor;
+  var { useBlockProps: useBlockProps30 } = window.wp.blockEditor;
   var SpacerSave = ({ attributes }) => {
     const {
       id,
@@ -15865,42 +18227,42 @@
       "digiblocks-spacer",
       customClasses || ""
     ].filter(Boolean).join(" ");
-    const blockProps = useBlockProps24.save({
+    const blockProps = useBlockProps30.save({
       className: blockClasses,
       id: anchor || null,
       "data-custom-id": id
     });
     return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps });
   };
-  var save_default12 = SpacerSave;
+  var save_default15 = SpacerSave;
 
   // blocks/table/edit.js
-  var { __: __13 } = window.wp.i18n;
+  var { __: __16 } = window.wp.i18n;
   var {
-    useBlockProps: useBlockProps25,
-    RichText: RichText12,
-    InspectorControls: InspectorControls13,
-    PanelColorSettings: PanelColorSettings12,
+    useBlockProps: useBlockProps31,
+    RichText: RichText16,
+    InspectorControls: InspectorControls16,
+    PanelColorSettings: PanelColorSettings14,
     BlockControls: BlockControls10
   } = window.wp.blockEditor;
   var {
-    SelectControl: SelectControl12,
-    RangeControl: RangeControl13,
-    ToggleControl: ToggleControl9,
-    Button: Button12,
+    SelectControl: SelectControl15,
+    RangeControl: RangeControl15,
+    ToggleControl: ToggleControl10,
+    Button: Button14,
     ButtonGroup,
     Dropdown,
     ToolbarGroup,
     ToolbarButton,
     BaseControl: BaseControl7,
     Popover: Popover2,
-    __experimentalToggleGroupControl: ToggleGroupControl12,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption12
+    __experimentalToggleGroupControl: ToggleGroupControl15,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption15
   } = window.wp.components;
-  var { useState: useState13, useEffect: useEffect13, useRef: useRef12 } = window.wp.element;
-  var { animations: animations12 } = digi.utils;
-  var { tabIcons: tabIcons13 } = digi.icons;
-  var { ResponsiveControl: ResponsiveControl13, DimensionControl: DimensionControl11, TypographyControl: TypographyControl10, BoxShadowControl: BoxShadowControl10, CustomTabPanel: CustomTabPanel13, TabPanelBody: TabPanelBody12 } = digi.components;
+  var { useState: useState16, useEffect: useEffect16, useRef: useRef13 } = window.wp.element;
+  var { animations: animations15 } = digi.utils;
+  var { tabIcons: tabIcons16 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl16, DimensionControl: DimensionControl13, TypographyControl: TypographyControl12, BoxShadowControl: BoxShadowControl12, CustomTabPanel: CustomTabPanel16, TabPanelBody: TabPanelBody15 } = digi.components;
   var TableEdit = ({ attributes, setAttributes, clientId }) => {
     const {
       id,
@@ -15926,6 +18288,7 @@
       contentTypography,
       borderRadius,
       boxShadow,
+      boxShadowHover,
       margin,
       cellAlignment,
       headerAlignment,
@@ -15936,19 +18299,19 @@
       firstColHeader,
       cellControls
     } = attributes;
-    const [localActiveDevice, setLocalActiveDevice] = useState13(window.digi.responsiveState.activeDevice);
-    const [isAnimating, setIsAnimating] = useState13(false);
-    const previewTimeoutRef = useRef12(null);
-    const [activeTab, setActiveTab] = useState13("options");
-    const [selectedCell, setSelectedCell] = useState13({ row: -1, col: -1 });
-    const [isRatingPopoverOpen, setIsRatingPopoverOpen] = useState13(false);
-    useEffect13(() => {
+    const [localActiveDevice, setLocalActiveDevice] = useState16(window.digi.responsiveState.activeDevice);
+    const [isAnimating, setIsAnimating] = useState16(false);
+    const previewTimeoutRef = useRef13(null);
+    const [activeTab, setActiveTab] = useState16("options");
+    const [selectedCell, setSelectedCell] = useState16({ row: -1, col: -1 });
+    const [isRatingPopoverOpen, setIsRatingPopoverOpen] = useState16(false);
+    useEffect16(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    useEffect13(() => {
+    useEffect16(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
@@ -15967,7 +18330,7 @@
         });
       }
     }, [clientId, id, tableData, cellControls, setAttributes]);
-    useEffect13(() => {
+    useEffect16(() => {
       return () => {
         if (previewTimeoutRef.current) {
           clearTimeout(previewTimeoutRef.current);
@@ -15986,8 +18349,8 @@
         return;
       }
       const timestamp = Date.now();
-      if (animations12[animation]) {
-        const originalKeyframes = animations12[animation].keyframes;
+      if (animations15[animation]) {
+        const originalKeyframes = animations15[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
           console.error("Could not extract animation name from keyframes");
@@ -16029,23 +18392,23 @@
       }
     };
     const borderStyleOptions = [
-      { label: __13("Solid", "digiblocks"), value: "solid" },
-      { label: __13("Dotted", "digiblocks"), value: "dotted" },
-      { label: __13("Dashed", "digiblocks"), value: "dashed" },
-      { label: __13("Double", "digiblocks"), value: "double" },
-      { label: __13("None", "digiblocks"), value: "none" }
+      { label: __16("Solid", "digiblocks"), value: "solid" },
+      { label: __16("Dotted", "digiblocks"), value: "dotted" },
+      { label: __16("Dashed", "digiblocks"), value: "dashed" },
+      { label: __16("Double", "digiblocks"), value: "double" },
+      { label: __16("None", "digiblocks"), value: "none" }
     ];
     const tablePresetOptions = [
-      { label: __13("Default", "digiblocks"), value: "default" },
-      { label: __13("Striped", "digiblocks"), value: "striped" },
-      { label: __13("Bordered", "digiblocks"), value: "bordered" },
-      { label: __13("Borderless", "digiblocks"), value: "borderless" },
-      { label: __13("Modern", "digiblocks"), value: "modern" },
-      { label: __13("Minimal", "digiblocks"), value: "minimal" }
+      { label: __16("Default", "digiblocks"), value: "default" },
+      { label: __16("Striped", "digiblocks"), value: "striped" },
+      { label: __16("Bordered", "digiblocks"), value: "bordered" },
+      { label: __16("Borderless", "digiblocks"), value: "borderless" },
+      { label: __16("Modern", "digiblocks"), value: "modern" },
+      { label: __16("Minimal", "digiblocks"), value: "minimal" }
     ];
     const animationOptions = [
-      { label: __13("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations12).map((animation2) => ({
+      { label: __16("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations15).map((animation2) => ({
         label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         value: animation2
       }))
@@ -16053,18 +18416,18 @@
     const tabList = [
       {
         name: "options",
-        title: __13("Options", "digiblocks"),
-        icon: tabIcons13.optionsIcon
+        title: __16("Options", "digiblocks"),
+        icon: tabIcons16.optionsIcon
       },
       {
         name: "style",
-        title: __13("Style", "digiblocks"),
-        icon: tabIcons13.styleIcon
+        title: __16("Style", "digiblocks"),
+        icon: tabIcons16.styleIcon
       },
       {
         name: "advanced",
-        title: __13("Advanced", "digiblocks"),
-        icon: tabIcons13.advancedIcon
+        title: __16("Advanced", "digiblocks"),
+        icon: tabIcons16.advancedIcon
       }
     ];
     const addRow = (index) => {
@@ -16280,6 +18643,18 @@
       const blockId = id;
       if (!blockId)
         return "";
+      const getFlexAlignment = (textAlign) => {
+        switch (textAlign) {
+          case "left":
+            return "flex-start";
+          case "center":
+            return "center";
+          case "right":
+            return "flex-end";
+          default:
+            return "flex-start";
+        }
+      };
       let borderCSS = "";
       if (tableBorderStyle !== "none") {
         borderCSS = `
@@ -16294,6 +18669,11 @@
       if (boxShadow && boxShadow.enable) {
         const inset = boxShadow.position === "inset" ? "inset " : "";
         boxShadowCSS = `box-shadow: ${inset}${boxShadow.horizontal}px ${boxShadow.vertical}px ${boxShadow.blur}px ${boxShadow.spread}px ${boxShadow.color};`;
+      }
+      let boxShadowHoverCSS = "";
+      if (boxShadowHover && boxShadowHover.enable) {
+        const insetHover = boxShadowHover.position === "inset" ? "inset " : "";
+        boxShadowHoverCSS = `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
       }
       const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: "px" };
       const borderRadiusCSS = `
@@ -16395,8 +18775,15 @@
                 ${boxShadowCSS}
                 ${borderRadiusCSS}
                 width: 100%;
-                overflow: hidden;
+                transition: all 0.3s ease;
             }
+
+			/* Hover effects */
+            ${boxShadowHover && boxShadowHover.enable ? `
+                [data-custom-id="${blockId}"]:hover {
+                    ${boxShadowHoverCSS}
+                }
+            ` : ""}
             
             /* Set up main table styles */
             [data-custom-id="${blockId}"] .digiblocks-table {
@@ -16407,7 +18794,6 @@
                 ${bodyTypographyCSS}
                 ${borderCSS}
                 ${borderRadiusCSS}
-                overflow: hidden;
             }
             
             /* Table header styles */
@@ -16416,18 +18802,24 @@
                 color: ${headerTextColor};
                 ${headingTypographyCSS}
                 ${cellPaddingCSS}
-                text-align: ${headerAlignment};
                 vertical-align: middle;
                 border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
+            }
+
+            [data-custom-id="${blockId}"] .digiblocks-table thead th .digiblocks-cell-content {
+                justify-content: ${getFlexAlignment(headerAlignment)};
             }
             
             /* Table body styles */
             [data-custom-id="${blockId}"] .digiblocks-table tbody td {
                 background-color: ${bodyBackgroundColor};
                 ${cellPaddingCSS}
-                text-align: ${cellAlignment};
                 vertical-align: middle;
                 border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
+            }
+
+            [data-custom-id="${blockId}"] .digiblocks-table tbody td .digiblocks-cell-content {
+                justify-content: ${getFlexAlignment(cellAlignment)};
             }
             
             /* First column styles if it's a header */
@@ -16437,7 +18829,10 @@
                 color: ${headerTextColor};
                 ${headingTypographyCSS}
                 font-weight: bold;
-                text-align: ${headerAlignment};
+            }
+
+            [data-custom-id="${blockId}"] .digiblocks-table tbody td:first-child .digiblocks-cell-content {
+                justify-content: ${getFlexAlignment(headerAlignment)};
             }
             ` : ""}
             
@@ -16460,9 +18855,12 @@
                 color: ${footerTextColor};
                 ${contentTypographyCSS}
                 ${cellPaddingCSS}
-                text-align: ${footerAlignment};
                 vertical-align: middle;
                 border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
+            }
+
+            [data-custom-id="${blockId}"] .digiblocks-table tfoot td .digiblocks-cell-content {
+                justify-content: ${getFlexAlignment(footerAlignment)};
             }
             ` : ""}
             
@@ -16470,24 +18868,46 @@
             @media (max-width: 767px) {
                 /* Stack mode */
                 ${responsiveMode === "stack" ? `
+                [data-custom-id="${blockId}"] {
+					border-radius: 0;
+					box-shadow: none;
+                }
+
                 [data-custom-id="${blockId}"] .digiblocks-table {
                     border-collapse: collapse;
+					border: 0;
+					border-radius: 0;
                 }
                 
                 [data-custom-id="${blockId}"] .digiblocks-table thead,
                 [data-custom-id="${blockId}"] .digiblocks-table tfoot {
                     display: none;
                 }
+
+				[data-custom-id="${blockId}"] .digiblocks-table tbody {
+					display: flex;
+					flex-direction: column;
+					gap: 1rem;
+				}
                 
                 [data-custom-id="${blockId}"] .digiblocks-table tbody tr {
                     display: block;
-                    margin-bottom: 1rem;
                     border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
+					${boxShadowCSS}
+					transition: all 0.3s ease;
                 }
+
+				/* Hover effects */
+				${boxShadowHover && boxShadowHover.enable ? `
+				[data-custom-id="${blockId}"] .digiblocks-table tbody tr:hover {
+						${boxShadowHoverCSS}
+					}
+				` : ""}
                 
                 [data-custom-id="${blockId}"] .digiblocks-table tbody td {
                     display: flex;
                     justify-content: space-between;
+					gap: 1rem;
                     text-align: right;
                     border-bottom: 1px solid ${tableBorderColor};
                     border-top: none;
@@ -16498,7 +18918,6 @@
                 [data-custom-id="${blockId}"] .digiblocks-table tbody td::before {
                     content: attr(data-label);
                     font-weight: bold;
-                    margin-right: 1rem;
                     text-align: left;
                     flex: 1;
                 }
@@ -16550,7 +18969,6 @@
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                margin-right: 5px;
             }
             
             [data-custom-id="${blockId}"] .digiblocks-table .digiblocks-cell-check {
@@ -16564,6 +18982,7 @@
             [data-custom-id="${blockId}"] .digiblocks-table .digiblocks-cell-stars {
                 color: #ffc107;
                 display: inline-flex;
+				gap: 5px;
             }
             
             /* Selected cell highlight */
@@ -16590,16 +19009,45 @@
             [data-custom-id="${blockId}"] .digiblocks-cell-controls-label {
                 font-weight: bold;
             }
-            
-            [data-custom-id="${blockId}"] .digiblocks-rating-selector {
-                padding: 10px;
-                min-width: 200px;
+
+			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .components-button-group {
+                display: flex;
+                align-items: center;
+            }
+
+			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .digiblocks-cell-control-check-button {
+                color: #28a745;
+            }
+
+			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .digiblocks-cell-control-cross-button {
+                color: #dc3545;
+            }
+
+			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .digiblocks-cell-control-rating-button {
+                color: #ffc107;
+            }
+
+			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .digiblocks-cell-control-remove-button {
+                color: #fe5252;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-rating-selector h3 {
-                margin-top: 0;
-                margin-bottom: 10px;
-            }
+            .components-popover.digiblocks-cell-control-popover .components-popover__content {
+				min-width: 200px;
+				padding: 1rem;
+			}
+            
+            .components-popover.digiblocks-cell-control-popover .components-popover__content h3 {
+				font-size: 1rem;
+				margin: 0 0 1rem;
+			}
+
+			.components-popover.digiblocks-cell-control-popover .components-button-group {
+				display: flex;
+			}
+
+			.components-popover.digiblocks-cell-control-popover .components-button-group button {
+				flex: 1;
+			}
             
             /* Table instructions */
             [data-custom-id="${blockId}"] .digiblocks-table-instructions {
@@ -16657,41 +19105,52 @@
             }
             
             /* Animation CSS for the table */
-            ${animation && animation !== "none" && animations12[animation] ? animations12[animation].keyframes : ""}
+            ${animation && animation !== "none" && animations15[animation] ? animations15[animation].keyframes : ""}
         `;
     };
     const renderCellControlToolbar = () => {
       if (selectedCell.row === -1 || selectedCell.col === -1) {
         return null;
       }
-      return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-controls-toolbar" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-controls-label" }, __13("Selected Cell:", "digiblocks"), " Row ", selectedCell.row + 1, ", Column ", selectedCell.col + 1), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-controls-buttons" }, /* @__PURE__ */ wp.element.createElement(ButtonGroup, null, /* @__PURE__ */ wp.element.createElement(
-        Button12,
+      return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-controls-toolbar" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-controls-label" }, __16("Selected Cell:", "digiblocks"), " Row ", selectedCell.row + 1, ", Column ", selectedCell.col + 1), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-controls-buttons" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-button-group" }, /* @__PURE__ */ wp.element.createElement(
+        Button14,
         {
-          icon: () => /* @__PURE__ */ wp.element.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M10.97 4.97a.75.75 0 0 1 1.07 1.05l-4.5 4.75a.75.75 0 0 1-1.08.04L3.47 7.84a.75.75 0 1 1 1.06-1.07l2.5 2.46l4.94-4.26z" })),
-          label: __13("Add Check", "digiblocks"),
-          onClick: () => setCellControl(selectedCell.row, selectedCell.col, "icon", "check")
-        }
-      ), /* @__PURE__ */ wp.element.createElement(
-        Button12,
-        {
-          icon: () => /* @__PURE__ */ wp.element.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8L4.646 5.354a.5.5 0 0 1 0-.708z" })),
-          label: __13("Add Cross", "digiblocks"),
-          onClick: () => setCellControl(selectedCell.row, selectedCell.col, "icon", "cross")
-        }
-      ), /* @__PURE__ */ wp.element.createElement(
-        Button12,
-        {
-          icon: "star-filled",
-          label: __13("Add Rating", "digiblocks"),
+          className: "digiblocks-cell-control-check-button",
+          icon: () => /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z" })),
+          label: __16("Add Check", "digiblocks"),
           onClick: () => {
+            clearCellControl(selectedCell.row, selectedCell.col, "stars");
+            setCellControl(selectedCell.row, selectedCell.col, "icon", "check");
+          }
+        }
+      ), /* @__PURE__ */ wp.element.createElement(
+        Button14,
+        {
+          className: "digiblocks-cell-control-cross-button",
+          icon: () => /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z" })),
+          label: __16("Add Cross", "digiblocks"),
+          onClick: () => {
+            clearCellControl(selectedCell.row, selectedCell.col, "stars");
+            setCellControl(selectedCell.row, selectedCell.col, "icon", "cross");
+          }
+        }
+      ), /* @__PURE__ */ wp.element.createElement(
+        Button14,
+        {
+          className: "digiblocks-cell-control-rating-button",
+          icon: () => /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "16", height: "16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327l4.898.696c.441.062.612.636.282.95l-3.522 3.356l.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" })),
+          label: __16("Add Rating", "digiblocks"),
+          onClick: () => {
+            clearCellControl(selectedCell.row, selectedCell.col, "icon");
             setIsRatingPopoverOpen(true);
           }
         }
       ), getCellControl(selectedCell.row, selectedCell.col, "icon") || getCellControl(selectedCell.row, selectedCell.col, "stars") ? /* @__PURE__ */ wp.element.createElement(
-        Button12,
+        Button14,
         {
-          icon: "trash",
-          label: __13("Remove Icons", "digiblocks"),
+          className: "digiblocks-cell-control-remove-button",
+          icon: () => /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 448 512", width: "16", height: "16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M135.2 17.7L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-7.2-14.3C307.4 6.8 296.3 0 284.2 0L163.8 0c-12.1 0-23.2 6.8-28.6 17.7zM416 128L32 128 53.2 467c1.6 25.3 22.6 45 47.9 45l245.8 0c25.3 0 46.3-19.7 47.9-45L416 128z" })),
+          label: __16("Remove Icons", "digiblocks"),
           onClick: () => {
             clearCellControl(selectedCell.row, selectedCell.col, "icon");
             clearCellControl(selectedCell.row, selectedCell.col, "stars");
@@ -16700,11 +19159,12 @@
       ) : null), isRatingPopoverOpen && /* @__PURE__ */ wp.element.createElement(
         Popover2,
         {
+          className: "digiblocks-cell-control-popover",
           onClose: () => setIsRatingPopoverOpen(false),
           position: "bottom center"
         },
-        /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-rating-selector" }, /* @__PURE__ */ wp.element.createElement("h3", null, __13("Select Rating", "digiblocks")), /* @__PURE__ */ wp.element.createElement(ButtonGroup, null, [1, 2, 3, 4, 5].map((num) => /* @__PURE__ */ wp.element.createElement(
-          Button12,
+        /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-rating-selector" }, /* @__PURE__ */ wp.element.createElement("h3", null, __16("Select Rating", "digiblocks")), /* @__PURE__ */ wp.element.createElement(ButtonGroup, null, [1, 2, 3, 4, 5].map((num) => /* @__PURE__ */ wp.element.createElement(
+          Button14,
           {
             key: `star-${num}`,
             isSecondary: true,
@@ -16728,9 +19188,9 @@
         const icon = cellControls[cellKey].icon;
         switch (icon) {
           case "check":
-            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-check" }, /* @__PURE__ */ wp.element.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M10.97 4.97a.75.75 0 0 1 1.07 1.05l-4.5 4.75a.75.75 0 0 1-1.08.04L3.47 7.84a.75.75 0 1 1 1.06-1.07l2.5 2.46l4.94-4.26z" })));
+            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-check" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z" })));
           case "cross":
-            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-cross" }, /* @__PURE__ */ wp.element.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8L4.646 5.354a.5.5 0 0 1 0-.708z" })));
+            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-cross" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z" })));
           default:
             return null;
         }
@@ -16757,55 +19217,55 @@
       switch (activeTab) {
         case "options":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody12,
+            TabPanelBody15,
             {
               tab: "options",
               name: "general-settings",
-              title: __13("Table Structure", "digiblocks"),
+              title: __16("Table Structure", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl9,
+              ToggleControl10,
               {
-                label: __13("Enable Header Row", "digiblocks"),
+                label: __16("Enable Header Row", "digiblocks"),
                 checked: hasHeader,
                 onChange: () => setAttributes({ hasHeader: !hasHeader }),
-                help: __13("Display the first row as table header.", "digiblocks"),
+                help: __16("Display the first row as table header.", "digiblocks"),
                 __nextHasNoMarginBottom: true
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl9,
+              ToggleControl10,
               {
-                label: __13("Enable Footer Row", "digiblocks"),
+                label: __16("Enable Footer Row", "digiblocks"),
                 checked: hasFooter,
                 onChange: () => setAttributes({ hasFooter: !hasFooter }),
-                help: __13("Display the last row as table footer.", "digiblocks"),
+                help: __16("Display the last row as table footer.", "digiblocks"),
                 __nextHasNoMarginBottom: true
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl9,
+              ToggleControl10,
               {
-                label: __13("First Column as Header", "digiblocks"),
+                label: __16("First Column as Header", "digiblocks"),
                 checked: firstColHeader,
                 onChange: () => setAttributes({ firstColHeader: !firstColHeader }),
-                help: __13("Use the first column as a header column.", "digiblocks"),
+                help: __16("Use the first column as a header column.", "digiblocks"),
                 __nextHasNoMarginBottom: true
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody12,
+            TabPanelBody15,
             {
               tab: "options",
               name: "preset-settings",
-              title: __13("Table Presets", "digiblocks"),
+              title: __16("Table Presets", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl12,
+              SelectControl15,
               {
-                label: __13("Table Style Preset", "digiblocks"),
+                label: __16("Table Style Preset", "digiblocks"),
                 value: tablePreset,
                 options: tablePresetOptions,
                 onChange: (value) => applyTablePreset(value),
@@ -16814,47 +19274,47 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody12,
+            TabPanelBody15,
             {
               tab: "options",
               name: "responsive-settings",
-              title: __13("Responsive Settings", "digiblocks"),
+              title: __16("Responsive Settings", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
               BaseControl7,
               {
-                label: __13("Mobile Behavior", "digiblocks"),
+                label: __16("Mobile Behavior", "digiblocks"),
                 __nextHasNoMarginBottom: true
               },
               /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControl12,
+                ToggleGroupControl15,
                 {
                   value: responsiveMode,
                   onChange: (value) => setAttributes({ responsiveMode: value }),
-                  help: __13("How the table should behave on small screens.", "digiblocks"),
+                  help: __16("How the table should behave on small screens.", "digiblocks"),
                   isBlock: true,
                   __next40pxDefaultSize: true,
                   __nextHasNoMarginBottom: true
                 },
-                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption12, { value: "stack", label: __13("Stack", "digiblocks"), "aria-label": __13("Stack Behavior", "digiblocks") }),
-                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption12, { value: "scroll", label: __13("Scroll", "digiblocks"), "aria-label": __13("Scroll Behavior", "digiblocks") })
+                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption15, { value: "stack", label: __16("Stack", "digiblocks"), "aria-label": __16("Stack Behavior", "digiblocks") }),
+                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption15, { value: "scroll", label: __16("Scroll", "digiblocks"), "aria-label": __16("Scroll Behavior", "digiblocks") })
               )
             )
           ));
         case "style":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody12,
+            TabPanelBody15,
             {
               tab: "style",
               name: "border-settings",
-              title: __13("Borders & Shadow", "digiblocks"),
+              title: __16("Borders & Shadow", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl12,
+              SelectControl15,
               {
-                label: __13("Border Style", "digiblocks"),
+                label: __16("Border Style", "digiblocks"),
                 value: tableBorderStyle,
                 options: borderStyleOptions,
                 onChange: (value) => setAttributes({ tableBorderStyle: value }),
@@ -16863,9 +19323,9 @@
               }
             ),
             tableBorderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              RangeControl13,
+              RangeControl15,
               {
-                label: __13("Border Width", "digiblocks"),
+                label: __16("Border Width", "digiblocks"),
                 value: tableBorderWidth,
                 onChange: (value) => setAttributes({ tableBorderWidth: value }),
                 min: 1,
@@ -16875,28 +19335,28 @@
                 __nextHasNoMarginBottom: true
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings12,
+              PanelColorSettings14,
               {
-                title: __13("Border Color", "digiblocks"),
+                title: __16("Border Color", "digiblocks"),
                 initialOpen: true,
                 enableAlpha: true,
                 colorSettings: [
                   {
                     value: tableBorderColor,
                     onChange: (value) => setAttributes({ tableBorderColor: value }),
-                    label: __13("Border Color", "digiblocks")
+                    label: __16("Border Color", "digiblocks")
                   }
                 ]
               }
             )),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl12,
+              SelectControl15,
               {
-                label: __13("Border Collapse", "digiblocks"),
+                label: __16("Border Collapse", "digiblocks"),
                 value: tableBorderCollapse,
                 options: [
-                  { label: __13("Collapse", "digiblocks"), value: "collapse" },
-                  { label: __13("Separate", "digiblocks"), value: "separate" }
+                  { label: __16("Collapse", "digiblocks"), value: "collapse" },
+                  { label: __16("Separate", "digiblocks"), value: "separate" }
                 ],
                 onChange: (value) => setAttributes({ tableBorderCollapse: value }),
                 __next40pxDefaultSize: true,
@@ -16904,12 +19364,12 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl13,
+              ResponsiveControl16,
               {
-                label: __13("Border Radius", "digiblocks")
+                label: __16("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl11,
+                DimensionControl13,
                 {
                   values: borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
                     top: 8,
@@ -16932,26 +19392,27 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              BoxShadowControl10,
+              BoxShadowControl12,
               {
+                label: __16("Box Shadow", "digiblocks"),
                 normalValue: boxShadow,
-                onNormalChange: (value) => setAttributes({
-                  boxShadow: value
-                })
+                hoverValue: boxShadowHover,
+                onNormalChange: (value) => setAttributes({ boxShadow: value }),
+                onHoverChange: (value) => setAttributes({ boxShadowHover: value })
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody12,
+            TabPanelBody15,
             {
               tab: "style",
               name: "header-settings",
-              title: __13("Header Styles", "digiblocks"),
+              title: __16("Header Styles", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings12,
+              PanelColorSettings14,
               {
-                title: __13(
+                title: __16(
                   "Header Colors",
                   "digiblocks"
                 ),
@@ -16963,7 +19424,7 @@
                     onChange: (value) => setAttributes({
                       headerBackgroundColor: value
                     }),
-                    label: __13(
+                    label: __16(
                       "Background Color",
                       "digiblocks"
                     )
@@ -16973,7 +19434,7 @@
                     onChange: (value) => setAttributes({
                       headerTextColor: value
                     }),
-                    label: __13(
+                    label: __16(
                       "Text Color",
                       "digiblocks"
                     )
@@ -16982,9 +19443,9 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl10,
+              TypographyControl12,
               {
-                label: __13(
+                label: __16(
                   "Header Typography",
                   "digiblocks"
                 ),
@@ -17001,32 +19462,37 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl12,
+              BaseControl7,
               {
-                label: __13("Text Alignment", "digiblocks"),
-                value: headerAlignment,
-                options: [
-                  { label: __13("Left", "digiblocks"), value: "left" },
-                  { label: __13("Center", "digiblocks"), value: "center" },
-                  { label: __13("Right", "digiblocks"), value: "right" }
-                ],
-                onChange: (value) => setAttributes({ headerAlignment: value }),
-                __next40pxDefaultSize: true,
+                label: __16("Text Alignment", "digiblocks"),
                 __nextHasNoMarginBottom: true
-              }
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                ToggleGroupControl15,
+                {
+                  value: headerAlignment,
+                  onChange: (value) => setAttributes({ headerAlignment: value }),
+                  isBlock: true,
+                  __next40pxDefaultSize: true,
+                  __nextHasNoMarginBottom: true
+                },
+                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption15, { value: "left", label: __16("Left", "digiblocks"), "aria-label": __16("Left", "digiblocks") }),
+                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption15, { value: "center", label: __16("Center", "digiblocks"), "aria-label": __16("Center", "digiblocks") }),
+                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption15, { value: "right", label: __16("Right", "digiblocks"), "aria-label": __16("Right", "digiblocks") })
+              )
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody12,
+            TabPanelBody15,
             {
               tab: "style",
               name: "body-settings",
-              title: __13("Body Styles", "digiblocks"),
+              title: __16("Body Styles", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings12,
+              PanelColorSettings14,
               {
-                title: __13(
+                title: __16(
                   "Body Colors",
                   "digiblocks"
                 ),
@@ -17038,7 +19504,7 @@
                     onChange: (value) => setAttributes({
                       bodyBackgroundColor: value
                     }),
-                    label: __13(
+                    label: __16(
                       "Background Color",
                       "digiblocks"
                     )
@@ -17048,7 +19514,7 @@
                     onChange: (value) => setAttributes({
                       altRowBackgroundColor: value
                     }),
-                    label: __13(
+                    label: __16(
                       "Alternate Row Color",
                       "digiblocks"
                     )
@@ -17058,7 +19524,7 @@
                     onChange: (value) => setAttributes({
                       bodyTextColor: value
                     }),
-                    label: __13(
+                    label: __16(
                       "Text Color",
                       "digiblocks"
                     )
@@ -17067,9 +19533,9 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl10,
+              TypographyControl12,
               {
-                label: __13(
+                label: __16(
                   "Body Typography",
                   "digiblocks"
                 ),
@@ -17086,32 +19552,37 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl12,
+              BaseControl7,
               {
-                label: __13("Text Alignment", "digiblocks"),
-                value: cellAlignment,
-                options: [
-                  { label: __13("Left", "digiblocks"), value: "left" },
-                  { label: __13("Center", "digiblocks"), value: "center" },
-                  { label: __13("Right", "digiblocks"), value: "right" }
-                ],
-                onChange: (value) => setAttributes({ cellAlignment: value }),
-                __next40pxDefaultSize: true,
+                label: __16("Text Alignment", "digiblocks"),
                 __nextHasNoMarginBottom: true
-              }
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                ToggleGroupControl15,
+                {
+                  value: cellAlignment,
+                  onChange: (value) => setAttributes({ cellAlignment: value }),
+                  isBlock: true,
+                  __next40pxDefaultSize: true,
+                  __nextHasNoMarginBottom: true
+                },
+                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption15, { value: "left", label: __16("Left", "digiblocks"), "aria-label": __16("Left", "digiblocks") }),
+                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption15, { value: "center", label: __16("Center", "digiblocks"), "aria-label": __16("Center", "digiblocks") }),
+                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption15, { value: "right", label: __16("Right", "digiblocks"), "aria-label": __16("Right", "digiblocks") })
+              )
             )
           ), hasFooter && /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody12,
+            TabPanelBody15,
             {
               tab: "style",
               name: "footer-settings",
-              title: __13("Footer Styles", "digiblocks"),
+              title: __16("Footer Styles", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings12,
+              PanelColorSettings14,
               {
-                title: __13(
+                title: __16(
                   "Footer Colors",
                   "digiblocks"
                 ),
@@ -17123,7 +19594,7 @@
                     onChange: (value) => setAttributes({
                       footerBackgroundColor: value
                     }),
-                    label: __13(
+                    label: __16(
                       "Background Color",
                       "digiblocks"
                     )
@@ -17133,7 +19604,7 @@
                     onChange: (value) => setAttributes({
                       footerTextColor: value
                     }),
-                    label: __13(
+                    label: __16(
                       "Text Color",
                       "digiblocks"
                     )
@@ -17142,9 +19613,9 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl10,
+              TypographyControl12,
               {
-                label: __13(
+                label: __16(
                   "Footer Typography",
                   "digiblocks"
                 ),
@@ -17161,35 +19632,40 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl12,
+              BaseControl7,
               {
-                label: __13("Text Alignment", "digiblocks"),
-                value: footerAlignment,
-                options: [
-                  { label: __13("Left", "digiblocks"), value: "left" },
-                  { label: __13("Center", "digiblocks"), value: "center" },
-                  { label: __13("Right", "digiblocks"), value: "right" }
-                ],
-                onChange: (value) => setAttributes({ footerAlignment: value }),
-                __next40pxDefaultSize: true,
+                label: __16("Text Alignment", "digiblocks"),
                 __nextHasNoMarginBottom: true
-              }
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                ToggleGroupControl15,
+                {
+                  value: footerAlignment,
+                  onChange: (value) => setAttributes({ footerAlignment: value }),
+                  isBlock: true,
+                  __next40pxDefaultSize: true,
+                  __nextHasNoMarginBottom: true
+                },
+                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption15, { value: "left", label: __16("Left", "digiblocks"), "aria-label": __16("Left", "digiblocks") }),
+                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption15, { value: "center", label: __16("Center", "digiblocks"), "aria-label": __16("Center", "digiblocks") }),
+                /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption15, { value: "right", label: __16("Right", "digiblocks"), "aria-label": __16("Right", "digiblocks") })
+              )
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody12,
+            TabPanelBody15,
             {
               tab: "style",
               name: "spacing",
-              title: __13("Spacing", "digiblocks"),
+              title: __16("Spacing", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl13,
+              ResponsiveControl16,
               {
-                label: __13("Cell Padding", "digiblocks")
+                label: __16("Cell Padding", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl11,
+                DimensionControl13,
                 {
                   values: cellPadding && cellPadding[localActiveDevice] ? cellPadding[localActiveDevice] : {
                     top: 15,
@@ -17208,12 +19684,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl13,
+              ResponsiveControl16,
               {
-                label: __13("Margin", "digiblocks")
+                label: __16("Margin", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl11,
+                DimensionControl13,
                 {
                   values: margin && margin[localActiveDevice] ? margin[localActiveDevice] : {
                     top: 0,
@@ -17234,17 +19710,17 @@
           ));
         case "advanced":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody12,
+            TabPanelBody15,
             {
               tab: "advanced",
               name: "animation",
-              title: __13("Animation", "digiblocks"),
+              title: __16("Animation", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl12,
+              SelectControl15,
               {
-                label: __13(
+                label: __16(
                   "Animation Effect",
                   "digiblocks"
                 ),
@@ -17258,24 +19734,24 @@
               }
             ),
             animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button12,
+              Button14,
               {
                 variant: "secondary",
                 isSecondary: true,
                 onClick: triggerAnimationPreview,
                 style: { width: "100%" }
               },
-              __13("Preview Animation", "digiblocks")
+              __16("Preview Animation", "digiblocks")
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody12,
+            TabPanelBody15,
             {
               tab: "advanced",
               name: "additional",
-              title: __13("Additional", "digiblocks"),
+              title: __16("Additional", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __13("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __16("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -17287,7 +19763,7 @@
                 autoCapitalize: "none",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __13(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __16(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
               "a",
               {
                 className: "components-external-link",
@@ -17295,10 +19771,10 @@
                 target: "_blank",
                 rel: "external noreferrer noopener"
               },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __13("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __16("Learn more about anchors", "digiblocks")),
               /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
             ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __13("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __16("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -17309,7 +19785,7 @@
                 "aria-describedby": "additional-css-classes-help",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __13("Separate multiple classes with spaces.", "digiblocks")))
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __16("Separate multiple classes with spaces.", "digiblocks")))
           ));
         default:
           return null;
@@ -17324,12 +19800,12 @@
           className: selectedCell.row === 0 && selectedCell.col === colIndex ? "digiblocks-selected-cell" : ""
         },
         /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-content" }, renderCellIcon(0, colIndex), /* @__PURE__ */ wp.element.createElement(
-          RichText12,
+          RichText16,
           {
             tagName: "span",
             value: cell,
             onChange: (value) => updateCellContent(value, 0, colIndex),
-            placeholder: __13("Header text", "digiblocks")
+            placeholder: __16("Header text", "digiblocks")
           }
         ))
       )))), /* @__PURE__ */ wp.element.createElement("tbody", null, tableData.slice(
@@ -17346,12 +19822,12 @@
             className: selectedCell.row === actualRowIndex && selectedCell.col === colIndex ? "digiblocks-selected-cell" : ""
           },
           /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-content" }, renderCellIcon(actualRowIndex, colIndex), /* @__PURE__ */ wp.element.createElement(
-            RichText12,
+            RichText16,
             {
               tagName: "span",
               value: cell,
               onChange: (value) => updateCellContent(value, actualRowIndex, colIndex),
-              placeholder: __13("Cell text", "digiblocks")
+              placeholder: __16("Cell text", "digiblocks")
             }
           ))
         )));
@@ -17363,17 +19839,17 @@
           className: selectedCell.row === tableData.length - 1 && selectedCell.col === colIndex ? "digiblocks-selected-cell" : ""
         },
         /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-content" }, renderCellIcon(tableData.length - 1, colIndex), /* @__PURE__ */ wp.element.createElement(
-          RichText12,
+          RichText16,
           {
             tagName: "span",
             value: cell,
             onChange: (value) => updateCellContent(value, tableData.length - 1, colIndex),
-            placeholder: __13("Footer text", "digiblocks")
+            placeholder: __16("Footer text", "digiblocks")
           }
         ))
       )))));
     };
-    const blockProps = useBlockProps25({
+    const blockProps = useBlockProps31({
       className: `digiblocks-table-block ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
@@ -17381,13 +19857,13 @@
       // Always set the block ID as data attribute for CSS targeting
     });
     if (!tableData || !Array.isArray(tableData) || tableData.length === 0) {
-      return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("p", null, __13("Initializing table...", "digiblocks")));
+      return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("p", null, __16("Initializing table...", "digiblocks")));
     }
     return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(BlockControls10, null, /* @__PURE__ */ wp.element.createElement(ToolbarGroup, null, /* @__PURE__ */ wp.element.createElement(
       ToolbarButton,
       {
         icon: "table-row-before",
-        label: __13("Add Row Before", "digiblocks"),
+        label: __16("Add Row Before", "digiblocks"),
         onClick: () => {
           if (selectedCell.row >= 0) {
             addRow(selectedCell.row - 1);
@@ -17400,7 +19876,7 @@
       ToolbarButton,
       {
         icon: "table-row-after",
-        label: __13("Add Row After", "digiblocks"),
+        label: __16("Add Row After", "digiblocks"),
         onClick: () => {
           if (selectedCell.row >= 0) {
             addRow(selectedCell.row);
@@ -17413,7 +19889,7 @@
       ToolbarButton,
       {
         icon: "table-row-delete",
-        label: __13("Delete Row", "digiblocks"),
+        label: __16("Delete Row", "digiblocks"),
         onClick: () => {
           if (selectedCell.row >= 0) {
             deleteRow(selectedCell.row);
@@ -17426,7 +19902,7 @@
       ToolbarButton,
       {
         icon: "table-col-before",
-        label: __13("Add Column Before", "digiblocks"),
+        label: __16("Add Column Before", "digiblocks"),
         onClick: () => {
           if (selectedCell.col >= 0) {
             addColumn(selectedCell.col - 1);
@@ -17439,7 +19915,7 @@
       ToolbarButton,
       {
         icon: "table-col-after",
-        label: __13("Add Column After", "digiblocks"),
+        label: __16("Add Column After", "digiblocks"),
         onClick: () => {
           if (selectedCell.col >= 0) {
             addColumn(selectedCell.col);
@@ -17452,7 +19928,7 @@
       ToolbarButton,
       {
         icon: "table-col-delete",
-        label: __13("Delete Column", "digiblocks"),
+        label: __16("Delete Column", "digiblocks"),
         onClick: () => {
           if (selectedCell.col >= 0) {
             deleteColumn(selectedCell.col);
@@ -17461,37 +19937,37 @@
         },
         disabled: tableData[0].length <= 1 || selectedCell.col < 0
       }
-    ))), /* @__PURE__ */ wp.element.createElement(InspectorControls13, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel13,
+    ))), /* @__PURE__ */ wp.element.createElement(InspectorControls16, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel16,
       {
         tabs: tabList,
         activeTab,
         onSelect: setActiveTab
       },
       renderTabContent()
-    )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-table-instructions" }, /* @__PURE__ */ wp.element.createElement("p", null, __13("Click on any cell to select it and add icons, checks, crosses, or star ratings.", "digiblocks"))), selectedCell.row !== -1 && selectedCell.col !== -1 && renderCellControlToolbar(), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-table-container" }, renderTableContent()), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-table-controls" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-row-controls" }, /* @__PURE__ */ wp.element.createElement(
-      Button12,
+    )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-table-instructions" }, /* @__PURE__ */ wp.element.createElement("p", null, __16("Click on any cell to select it and add icons, checks, crosses, or star ratings.", "digiblocks"))), selectedCell.row !== -1 && selectedCell.col !== -1 && renderCellControlToolbar(), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-table-container" }, renderTableContent()), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-table-controls" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-row-controls" }, /* @__PURE__ */ wp.element.createElement(
+      Button14,
       {
         isPrimary: true,
         icon: "plus",
         onClick: () => addRow(tableData.length - 1)
       },
-      __13("Add Row", "digiblocks")
+      __16("Add Row", "digiblocks")
     )), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-col-controls" }, /* @__PURE__ */ wp.element.createElement(
-      Button12,
+      Button14,
       {
         isPrimary: true,
         icon: "plus",
         onClick: () => addColumn(tableData[0].length - 1)
       },
-      __13("Add Column", "digiblocks")
+      __16("Add Column", "digiblocks")
     )))));
   };
-  var edit_default13 = TableEdit;
+  var edit_default16 = TableEdit;
 
   // blocks/table/save.js
-  var { __: __14 } = window.wp.i18n;
-  var { useBlockProps: useBlockProps26, RichText: RichText13 } = window.wp.blockEditor;
+  var { __: __17 } = window.wp.i18n;
+  var { useBlockProps: useBlockProps32, RichText: RichText17 } = window.wp.blockEditor;
   var TableSave = ({ attributes }) => {
     const {
       id,
@@ -17526,9 +20002,9 @@
         const icon = cellControls[cellKey].icon;
         switch (icon) {
           case "check":
-            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-check" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M10.97 4.97a.75.75 0 0 1 1.07 1.05l-4.5 4.75a.75.75 0 0 1-1.08.04L3.47 7.84a.75.75 0 1 1 1.06-1.07l2.5 2.46l4.94-4.26z" })));
+            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-check" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z" })));
           case "cross":
-            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-cross" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8L4.646 5.354a.5.5 0 0 1 0-.708z" })));
+            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-cross" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z" })));
           default:
             return null;
         }
@@ -17556,13 +20032,13 @@
       id: anchor || null,
       "data-custom-id": id
     };
-    return /* @__PURE__ */ wp.element.createElement("div", { ...commonProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-table-container" }, /* @__PURE__ */ wp.element.createElement("table", { className: "digiblocks-table" }, hasHeader && /* @__PURE__ */ wp.element.createElement("thead", null, /* @__PURE__ */ wp.element.createElement("tr", null, tableData[0].map((cell, colIndex) => /* @__PURE__ */ wp.element.createElement("th", { key: `header-${colIndex}` }, renderCellIcon(0, colIndex), /* @__PURE__ */ wp.element.createElement(
-      RichText13.Content,
+    return /* @__PURE__ */ wp.element.createElement("div", { ...commonProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-table-container" }, /* @__PURE__ */ wp.element.createElement("table", { className: "digiblocks-table" }, hasHeader && /* @__PURE__ */ wp.element.createElement("thead", null, /* @__PURE__ */ wp.element.createElement("tr", null, tableData[0].map((cell, colIndex) => /* @__PURE__ */ wp.element.createElement("th", { key: `header-${colIndex}` }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-content" }, renderCellIcon(0, colIndex), /* @__PURE__ */ wp.element.createElement(
+      RichText17.Content,
       {
         tagName: "span",
         value: cell
       }
-    ))))), /* @__PURE__ */ wp.element.createElement("tbody", null, tableData.slice(hasHeader ? 1 : 0, hasFooter ? tableData.length - 1 : tableData.length).map((row, rowIndex) => {
+    )))))), /* @__PURE__ */ wp.element.createElement("tbody", null, tableData.slice(hasHeader ? 1 : 0, hasFooter ? tableData.length - 1 : tableData.length).map((row, rowIndex) => {
       const actualRowIndex = hasHeader ? rowIndex + 1 : rowIndex;
       return /* @__PURE__ */ wp.element.createElement("tr", { key: `row-${actualRowIndex}` }, row.map((cell, colIndex) => /* @__PURE__ */ wp.element.createElement(
         "td",
@@ -17570,53 +20046,52 @@
           key: `cell-${actualRowIndex}-${colIndex}`,
           "data-label": hasHeader ? tableData[0][colIndex] : ""
         },
-        renderCellIcon(actualRowIndex, colIndex),
-        /* @__PURE__ */ wp.element.createElement(
-          RichText13.Content,
+        /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-content" }, renderCellIcon(actualRowIndex, colIndex), /* @__PURE__ */ wp.element.createElement(
+          RichText17.Content,
           {
             tagName: "span",
             value: cell
           }
-        )
+        ))
       )));
-    })), hasFooter && /* @__PURE__ */ wp.element.createElement("tfoot", null, /* @__PURE__ */ wp.element.createElement("tr", null, tableData[tableData.length - 1].map((cell, colIndex) => /* @__PURE__ */ wp.element.createElement("td", { key: `footer-${colIndex}` }, renderCellIcon(tableData.length - 1, colIndex), /* @__PURE__ */ wp.element.createElement(
-      RichText13.Content,
+    })), hasFooter && /* @__PURE__ */ wp.element.createElement("tfoot", null, /* @__PURE__ */ wp.element.createElement("tr", null, tableData[tableData.length - 1].map((cell, colIndex) => /* @__PURE__ */ wp.element.createElement("td", { key: `footer-${colIndex}` }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-content" }, renderCellIcon(tableData.length - 1, colIndex), /* @__PURE__ */ wp.element.createElement(
+      RichText17.Content,
       {
         tagName: "span",
         value: cell
       }
-    ))))))));
+    )))))))));
   };
-  var save_default13 = TableSave;
+  var save_default16 = TableSave;
 
   // blocks/team/edit.js
-  var { __: __15 } = window.wp.i18n;
+  var { __: __18 } = window.wp.i18n;
   var {
-    useBlockProps: useBlockProps27,
-    RichText: RichText14,
-    InspectorControls: InspectorControls14,
-    PanelColorSettings: PanelColorSettings13,
+    useBlockProps: useBlockProps33,
+    RichText: RichText18,
+    InspectorControls: InspectorControls17,
+    PanelColorSettings: PanelColorSettings15,
     MediaUpload: MediaUpload2,
     MediaUploadCheck: MediaUploadCheck2,
     URLPopover
   } = window.wp.blockEditor;
   var {
-    SelectControl: SelectControl13,
-    RangeControl: RangeControl14,
-    Button: Button13,
-    ToggleControl: ToggleControl10,
-    Tooltip: Tooltip4,
+    SelectControl: SelectControl16,
+    RangeControl: RangeControl16,
+    Button: Button15,
+    ToggleControl: ToggleControl11,
+    Tooltip: Tooltip5,
     TextControl: TextControl8,
     Popover: Popover3,
-    __experimentalToggleGroupControl: ToggleGroupControl13,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption13,
+    __experimentalToggleGroupControl: ToggleGroupControl16,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption16,
     BaseControl: BaseControl8,
     Icon
   } = window.wp.components;
-  var { useState: useState14, useEffect: useEffect14, useRef: useRef13, Fragment: Fragment2 } = window.wp.element;
-  var { animations: animations13 } = digi.utils;
-  var { tabIcons: tabIcons14 } = digi.icons;
-  var { ResponsiveControl: ResponsiveControl14, DimensionControl: DimensionControl12, TypographyControl: TypographyControl11, BoxShadowControl: BoxShadowControl11, CustomTabPanel: CustomTabPanel14, TabPanelBody: TabPanelBody13 } = digi.components;
+  var { useState: useState17, useEffect: useEffect17, useRef: useRef14, Fragment: Fragment2 } = window.wp.element;
+  var { animations: animations16 } = digi.utils;
+  var { tabIcons: tabIcons17 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl17, DimensionControl: DimensionControl14, TypographyControl: TypographyControl13, BoxShadowControl: BoxShadowControl13, CustomTabPanel: CustomTabPanel17, TabPanelBody: TabPanelBody16 } = digi.components;
   var socialIconsSVG2 = {
     facebook: /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 320 512", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z" })),
     twitter: /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z" })),
@@ -17678,19 +20153,19 @@
       showBio,
       showSocial
     } = attributes;
-    const [activeTab, setActiveTab] = useState14("options");
-    const [socialSelectPopover, setSocialSelectPopover] = useState14(null);
-    const [urlPopover, setUrlPopover] = useState14(null);
-    const [localActiveDevice, setLocalActiveDevice] = useState14(window.digi.responsiveState.activeDevice);
-    const [animating, setAnimating] = useState14(false);
-    const previewTimeoutRef = useRef13(null);
-    useEffect14(() => {
+    const [activeTab, setActiveTab] = useState17("options");
+    const [socialSelectPopover, setSocialSelectPopover] = useState17(null);
+    const [urlPopover, setUrlPopover] = useState17(null);
+    const [localActiveDevice, setLocalActiveDevice] = useState17(window.digi.responsiveState.activeDevice);
+    const [animating, setAnimating] = useState17(false);
+    const previewTimeoutRef = useRef14(null);
+    useEffect17(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
       });
       return unsubscribe;
     }, []);
-    useEffect14(() => {
+    useEffect17(() => {
       if (!id || !id.includes(clientId.substr(0, 8))) {
         setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
       }
@@ -17715,7 +20190,7 @@
         }
       }
     }, [clientId, members, setAttributes, id]);
-    useEffect14(() => {
+    useEffect17(() => {
       return () => {
         if (previewTimeoutRef.current) {
           clearTimeout(previewTimeoutRef.current);
@@ -17734,8 +20209,8 @@
         return;
       }
       const timestamp = Date.now();
-      if (animations13[animation]) {
-        const originalKeyframes = animations13[animation].keyframes;
+      if (animations16[animation]) {
+        const originalKeyframes = animations16[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
           console.error("Could not extract animation name from keyframes");
@@ -17778,7 +20253,7 @@
         }, 1500);
       }
     };
-    useEffect14(() => {
+    useEffect17(() => {
       if (animation && animation !== "none") {
         const timeoutId = setTimeout(() => {
           triggerAnimationPreview();
@@ -17787,40 +20262,40 @@
       }
     }, [animation]);
     const imageStyleOptions = [
-      { label: __15("Default", "digiblocks"), value: "default" },
-      { label: __15("Circle", "digiblocks"), value: "circle" },
-      { label: __15("Square", "digiblocks"), value: "square" },
-      { label: __15("Rounded", "digiblocks"), value: "rounded" }
+      { label: __18("Default", "digiblocks"), value: "default" },
+      { label: __18("Circle", "digiblocks"), value: "circle" },
+      { label: __18("Square", "digiblocks"), value: "square" },
+      { label: __18("Rounded", "digiblocks"), value: "rounded" }
     ];
     const borderStyleOptions = [
-      { label: __15("None", "digiblocks"), value: "none" },
-      { label: __15("Solid", "digiblocks"), value: "solid" },
-      { label: __15("Dotted", "digiblocks"), value: "dotted" },
-      { label: __15("Dashed", "digiblocks"), value: "dashed" },
-      { label: __15("Double", "digiblocks"), value: "double" },
-      { label: __15("Groove", "digiblocks"), value: "groove" },
-      { label: __15("Ridge", "digiblocks"), value: "ridge" },
-      { label: __15("Inset", "digiblocks"), value: "inset" },
-      { label: __15("Outset", "digiblocks"), value: "outset" }
+      { label: __18("None", "digiblocks"), value: "none" },
+      { label: __18("Solid", "digiblocks"), value: "solid" },
+      { label: __18("Dotted", "digiblocks"), value: "dotted" },
+      { label: __18("Dashed", "digiblocks"), value: "dashed" },
+      { label: __18("Double", "digiblocks"), value: "double" },
+      { label: __18("Groove", "digiblocks"), value: "groove" },
+      { label: __18("Ridge", "digiblocks"), value: "ridge" },
+      { label: __18("Inset", "digiblocks"), value: "inset" },
+      { label: __18("Outset", "digiblocks"), value: "outset" }
     ];
     const socialNetworks = [
-      { label: __15("Facebook", "digiblocks"), value: "facebook" },
-      { label: __15("Twitter", "digiblocks"), value: "twitter" },
-      { label: __15("LinkedIn", "digiblocks"), value: "linkedin" },
-      { label: __15("Instagram", "digiblocks"), value: "instagram" },
-      { label: __15("Pinterest", "digiblocks"), value: "pinterest" },
-      { label: __15("YouTube", "digiblocks"), value: "youtube" },
-      { label: __15("Dribbble", "digiblocks"), value: "dribbble" },
-      { label: __15("GitHub", "digiblocks"), value: "github" },
-      { label: __15("Behance", "digiblocks"), value: "behance" },
-      { label: __15("Vimeo", "digiblocks"), value: "vimeo" },
-      { label: __15("TikTok", "digiblocks"), value: "tiktok" },
-      { label: __15("Email", "digiblocks"), value: "email" },
-      { label: __15("Website", "digiblocks"), value: "website" }
+      { label: __18("Facebook", "digiblocks"), value: "facebook" },
+      { label: __18("Twitter", "digiblocks"), value: "twitter" },
+      { label: __18("LinkedIn", "digiblocks"), value: "linkedin" },
+      { label: __18("Instagram", "digiblocks"), value: "instagram" },
+      { label: __18("Pinterest", "digiblocks"), value: "pinterest" },
+      { label: __18("YouTube", "digiblocks"), value: "youtube" },
+      { label: __18("Dribbble", "digiblocks"), value: "dribbble" },
+      { label: __18("GitHub", "digiblocks"), value: "github" },
+      { label: __18("Behance", "digiblocks"), value: "behance" },
+      { label: __18("Vimeo", "digiblocks"), value: "vimeo" },
+      { label: __18("TikTok", "digiblocks"), value: "tiktok" },
+      { label: __18("Email", "digiblocks"), value: "email" },
+      { label: __18("Website", "digiblocks"), value: "website" }
     ];
     const animationOptions = [
-      { label: __15("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations13).map((animation2) => ({
+      { label: __18("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations16).map((animation2) => ({
         label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
         value: animation2
       }))
@@ -17828,27 +20303,27 @@
     const tabList = [
       {
         name: "options",
-        title: __15("Options", "digiblocks"),
-        icon: tabIcons14.optionsIcon
+        title: __18("Options", "digiblocks"),
+        icon: tabIcons17.optionsIcon
       },
       {
         name: "style",
-        title: __15("Style", "digiblocks"),
-        icon: tabIcons14.styleIcon
+        title: __18("Style", "digiblocks"),
+        icon: tabIcons17.styleIcon
       },
       {
         name: "advanced",
-        title: __15("Advanced", "digiblocks"),
-        icon: tabIcons14.advancedIcon
+        title: __18("Advanced", "digiblocks"),
+        icon: tabIcons17.advancedIcon
       }
     ];
     const addTeamMember = () => {
       const newMemberId = `team-member-${clientId.substr(0, 8)}-${Date.now()}`;
       const newMember = {
         id: newMemberId,
-        name: __15("New Team Member", "digiblocks"),
-        position: __15("Position", "digiblocks"),
-        bio: __15("Add a short bio about this team member.", "digiblocks"),
+        name: __18("New Team Member", "digiblocks"),
+        position: __18("Position", "digiblocks"),
+        bio: __18("Add a short bio about this team member.", "digiblocks"),
         image: {
           url: "",
           id: "",
@@ -17988,8 +20463,8 @@
           expandOnMobile: true,
           className: "digiblocks-team-social-select-popover"
         },
-        /* @__PURE__ */ wp.element.createElement("div", { style: { padding: "12px", width: "280px", maxHeight: "400px", overflowY: "auto" } }, /* @__PURE__ */ wp.element.createElement("div", { style: { marginBottom: "10px", fontWeight: "bold" } }, __15("Select Social Network", "digiblocks")), /* @__PURE__ */ wp.element.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" } }, availableNetworks.map((network) => /* @__PURE__ */ wp.element.createElement(
-          Button13,
+        /* @__PURE__ */ wp.element.createElement("div", { style: { padding: "12px", width: "280px", maxHeight: "400px", overflowY: "auto" } }, /* @__PURE__ */ wp.element.createElement("div", { style: { marginBottom: "10px", fontWeight: "bold" } }, __18("Select Social Network", "digiblocks")), /* @__PURE__ */ wp.element.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" } }, availableNetworks.map((network) => /* @__PURE__ */ wp.element.createElement(
+          Button15,
           {
             key: network.value,
             variant: "secondary",
@@ -18383,8 +20858,8 @@
     };
     const renderTeamMembers = () => {
       return members.map((member, index) => {
-        return /* @__PURE__ */ wp.element.createElement("div", { key: member.id, className: "digiblocks-team-member" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-team-member-controls" }, /* @__PURE__ */ wp.element.createElement(Tooltip4, { text: __15("Move Up", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-          Button13,
+        return /* @__PURE__ */ wp.element.createElement("div", { key: member.id, className: "digiblocks-team-member" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-team-member-controls" }, /* @__PURE__ */ wp.element.createElement(Tooltip5, { text: __18("Move Up", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+          Button15,
           {
             className: "digiblocks-team-member-move-up",
             onClick: () => moveTeamMemberUp(index),
@@ -18392,8 +20867,8 @@
             disabled: index === 0,
             isSmall: true
           }
-        )), /* @__PURE__ */ wp.element.createElement(Tooltip4, { text: __15("Move Down", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-          Button13,
+        )), /* @__PURE__ */ wp.element.createElement(Tooltip5, { text: __18("Move Down", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+          Button15,
           {
             className: "digiblocks-team-member-move-down",
             onClick: () => moveTeamMemberDown(index),
@@ -18401,16 +20876,16 @@
             disabled: index === members.length - 1,
             isSmall: true
           }
-        )), /* @__PURE__ */ wp.element.createElement(Tooltip4, { text: __15("Duplicate", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-          Button13,
+        )), /* @__PURE__ */ wp.element.createElement(Tooltip5, { text: __18("Duplicate", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+          Button15,
           {
             className: "digiblocks-team-member-duplicate",
             onClick: () => duplicateTeamMember(index),
             icon: "admin-page",
             isSmall: true
           }
-        )), /* @__PURE__ */ wp.element.createElement(Tooltip4, { text: __15("Remove", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-          Button13,
+        )), /* @__PURE__ */ wp.element.createElement(Tooltip5, { text: __18("Remove", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+          Button15,
           {
             className: "digiblocks-team-member-remove",
             onClick: () => removeTeamMember(index),
@@ -18432,36 +20907,36 @@
                 onClick: open,
                 style: { cursor: "pointer" }
               }
-            ) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-team-member-placeholder", onClick: open }, __15("Choose Image", "digiblocks"))
+            ) : /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-team-member-placeholder", onClick: open }, __18("Choose Image", "digiblocks"))
           }
         ))), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-team-member-content" }, showName && /* @__PURE__ */ wp.element.createElement(
-          RichText14,
+          RichText18,
           {
             tagName: "h3",
             className: "digiblocks-team-member-name",
             value: member.name,
             onChange: (value) => updateTeamMember(index, "name", value),
-            placeholder: __15("Team Member Name", "digiblocks"),
+            placeholder: __18("Team Member Name", "digiblocks"),
             allowedFormats: ["core/bold", "core/italic"]
           }
         ), showPosition && /* @__PURE__ */ wp.element.createElement(
-          RichText14,
+          RichText18,
           {
             tagName: "div",
             className: "digiblocks-team-member-position",
             value: member.position,
             onChange: (value) => updateTeamMember(index, "position", value),
-            placeholder: __15("Position or Role", "digiblocks"),
+            placeholder: __18("Position or Role", "digiblocks"),
             allowedFormats: ["core/bold", "core/italic"]
           }
         ), showBio && /* @__PURE__ */ wp.element.createElement(
-          RichText14,
+          RichText18,
           {
             tagName: "div",
             className: "digiblocks-team-member-bio",
             value: member.bio,
             onChange: (value) => updateTeamMember(index, "bio", value),
-            placeholder: __15("Add a short bio about this team member.", "digiblocks"),
+            placeholder: __18("Add a short bio about this team member.", "digiblocks"),
             allowedFormats: ["core/bold", "core/italic", "core/link"]
           }
         ), showSocial && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-team-member-social" }, member.socials && member.socials.map((social, socialIndex) => /* @__PURE__ */ wp.element.createElement("div", { key: social.id, className: "digiblocks-team-member-social-icon-wrapper" }, /* @__PURE__ */ wp.element.createElement(
@@ -18473,13 +20948,13 @@
           },
           socialIconsSVG2[social.network]
         ), /* @__PURE__ */ wp.element.createElement(
-          Button13,
+          Button15,
           {
             className: "digiblocks-team-member-social-icon-remove",
             onClick: () => removeSocialLink(index, socialIndex),
             icon: "no-alt",
             isSmall: true,
-            label: __15("Remove", "digiblocks"),
+            label: __18("Remove", "digiblocks"),
             style: {
               position: "absolute",
               top: "-12px",
@@ -18497,7 +20972,7 @@
             id: `add-social-${index}`,
             className: "digiblocks-team-member-social-icon add-social",
             onClick: () => openSocialSelectPopover(index),
-            title: __15("Add Social Link", "digiblocks")
+            title: __18("Add Social Link", "digiblocks")
           },
           plusIcon2
         ))));
@@ -18518,9 +20993,9 @@
           className: "digiblocks-team-social-url-popover"
         },
         /* @__PURE__ */ wp.element.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "1rem", padding: "12px", minWidth: "280px" } }, /* @__PURE__ */ wp.element.createElement(
-          SelectControl13,
+          SelectControl16,
           {
-            label: __15("Social Network", "digiblocks"),
+            label: __18("Social Network", "digiblocks"),
             value: social.network,
             options: socialNetworks,
             onChange: (value) => updateSocialLink(memberIndex, socialIndex, "network", value),
@@ -18530,7 +21005,7 @@
         ), /* @__PURE__ */ wp.element.createElement(
           TextControl8,
           {
-            label: __15("URL", "digiblocks"),
+            label: __18("URL", "digiblocks"),
             value: social.url,
             onChange: (value) => updateSocialLink(memberIndex, socialIndex, "url", value),
             placeholder: social.network === "email" ? "mailto:example@domain.com" : social.network === "website" ? "https://example.com" : `https://${social.network}.com/username`,
@@ -18538,13 +21013,13 @@
             __nextHasNoMarginBottom: true
           }
         ), /* @__PURE__ */ wp.element.createElement(
-          Button13,
+          Button15,
           {
             variant: "primary",
             onClick: closeUrlPopover,
             style: { justifyContent: "center", width: "100%" }
           },
-          __15("Done", "digiblocks")
+          __18("Done", "digiblocks")
         ))
       );
     };
@@ -18552,40 +21027,40 @@
       switch (activeTab) {
         case "options":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody13,
+            TabPanelBody16,
             {
               tab: "options",
               name: "layout-settings",
-              title: __15("Layout Settings", "digiblocks"),
+              title: __18("Layout Settings", "digiblocks"),
               initialOpen: true
             },
-            /* @__PURE__ */ wp.element.createElement(BaseControl8, { id: "team-alignment-control", label: __15("Layout Type", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControl13,
+            /* @__PURE__ */ wp.element.createElement(BaseControl8, { id: "team-alignment-control", label: __18("Layout Type", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControl16,
               {
                 value: layout,
                 onChange: (value) => setAttributes({ layout: value }),
                 isBlock: true
               },
-              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption13, { value: "grid", label: __15("Grid", "digiblocks"), "aria-label": __15("Grid Layout", "digiblocks") }),
-              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption13, { value: "list", label: __15("List", "digiblocks"), "aria-label": __15("List Layout", "digiblocks") })
+              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption16, { value: "grid", label: __18("Grid", "digiblocks"), "aria-label": __18("Grid Layout", "digiblocks") }),
+              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption16, { value: "list", label: __18("List", "digiblocks"), "aria-label": __18("List Layout", "digiblocks") })
             )),
-            layout === "grid" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(BaseControl8, { id: "team-alignment-control", label: __15("Alignment", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControl13,
+            layout === "grid" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(BaseControl8, { id: "team-alignment-control", label: __18("Alignment", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControl16,
               {
                 value: alignment,
                 onChange: (value) => setAttributes({ alignment: value }),
                 isBlock: true
               },
-              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption13, { value: "left", label: __15("Left", "digiblocks"), "aria-label": __15("Left alignment", "digiblocks") }),
-              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption13, { value: "center", label: __15("Center", "digiblocks"), "aria-label": __15("Center alignment", "digiblocks") }),
-              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption13, { value: "right", label: __15("Right", "digiblocks"), "aria-label": __15("Right alignment", "digiblocks") })
+              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption16, { value: "left", label: __18("Left", "digiblocks"), "aria-label": __18("Left alignment", "digiblocks") }),
+              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption16, { value: "center", label: __18("Center", "digiblocks"), "aria-label": __18("Center alignment", "digiblocks") }),
+              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption16, { value: "right", label: __18("Right", "digiblocks"), "aria-label": __18("Right alignment", "digiblocks") })
             )), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Columns", "digiblocks")
+                label: __18("Columns", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl14,
+                RangeControl16,
                 {
                   value: columns[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -18602,12 +21077,12 @@
                 }
               )
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Spacing", "digiblocks")
+                label: __18("Spacing", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl14,
+                RangeControl16,
                 {
                   value: gutter[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -18625,57 +21100,57 @@
               )
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody13,
+            TabPanelBody16,
             {
               tab: "options",
               name: "content-settings",
-              title: __15("Content Settings", "digiblocks"),
+              title: __18("Content Settings", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl10,
+              ToggleControl11,
               {
-                label: __15("Show Name", "digiblocks"),
+                label: __18("Show Name", "digiblocks"),
                 checked: showName,
                 onChange: () => setAttributes({ showName: !showName })
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl10,
+              ToggleControl11,
               {
-                label: __15("Show Position", "digiblocks"),
+                label: __18("Show Position", "digiblocks"),
                 checked: showPosition,
                 onChange: () => setAttributes({ showPosition: !showPosition })
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl10,
+              ToggleControl11,
               {
-                label: __15("Show Bio", "digiblocks"),
+                label: __18("Show Bio", "digiblocks"),
                 checked: showBio,
                 onChange: () => setAttributes({ showBio: !showBio })
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ToggleControl10,
+              ToggleControl11,
               {
-                label: __15("Show Social Icons", "digiblocks"),
+                label: __18("Show Social Icons", "digiblocks"),
                 checked: showSocial,
                 onChange: () => setAttributes({ showSocial: !showSocial })
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody13,
+            TabPanelBody16,
             {
               tab: "options",
               name: "image-settings",
-              title: __15("Image Settings", "digiblocks"),
+              title: __18("Image Settings", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl13,
+              SelectControl16,
               {
-                label: __15("Image Style", "digiblocks"),
+                label: __18("Image Style", "digiblocks"),
                 value: imageStyle,
                 options: imageStyleOptions,
                 onChange: (value) => setAttributes({ imageStyle: value }),
@@ -18684,12 +21159,12 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Image Size", "digiblocks")
+                label: __18("Image Size", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl14,
+                RangeControl16,
                 {
                   value: imageSize[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -18707,9 +21182,9 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl13,
+              SelectControl16,
               {
-                label: __15("Border Style", "digiblocks"),
+                label: __18("Border Style", "digiblocks"),
                 value: imageBorderStyle,
                 options: borderStyleOptions,
                 onChange: (value) => setAttributes({ imageBorderStyle: value }),
@@ -18718,26 +21193,26 @@
               }
             ),
             imageBorderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings13,
+              PanelColorSettings15,
               {
-                title: __15("Border Color", "digiblocks"),
+                title: __18("Border Color", "digiblocks"),
                 initialOpen: false,
                 enableAlpha: true,
                 colorSettings: [
                   {
                     value: imageBorderColor,
                     onChange: (value) => setAttributes({ imageBorderColor: value }),
-                    label: __15("Border Color", "digiblocks")
+                    label: __18("Border Color", "digiblocks")
                   }
                 ]
               }
             ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Border Width", "digiblocks")
+                label: __18("Border Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl12,
+                DimensionControl14,
                 {
                   values: imageBorderWidth[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -18750,12 +21225,12 @@
               )
             )),
             imageStyle === "default" && /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Border Radius", "digiblocks")
+                label: __18("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl12,
+                DimensionControl14,
                 {
                   values: imageBorderRadius[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -18770,97 +21245,97 @@
           ));
         case "style":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody13,
+            TabPanelBody16,
             {
               tab: "style",
               name: "colors",
-              title: __15("Colors", "digiblocks"),
+              title: __18("Colors", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings13,
+              PanelColorSettings15,
               {
-                title: __15("Text Colors", "digiblocks"),
+                title: __18("Text Colors", "digiblocks"),
                 initialOpen: true,
                 colorSettings: [
                   {
                     value: nameColor,
                     onChange: (value) => setAttributes({ nameColor: value }),
-                    label: __15("Name Color", "digiblocks")
+                    label: __18("Name Color", "digiblocks")
                   },
                   {
                     value: positionColor,
                     onChange: (value) => setAttributes({ positionColor: value }),
-                    label: __15("Position Color", "digiblocks")
+                    label: __18("Position Color", "digiblocks")
                   },
                   {
                     value: bioColor,
                     onChange: (value) => setAttributes({ bioColor: value }),
-                    label: __15("Bio Color", "digiblocks")
+                    label: __18("Bio Color", "digiblocks")
                   }
                 ]
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings13,
+              PanelColorSettings15,
               {
-                title: __15("Social Icon Colors", "digiblocks"),
+                title: __18("Social Icon Colors", "digiblocks"),
                 initialOpen: false,
                 colorSettings: [
                   {
                     value: iconColor,
                     onChange: (value) => setAttributes({ iconColor: value }),
-                    label: __15("Icon Color", "digiblocks")
+                    label: __18("Icon Color", "digiblocks")
                   },
                   {
                     value: iconHoverColor,
                     onChange: (value) => setAttributes({ iconHoverColor: value }),
-                    label: __15("Icon Hover Color", "digiblocks")
+                    label: __18("Icon Hover Color", "digiblocks")
                   },
                   {
                     value: iconBackgroundColor,
                     onChange: (value) => setAttributes({ iconBackgroundColor: value }),
-                    label: __15("Icon Background", "digiblocks")
+                    label: __18("Icon Background", "digiblocks")
                   },
                   {
                     value: iconBackgroundHoverColor,
                     onChange: (value) => setAttributes({ iconBackgroundHoverColor: value }),
-                    label: __15("Icon Background Hover", "digiblocks")
+                    label: __18("Icon Background Hover", "digiblocks")
                   }
                 ]
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings13,
+              PanelColorSettings15,
               {
-                title: __15("Box Colors", "digiblocks"),
+                title: __18("Box Colors", "digiblocks"),
                 initialOpen: false,
                 colorSettings: [
                   {
                     value: boxBackgroundColor,
                     onChange: (value) => setAttributes({ boxBackgroundColor: value }),
-                    label: __15("Background Color", "digiblocks")
+                    label: __18("Background Color", "digiblocks")
                   },
                   {
                     value: boxBorderColor,
                     onChange: (value) => setAttributes({ boxBorderColor: value }),
-                    label: __15("Border Color", "digiblocks")
+                    label: __18("Border Color", "digiblocks")
                   }
                 ]
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody13,
+            TabPanelBody16,
             {
               tab: "style",
               name: "typography",
-              title: __15("Typography", "digiblocks"),
+              title: __18("Typography", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl11,
+              TypographyControl13,
               {
-                label: __15("Name Typography", "digiblocks"),
+                label: __18("Name Typography", "digiblocks"),
                 value: typography,
                 onChange: (value) => setAttributes({ typography: value }),
                 defaults: {
@@ -18872,9 +21347,9 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl11,
+              TypographyControl13,
               {
-                label: __15("Position Typography", "digiblocks"),
+                label: __18("Position Typography", "digiblocks"),
                 value: textTypography,
                 onChange: (value) => setAttributes({ textTypography: value }),
                 defaults: {
@@ -18886,9 +21361,9 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              TypographyControl11,
+              TypographyControl13,
               {
-                label: __15("Bio Typography", "digiblocks"),
+                label: __18("Bio Typography", "digiblocks"),
                 value: contentTypography,
                 onChange: (value) => setAttributes({ contentTypography: value }),
                 defaults: {
@@ -18900,20 +21375,20 @@
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody13,
+            TabPanelBody16,
             {
               tab: "style",
               name: "social-icons",
-              title: __15("Social Icons", "digiblocks"),
+              title: __18("Social Icons", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Icon Size", "digiblocks")
+                label: __18("Icon Size", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl14,
+                RangeControl16,
                 {
                   value: iconSize[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -18931,12 +21406,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Icon Spacing", "digiblocks")
+                label: __18("Icon Spacing", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                RangeControl14,
+                RangeControl16,
                 {
                   value: iconSpacing[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -18954,12 +21429,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Icon Padding", "digiblocks")
+                label: __18("Icon Padding", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl12,
+                DimensionControl14,
                 {
                   values: iconPadding[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -18972,12 +21447,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Border Radius", "digiblocks")
+                label: __18("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl12,
+                DimensionControl14,
                 {
                   values: iconBorderRadius[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -18990,17 +21465,17 @@
               )
             )
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody13,
+            TabPanelBody16,
             {
               tab: "style",
               name: "box-style",
-              title: __15("Box Style", "digiblocks"),
+              title: __18("Box Style", "digiblocks"),
               initialOpen: false
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl13,
+              SelectControl16,
               {
-                label: __15("Border Style", "digiblocks"),
+                label: __18("Border Style", "digiblocks"),
                 value: boxBorderStyle,
                 options: borderStyleOptions,
                 onChange: (value) => setAttributes({ boxBorderStyle: value }),
@@ -19009,12 +21484,12 @@
               }
             ),
             boxBorderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Border Width", "digiblocks")
+                label: __18("Border Width", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl12,
+                DimensionControl14,
                 {
                   values: boxBorderWidth[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -19027,12 +21502,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Border Radius", "digiblocks")
+                label: __18("Border Radius", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl12,
+                DimensionControl14,
                 {
                   values: boxBorderRadius[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -19045,9 +21520,9 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              BoxShadowControl11,
+              BoxShadowControl13,
               {
-                label: __15("Box Shadow", "digiblocks"),
+                label: __18("Box Shadow", "digiblocks"),
                 normalValue: boxShadow,
                 hoverValue: boxShadowHover,
                 onNormalChange: (value) => setAttributes({ boxShadow: value }),
@@ -19055,12 +21530,12 @@
               }
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Padding", "digiblocks")
+                label: __18("Padding", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl12,
+                DimensionControl14,
                 {
                   values: boxPadding[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -19073,12 +21548,12 @@
               )
             ),
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl14,
+              ResponsiveControl17,
               {
-                label: __15("Margin", "digiblocks")
+                label: __18("Margin", "digiblocks")
               },
               /* @__PURE__ */ wp.element.createElement(
-                DimensionControl12,
+                DimensionControl14,
                 {
                   values: boxMargin[localActiveDevice],
                   onChange: (value) => setAttributes({
@@ -19093,17 +21568,17 @@
           ));
         case "advanced":
           return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody13,
+            TabPanelBody16,
             {
               tab: "advanced",
               name: "animation",
-              title: __15("Animation", "digiblocks"),
+              title: __18("Animation", "digiblocks"),
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              SelectControl13,
+              SelectControl16,
               {
-                label: __15("Animation Effect", "digiblocks"),
+                label: __18("Animation Effect", "digiblocks"),
                 value: animation,
                 options: animationOptions,
                 onChange: (value) => setAttributes({ animation: value }),
@@ -19112,24 +21587,24 @@
               }
             ),
             animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button13,
+              Button15,
               {
                 variant: "secondary",
                 onClick: triggerAnimationPreview,
                 style: { width: "100%" },
                 disabled: animating
               },
-              animating ? __15("Previewing...", "digiblocks") : __15("Preview Animation", "digiblocks")
+              animating ? __18("Previewing...", "digiblocks") : __18("Preview Animation", "digiblocks")
             ))
           ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody13,
+            TabPanelBody16,
             {
               tab: "advanced",
               name: "additional",
-              title: __15("Additional", "digiblocks"),
+              title: __18("Additional", "digiblocks"),
               initialOpen: false
             },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __15("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __18("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -19141,7 +21616,7 @@
                 autoCapitalize: "none",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __15(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __18(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
               "a",
               {
                 className: "components-external-link",
@@ -19149,10 +21624,10 @@
                 target: "_blank",
                 rel: "external noreferrer noopener"
               },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __15("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __18("Learn more about anchors", "digiblocks")),
               /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
             ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __15("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __18("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
               "input",
               {
                 className: "components-text-control__input",
@@ -19163,21 +21638,21 @@
                 "aria-describedby": "additional-css-classes-help",
                 autoComplete: "off"
               }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __15("Separate multiple classes with spaces.", "digiblocks")))
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __18("Separate multiple classes with spaces.", "digiblocks")))
           ));
         default:
           return null;
       }
     };
-    const blockProps = useBlockProps27({
+    const blockProps = useBlockProps33({
       className: `digiblocks-team-block layout-${layout} align-${alignment} ${customClasses || ""}`,
       id: anchor || null,
       // Set the anchor as ID if provided
       "data-custom-id": id
       // Always set the block ID as data attribute for CSS targeting
     });
-    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls14, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel14,
+    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls17, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel17,
       {
         tabs: tabList,
         activeTab,
@@ -19185,20 +21660,20 @@
       },
       renderTabContent()
     )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-team-container" }, renderTeamMembers()), /* @__PURE__ */ wp.element.createElement(
-      Button13,
+      Button15,
       {
         variant: "primary",
         icon: "plus",
         onClick: addTeamMember,
         style: { width: "100%", marginTop: "20px", justifyContent: "center" }
       },
-      __15("Add Team Member", "digiblocks")
+      __18("Add Team Member", "digiblocks")
     ), renderUrlPopover(), renderSocialSelectPopover()));
   };
-  var edit_default14 = TeamEdit;
+  var edit_default17 = TeamEdit;
 
   // blocks/team/save.js
-  var { useBlockProps: useBlockProps28, RichText: RichText15 } = window.wp.blockEditor;
+  var { useBlockProps: useBlockProps34, RichText: RichText19 } = window.wp.blockEditor;
   var socialIconsSVG3 = {
     facebook: /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 320 512" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z" })),
     twitter: /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z" })),
@@ -19229,7 +21704,7 @@
       showSocial
     } = attributes;
     const blockClass = `digiblocks-team-block layout-${layout} align-${alignment} ${animation !== "none" ? `animate-${animation}` : ""} ${customClasses || ""}`;
-    const blockProps = useBlockProps28.save({
+    const blockProps = useBlockProps34.save({
       className: blockClass,
       id: anchor || null,
       "data-custom-id": id
@@ -19243,21 +21718,21 @@
             alt: member.image.alt || member.name
           }
         )), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-team-member-content" }, showName && /* @__PURE__ */ wp.element.createElement(
-          RichText15.Content,
+          RichText19.Content,
           {
             tagName: "h3",
             className: "digiblocks-team-member-name",
             value: member.name
           }
         ), showPosition && /* @__PURE__ */ wp.element.createElement(
-          RichText15.Content,
+          RichText19.Content,
           {
             tagName: "div",
             className: "digiblocks-team-member-position",
             value: member.position
           }
         ), showBio && /* @__PURE__ */ wp.element.createElement(
-          RichText15.Content,
+          RichText19.Content,
           {
             tagName: "div",
             className: "digiblocks-team-member-bio",
@@ -19282,10 +21757,1357 @@
     };
     return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-team-container" }, renderTeamMembers()));
   };
-  var save_default14 = TeamSave;
+  var save_default17 = TeamSave;
+
+  // blocks/testimonials/edit.js
+  var { __: __19 } = window.wp.i18n;
+  var {
+    useBlockProps: useBlockProps35,
+    RichText: RichText20,
+    InspectorControls: InspectorControls18,
+    PanelColorSettings: PanelColorSettings16,
+    MediaUpload: MediaUpload3,
+    MediaUploadCheck: MediaUploadCheck3
+  } = window.wp.blockEditor;
+  var {
+    BaseControl: BaseControl9,
+    SelectControl: SelectControl17,
+    RangeControl: RangeControl17,
+    ToggleControl: ToggleControl12,
+    Button: Button16,
+    TabPanel: TabPanel13,
+    Tooltip: Tooltip6,
+    __experimentalToggleGroupControl: ToggleGroupControl17,
+    __experimentalToggleGroupControlOption: ToggleGroupControlOption17
+  } = window.wp.components;
+  var { useState: useState18, useEffect: useEffect18, useRef: useRef15 } = window.wp.element;
+  var { animations: animations17 } = digi.utils;
+  var { tabIcons: tabIcons18 } = digi.icons;
+  var { ResponsiveControl: ResponsiveControl18, DimensionControl: DimensionControl15, TypographyControl: TypographyControl14, BoxShadowControl: BoxShadowControl14, CustomTabPanel: CustomTabPanel18, TabPanelBody: TabPanelBody17 } = digi.components;
+  var TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
+    const {
+      id,
+      anchor,
+      customClasses,
+      testimonials,
+      columns,
+      nameColor,
+      nameHoverColor,
+      positionColor,
+      contentColor,
+      backgroundColor,
+      backgroundHoverColor,
+      quoteIconColor,
+      ratingColor,
+      borderStyle,
+      borderWidth,
+      borderRadius,
+      borderColor,
+      boxShadow,
+      boxShadowHover,
+      padding,
+      margin,
+      contentTypography,
+      headingTypography,
+      textTypography,
+      imageSize,
+      quoteIconSize,
+      showRating,
+      showQuoteIcon,
+      animation,
+      align,
+      itemSpacing
+    } = attributes;
+    const [activeTab, setActiveTab] = useState18("options");
+    const [localActiveDevice, setLocalActiveDevice] = useState18(window.digi.responsiveState.activeDevice);
+    const [isAnimating, setIsAnimating] = useState18(false);
+    const previewTimeoutRef = useRef15(null);
+    useEffect18(() => {
+      const unsubscribe = window.digi.responsiveState.subscribe((device) => {
+        setLocalActiveDevice(device);
+      });
+      return unsubscribe;
+    }, []);
+    useEffect18(() => {
+      if (!id || !id.includes(clientId.substr(0, 8))) {
+        setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
+      }
+      if (testimonials && testimonials.length > 0) {
+        const updatedTestimonials = testimonials.map((item, index) => {
+          if (!item.id) {
+            return { ...item, id: `testimonial-${clientId.substr(0, 8)}-${index}` };
+          }
+          return item;
+        });
+        if (JSON.stringify(updatedTestimonials) !== JSON.stringify(testimonials)) {
+          setAttributes({ testimonials: updatedTestimonials });
+        }
+      }
+    }, [clientId, testimonials, setAttributes]);
+    useEffect18(() => {
+      return () => {
+        if (previewTimeoutRef.current) {
+          clearTimeout(previewTimeoutRef.current);
+        }
+      };
+    }, []);
+    const triggerAnimationPreview = () => {
+      if (!animation || animation === "none") {
+        return;
+      }
+      if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current);
+      }
+      const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
+      if (!blockElement) {
+        return;
+      }
+      const timestamp = Date.now();
+      if (animations17[animation]) {
+        const originalKeyframes = animations17[animation].keyframes;
+        const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
+        if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
+          console.error("Could not extract animation name from keyframes");
+          return;
+        }
+        const originalAnimName = originalAnimNameMatch[1];
+        const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
+        const styleElement = document.createElement("style");
+        styleElement.id = `animation-style-${id}_${timestamp}`;
+        const updatedKeyframes = originalKeyframes.replace(
+          new RegExp(originalAnimName, "g"),
+          uniqueAnimName
+        );
+        styleElement.textContent = `
+                ${updatedKeyframes}
+                
+                [data-custom-id="${id}"] {
+                    animation: none; /* Reset first */
+                }
+            `;
+        document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach((el) => {
+          el.remove();
+        });
+        document.head.appendChild(styleElement);
+        blockElement.offsetHeight;
+        const animationStyleElement = document.createElement("style");
+        animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
+        animationStyleElement.textContent = `
+                [data-custom-id="${id}"] {
+                    animation: ${uniqueAnimName} 1.5s forwards !important;
+                }
+            `;
+        document.head.appendChild(animationStyleElement);
+        previewTimeoutRef.current = setTimeout(() => {
+          styleElement.remove();
+          animationStyleElement.remove();
+          blockElement.style.animation = "";
+        }, 1500);
+      }
+    };
+    useEffect18(() => {
+      if (animation && animation !== "none") {
+        const timeoutId = setTimeout(() => {
+          triggerAnimationPreview();
+        }, 100);
+        return () => clearTimeout(timeoutId);
+      }
+    }, [animation]);
+    const borderStyleOptions = [
+      { label: __19("Default", "digiblocks"), value: "default" },
+      { label: __19("None", "digiblocks"), value: "none" },
+      { label: __19("Solid", "digiblocks"), value: "solid" },
+      { label: __19("Dotted", "digiblocks"), value: "dotted" },
+      { label: __19("Dashed", "digiblocks"), value: "dashed" },
+      { label: __19("Double", "digiblocks"), value: "double" },
+      { label: __19("Groove", "digiblocks"), value: "groove" },
+      { label: __19("Inset", "digiblocks"), value: "inset" },
+      { label: __19("Outset", "digiblocks"), value: "outset" },
+      { label: __19("Ridge", "digiblocks"), value: "ridge" }
+    ];
+    const animationOptions = [
+      { label: __19("None", "digiblocks"), value: "none" },
+      ...Object.keys(animations17).map((animation2) => ({
+        label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+        value: animation2
+      }))
+    ];
+    const tabList = [
+      {
+        name: "options",
+        title: __19("Options", "digiblocks"),
+        icon: tabIcons18.optionsIcon
+      },
+      {
+        name: "style",
+        title: __19("Style", "digiblocks"),
+        icon: tabIcons18.styleIcon
+      },
+      {
+        name: "advanced",
+        title: __19("Advanced", "digiblocks"),
+        icon: tabIcons18.advancedIcon
+      }
+    ];
+    const stateTabList = [
+      {
+        name: "normal",
+        title: __19("Normal", "digiblocks"),
+        className: "digiblocks-tab-1 normal"
+      },
+      {
+        name: "hover",
+        title: __19("Hover", "digiblocks"),
+        className: "digiblocks-tab-2 hover"
+      }
+    ];
+    const addNewTestimonial = () => {
+      const newTestimonialIndex = testimonials.length;
+      const newTestimonial = {
+        id: `testimonial-${clientId.substr(0, 8)}-${newTestimonialIndex}`,
+        name: __19("New Name", "digiblocks"),
+        position: __19("Position", "digiblocks"),
+        company: __19("Company", "digiblocks"),
+        content: __19("Add your testimonial content here...", "digiblocks"),
+        imageUrl: "",
+        imageId: "",
+        rating: 5
+      };
+      setAttributes({
+        testimonials: [...testimonials, newTestimonial]
+      });
+    };
+    const removeTestimonial = (index) => {
+      const newTestimonials = [...testimonials];
+      newTestimonials.splice(index, 1);
+      setAttributes({
+        testimonials: newTestimonials
+      });
+    };
+    const duplicateTestimonial = (index) => {
+      const itemToDuplicate = testimonials[index];
+      const timestamp = Date.now();
+      const newTestimonial = {
+        ...itemToDuplicate,
+        id: `testimonial-${clientId.substr(0, 8)}-${timestamp}`
+      };
+      const newTestimonials = [...testimonials];
+      newTestimonials.splice(index + 1, 0, newTestimonial);
+      setAttributes({
+        testimonials: newTestimonials
+      });
+    };
+    const moveTestimonialUp = (index) => {
+      if (index === 0)
+        return;
+      const newTestimonials = [...testimonials];
+      const item = newTestimonials[index];
+      newTestimonials.splice(index, 1);
+      newTestimonials.splice(index - 1, 0, item);
+      setAttributes({
+        testimonials: newTestimonials
+      });
+    };
+    const moveTestimonialDown = (index) => {
+      if (index === testimonials.length - 1)
+        return;
+      const newTestimonials = [...testimonials];
+      const item = newTestimonials[index];
+      newTestimonials.splice(index, 1);
+      newTestimonials.splice(index + 1, 0, item);
+      setAttributes({
+        testimonials: newTestimonials
+      });
+    };
+    const updateTestimonialName = (value, index) => {
+      const newTestimonials = [...testimonials];
+      newTestimonials[index].name = value;
+      setAttributes({
+        testimonials: newTestimonials
+      });
+    };
+    const updateTestimonialPosition = (value, index) => {
+      const newTestimonials = [...testimonials];
+      newTestimonials[index].position = value;
+      setAttributes({
+        testimonials: newTestimonials
+      });
+    };
+    const updateTestimonialCompany = (value, index) => {
+      const newTestimonials = [...testimonials];
+      newTestimonials[index].company = value;
+      setAttributes({
+        testimonials: newTestimonials
+      });
+    };
+    const updateTestimonialContent = (value, index) => {
+      const newTestimonials = [...testimonials];
+      newTestimonials[index].content = value;
+      setAttributes({
+        testimonials: newTestimonials
+      });
+    };
+    const updateTestimonialRating = (value, index) => {
+      const newTestimonials = [...testimonials];
+      newTestimonials[index].rating = value;
+      setAttributes({
+        testimonials: newTestimonials
+      });
+    };
+    const updateTestimonialImage = (media, index) => {
+      const newTestimonials = [...testimonials];
+      newTestimonials[index].imageUrl = media.url;
+      newTestimonials[index].imageId = media.id;
+      setAttributes({
+        testimonials: newTestimonials
+      });
+    };
+    const generateStars = (rating) => {
+      const stars = [];
+      for (let i = 1; i <= 5; i++) {
+        stars.push(
+          /* @__PURE__ */ wp.element.createElement(
+            "span",
+            {
+              key: i,
+              className: `digiblocks-rating-star ${i <= rating ? "filled" : ""}`,
+              style: { color: i <= rating ? ratingColor : "#e0e0e0" }
+            },
+            /* @__PURE__ */ wp.element.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327l4.898.696c.441.062.612.636.282.95l-3.522 3.356l.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" }))
+          )
+        );
+      }
+      return stars;
+    };
+    const generateCSS = () => {
+      const activeDevice = window.digi.responsiveState.activeDevice;
+      const blockId = id;
+      let borderCSS = "";
+      if (borderStyle && borderStyle !== "default" && borderStyle !== "none") {
+        const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: "px" };
+        const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 12, right: 12, bottom: 12, left: 12, unit: "px" };
+        borderCSS = `
+                border-style: ${borderStyle};
+                border-color: ${borderColor || "#e0e0e0"};
+                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
+                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+            `;
+      } else {
+        borderCSS = "border: none;";
+      }
+      let boxShadowCSS = "box-shadow: none;";
+      if (boxShadow && boxShadow.enable) {
+        const inset = boxShadow.position === "inset" ? "inset " : "";
+        boxShadowCSS = `box-shadow: ${inset}${boxShadow.horizontal}px ${boxShadow.vertical}px ${boxShadow.blur}px ${boxShadow.spread}px ${boxShadow.color};`;
+      }
+      const paddingCSS = `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};`;
+      const marginCSS = `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};`;
+      let contentTypographyCSS = "";
+      if (contentTypography) {
+        if (contentTypography.fontFamily) {
+          contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
+        }
+        if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
+          contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || "px"};`;
+        }
+        if (contentTypography.fontWeight) {
+          contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
+        }
+        if (contentTypography.fontStyle) {
+          contentTypographyCSS += `font-style: ${contentTypography.fontStyle};`;
+        }
+        if (contentTypography.textTransform) {
+          contentTypographyCSS += `text-transform: ${contentTypography.textTransform};`;
+        }
+        if (contentTypography.textDecoration) {
+          contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
+        }
+        if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
+          contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || "em"};`;
+        }
+        if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
+          contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || "px"};`;
+        }
+      }
+      let headingTypographyCSS = "";
+      if (headingTypography) {
+        if (headingTypography.fontFamily) {
+          headingTypographyCSS += `font-family: ${headingTypography.fontFamily};`;
+        }
+        if (headingTypography.fontSize && headingTypography.fontSize[activeDevice]) {
+          headingTypographyCSS += `font-size: ${headingTypography.fontSize[activeDevice]}${headingTypography.fontSizeUnit || "px"};`;
+        }
+        if (headingTypography.fontWeight) {
+          headingTypographyCSS += `font-weight: ${headingTypography.fontWeight};`;
+        }
+        if (headingTypography.fontStyle) {
+          headingTypographyCSS += `font-style: ${headingTypography.fontStyle};`;
+        }
+        if (headingTypography.textTransform) {
+          headingTypographyCSS += `text-transform: ${headingTypography.textTransform};`;
+        }
+        if (headingTypography.textDecoration) {
+          headingTypographyCSS += `text-decoration: ${headingTypography.textDecoration};`;
+        }
+        if (headingTypography.lineHeight && headingTypography.lineHeight[activeDevice]) {
+          headingTypographyCSS += `line-height: ${headingTypography.lineHeight[activeDevice]}${headingTypography.lineHeightUnit || "em"};`;
+        }
+        if (headingTypography.letterSpacing && headingTypography.letterSpacing[activeDevice]) {
+          headingTypographyCSS += `letter-spacing: ${headingTypography.letterSpacing[activeDevice]}${headingTypography.letterSpacingUnit || "px"};`;
+        }
+      }
+      let textTypographyCSS = "";
+      if (textTypography) {
+        if (textTypography.fontFamily) {
+          textTypographyCSS += `font-family: ${textTypography.fontFamily};`;
+        }
+        if (textTypography.fontSize && textTypography.fontSize[activeDevice]) {
+          textTypographyCSS += `font-size: ${textTypography.fontSize[activeDevice]}${textTypography.fontSizeUnit || "px"};`;
+        }
+        if (textTypography.fontWeight) {
+          textTypographyCSS += `font-weight: ${textTypography.fontWeight};`;
+        }
+        if (textTypography.fontStyle) {
+          textTypographyCSS += `font-style: ${textTypography.fontStyle};`;
+        }
+        if (textTypography.textTransform) {
+          textTypographyCSS += `text-transform: ${textTypography.textTransform};`;
+        }
+        if (textTypography.textDecoration) {
+          textTypographyCSS += `text-decoration: ${textTypography.textDecoration};`;
+        }
+        if (textTypography.lineHeight && textTypography.lineHeight[activeDevice]) {
+          textTypographyCSS += `line-height: ${textTypography.lineHeight[activeDevice]}${textTypography.lineHeightUnit || "em"};`;
+        }
+        if (textTypography.letterSpacing && textTypography.letterSpacing[activeDevice]) {
+          textTypographyCSS += `letter-spacing: ${textTypography.letterSpacing[activeDevice]}${textTypography.letterSpacingUnit || "px"};`;
+        }
+      }
+      let hoverCSS = "";
+      if (boxShadowHover && boxShadowHover.enable) {
+        const insetHover = boxShadowHover.position === "inset" ? "inset " : "";
+        hoverCSS += `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
+      }
+      const columnsDevice = columns[activeDevice] || 2;
+      const spacingDevice = itemSpacing[activeDevice] || 30;
+      return `
+            /* Testimonials Block - ${blockId} */
+            [data-custom-id="${blockId}"] {
+                position: relative;
+                width: 100%;
+            }
+
+			[data-custom-id="${blockId}"] .digiblocks-testimonials-grid {
+				display: grid;
+				grid-template-columns: repeat(${columnsDevice}, 1fr);
+				gap: ${spacingDevice}px;
+			}
+            
+            [data-custom-id="${blockId}"] .digiblocks-testimonial-content {
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+                ${paddingCSS}
+                ${marginCSS}
+                ${borderCSS}
+                ${boxShadowCSS}
+                background-color: ${backgroundColor || "transparent"};
+                transition: all 0.3s ease;
+                position: relative;
+				text-align: ${align};
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-testimonial-content:hover {
+                ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ""}
+                ${hoverCSS}
+            }
+            
+            ${showQuoteIcon ? `
+            [data-custom-id="${blockId}"] .digiblocks-testimonial-quote-icon {
+                position: absolute;
+                top: 6px;
+                left: 10px;
+                color: ${quoteIconColor};
+                opacity: 0.3;
+                line-height: 1;
+            }
+
+            [data-custom-id="${blockId}"] .digiblocks-testimonial-quote-icon svg {
+                width: ${quoteIconSize[activeDevice]}px;
+				height: ${quoteIconSize[activeDevice]}px;
+            }
+            ` : ""}
+            
+            [data-custom-id="${blockId}"] .digiblocks-testimonial-text {
+                ${contentTypographyCSS}
+                color: ${contentColor};
+                margin: 0;
+				position: relative;
+				z-index: 1;
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-testimonial-author {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+				justify-content: ${align === "center" ? "center" : "flex-start"};
+				${align === "center" ? "flex-direction: column;" : ""}
+				${align === "right" ? "flex-direction: row-reverse;" : ""}
+				position: relative;
+				z-index: 1;
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-testimonial-image {
+                width: ${imageSize[activeDevice]}px;
+                height: ${imageSize[activeDevice]}px;
+                border-radius: 50%;
+                object-fit: cover;
+                background: ${quoteIconColor};
+                flex-shrink: 0;
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-testimonial-name {
+                ${headingTypographyCSS}
+                color: ${nameColor};
+                margin: 0;
+                transition: color 0.3s ease;
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-testimonial-content:hover .digiblocks-testimonial-name {
+                ${nameHoverColor ? `color: ${nameHoverColor};` : ""}
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-testimonial-position {
+                ${textTypographyCSS}
+                color: ${positionColor};
+                margin: 5px 0 0 0;
+            }
+            
+            ${showRating ? `
+            [data-custom-id="${blockId}"] .digiblocks-testimonial-rating {
+                display: flex;
+				align-items: center;
+				gap: 2px;
+				justify-content: ${align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start"};
+				position: relative;
+				z-index: 1;
+            }
+            
+            [data-custom-id="${blockId}"] .digiblocks-rating-star {
+                font-size: 16px;
+            }
+            ` : ""}
+            
+            /* Editor-specific styles */
+            [data-custom-id="${blockId}"] .digiblocks-testimonial-item-controls {
+                display: flex;
+                gap: 5px;
+                position: absolute;
+                right: 10px;
+                top: -28px;
+                background-color: #fff;
+                padding: 2px;
+                border-radius: 3px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+                z-index: 10;
+            }
+
+			[data-custom-id="${blockId}"] .digiblocks-image-button {
+				position: relative;
+				height: auto;
+				padding: 0;
+			}
+
+			[data-custom-id="${blockId}"] .digiblocks-image-button span {
+				position: absolute;
+			}
+        `;
+    };
+    const renderTabContent = () => {
+      switch (activeTab) {
+        case "options":
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody17,
+            {
+              tab: "options",
+              name: "layouts",
+              title: __19("Layout", "digiblocks"),
+              initialOpen: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl18,
+              {
+                label: __19("Columns", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                RangeControl17,
+                {
+                  value: columns[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    columns: {
+                      ...columns,
+                      [localActiveDevice]: value
+                    }
+                  }),
+                  min: 1,
+                  max: 5,
+                  step: 1,
+                  __next40pxDefaultSize: true,
+                  __nextHasNoMarginBottom: true
+                }
+              )
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl18,
+              {
+                label: __19("Item Spacing", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                RangeControl17,
+                {
+                  value: itemSpacing[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    itemSpacing: {
+                      ...itemSpacing,
+                      [localActiveDevice]: value
+                    }
+                  }),
+                  min: 0,
+                  max: 100,
+                  step: 5,
+                  __next40pxDefaultSize: true,
+                  __nextHasNoMarginBottom: true
+                }
+              )
+            ),
+            /* @__PURE__ */ wp.element.createElement(BaseControl9, { label: __19("Alignment", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+              ToggleGroupControl17,
+              {
+                value: align,
+                onChange: (value) => setAttributes({ align: value }),
+                isBlock: true
+              },
+              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption17, { value: "left", label: __19("Left", "digiblocks"), "aria-label": __19("Left alignment", "digiblocks") }),
+              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption17, { value: "center", label: __19("Center", "digiblocks"), "aria-label": __19("Center alignment", "digiblocks") }),
+              /* @__PURE__ */ wp.element.createElement(ToggleGroupControlOption17, { value: "right", label: __19("Right", "digiblocks"), "aria-label": __19("Right alignment", "digiblocks") })
+            ))
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody17,
+            {
+              tab: "options",
+              name: "testimonial-items",
+              title: __19("Testimonials", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleControl12,
+              {
+                label: __19("Show Ratings", "digiblocks"),
+                checked: showRating,
+                onChange: () => setAttributes({ showRating: !showRating }),
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ToggleControl12,
+              {
+                label: __19("Show Quote Icon", "digiblocks"),
+                checked: showQuoteIcon,
+                onChange: () => setAttributes({ showQuoteIcon: !showQuoteIcon }),
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            )
+          ));
+        case "style":
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody17,
+            {
+              tab: "style",
+              name: "colors",
+              title: __19("Colors", "digiblocks"),
+              initialOpen: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              TabPanel13,
+              {
+                className: "digiblocks-control-tabs",
+                activeClass: "active-tab",
+                tabs: stateTabList
+              },
+              (tab) => {
+                if (tab.name === "normal") {
+                  return /* @__PURE__ */ wp.element.createElement(
+                    PanelColorSettings16,
+                    {
+                      title: __19("Color Settings", "digiblocks"),
+                      initialOpen: true,
+                      enableAlpha: true,
+                      colorSettings: [
+                        {
+                          value: nameColor,
+                          onChange: (value) => setAttributes({
+                            nameColor: value
+                          }),
+                          label: __19("Name Color", "digiblocks")
+                        },
+                        {
+                          value: positionColor,
+                          onChange: (value) => setAttributes({
+                            positionColor: value
+                          }),
+                          label: __19("Position Color", "digiblocks")
+                        },
+                        {
+                          value: contentColor,
+                          onChange: (value) => setAttributes({
+                            contentColor: value
+                          }),
+                          label: __19("Content Color", "digiblocks")
+                        },
+                        {
+                          value: backgroundColor,
+                          onChange: (value) => setAttributes({
+                            backgroundColor: value
+                          }),
+                          label: __19("Background Color", "digiblocks")
+                        },
+                        {
+                          value: quoteIconColor,
+                          onChange: (value) => setAttributes({
+                            quoteIconColor: value
+                          }),
+                          label: __19("Quote Icon Color", "digiblocks")
+                        },
+                        {
+                          value: ratingColor,
+                          onChange: (value) => setAttributes({
+                            ratingColor: value
+                          }),
+                          label: __19("Rating Color", "digiblocks")
+                        }
+                      ]
+                    }
+                  );
+                } else if (tab.name === "hover") {
+                  return /* @__PURE__ */ wp.element.createElement(
+                    PanelColorSettings16,
+                    {
+                      title: __19("Hover Color Settings", "digiblocks"),
+                      initialOpen: true,
+                      enableAlpha: true,
+                      colorSettings: [
+                        {
+                          value: nameHoverColor,
+                          onChange: (value) => setAttributes({
+                            nameHoverColor: value
+                          }),
+                          label: __19("Name Color", "digiblocks")
+                        },
+                        {
+                          value: backgroundHoverColor,
+                          onChange: (value) => setAttributes({
+                            backgroundHoverColor: value
+                          }),
+                          label: __19("Background Color", "digiblocks")
+                        }
+                      ]
+                    }
+                  );
+                }
+                return null;
+              }
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody17,
+            {
+              tab: "style",
+              name: "typography",
+              title: __19("Typography", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              TypographyControl14,
+              {
+                label: __19("Content Typography", "digiblocks"),
+                value: contentTypography,
+                onChange: (value) => setAttributes({
+                  contentTypography: value
+                }),
+                defaults: {
+                  fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                  fontSizeUnit: "px",
+                  lineHeight: { desktop: 1.7, tablet: 1.6, mobile: 1.5 },
+                  lineHeightUnit: "em"
+                }
+              }
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              TypographyControl14,
+              {
+                label: __19("Name Typography", "digiblocks"),
+                value: headingTypography,
+                onChange: (value) => setAttributes({
+                  headingTypography: value
+                }),
+                defaults: {
+                  fontSize: { desktop: 20, tablet: 18, mobile: 16 },
+                  fontSizeUnit: "px",
+                  lineHeight: { desktop: 1.3, tablet: 1.3, mobile: 1.3 },
+                  lineHeightUnit: "em"
+                }
+              }
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              TypographyControl14,
+              {
+                label: __19("Position Typography", "digiblocks"),
+                value: textTypography,
+                onChange: (value) => setAttributes({
+                  textTypography: value
+                }),
+                defaults: {
+                  fontSize: { desktop: 14, tablet: 13, mobile: 12 },
+                  fontSizeUnit: "px",
+                  lineHeight: { desktop: 1.4, tablet: 1.4, mobile: 1.4 },
+                  lineHeightUnit: "em"
+                }
+              }
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody17,
+            {
+              tab: "style",
+              name: "sizes",
+              title: __19("Sizes & Spacing", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl18,
+              {
+                label: __19("Image Size", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                RangeControl17,
+                {
+                  value: imageSize[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    imageSize: {
+                      ...imageSize,
+                      [localActiveDevice]: value
+                    }
+                  }),
+                  min: 32,
+                  max: 200,
+                  step: 4,
+                  __next40pxDefaultSize: true,
+                  __nextHasNoMarginBottom: true
+                }
+              )
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl18,
+              {
+                label: __19("Quote Icon Size", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                RangeControl17,
+                {
+                  value: quoteIconSize[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    quoteIconSize: {
+                      ...quoteIconSize,
+                      [localActiveDevice]: value
+                    }
+                  }),
+                  min: 20,
+                  max: 200,
+                  step: 5,
+                  __next40pxDefaultSize: true,
+                  __nextHasNoMarginBottom: true
+                }
+              )
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody17,
+            {
+              tab: "style",
+              name: "border-shadow",
+              title: __19("Border & Shadow", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              SelectControl17,
+              {
+                label: __19("Border Style", "digiblocks"),
+                value: borderStyle || "default",
+                options: borderStyleOptions,
+                onChange: (value) => {
+                  if (value !== "default" && value !== "none" && (borderStyle === "default" || borderStyle === "none" || !borderStyle)) {
+                    if (!borderWidth || Object.keys(borderWidth).length === 0) {
+                      setAttributes({
+                        borderWidth: {
+                          desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
+                          tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
+                          mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" }
+                        }
+                      });
+                    }
+                    if (!borderRadius || Object.keys(borderRadius).length === 0) {
+                      setAttributes({
+                        borderRadius: {
+                          desktop: { top: 12, right: 12, bottom: 12, left: 12, unit: "px" },
+                          tablet: { top: 12, right: 12, bottom: 12, left: 12, unit: "px" },
+                          mobile: { top: 12, right: 12, bottom: 12, left: 12, unit: "px" }
+                        }
+                      });
+                    }
+                  }
+                  setAttributes({
+                    borderStyle: value
+                  });
+                },
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            ),
+            borderStyle && borderStyle !== "default" && borderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+              PanelColorSettings16,
+              {
+                title: __19("Border Color", "digiblocks"),
+                enableAlpha: true,
+                colorSettings: [
+                  {
+                    value: borderColor,
+                    onChange: (value) => setAttributes({
+                      borderColor: value
+                    }),
+                    label: __19("Border Color", "digiblocks")
+                  }
+                ]
+              }
+            ), /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl18,
+              {
+                label: __19("Border Width", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                DimensionControl15,
+                {
+                  values: borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : {
+                    top: 1,
+                    right: 1,
+                    bottom: 1,
+                    left: 1,
+                    unit: "px"
+                  },
+                  onChange: (value) => setAttributes({
+                    borderWidth: {
+                      ...borderWidth,
+                      [localActiveDevice]: value
+                    }
+                  })
+                }
+              )
+            ), /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl18,
+              {
+                label: __19("Border Radius", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                DimensionControl15,
+                {
+                  values: borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
+                    top: 12,
+                    right: 12,
+                    bottom: 12,
+                    left: 12,
+                    unit: "px"
+                  },
+                  onChange: (value) => setAttributes({
+                    borderRadius: {
+                      ...borderRadius,
+                      [localActiveDevice]: value
+                    }
+                  }),
+                  units: [
+                    { label: "px", value: "px" },
+                    { label: "%", value: "%" }
+                  ]
+                }
+              )
+            )),
+            /* @__PURE__ */ wp.element.createElement(
+              BoxShadowControl14,
+              {
+                normalValue: boxShadow,
+                hoverValue: boxShadowHover,
+                onNormalChange: (value) => setAttributes({
+                  boxShadow: value
+                }),
+                onHoverChange: (value) => setAttributes({
+                  boxShadowHover: value
+                })
+              }
+            )
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody17,
+            {
+              tab: "style",
+              name: "spacing",
+              title: __19("Spacing", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl18,
+              {
+                label: __19("Padding", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                DimensionControl15,
+                {
+                  values: padding[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    padding: {
+                      ...padding,
+                      [localActiveDevice]: value
+                    }
+                  })
+                }
+              )
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveControl18,
+              {
+                label: __19("Margin", "digiblocks")
+              },
+              /* @__PURE__ */ wp.element.createElement(
+                DimensionControl15,
+                {
+                  values: margin[localActiveDevice],
+                  onChange: (value) => setAttributes({
+                    margin: {
+                      ...margin,
+                      [localActiveDevice]: value
+                    }
+                  })
+                }
+              )
+            )
+          ));
+        case "advanced":
+          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody17,
+            {
+              tab: "advanced",
+              name: "animation",
+              title: __19("Animation", "digiblocks"),
+              initialOpen: true
+            },
+            /* @__PURE__ */ wp.element.createElement(
+              SelectControl17,
+              {
+                label: __19("Animation Effect", "digiblocks"),
+                value: animation,
+                options: animationOptions,
+                onChange: (value) => setAttributes({ animation: value }),
+                __next40pxDefaultSize: true,
+                __nextHasNoMarginBottom: true
+              }
+            ),
+            animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
+              Button16,
+              {
+                variant: "secondary",
+                isSecondary: true,
+                onClick: triggerAnimationPreview,
+                style: { width: "100%" }
+              },
+              __19("Preview Animation", "digiblocks")
+            ))
+          ), /* @__PURE__ */ wp.element.createElement(
+            TabPanelBody17,
+            {
+              tab: "advanced",
+              name: "additional",
+              title: __19("Additional", "digiblocks"),
+              initialOpen: false
+            },
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __19("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+              "input",
+              {
+                className: "components-text-control__input",
+                type: "text",
+                id: "html-anchor",
+                value: anchor || "",
+                onChange: (e) => setAttributes({ anchor: e.target.value }),
+                "aria-describedby": "html-anchor-help",
+                autoCapitalize: "none",
+                autoComplete: "off"
+              }
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __19(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
+              "a",
+              {
+                className: "components-external-link",
+                href: "https://wordpress.org/documentation/article/page-jumps/",
+                target: "_blank",
+                rel: "external noreferrer noopener"
+              },
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __19("Learn more about anchors", "digiblocks")),
+              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
+            ))),
+            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __19("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
+              "input",
+              {
+                className: "components-text-control__input",
+                type: "text",
+                id: "additional-css-classes",
+                value: customClasses || "",
+                onChange: (e) => setAttributes({ customClasses: e.target.value }),
+                "aria-describedby": "additional-css-classes-help",
+                autoComplete: "off"
+              }
+            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __19("Separate multiple classes with spaces.", "digiblocks")))
+          ));
+        default:
+          return null;
+      }
+    };
+    const renderSingleTestimonial = (testimonial, index) => /* @__PURE__ */ wp.element.createElement(
+      "div",
+      {
+        key: testimonial.id,
+        className: "digiblocks-testimonial-item"
+      },
+      /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonial-content" }, showQuoteIcon && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonial-quote-icon" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 100 100", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "m54.75 61.7309799v-2.3699951c0-21.9786606 16.2715454-39.8894348 37.5211639-42.4388428 2.7931672-.3351097 5.2288361 1.917471 5.2288361 4.7306748v.0000095c0 2.4273148-1.8343735 4.4202805-4.2426605 4.7236137-7.4862671.9429264-14.1913986 4.3405972-19.203804 9.2676563-1.7802734 1.7499619-.5009689 4.7270927 1.9953613 4.7170334.0236969-.0000954.0474014-.000145.0710983-.000145 12.2492294 0 21.9682159 10.0996895 21.3522568 22.4834023-.538559 10.8274422-9.4114075 19.7002907-20.2388535 20.2388496-12.3837051.6159593-22.4833984-9.1030272-22.4833984-21.3522567z" }), /* @__PURE__ */ wp.element.createElement("path", { d: "m2.5000021 61.2574081.000001-1.8964233c0-21.9786606 16.2715454-39.8894348 37.5211601-42.4388428 2.7931755-.3351097 5.2288368 1.917471 5.2288368 4.7306748v.0003147c0 2.4272079-1.8342209 4.4199734-4.2423592 4.7236252-7.481739.9434032-14.1888084 4.3410473-19.1987572 9.2678051-1.779623 1.7500687-.500473 4.7271957 1.9954643 4.7165833.025219-.0001068.0504398-.0001602.0756588-.0001602 11.8699932 0 21.3699932 9.5 21.3699932 21.3699951 0 12.0883865-9.8361855 21.7125397-21.996748 21.3711853-11.6399678-.3267442-20.7532557-10.200203-20.7532498-21.8447572z" }))), showRating && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonial-rating" }, generateStars(testimonial.rating)), /* @__PURE__ */ wp.element.createElement(
+        RichText20,
+        {
+          tagName: "p",
+          className: "digiblocks-testimonial-text",
+          value: testimonial.content,
+          onChange: (value) => updateTestimonialContent(value, index),
+          placeholder: __19("Enter testimonial content...", "digiblocks"),
+          allowedFormats: ["core/bold", "core/italic", "core/link"]
+        }
+      ), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonial-author" }, /* @__PURE__ */ wp.element.createElement(MediaUploadCheck3, null, /* @__PURE__ */ wp.element.createElement(
+        MediaUpload3,
+        {
+          onSelect: (media) => updateTestimonialImage(media, index),
+          allowedTypes: ["image"],
+          value: testimonial.imageId,
+          render: ({ open }) => /* @__PURE__ */ wp.element.createElement(
+            Button16,
+            {
+              className: `digiblocks-image-button ${!testimonial.imageUrl ? "empty" : ""}`,
+              onClick: open,
+              icon: !testimonial.imageUrl ? "format-image" : ""
+            },
+            testimonial.imageUrl ? /* @__PURE__ */ wp.element.createElement(
+              "img",
+              {
+                src: testimonial.imageUrl,
+                alt: testimonial.name,
+                className: "digiblocks-testimonial-image"
+              }
+            ) : /* @__PURE__ */ wp.element.createElement(
+              "div",
+              {
+                className: "digiblocks-testimonial-image",
+                style: { background: quoteIconColor }
+              }
+            )
+          )
+        }
+      )), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonial-info" }, /* @__PURE__ */ wp.element.createElement(
+        RichText20,
+        {
+          tagName: "h3",
+          className: "digiblocks-testimonial-name",
+          value: testimonial.name,
+          onChange: (value) => updateTestimonialName(value, index),
+          placeholder: __19("Testimonial Name", "digiblocks"),
+          allowedFormats: ["core/bold", "core/italic"]
+        }
+      ), /* @__PURE__ */ wp.element.createElement(
+        RichText20,
+        {
+          tagName: "p",
+          className: "digiblocks-testimonial-position",
+          value: testimonial.position + (testimonial.company ? `, ${testimonial.company}` : ""),
+          onChange: (value) => {
+            const parts = value.split(",");
+            updateTestimonialPosition(parts[0].trim(), index);
+            if (parts[1]) {
+              updateTestimonialCompany(parts[1].trim(), index);
+            }
+          },
+          placeholder: __19("Position, Company", "digiblocks"),
+          allowedFormats: ["core/bold", "core/italic"]
+        }
+      ))), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonial-item-controls" }, /* @__PURE__ */ wp.element.createElement(Tooltip6, { text: __19("Move Up", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+        Button16,
+        {
+          className: "digiblocks-testimonial-item-move-up",
+          onClick: () => moveTestimonialUp(index),
+          icon: "arrow-up-alt2",
+          disabled: index === 0,
+          isSmall: true
+        }
+      )), /* @__PURE__ */ wp.element.createElement(Tooltip6, { text: __19("Move Down", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+        Button16,
+        {
+          className: "digiblocks-testimonial-item-move-down",
+          onClick: () => moveTestimonialDown(index),
+          icon: "arrow-down-alt2",
+          disabled: index === testimonials.length - 1,
+          isSmall: true
+        }
+      )), /* @__PURE__ */ wp.element.createElement(Tooltip6, { text: __19("Duplicate", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+        Button16,
+        {
+          className: "digiblocks-testimonial-item-duplicate",
+          onClick: () => duplicateTestimonial(index),
+          icon: "admin-page",
+          isSmall: true
+        }
+      )), /* @__PURE__ */ wp.element.createElement(Tooltip6, { text: __19("Remove", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
+        Button16,
+        {
+          className: "digiblocks-testimonial-item-remove",
+          onClick: () => removeTestimonial(index),
+          icon: "trash",
+          isSmall: true
+        }
+      ))))
+    );
+    const renderTestimonials = () => {
+      if (!testimonials || testimonials.length === 0) {
+        return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-no-testimonials" }, /* @__PURE__ */ wp.element.createElement("p", null, __19("No testimonials found. Please add some testimonials.", "digiblocks")));
+      }
+      return testimonials.map((testimonial, index) => renderSingleTestimonial(testimonial, index));
+    };
+    const blockProps = useBlockProps35({
+      className: `digiblocks-testimonials-block grid ${customClasses || ""}`,
+      id: anchor || null,
+      // Set the anchor as ID if provided
+      "data-custom-id": id
+      // Always set the block ID as data attribute for CSS targeting
+    });
+    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls18, null, /* @__PURE__ */ wp.element.createElement(
+      CustomTabPanel18,
+      {
+        tabs: tabList,
+        activeTab,
+        onSelect: setActiveTab
+      },
+      renderTabContent()
+    )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonials-grid" }, renderTestimonials()), /* @__PURE__ */ wp.element.createElement(
+      Button16,
+      {
+        variant: "primary",
+        icon: "plus",
+        onClick: addNewTestimonial,
+        style: { width: "100%", marginTop: "40px", justifyContent: "center" }
+      },
+      __19("Add Testimonial", "digiblocks")
+    )));
+  };
+  var edit_default18 = TestimonialsEdit;
+
+  // blocks/testimonials/save.js
+  var { useBlockProps: useBlockProps36, RichText: RichText21 } = window.wp.blockEditor;
+  var TestimonialsSave = ({ attributes }) => {
+    const {
+      id,
+      anchor,
+      customClasses,
+      testimonials,
+      showRating,
+      showQuoteIcon,
+      animation,
+      columns,
+      autoplay,
+      autoplaySpeed,
+      showArrows,
+      showDots,
+      ratingColor
+    } = attributes;
+    const blockClasses = [
+      "digiblocks-testimonials-block",
+      "grid",
+      animation !== "none" ? `animate-${animation}` : "",
+      customClasses || ""
+    ].filter(Boolean).join(" ");
+    const blockProps = useBlockProps36.save({
+      className: blockClasses,
+      id: anchor || null,
+      "data-custom-id": id
+    });
+    const generateStars = (rating) => {
+      const stars = [];
+      for (let i = 1; i <= 5; i++) {
+        stars.push(
+          /* @__PURE__ */ wp.element.createElement(
+            "span",
+            {
+              key: i,
+              className: `digiblocks-rating-star ${i <= rating ? "filled" : ""}`,
+              style: { color: i <= rating ? ratingColor : "#e0e0e0" }
+            },
+            /* @__PURE__ */ wp.element.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327l4.898.696c.441.062.612.636.282.95l-3.522 3.356l.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" }))
+          )
+        );
+      }
+      return stars;
+    };
+    const renderTestimonials = () => {
+      if (!testimonials || testimonials.length === 0) {
+        return null;
+      }
+      return testimonials.map((testimonial) => /* @__PURE__ */ wp.element.createElement(
+        "div",
+        {
+          key: testimonial.id,
+          className: "digiblocks-testimonial-item"
+        },
+        /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonial-content" }, showQuoteIcon && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonial-quote-icon" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 100 100", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "m54.75 61.7309799v-2.3699951c0-21.9786606 16.2715454-39.8894348 37.5211639-42.4388428 2.7931672-.3351097 5.2288361 1.917471 5.2288361 4.7306748v.0000095c0 2.4273148-1.8343735 4.4202805-4.2426605 4.7236137-7.4862671.9429264-14.1913986 4.3405972-19.203804 9.2676563-1.7802734 1.7499619-.5009689 4.7270927 1.9953613 4.7170334.0236969-.0000954.0474014-.000145.0710983-.000145 12.2492294 0 21.9682159 10.0996895 21.3522568 22.4834023-.538559 10.8274422-9.4114075 19.7002907-20.2388535 20.2388496-12.3837051.6159593-22.4833984-9.1030272-22.4833984-21.3522567z" }), /* @__PURE__ */ wp.element.createElement("path", { d: "m2.5000021 61.2574081.000001-1.8964233c0-21.9786606 16.2715454-39.8894348 37.5211601-42.4388428 2.7931755-.3351097 5.2288368 1.917471 5.2288368 4.7306748v.0003147c0 2.4272079-1.8342209 4.4199734-4.2423592 4.7236252-7.481739.9434032-14.1888084 4.3410473-19.1987572 9.2678051-1.779623 1.7500687-.500473 4.7271957 1.9954643 4.7165833.025219-.0001068.0504398-.0001602.0756588-.0001602 11.8699932 0 21.3699932 9.5 21.3699932 21.3699951 0 12.0883865-9.8361855 21.7125397-21.996748 21.3711853-11.6399678-.3267442-20.7532557-10.200203-20.7532498-21.8447572z" }))), showRating && /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonial-rating" }, generateStars(testimonial.rating)), /* @__PURE__ */ wp.element.createElement(
+          RichText21.Content,
+          {
+            tagName: "p",
+            className: "digiblocks-testimonial-text",
+            value: testimonial.content
+          }
+        ), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonial-author" }, testimonial.imageUrl && /* @__PURE__ */ wp.element.createElement(
+          "img",
+          {
+            src: testimonial.imageUrl,
+            alt: testimonial.name,
+            className: "digiblocks-testimonial-image"
+          }
+        ), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonial-info" }, /* @__PURE__ */ wp.element.createElement(
+          RichText21.Content,
+          {
+            tagName: "h3",
+            className: "digiblocks-testimonial-name",
+            value: testimonial.name
+          }
+        ), /* @__PURE__ */ wp.element.createElement(
+          RichText21.Content,
+          {
+            tagName: "p",
+            className: "digiblocks-testimonial-position",
+            value: testimonial.position + (testimonial.company ? `, ${testimonial.company}` : "")
+          }
+        ))))
+      ));
+    };
+    return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-testimonials-grid" }, renderTestimonials()));
+  };
+  var save_default18 = TestimonialsSave;
 
   // resources/js/blocks/index.js
-  var { __: __16 } = window.wp.i18n;
+  var { __: __20 } = window.wp.i18n;
   var { registerBlockType } = window.wp.blocks;
   var getBlockActiveStatus = (blockName) => {
     if (digiBlocksData.activeBlocks && typeof digiBlocksData.activeBlocks[blockName] !== "undefined") {
@@ -19304,7 +23126,7 @@
       }
     },
     description: digiBlocksData.blocks["accordion"].description,
-    keywords: [__16("accordion", "digiblocks"), __16("toggle", "digiblocks"), __16("collapse", "digiblocks"), __16("faq", "digiblocks")],
+    keywords: [__20("accordion", "digiblocks"), __20("toggle", "digiblocks"), __20("collapse", "digiblocks"), __20("faq", "digiblocks")],
     // Disable all default controls and settings panels
     supports: {
       inserter: getBlockActiveStatus("accordion") ? true : false,
@@ -19331,14 +23153,14 @@
         default: [
           {
             id: "item-1",
-            title: __16("Accordion Item 1", "digiblocks"),
-            content: __16("Add your content here. Edit or remove this text inline or in the module Content settings.", "digiblocks"),
+            title: __20("Accordion Item 1", "digiblocks"),
+            content: __20("Add your content here. Edit or remove this text inline or in the module Content settings.", "digiblocks"),
             isOpen: true
           },
           {
             id: "item-2",
-            title: __16("Accordion Item 2", "digiblocks"),
-            content: __16("Add your content here. Edit or remove this text inline or in the module Content settings.", "digiblocks"),
+            title: __20("Accordion Item 2", "digiblocks"),
+            content: __20("Add your content here. Edit or remove this text inline or in the module Content settings.", "digiblocks"),
             isOpen: false
           }
         ]
@@ -19517,14 +23339,14 @@
         items: [
           {
             id: "item-1",
-            title: __16("Accordion Item 1", "digiblocks"),
-            content: __16("This is some sample content for the accordion item.", "digiblocks"),
+            title: __20("Accordion Item 1", "digiblocks"),
+            content: __20("This is some sample content for the accordion item.", "digiblocks"),
             isOpen: true
           },
           {
             id: "item-2",
-            title: __16("Accordion Item 2", "digiblocks"),
-            content: __16("Click on an accordion item to see it expand.", "digiblocks"),
+            title: __20("Accordion Item 2", "digiblocks"),
+            content: __20("Click on an accordion item to see it expand.", "digiblocks"),
             isOpen: false
           }
         ]
@@ -19532,6 +23354,254 @@
     },
     edit: edit_default,
     save: save_default
+  });
+  registerBlockType("digiblocks/buttons", {
+    apiVersion: 2,
+    title: digiBlocksData.blocks["buttons"].title,
+    category: "digiblocks",
+    icon: {
+      src: () => {
+        const { viewbox, path } = digiBlocksData.blocks["buttons"].icon;
+        return /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: `0 0 ${viewbox}`, className: "digiblocks-editor-icons" }, /* @__PURE__ */ wp.element.createElement("path", { d: path }));
+      }
+    },
+    description: digiBlocksData.blocks["buttons"].description,
+    keywords: [__20("buttons", "digiblocks"), __20("button group", "digiblocks"), __20("link", "digiblocks")],
+    supports: {
+      inserter: getBlockActiveStatus("buttons") ? true : false,
+      html: false,
+      className: false,
+      customClassName: false,
+      anchor: false
+    },
+    attributes: {
+      id: {
+        type: "string"
+      },
+      anchor: {
+        type: "string",
+        default: ""
+      },
+      customClasses: {
+        type: "string",
+        default: ""
+      },
+      layout: {
+        type: "string",
+        default: "horizontal"
+      },
+      align: {
+        type: "string",
+        default: "flex-start"
+      },
+      buttonSpacing: {
+        type: "object",
+        default: {
+          desktop: 10,
+          tablet: 8,
+          mobile: 6
+        }
+      },
+      animation: {
+        type: "string",
+        default: "none"
+      }
+    },
+    example: {
+      innerBlocks: [
+        {
+          name: "digiblocks/button",
+          attributes: {
+            text: __20("Call to Action", "digiblocks")
+          }
+        },
+        {
+          name: "digiblocks/button",
+          attributes: {
+            text: __20("Learn More", "digiblocks")
+          }
+        }
+      ]
+    },
+    edit: edit_default2,
+    save: save_default2
+  });
+  registerBlockType("digiblocks/button", {
+    apiVersion: 2,
+    title: __20("Button", "digiblocks"),
+    parent: ["digiblocks/buttons"],
+    icon: {
+      src: () => /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", width: "24", height: "24" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M19 6.5H5c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7c0-1.1-.9-2-2-2zm0 9H5v-7h14v7z" }))
+    },
+    description: __20("A single button within the buttons block", "digiblocks"),
+    keywords: [__20("button", "digiblocks"), __20("link", "digiblocks"), __20("call to action", "digiblocks")],
+    supports: {
+      inserter: false,
+      // Can only be inserted within buttons block
+      html: false,
+      className: false,
+      customClassName: false,
+      anchor: false,
+      reusable: false
+    },
+    attributes: {
+      id: {
+        type: "string"
+      },
+      anchor: {
+        type: "string",
+        default: ""
+      },
+      customClasses: {
+        type: "string",
+        default: ""
+      },
+      text: {
+        type: "string",
+        default: __20("Button", "digiblocks")
+      },
+      url: {
+        type: "string",
+        default: ""
+      },
+      opensInNewTab: {
+        type: "boolean",
+        default: false
+      },
+      rel: {
+        type: "boolean",
+        default: false
+      },
+      iconValue: {
+        type: "object",
+        default: null
+      },
+      iconPosition: {
+        type: "string",
+        default: "left"
+      },
+      size: {
+        type: "string",
+        default: "medium"
+      },
+      fill: {
+        type: "boolean",
+        default: false
+      },
+      buttonTypography: {
+        type: "object",
+        default: {
+          fontFamily: "",
+          fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+          fontSizeUnit: "px",
+          fontWeight: "",
+          fontStyle: "normal",
+          textTransform: "",
+          textDecoration: "",
+          lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+          lineHeightUnit: "em",
+          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacingUnit: "px"
+        }
+      },
+      textColor: {
+        type: "string",
+        default: "#ffffff"
+      },
+      textHoverColor: {
+        type: "string",
+        default: ""
+      },
+      backgroundColor: {
+        type: "string",
+        default: "#1e73be"
+      },
+      backgroundHoverColor: {
+        type: "string",
+        default: ""
+      },
+      borderStyle: {
+        type: "string",
+        default: "default"
+      },
+      borderWidth: {
+        type: "object",
+        default: {
+          desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
+          tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
+          mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" }
+        }
+      },
+      borderRadius: {
+        type: "object",
+        default: {
+          desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: "px" },
+          tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: "px" },
+          mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: "px" }
+        }
+      },
+      borderColor: {
+        type: "string",
+        default: ""
+      },
+      borderHoverColor: {
+        type: "string",
+        default: ""
+      },
+      boxShadow: {
+        type: "object",
+        default: {
+          enable: false,
+          color: "rgba(0, 0, 0, 0.2)",
+          horizontal: 0,
+          vertical: 0,
+          blur: 0,
+          spread: 0,
+          position: "outset"
+        }
+      },
+      boxShadowHover: {
+        type: "object",
+        default: {
+          enable: false,
+          color: "rgba(0, 0, 0, 0.2)",
+          horizontal: 0,
+          vertical: 0,
+          blur: 0,
+          spread: 0,
+          position: "outset"
+        }
+      },
+      padding: {
+        type: "object",
+        default: {
+          desktop: { top: 12, right: 24, bottom: 12, left: 24, unit: "px" },
+          tablet: { top: 10, right: 20, bottom: 10, left: 20, unit: "px" },
+          mobile: { top: 8, right: 16, bottom: 8, left: 16, unit: "px" }
+        }
+      },
+      margin: {
+        type: "object",
+        default: {
+          desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: "px" },
+          tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: "px" },
+          mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: "px" }
+        }
+      },
+      onlyIcon: {
+        type: "boolean",
+        default: false
+      }
+    },
+    example: {
+      attributes: {
+        text: __20("Button", "digiblocks"),
+        backgroundColor: "#1e73be",
+        textColor: "#ffffff"
+      }
+    },
+    edit: edit_default3,
+    save: save_default3
   });
   registerBlockType("digiblocks/call-to-action", {
     apiVersion: 2,
@@ -19544,7 +23614,7 @@
       }
     },
     description: digiBlocksData.blocks["call-to-action"].description,
-    keywords: [__16("cta", "digiblocks"), __16("call to action", "digiblocks"), __16("button", "digiblocks"), __16("conversion", "digiblocks")],
+    keywords: [__20("cta", "digiblocks"), __20("call to action", "digiblocks"), __20("button", "digiblocks"), __20("conversion", "digiblocks")],
     supports: {
       inserter: getBlockActiveStatus("call-to-action") ? true : false,
       html: false,
@@ -19574,11 +23644,11 @@
       },
       title: {
         type: "string",
-        default: __16("Ready to Get Started?", "digiblocks")
+        default: __20("Ready to Get Started?", "digiblocks")
       },
       content: {
         type: "string",
-        default: __16("Join thousands of satisfied customers who have already taken the next step. Sign up today and experience the difference.", "digiblocks")
+        default: __20("Join thousands of satisfied customers who have already taken the next step. Sign up today and experience the difference.", "digiblocks")
       },
       headingTag: {
         type: "string",
@@ -19763,12 +23833,12 @@
     example: {
       attributes: {
         style: "basic",
-        title: __16("Ready to Get Started?", "digiblocks"),
-        content: __16("Join us today and experience the difference.", "digiblocks"),
+        title: __20("Ready to Get Started?", "digiblocks"),
+        content: __20("Join us today and experience the difference.", "digiblocks"),
         buttons: [
           {
             id: "button-1",
-            text: __16("Sign Up Now", "digiblocks"),
+            text: __20("Sign Up Now", "digiblocks"),
             url: "#",
             isPrimary: true
           }
@@ -19776,8 +23846,8 @@
         backgroundColor: "#f5f5f5"
       }
     },
-    edit: edit_default2,
-    save: save_default2
+    edit: edit_default4,
+    save: save_default4
   });
   registerBlockType("digiblocks/countdown", {
     apiVersion: 2,
@@ -19790,7 +23860,7 @@
       }
     },
     description: digiBlocksData.blocks["countdown"].description,
-    keywords: [__16("countdown", "digiblocks"), __16("timer", "digiblocks"), __16("clock", "digiblocks")],
+    keywords: [__20("countdown", "digiblocks"), __20("timer", "digiblocks"), __20("clock", "digiblocks")],
     supports: {
       inserter: getBlockActiveStatus("countdown") ? true : false,
       html: false,
@@ -19832,19 +23902,19 @@
       },
       daysLabel: {
         type: "string",
-        default: __16("Days", "digiblocks")
+        default: __20("Days", "digiblocks")
       },
       hoursLabel: {
         type: "string",
-        default: __16("Hours", "digiblocks")
+        default: __20("Hours", "digiblocks")
       },
       minutesLabel: {
         type: "string",
-        default: __16("Minutes", "digiblocks")
+        default: __20("Minutes", "digiblocks")
       },
       secondsLabel: {
         type: "string",
-        default: __16("Seconds", "digiblocks")
+        default: __20("Seconds", "digiblocks")
       },
       digitColor: {
         type: "string",
@@ -20004,7 +24074,7 @@
       },
       expiredMessage: {
         type: "string",
-        default: __16("Time's up!", "digiblocks")
+        default: __20("Time's up!", "digiblocks")
       },
       animation: {
         type: "string",
@@ -20048,8 +24118,8 @@
         }
       }
     },
-    edit: edit_default3,
-    save: save_default3
+    edit: edit_default5,
+    save: save_default5
   });
   registerBlockType("digiblocks/counter", {
     apiVersion: 2,
@@ -20062,7 +24132,7 @@
       }
     },
     description: digiBlocksData.blocks["counter"].description,
-    keywords: [__16("counter", "digiblocks"), __16("number", "digiblocks"), __16("stats", "digiblocks"), __16("count up", "digiblocks")],
+    keywords: [__20("counter", "digiblocks"), __20("number", "digiblocks"), __20("stats", "digiblocks"), __20("count up", "digiblocks")],
     supports: {
       inserter: getBlockActiveStatus("counter") ? true : false,
       html: false,
@@ -20472,8 +24542,8 @@
         backgroundColor: "#ffffff"
       }
     },
-    edit: edit_default4,
-    save: save_default4
+    edit: edit_default6,
+    save: save_default6
   });
   registerBlockType("digiblocks/faq", {
     apiVersion: 2,
@@ -20486,7 +24556,7 @@
       }
     },
     description: digiBlocksData.blocks["faq"].description,
-    keywords: [__16("faq", "digiblocks"), __16("questions", "digiblocks"), __16("answers", "digiblocks"), __16("schema", "digiblocks")],
+    keywords: [__20("faq", "digiblocks"), __20("questions", "digiblocks"), __20("answers", "digiblocks"), __20("schema", "digiblocks")],
     // Disable all default controls and settings panels
     supports: {
       inserter: getBlockActiveStatus("faq") ? true : false,
@@ -20513,14 +24583,14 @@
         default: [
           {
             id: "faq-item-1",
-            title: __16("What is a frequently asked question?", "digiblocks"),
-            content: __16("A frequently asked question (FAQ) is a question that is commonly asked by users or customers. FAQs are typically displayed in a list with their answers to help visitors find information quickly.", "digiblocks"),
+            title: __20("What is a frequently asked question?", "digiblocks"),
+            content: __20("A frequently asked question (FAQ) is a question that is commonly asked by users or customers. FAQs are typically displayed in a list with their answers to help visitors find information quickly.", "digiblocks"),
             isOpen: true
           },
           {
             id: "faq-item-2",
-            title: __16("How do I add more questions and answers?", "digiblocks"),
-            content: __16('Simply click the "Add FAQ Item" button below to add more questions and answers to your FAQ section. You can also reorder, edit, or remove existing items using the control buttons.', "digiblocks"),
+            title: __20("How do I add more questions and answers?", "digiblocks"),
+            content: __20('Simply click the "Add FAQ Item" button below to add more questions and answers to your FAQ section. You can also reorder, edit, or remove existing items using the control buttons.', "digiblocks"),
             isOpen: false
           }
         ]
@@ -20743,14 +24813,14 @@
         items: [
           {
             id: "faq-item-1",
-            title: __16("What is a frequently asked question?", "digiblocks"),
-            content: __16("A frequently asked question (FAQ) is a question that is commonly asked by users or customers.", "digiblocks"),
+            title: __20("What is a frequently asked question?", "digiblocks"),
+            content: __20("A frequently asked question (FAQ) is a question that is commonly asked by users or customers.", "digiblocks"),
             isOpen: true
           },
           {
             id: "faq-item-2",
-            title: __16("How do I add more questions?", "digiblocks"),
-            content: __16('Click the "Add FAQ Item" button to add more questions and answers.', "digiblocks"),
+            title: __20("How do I add more questions?", "digiblocks"),
+            content: __20('Click the "Add FAQ Item" button to add more questions and answers.', "digiblocks"),
             isOpen: false
           }
         ],
@@ -20760,8 +24830,8 @@
         backgroundColor: "#ffffff"
       }
     },
-    edit: edit_default5,
-    save: save_default5
+    edit: edit_default7,
+    save: save_default7
   });
   registerBlockType("digiblocks/google-map", {
     apiVersion: 2,
@@ -20774,7 +24844,7 @@
       }
     },
     description: digiBlocksData.blocks["google-map"].description,
-    keywords: [__16("map", "digiblocks"), __16("google", "digiblocks"), __16("location", "digiblocks"), __16("marker", "digiblocks")],
+    keywords: [__20("map", "digiblocks"), __20("google", "digiblocks"), __20("location", "digiblocks"), __20("marker", "digiblocks")],
     supports: {
       inserter: getBlockActiveStatus("google-map") ? true : false,
       html: false,
@@ -20922,8 +24992,8 @@
         ]
       }
     },
-    edit: edit_default6,
-    save: save_default6
+    edit: edit_default8,
+    save: save_default8
   });
   registerBlockType("digiblocks/heading", {
     apiVersion: 2,
@@ -20936,7 +25006,7 @@
       }
     },
     description: digiBlocksData.blocks["heading"].description,
-    keywords: [__16("heading", "digiblocks"), __16("title", "digiblocks"), __16("header", "digiblocks")],
+    keywords: [__20("heading", "digiblocks"), __20("title", "digiblocks"), __20("header", "digiblocks")],
     // Disable default controls and settings panels
     supports: {
       inserter: getBlockActiveStatus("heading") ? true : false,
@@ -20960,7 +25030,7 @@
       },
       content: {
         type: "string",
-        default: __16("Add Your Heading", "digiblocks")
+        default: __20("Add Your Heading", "digiblocks")
       },
       level: {
         type: "number",
@@ -21118,7 +25188,7 @@
     },
     example: {
       attributes: {
-        content: __16("Beautiful Heading", "digiblocks"),
+        content: __20("Beautiful Heading", "digiblocks"),
         level: 2,
         textColor: "#333333",
         typography: {
@@ -21131,8 +25201,8 @@
         separatorColor: "#1e73be"
       }
     },
-    edit: edit_default7,
-    save: save_default7
+    edit: edit_default9,
+    save: save_default9
   });
   registerBlockType("digiblocks/icon", {
     apiVersion: 2,
@@ -21145,7 +25215,7 @@
       }
     },
     description: digiBlocksData.blocks["icon"].description,
-    keywords: [__16("icon", "digiblocks"), __16("symbol", "digiblocks"), __16("fontawesome", "digiblocks")],
+    keywords: [__20("icon", "digiblocks"), __20("symbol", "digiblocks"), __20("fontawesome", "digiblocks")],
     // Disable all default controls and settings panels
     supports: {
       inserter: getBlockActiveStatus("icon") ? true : false,
@@ -21393,8 +25463,8 @@
       },
       viewportWidth: 100
     },
-    edit: edit_default8,
-    save: save_default8
+    edit: edit_default10,
+    save: save_default10
   });
   registerBlockType("digiblocks/icon-box", {
     apiVersion: 2,
@@ -21407,7 +25477,7 @@
       }
     },
     description: digiBlocksData.blocks["icon-box"].description,
-    keywords: [__16("icon", "digiblocks"), __16("box", "digiblocks"), __16("feature", "digiblocks"), __16("service", "digiblocks")],
+    keywords: [__20("icon", "digiblocks"), __20("box", "digiblocks"), __20("feature", "digiblocks"), __20("service", "digiblocks")],
     // Disable all default controls and settings panels
     supports: {
       inserter: getBlockActiveStatus("icon-box") ? true : false,
@@ -21435,11 +25505,11 @@
       },
       title: {
         type: "string",
-        default: __16("Feature Title", "digiblocks")
+        default: __20("Feature Title", "digiblocks")
       },
       content: {
         type: "string",
-        default: __16("Add your feature description here. Explain what makes this feature special.", "digiblocks")
+        default: __20("Add your feature description here. Explain what makes this feature special.", "digiblocks")
       },
       iconColor: {
         type: "string",
@@ -21739,15 +25809,306 @@
           style: "solid",
           categories: ["design", "lifestyle-and-hobbies", "social"]
         },
-        title: __16("Feature Title", "digiblocks"),
-        content: __16("Add your feature description here. Explain what makes this feature special.", "digiblocks"),
+        title: __20("Feature Title", "digiblocks"),
+        content: __20("Add your feature description here. Explain what makes this feature special.", "digiblocks"),
         iconColor: "#1e73be",
         backgroundColor: "#ffffff"
       },
       viewportWidth: 400
     },
-    edit: edit_default9,
-    save: save_default9
+    edit: edit_default11,
+    save: save_default11
+  });
+  registerBlockType("digiblocks/icon-list", {
+    apiVersion: 2,
+    title: digiBlocksData.blocks["icon-list"].title,
+    category: "digiblocks",
+    icon: {
+      src: () => {
+        const { viewbox, path } = digiBlocksData.blocks["icon-list"].icon;
+        return /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: `0 0 ${viewbox}`, className: "digiblocks-editor-icons" }, /* @__PURE__ */ wp.element.createElement("path", { d: path }));
+      }
+    },
+    description: digiBlocksData.blocks["icon-list"].description,
+    keywords: [__20("icon", "digiblocks"), __20("list", "digiblocks"), __20("menu", "digiblocks"), __20("feature", "digiblocks"), __20("service", "digiblocks")],
+    // Disable all default controls and settings panels
+    supports: {
+      inserter: getBlockActiveStatus("icon-list") ? true : false,
+      // Remove the block if disabled
+      html: false,
+      className: false,
+      customClassName: false,
+      anchor: false
+    },
+    attributes: {
+      id: {
+        type: "string"
+      },
+      anchor: {
+        type: "string",
+        default: ""
+      },
+      customClasses: {
+        type: "string",
+        default: ""
+      },
+      items: {
+        type: "array",
+        default: [
+          {
+            id: "item-1",
+            content: __20("First list item with icon", "digiblocks"),
+            icon: {
+              id: "check",
+              name: "Check",
+              svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M470.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L192 338.7 425.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>',
+              style: "solid",
+              categories: ["design"]
+            },
+            linkEnabled: false,
+            linkUrl: "",
+            linkOpenInNewTab: false,
+            linkRel: ""
+          },
+          {
+            id: "item-2",
+            content: __20("Second list item with star icon", "digiblocks"),
+            icon: {
+              id: "star",
+              name: "Star",
+              svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="1em" height="1em"><path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"/></svg>',
+              style: "solid",
+              categories: ["design"]
+            },
+            linkEnabled: false,
+            linkUrl: "",
+            linkOpenInNewTab: false,
+            linkRel: ""
+          },
+          {
+            id: "item-3",
+            content: __20("Third list item with heart icon", "digiblocks"),
+            icon: {
+              id: "heart",
+              name: "Heart",
+              svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"/></svg>',
+              style: "solid",
+              categories: ["design"]
+            },
+            linkEnabled: false,
+            linkUrl: "",
+            linkOpenInNewTab: false,
+            linkRel: ""
+          }
+        ]
+      },
+      defaultIcon: {
+        type: "object",
+        default: {
+          id: "check",
+          name: "Check",
+          svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M470.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L192 338.7 425.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>',
+          style: "solid",
+          categories: ["design"]
+        }
+      },
+      contentTypography: {
+        type: "object",
+        default: {
+          fontFamily: "",
+          fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+          fontSizeUnit: "px",
+          fontWeight: "",
+          fontStyle: "normal",
+          textTransform: "",
+          textDecoration: "",
+          lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+          lineHeightUnit: "em",
+          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacingUnit: "px"
+        }
+      },
+      listLayout: {
+        type: "string",
+        default: "vertical"
+      },
+      listAlign: {
+        type: "string",
+        default: "left"
+      },
+      iconPosition: {
+        type: "string",
+        default: "before"
+      },
+      iconSize: {
+        type: "object",
+        default: {
+          desktop: 24,
+          tablet: 20,
+          mobile: 18
+        }
+      },
+      iconSpace: {
+        type: "object",
+        default: {
+          desktop: 12,
+          tablet: 10,
+          mobile: 8
+        }
+      },
+      itemSpace: {
+        type: "object",
+        default: {
+          desktop: 16,
+          tablet: 12,
+          mobile: 8
+        }
+      },
+      iconColor: {
+        type: "string",
+        default: "#1e73be"
+      },
+      iconHoverColor: {
+        type: "string",
+        default: ""
+      },
+      textColor: {
+        type: "string",
+        default: "#333333"
+      },
+      textHoverColor: {
+        type: "string",
+        default: ""
+      },
+      animation: {
+        type: "string",
+        default: "none"
+      },
+      padding: {
+        type: "object",
+        default: {
+          desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: "px" },
+          tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: "px" },
+          mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: "px" }
+        }
+      },
+      margin: {
+        type: "object",
+        default: {
+          desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: "px" },
+          tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: "px" },
+          mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: "px" }
+        }
+      },
+      borderStyle: {
+        type: "string",
+        default: "none"
+      },
+      borderWidth: {
+        type: "object",
+        default: {
+          desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
+          tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
+          mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" }
+        }
+      },
+      borderRadius: {
+        type: "object",
+        default: {
+          desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: "px" },
+          tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: "px" },
+          mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: "px" }
+        }
+      },
+      borderColor: {
+        type: "string",
+        default: "#e0e0e0"
+      },
+      borderHoverColor: {
+        type: "string",
+        default: ""
+      },
+      boxShadow: {
+        type: "object",
+        default: {
+          enable: false,
+          color: "rgba(0, 0, 0, 0.2)",
+          horizontal: 0,
+          vertical: 0,
+          blur: 0,
+          spread: 0,
+          position: "outset"
+        }
+      },
+      boxShadowHover: {
+        type: "object",
+        default: {
+          enable: false,
+          color: "rgba(0, 0, 0, 0.2)",
+          horizontal: 0,
+          vertical: 0,
+          blur: 0,
+          spread: 0,
+          position: "outset"
+        }
+      },
+      backgroundColor: {
+        type: "string",
+        default: ""
+      },
+      backgroundHoverColor: {
+        type: "string",
+        default: ""
+      },
+      hoverEffect: {
+        type: "string",
+        default: "none"
+      }
+    },
+    example: {
+      attributes: {
+        items: [
+          {
+            id: "item-1",
+            content: __20("Professional feature", "digiblocks"),
+            icon: {
+              id: "star",
+              name: "Star",
+              svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="1em" height="1em"><path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"/></svg>',
+              style: "solid",
+              categories: ["design"]
+            }
+          },
+          {
+            id: "item-2",
+            content: __20("24/7 support service", "digiblocks"),
+            icon: {
+              id: "headset",
+              name: "Headset",
+              svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M256 48C141.1 48 48 141.1 48 256v40c0 13.3-10.7 24-24 24s-24-10.7-24-24V256C0 114.6 114.6 0 256 0S512 114.6 512 256V400.1c0 48.6-39.4 88-88.1 88L313.6 488c-8.3 14.3-23.8 24-41.6 24H240c-26.5 0-48-21.5-48-48s21.5-48 48-48h32c17.8 0 33.3 9.7 41.6 24l110.4 .1c22.1 0 40-17.9 40-40V256c0-114.9-93.1-208-208-208zM144 208h16c17.7 0 32 14.3 32 32V352c0 17.7-14.3 32-32 32H144c-35.3 0-64-28.7-64-64V272c0-35.3 28.7-64 64-64zm224 0c35.3 0 64 28.7 64 64v48c0 35.3-28.7 64-64 64H352c-17.7 0-32-14.3-32-32V240c0-17.7 14.3-32 32-32h16z"/></svg>',
+              style: "solid",
+              categories: ["business", "technology"]
+            }
+          },
+          {
+            id: "item-3",
+            content: __20("Free updates and documentation", "digiblocks"),
+            icon: {
+              id: "download",
+              name: "Download",
+              svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M256 0c17.7 0 32 14.3 32 32V242.7l73.4-73.4c12.5-12.5 32.8-12.5 45.3 0s12.5 32.8 0 45.3l-128 128c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L224 242.7V32c0-17.7 14.3-32 32-32zM48 384c-17.7 0-32 14.3-32 32v64c0 17.7 14.3 32 32 32H464c17.7 0 32-14.3 32-32V416c0-17.7-14.3-32-32-32H304 208 48zm272 80c0-8.8-7.2-16-16-16s-16 7.2-16 16s7.2 16 16 16s16-7.2 16-16zm80 0c0-8.8-7.2-16-16-16s-16 7.2-16 16s7.2 16 16 16s16-7.2 16-16z"/></svg>',
+              style: "solid",
+              categories: ["arrows", "technology"]
+            }
+          }
+        ],
+        iconColor: "#1e73be",
+        textColor: "#333333"
+      },
+      viewportWidth: 800
+    },
+    edit: edit_default12,
+    save: save_default12
   });
   registerBlockType("digiblocks/separator", {
     apiVersion: 2,
@@ -21760,7 +26121,7 @@
       }
     },
     description: digiBlocksData.blocks["separator"].description,
-    keywords: [__16("separator", "digiblocks"), __16("divider", "digiblocks"), __16("horizontal rule", "digiblocks"), __16("hr", "digiblocks")],
+    keywords: [__20("separator", "digiblocks"), __20("divider", "digiblocks"), __20("horizontal rule", "digiblocks"), __20("hr", "digiblocks")],
     // Disable all default controls and settings panels
     supports: {
       inserter: getBlockActiveStatus("separator") ? true : false,
@@ -21915,8 +26276,8 @@
         textColor: "#333333"
       }
     },
-    edit: edit_default10,
-    save: save_default10
+    edit: edit_default13,
+    save: save_default13
   });
   registerBlockType("digiblocks/social-icons", {
     apiVersion: 2,
@@ -21929,7 +26290,7 @@
       }
     },
     description: digiBlocksData.blocks["social-icons"].description,
-    keywords: [__16("social", "digiblocks"), __16("icons", "digiblocks"), __16("networks", "digiblocks"), __16("media", "digiblocks")],
+    keywords: [__20("social", "digiblocks"), __20("icons", "digiblocks"), __20("networks", "digiblocks"), __20("media", "digiblocks")],
     // Disable all default controls and settings panels
     supports: {
       inserter: getBlockActiveStatus("social-icons") ? true : false,
@@ -21959,7 +26320,7 @@
             iconValue: {
               name: "Facebook",
               network: "facebook",
-              svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor"><path d="M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z"></path></svg>'
+              svg: "M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z"
             },
             url: "https://facebook.com",
             label: "Facebook",
@@ -21971,7 +26332,7 @@
             iconValue: {
               name: "Twitter",
               network: "twitter",
-              svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path></svg>'
+              svg: "M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"
             },
             url: "https://twitter.com",
             label: "Twitter",
@@ -21983,7 +26344,7 @@
             iconValue: {
               name: "Instagram",
               network: "instagram",
-              svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"></path></svg>'
+              svg: "M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"
             },
             url: "https://instagram.com",
             label: "Instagram",
@@ -22117,7 +26478,7 @@
             iconValue: {
               name: "Facebook",
               network: "facebook",
-              svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.8 90.69 226.4 209.3 245V327.7h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.3 482.4 504 379.8 504 256z"></path></svg>'
+              svg: "M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z"
             },
             url: "https://facebook.com",
             label: "Facebook",
@@ -22129,7 +26490,7 @@
             iconValue: {
               name: "Twitter",
               network: "twitter",
-              svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path></svg>'
+              svg: "M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"
             },
             url: "https://twitter.com",
             label: "Twitter",
@@ -22141,7 +26502,7 @@
             iconValue: {
               name: "Instagram",
               network: "instagram",
-              svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"></path></svg>'
+              svg: "M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"
             },
             url: "https://instagram.com",
             label: "Instagram",
@@ -22158,8 +26519,8 @@
         labelPosition: "right"
       }
     },
-    edit: edit_default11,
-    save: save_default11
+    edit: edit_default14,
+    save: save_default14
   });
   registerBlockType("digiblocks/spacer", {
     apiVersion: 2,
@@ -22172,7 +26533,7 @@
       }
     },
     description: digiBlocksData.blocks["spacer"].description,
-    keywords: [__16("spacer", "digiblocks"), __16("gap", "digiblocks"), __16("spacing", "digiblocks")],
+    keywords: [__20("spacer", "digiblocks"), __20("gap", "digiblocks"), __20("spacing", "digiblocks")],
     supports: {
       inserter: getBlockActiveStatus("spacer") ? true : false,
       html: false,
@@ -22208,8 +26569,8 @@
         }
       }
     },
-    edit: edit_default12,
-    save: save_default12
+    edit: edit_default15,
+    save: save_default15
   });
   registerBlockType("digiblocks/table", {
     apiVersion: 2,
@@ -22222,7 +26583,7 @@
       }
     },
     description: digiBlocksData.blocks["table"].description,
-    keywords: [__16("table", "digiblocks"), __16("comparison", "digiblocks"), __16("grid", "digiblocks"), __16("cells", "digiblocks")],
+    keywords: [__20("table", "digiblocks"), __20("comparison", "digiblocks"), __20("grid", "digiblocks"), __20("cells", "digiblocks")],
     supports: {
       inserter: getBlockActiveStatus("table") ? true : false,
       html: false,
@@ -22378,6 +26739,18 @@
           position: "outset"
         }
       },
+      boxShadowHover: {
+        type: "object",
+        default: {
+          enable: false,
+          color: "rgba(0, 0, 0, 0.2)",
+          horizontal: 0,
+          vertical: 10,
+          blur: 25,
+          spread: 0,
+          position: "outset"
+        }
+      },
       margin: {
         type: "object",
         default: {
@@ -22434,8 +26807,8 @@
         altRowBackgroundColor: "#f9f9f9"
       }
     },
-    edit: edit_default13,
-    save: save_default13
+    edit: edit_default16,
+    save: save_default16
   });
   registerBlockType("digiblocks/team", {
     apiVersion: 2,
@@ -22448,7 +26821,7 @@
       }
     },
     description: digiBlocksData.blocks["team"].description,
-    keywords: [__16("team", "digiblocks"), __16("members", "digiblocks"), __16("staff", "digiblocks"), __16("people", "digiblocks")],
+    keywords: [__20("team", "digiblocks"), __20("members", "digiblocks"), __20("staff", "digiblocks"), __20("people", "digiblocks")],
     supports: {
       inserter: getBlockActiveStatus("team") ? true : false,
       html: false,
@@ -22473,9 +26846,9 @@
         default: [
           {
             id: "team-member-1",
-            name: __16("John Doe", "digiblocks"),
-            position: __16("CEO & Founder", "digiblocks"),
-            bio: __16("John has over 15 years of experience in the industry and leads our team with vision and expertise.", "digiblocks"),
+            name: __20("John Doe", "digiblocks"),
+            position: __20("CEO & Founder", "digiblocks"),
+            bio: __20("John has over 15 years of experience in the industry and leads our team with vision and expertise.", "digiblocks"),
             image: {
               url: "",
               id: "",
@@ -22496,9 +26869,9 @@
           },
           {
             id: "team-member-2",
-            name: __16("Jane Smith", "digiblocks"),
-            position: __16("Creative Director", "digiblocks"),
-            bio: __16("Jane brings creativity and innovation to every project with her background in design and marketing.", "digiblocks"),
+            name: __20("Jane Smith", "digiblocks"),
+            position: __20("Creative Director", "digiblocks"),
+            bio: __20("Jane brings creativity and innovation to every project with her background in design and marketing.", "digiblocks"),
             image: {
               url: "",
               id: "",
@@ -22519,9 +26892,9 @@
           },
           {
             id: "team-member-3",
-            name: __16("Mike Johnson", "digiblocks"),
-            position: __16("Lead Developer", "digiblocks"),
-            bio: __16("Mike is our technical expert, specializing in cutting-edge technologies and solving complex problems.", "digiblocks"),
+            name: __20("Mike Johnson", "digiblocks"),
+            position: __20("Lead Developer", "digiblocks"),
+            bio: __20("Mike is our technical expert, specializing in cutting-edge technologies and solving complex problems.", "digiblocks"),
             image: {
               url: "",
               id: "",
@@ -22804,9 +27177,9 @@
         members: [
           {
             id: "team-member-1",
-            name: __16("John Doe", "digiblocks"),
-            position: __16("CEO & Founder", "digiblocks"),
-            bio: __16("John has over 15 years of experience in the industry.", "digiblocks"),
+            name: __20("John Doe", "digiblocks"),
+            position: __20("CEO & Founder", "digiblocks"),
+            bio: __20("John has over 15 years of experience in the industry.", "digiblocks"),
             socials: [
               {
                 id: "social-1",
@@ -22822,9 +27195,9 @@
           },
           {
             id: "team-member-2",
-            name: __16("Jane Smith", "digiblocks"),
-            position: __16("Creative Director", "digiblocks"),
-            bio: __16("Jane brings creativity to every project.", "digiblocks"),
+            name: __20("Jane Smith", "digiblocks"),
+            position: __20("Creative Director", "digiblocks"),
+            bio: __20("Jane brings creativity to every project.", "digiblocks"),
             socials: [
               {
                 id: "social-3",
@@ -22841,7 +27214,296 @@
         }
       }
     },
-    edit: edit_default14,
-    save: save_default14
+    edit: edit_default17,
+    save: save_default17
+  });
+  registerBlockType("digiblocks/testimonials", {
+    apiVersion: 2,
+    title: digiBlocksData.blocks["testimonials"].title,
+    category: "digiblocks",
+    icon: {
+      src: () => {
+        const { viewbox, path } = digiBlocksData.blocks["testimonials"].icon;
+        return /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: `0 0 ${viewbox}`, className: "digiblocks-editor-icons" }, /* @__PURE__ */ wp.element.createElement("path", { d: path }));
+      }
+    },
+    description: digiBlocksData.blocks["testimonials"].description,
+    keywords: [__20("testimonials", "digiblocks"), __20("reviews", "digiblocks"), __20("quotes", "digiblocks"), __20("testimonial", "digiblocks")],
+    // Disable all default controls and settings panels
+    supports: {
+      inserter: getBlockActiveStatus("testimonials") ? true : false,
+      // Remove the block if disabled
+      html: false,
+      className: false,
+      customClassName: false,
+      anchor: false
+    },
+    attributes: {
+      id: {
+        type: "string"
+      },
+      anchor: {
+        type: "string",
+        default: ""
+      },
+      customClasses: {
+        type: "string",
+        default: ""
+      },
+      testimonials: {
+        type: "array",
+        default: [
+          {
+            id: "testimonial-1",
+            name: __20("John Doe", "digiblocks"),
+            position: __20("CEO", "digiblocks"),
+            company: __20("Tech Innovations Inc.", "digiblocks"),
+            content: __20("This product has completely transformed our business operations. The support team is incredibly responsive and helpful.", "digiblocks"),
+            imageUrl: "",
+            imageId: "",
+            rating: 5
+          },
+          {
+            id: "testimonial-2",
+            name: __20("Sarah Johnson", "digiblocks"),
+            position: __20("Marketing Director", "digiblocks"),
+            company: __20("Creative Solutions", "digiblocks"),
+            content: __20("I cannot recommend this service enough. The quality and attention to detail exceeded our expectations.", "digiblocks"),
+            imageUrl: "",
+            imageId: "",
+            rating: 5
+          }
+        ]
+      },
+      columns: {
+        type: "object",
+        default: {
+          desktop: 2,
+          tablet: 2,
+          mobile: 1
+        }
+      },
+      align: {
+        type: "string",
+        default: "left"
+      },
+      autoplay: {
+        type: "boolean",
+        default: true
+      },
+      autoplaySpeed: {
+        type: "number",
+        default: 3e3
+      },
+      showArrows: {
+        type: "boolean",
+        default: true
+      },
+      showDots: {
+        type: "boolean",
+        default: true
+      },
+      nameColor: {
+        type: "string",
+        default: "#333333"
+      },
+      nameHoverColor: {
+        type: "string",
+        default: ""
+      },
+      positionColor: {
+        type: "string",
+        default: "#666666"
+      },
+      contentColor: {
+        type: "string",
+        default: "#444444"
+      },
+      backgroundColor: {
+        type: "string",
+        default: "#ffffff"
+      },
+      backgroundHoverColor: {
+        type: "string",
+        default: ""
+      },
+      quoteIconColor: {
+        type: "string",
+        default: "#e0e0e0"
+      },
+      ratingColor: {
+        type: "string",
+        default: "#ffc107"
+      },
+      borderStyle: {
+        type: "string",
+        default: "default"
+      },
+      borderWidth: {
+        type: "object",
+        default: {
+          desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
+          tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
+          mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" }
+        }
+      },
+      borderRadius: {
+        type: "object",
+        default: {
+          desktop: { top: 12, right: 12, bottom: 12, left: 12, unit: "px" },
+          tablet: { top: 12, right: 12, bottom: 12, left: 12, unit: "px" },
+          mobile: { top: 12, right: 12, bottom: 12, left: 12, unit: "px" }
+        }
+      },
+      borderColor: {
+        type: "string",
+        default: "#e0e0e0"
+      },
+      boxShadow: {
+        type: "object",
+        default: {
+          enable: true,
+          color: "rgba(0, 0, 0, 0.12)",
+          horizontal: 0,
+          vertical: 5,
+          blur: 15,
+          spread: 0,
+          position: "outset"
+        }
+      },
+      boxShadowHover: {
+        type: "object",
+        default: {
+          enable: true,
+          color: "rgba(0, 0, 0, 0.2)",
+          horizontal: 0,
+          vertical: 10,
+          blur: 20,
+          spread: 0,
+          position: "outset"
+        }
+      },
+      padding: {
+        type: "object",
+        default: {
+          desktop: { top: 40, right: 40, bottom: 40, left: 40, unit: "px" },
+          tablet: { top: 30, right: 30, bottom: 30, left: 30, unit: "px" },
+          mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: "px" }
+        }
+      },
+      margin: {
+        type: "object",
+        default: {
+          desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: "px" },
+          tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: "px" },
+          mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: "px" }
+        }
+      },
+      contentTypography: {
+        type: "object",
+        default: {
+          fontFamily: "",
+          fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+          fontSizeUnit: "px",
+          fontWeight: "",
+          fontStyle: "italic",
+          textTransform: "",
+          textDecoration: "",
+          lineHeight: { desktop: 1.7, tablet: 1.6, mobile: 1.5 },
+          lineHeightUnit: "em",
+          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacingUnit: "px"
+        }
+      },
+      headingTypography: {
+        type: "object",
+        default: {
+          fontFamily: "",
+          fontSize: { desktop: 20, tablet: 18, mobile: 16 },
+          fontSizeUnit: "px",
+          fontWeight: "600",
+          fontStyle: "normal",
+          textTransform: "",
+          textDecoration: "",
+          lineHeight: { desktop: 1.3, tablet: 1.3, mobile: 1.3 },
+          lineHeightUnit: "em",
+          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacingUnit: "px"
+        }
+      },
+      textTypography: {
+        type: "object",
+        default: {
+          fontFamily: "",
+          fontSize: { desktop: 14, tablet: 13, mobile: 12 },
+          fontSizeUnit: "px",
+          fontWeight: "",
+          fontStyle: "normal",
+          textTransform: "",
+          textDecoration: "",
+          lineHeight: { desktop: 1.4, tablet: 1.4, mobile: 1.4 },
+          lineHeightUnit: "em",
+          letterSpacing: { desktop: 0.5, tablet: 0.5, mobile: 0.5 },
+          letterSpacingUnit: "px"
+        }
+      },
+      imageSize: {
+        type: "object",
+        default: {
+          desktop: 64,
+          tablet: 56,
+          mobile: 48
+        }
+      },
+      quoteIconSize: {
+        type: "object",
+        default: {
+          desktop: 80,
+          tablet: 50,
+          mobile: 30
+        }
+      },
+      showRating: {
+        type: "boolean",
+        default: true
+      },
+      showQuoteIcon: {
+        type: "boolean",
+        default: true
+      },
+      animation: {
+        type: "string",
+        default: "none"
+      },
+      itemSpacing: {
+        type: "object",
+        default: {
+          desktop: 30,
+          tablet: 25,
+          mobile: 20
+        }
+      }
+    },
+    example: {
+      attributes: {
+        testimonials: [
+          {
+            id: "testimonial-1",
+            name: __20("John Doe", "digiblocks"),
+            position: __20("CEO", "digiblocks"),
+            company: __20("Tech Innovations Inc.", "digiblocks"),
+            content: __20("This product has completely transformed our business operations. The support team is incredibly responsive and helpful.", "digiblocks"),
+            imageUrl: "",
+            imageId: "",
+            rating: 5
+          }
+        ],
+        layout: "card",
+        backgroundColor: "#ffffff"
+      },
+      viewportWidth: 800
+    },
+    edit: edit_default18,
+    save: save_default18
   });
 })();

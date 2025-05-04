@@ -115,6 +115,16 @@ $boxShadow = isset( $attrs['boxShadow'] ) ? $attrs['boxShadow'] : array(
 	'position'   => 'outset',
 );
 
+$boxShadowHover = isset( $attrs['boxShadowHover'] ) ? $attrs['boxShadowHover'] : array(
+	'enable'     => false,
+	'color'      => 'rgba(0, 0, 0, 0.2)',
+	'horizontal' => 0,
+	'vertical'   => 10,
+	'blur'       => 25,
+	'spread'     => 0,
+	'position'   => 'outset',
+);
+
 // Typography
 $headerTypography = isset( $attrs['headingTypography'] ) ? $attrs['headingTypography'] : array(
 	'fontFamily'        => '',
@@ -203,6 +213,7 @@ ob_start();
     
     <?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
         box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadow ) ); ?>;
+		transition: all 0.3s ease;
     <?php else : ?>
         box-shadow: none;
     <?php endif; ?>
@@ -212,6 +223,13 @@ ob_start();
     width: 100%;
     overflow: hidden;
 }
+
+/* Hover effects */
+<?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover {
+	box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadowHover ) ); ?>;
+}
+<?php endif; ?>
 
 /* Set up main table styles */
 [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table {
@@ -261,8 +279,6 @@ ob_start();
     <?php endif; ?>
     
     border-radius: <?php echo esc_attr( $borderRadius['desktop']['top'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['right'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['bottom'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['left'] . $borderRadius['desktop']['unit'] ); ?>;
-    
-    overflow: hidden;
 }
 
 /* Table header styles */
@@ -304,18 +320,36 @@ ob_start();
     
     padding: <?php echo esc_attr( $cellPadding['desktop']['top'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['right'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['bottom'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['left'] . $cellPadding['desktop']['unit'] ); ?>;
     
-    text-align: <?php echo esc_attr( $headerAlignment ); ?>;
     vertical-align: middle;
     border: <?php echo esc_attr( $tableBorderWidth ); ?>px <?php echo esc_attr( $tableBorderStyle ); ?> <?php echo esc_attr( $tableBorderColor ); ?>;
+}
+
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table thead th .digiblocks-cell-content {
+	<?php if ( $headerAlignment === 'center' ) : ?>
+        justify-content: center;
+    <?php elseif ( $headerAlignment === 'right' ) : ?>
+        justify-content: flex-end;
+    <?php else : ?>
+        justify-content: flex-start;
+    <?php endif; ?>
 }
 
 /* Table body styles */
 [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table tbody td {
     background-color: <?php echo esc_attr( $bodyBackgroundColor ); ?>;
     padding: <?php echo esc_attr( $cellPadding['desktop']['top'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['right'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['bottom'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['left'] . $cellPadding['desktop']['unit'] ); ?>;
-    text-align: <?php echo esc_attr( $cellAlignment ); ?>;
     vertical-align: middle;
     border: <?php echo esc_attr( $tableBorderWidth ); ?>px <?php echo esc_attr( $tableBorderStyle ); ?> <?php echo esc_attr( $tableBorderColor ); ?>;
+}
+
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table tbody td .digiblocks-cell-content {
+	<?php if ( $cellAlignment === 'center' ) : ?>
+        justify-content: center;
+    <?php elseif ( $cellAlignment === 'right' ) : ?>
+        justify-content: flex-end;
+    <?php else : ?>
+        justify-content: flex-start;
+    <?php endif; ?>
 }
 
 /* First column styles if it's a header */
@@ -337,7 +371,16 @@ ob_start();
     <?php endif; ?>
     
     font-weight: bold;
-    text-align: <?php echo esc_attr( $headerAlignment ); ?>;
+}
+
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table tbody td:first-child .digiblocks-cell-content {
+	<?php if ( $headerAlignment === 'center' ) : ?>
+        justify-content: center;
+    <?php elseif ( $headerAlignment === 'right' ) : ?>
+        justify-content: flex-end;
+    <?php else : ?>
+        justify-content: flex-start;
+    <?php endif; ?>
 }
 <?php endif; ?>
 
@@ -398,6 +441,16 @@ ob_start();
     vertical-align: middle;
     border: <?php echo esc_attr( $tableBorderWidth ); ?>px <?php echo esc_attr( $tableBorderStyle ); ?> <?php echo esc_attr( $tableBorderColor ); ?>;
 }
+
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table tfoot td .digiblocks-cell-content {
+	<?php if ( $footerAlignment === 'center' ) : ?>
+        justify-content: center;
+    <?php elseif ( $footerAlignment === 'right' ) : ?>
+        justify-content: flex-end;
+    <?php else : ?>
+        justify-content: flex-start;
+    <?php endif; ?>
+}
 <?php endif; ?>
 
 /* Cell control icons */
@@ -405,7 +458,12 @@ ob_start();
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-right: 5px;
+}
+
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cell-content {
+	display: flex;
+	align-items: center;
+	gap: 6px;
 }
 
 [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table .digiblocks-cell-check {
@@ -419,6 +477,7 @@ ob_start();
 [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table .digiblocks-cell-stars {
     color: #ffc107;
     display: inline-flex;
+	gap: 5px;
 }
 
 /* Tablet Styles */
@@ -560,20 +619,43 @@ ob_start();
     
     /* Responsive Modes for Mobile */
     <?php if ( 'stack' === $responsiveMode ) : ?>
+    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+		border-radius: 0;
+		box-shadow: none;
+    }
+
     [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table {
         border-collapse: collapse;
+		border: 0;
+		border-radius: 0;
     }
     
     [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table thead,
     [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table tfoot {
         display: none;
     }
+
+	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table tbody {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+    }
     
     [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table tbody tr {
         display: block;
-        margin-bottom: 1rem;
         border: <?php echo esc_attr( $tableBorderWidth ); ?>px <?php echo esc_attr( $tableBorderStyle ); ?> <?php echo esc_attr( $tableBorderColor ); ?>;
+		<?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
+        	box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadow ) ); ?>;
+			transition: all 0.3s ease;
+		<?php endif; ?>
     }
+    
+    /* Hover effects */
+	<?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
+	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table tbody tr:hover {
+		box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadowHover ) ); ?>;
+	}
+	<?php endif; ?>
     
     [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-table tbody td {
         display: flex;

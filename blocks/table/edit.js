@@ -60,6 +60,7 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
         contentTypography,
         borderRadius,
         boxShadow,
+        boxShadowHover,
         margin,
         cellAlignment,
         headerAlignment,
@@ -515,6 +516,19 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
         
         if (!blockId) return ''; // Prevent rendering if ID is not yet set
 
+		const getFlexAlignment = (textAlign) => {
+			switch (textAlign) {
+				case 'left':
+					return 'flex-start';
+				case 'center':
+					return 'center';
+				case 'right':
+					return 'flex-end';
+				default:
+					return 'flex-start';
+			}
+		};
+
         // Border styles
         let borderCSS = '';
         if (tableBorderStyle !== 'none') {
@@ -532,6 +546,13 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
         if (boxShadow && boxShadow.enable) {
             const inset = boxShadow.position === 'inset' ? 'inset ' : '';
             boxShadowCSS = `box-shadow: ${inset}${boxShadow.horizontal}px ${boxShadow.vertical}px ${boxShadow.blur}px ${boxShadow.spread}px ${boxShadow.color};`;
+        }
+        
+        // Box shadow hover
+        let boxShadowHoverCSS = '';
+        if (boxShadowHover && boxShadowHover.enable) {
+            const insetHover = boxShadowHover.position === 'inset' ? 'inset ' : '';
+            boxShadowHoverCSS = `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
         }
         
         // Border radius
@@ -668,8 +689,15 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 ${boxShadowCSS}
                 ${borderRadiusCSS}
                 width: 100%;
-                overflow: hidden;
+                transition: all 0.3s ease;
             }
+
+			/* Hover effects */
+            ${boxShadowHover && boxShadowHover.enable ? `
+                [data-custom-id="${blockId}"]:hover {
+                    ${boxShadowHoverCSS}
+                }
+            ` : ''}
             
             /* Set up main table styles */
             [data-custom-id="${blockId}"] .digiblocks-table {
@@ -680,7 +708,6 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 ${bodyTypographyCSS}
                 ${borderCSS}
                 ${borderRadiusCSS}
-                overflow: hidden;
             }
             
             /* Table header styles */
@@ -689,18 +716,24 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 color: ${headerTextColor};
                 ${headingTypographyCSS}
                 ${cellPaddingCSS}
-                text-align: ${headerAlignment};
                 vertical-align: middle;
                 border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
+            }
+
+            [data-custom-id="${blockId}"] .digiblocks-table thead th .digiblocks-cell-content {
+                justify-content: ${getFlexAlignment(headerAlignment)};
             }
             
             /* Table body styles */
             [data-custom-id="${blockId}"] .digiblocks-table tbody td {
                 background-color: ${bodyBackgroundColor};
                 ${cellPaddingCSS}
-                text-align: ${cellAlignment};
                 vertical-align: middle;
                 border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
+            }
+
+            [data-custom-id="${blockId}"] .digiblocks-table tbody td .digiblocks-cell-content {
+                justify-content: ${getFlexAlignment(cellAlignment)};
             }
             
             /* First column styles if it's a header */
@@ -710,7 +743,10 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 color: ${headerTextColor};
                 ${headingTypographyCSS}
                 font-weight: bold;
-                text-align: ${headerAlignment};
+            }
+
+            [data-custom-id="${blockId}"] .digiblocks-table tbody td:first-child .digiblocks-cell-content {
+                justify-content: ${getFlexAlignment(headerAlignment)};
             }
             ` : ''}
             
@@ -733,9 +769,12 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 color: ${footerTextColor};
                 ${contentTypographyCSS}
                 ${cellPaddingCSS}
-                text-align: ${footerAlignment};
                 vertical-align: middle;
                 border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
+            }
+
+            [data-custom-id="${blockId}"] .digiblocks-table tfoot td .digiblocks-cell-content {
+                justify-content: ${getFlexAlignment(footerAlignment)};
             }
             ` : ''}
             
@@ -743,24 +782,46 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
             @media (max-width: 767px) {
                 /* Stack mode */
                 ${responsiveMode === 'stack' ? `
+                [data-custom-id="${blockId}"] {
+					border-radius: 0;
+					box-shadow: none;
+                }
+
                 [data-custom-id="${blockId}"] .digiblocks-table {
                     border-collapse: collapse;
+					border: 0;
+					border-radius: 0;
                 }
                 
                 [data-custom-id="${blockId}"] .digiblocks-table thead,
                 [data-custom-id="${blockId}"] .digiblocks-table tfoot {
                     display: none;
                 }
+
+				[data-custom-id="${blockId}"] .digiblocks-table tbody {
+					display: flex;
+					flex-direction: column;
+					gap: 1rem;
+				}
                 
                 [data-custom-id="${blockId}"] .digiblocks-table tbody tr {
                     display: block;
-                    margin-bottom: 1rem;
                     border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
+					${boxShadowCSS}
+					transition: all 0.3s ease;
                 }
+
+				/* Hover effects */
+				${boxShadowHover && boxShadowHover.enable ? `
+				[data-custom-id="${blockId}"] .digiblocks-table tbody tr:hover {
+						${boxShadowHoverCSS}
+					}
+				` : ''}
                 
                 [data-custom-id="${blockId}"] .digiblocks-table tbody td {
                     display: flex;
                     justify-content: space-between;
+					gap: 1rem;
                     text-align: right;
                     border-bottom: 1px solid ${tableBorderColor};
                     border-top: none;
@@ -771,7 +832,6 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 [data-custom-id="${blockId}"] .digiblocks-table tbody td::before {
                     content: attr(data-label);
                     font-weight: bold;
-                    margin-right: 1rem;
                     text-align: left;
                     flex: 1;
                 }
@@ -823,7 +883,6 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                margin-right: 5px;
             }
             
             [data-custom-id="${blockId}"] .digiblocks-table .digiblocks-cell-check {
@@ -837,6 +896,7 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
             [data-custom-id="${blockId}"] .digiblocks-table .digiblocks-cell-stars {
                 color: #ffc107;
                 display: inline-flex;
+				gap: 5px;
             }
             
             /* Selected cell highlight */
@@ -863,16 +923,45 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
             [data-custom-id="${blockId}"] .digiblocks-cell-controls-label {
                 font-weight: bold;
             }
-            
-            [data-custom-id="${blockId}"] .digiblocks-rating-selector {
-                padding: 10px;
-                min-width: 200px;
+
+			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .components-button-group {
+                display: flex;
+                align-items: center;
+            }
+
+			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .digiblocks-cell-control-check-button {
+                color: #28a745;
+            }
+
+			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .digiblocks-cell-control-cross-button {
+                color: #dc3545;
+            }
+
+			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .digiblocks-cell-control-rating-button {
+                color: #ffc107;
+            }
+
+			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .digiblocks-cell-control-remove-button {
+                color: #fe5252;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-rating-selector h3 {
-                margin-top: 0;
-                margin-bottom: 10px;
-            }
+            .components-popover.digiblocks-cell-control-popover .components-popover__content {
+				min-width: 200px;
+				padding: 1rem;
+			}
+            
+            .components-popover.digiblocks-cell-control-popover .components-popover__content h3 {
+				font-size: 1rem;
+				margin: 0 0 1rem;
+			}
+
+			.components-popover.digiblocks-cell-control-popover .components-button-group {
+				display: flex;
+			}
+
+			.components-popover.digiblocks-cell-control-popover .components-button-group button {
+				flex: 1;
+			}
             
             /* Table instructions */
             [data-custom-id="${blockId}"] .digiblocks-table-instructions {
@@ -946,48 +1035,62 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                     {__("Selected Cell:", "digiblocks")} Row {selectedCell.row + 1}, Column {selectedCell.col + 1}
                 </div>
                 <div className="digiblocks-cell-controls-buttons">
-                    <ButtonGroup>
-                        <Button
-                            icon={() => (
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                    <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-4.5 4.75a.75.75 0 0 1-1.08.04L3.47 7.84a.75.75 0 1 1 1.06-1.07l2.5 2.46l4.94-4.26z" />
-                                </svg>
-                            )}
-                            label={__("Add Check", "digiblocks")}
-                            onClick={() => setCellControl(selectedCell.row, selectedCell.col, 'icon', 'check')}
-                        />
-                        <Button
-                            icon={() => (
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8L4.646 5.354a.5.5 0 0 1 0-.708z" />
-                                </svg>
-                            )}
-                            label={__("Add Cross", "digiblocks")}
-                            onClick={() => setCellControl(selectedCell.row, selectedCell.col, 'icon', 'cross')}
-                        />
-                        <Button
-                            icon="star-filled"
-                            label={__("Add Rating", "digiblocks")}
-                            onClick={() => {
-                                // Open a popover for star rating selection
-                                setIsRatingPopoverOpen(true);
-                            }}
-                        />
-                        {getCellControl(selectedCell.row, selectedCell.col, 'icon') || 
-                         getCellControl(selectedCell.row, selectedCell.col, 'stars') ? (
-                            <Button
-                                icon="trash"
-                                label={__("Remove Icons", "digiblocks")}
-                                onClick={() => {
-                                    clearCellControl(selectedCell.row, selectedCell.col, 'icon');
-                                    clearCellControl(selectedCell.row, selectedCell.col, 'stars');
-                                }}
-                            />
-                        ) : null}
-                    </ButtonGroup>
+					<div className="components-button-group">
+						<Button
+							className="digiblocks-cell-control-check-button"
+							icon={() => (
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20" height="20" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
+							)}
+							label={__("Add Check", "digiblocks")}
+							onClick={() => {
+								// Clear existing stars control first
+								clearCellControl(selectedCell.row, selectedCell.col, 'stars');
+								setCellControl(selectedCell.row, selectedCell.col, 'icon', 'check');
+							}}
+						/>
+						<Button
+							className="digiblocks-cell-control-cross-button"
+							icon={() => (
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20" height="20" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"/></svg>
+							)}
+							label={__("Add Cross", "digiblocks")}
+							onClick={() => {
+								// Clear existing stars control first
+								clearCellControl(selectedCell.row, selectedCell.col, 'stars');
+								setCellControl(selectedCell.row, selectedCell.col, 'icon', 'cross');
+							}}
+						/>
+						<Button
+							className="digiblocks-cell-control-rating-button"
+							icon={() => (
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327l4.898.696c.441.062.612.636.282.95l-3.522 3.356l.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"></path></svg>
+							)}
+							label={__("Add Rating", "digiblocks")}
+							onClick={() => {
+								// Clear existing icon control first
+								clearCellControl(selectedCell.row, selectedCell.col, 'icon');
+								setIsRatingPopoverOpen(true);
+							}}
+						/>
+						{getCellControl(selectedCell.row, selectedCell.col, 'icon') || 
+							getCellControl(selectedCell.row, selectedCell.col, 'stars') ? (
+								<Button
+									className="digiblocks-cell-control-remove-button"
+									icon={() => (
+										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16" fill="currentColor"><path d="M135.2 17.7L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-7.2-14.3C307.4 6.8 296.3 0 284.2 0L163.8 0c-12.1 0-23.2 6.8-28.6 17.7zM416 128L32 128 53.2 467c1.6 25.3 22.6 45 47.9 45l245.8 0c25.3 0 46.3-19.7 47.9-45L416 128z"/></svg>
+									)}
+									label={__("Remove Icons", "digiblocks")}
+									onClick={() => {
+										clearCellControl(selectedCell.row, selectedCell.col, 'icon');
+										clearCellControl(selectedCell.row, selectedCell.col, 'stars');
+									}}
+								/>
+							) : null}
+					</div>
                     
                     {isRatingPopoverOpen && (
                         <Popover
+							className="digiblocks-cell-control-popover"
                             onClose={() => setIsRatingPopoverOpen(false)}
                             position="bottom center"
                         >
@@ -1032,17 +1135,13 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 case 'check':
                     return (
                         <span className="digiblocks-cell-icon digiblocks-cell-check">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-4.5 4.75a.75.75 0 0 1-1.08.04L3.47 7.84a.75.75 0 1 1 1.06-1.07l2.5 2.46l4.94-4.26z" />
-                            </svg>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20" height="20" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
                         </span>
                     );
                 case 'cross':
                     return (
                         <span className="digiblocks-cell-icon digiblocks-cell-cross">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8L4.646 5.354a.5.5 0 0 1 0-.708z" />
-                            </svg>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20" height="20" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"/></svg>
                         </span>
                     );
                 default:
@@ -1245,13 +1344,12 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                 />
                             </ResponsiveControl>
                             
-                            <BoxShadowControl
+							<BoxShadowControl
+                                label={__("Box Shadow", "digiblocks")}
                                 normalValue={boxShadow}
-                                onNormalChange={(value) =>
-                                    setAttributes({
-                                        boxShadow: value,
-                                    })
-                                }
+                                hoverValue={boxShadowHover}
+                                onNormalChange={(value) => setAttributes({ boxShadow: value })}
+                                onHoverChange={(value) => setAttributes({ boxShadowHover: value })}
                             />
                         </TabPanelBody>
                         
@@ -1313,18 +1411,22 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                 }}
                             />
                             
-                            <SelectControl
-                                label={__("Text Alignment", "digiblocks")}
-                                value={headerAlignment}
-                                options={[
-                                    { label: __("Left", "digiblocks"), value: "left" },
-                                    { label: __("Center", "digiblocks"), value: "center" },
-                                    { label: __("Right", "digiblocks"), value: "right" },
-                                ]}
-                                onChange={(value) => setAttributes({ headerAlignment: value })}
-                                __next40pxDefaultSize={true}
-                                __nextHasNoMarginBottom={true}
-                            />
+							<BaseControl
+								label={__("Text Alignment", "digiblocks")}
+								__nextHasNoMarginBottom={true}
+							>
+                                <ToggleGroupControl
+                                    value={headerAlignment}
+									onChange={(value) => setAttributes({ headerAlignment: value })}
+									isBlock
+                                    __next40pxDefaultSize={true}
+                                	__nextHasNoMarginBottom={true}
+                                >
+                                    <ToggleGroupControlOption value="left" label={__("Left", "digiblocks")} aria-label={__("Left", "digiblocks")} />
+                                    <ToggleGroupControlOption value="center" label={__("Center", "digiblocks")} aria-label={__("Center", "digiblocks")} />
+                                    <ToggleGroupControlOption value="right" label={__("Right", "digiblocks")} aria-label={__("Right", "digiblocks")} />
+                                </ToggleGroupControl>
+                            </BaseControl>
                         </TabPanelBody>
                         
                         <TabPanelBody
@@ -1396,18 +1498,22 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                 }}
                             />
                             
-                            <SelectControl
-                                label={__("Text Alignment", "digiblocks")}
-                                value={cellAlignment}
-                                options={[
-                                    { label: __("Left", "digiblocks"), value: "left" },
-                                    { label: __("Center", "digiblocks"), value: "center" },
-                                    { label: __("Right", "digiblocks"), value: "right" },
-                                ]}
-                                onChange={(value) => setAttributes({ cellAlignment: value })}
-                                __next40pxDefaultSize={true}
-                                __nextHasNoMarginBottom={true}
-                            />
+							<BaseControl
+								label={__("Text Alignment", "digiblocks")}
+								__nextHasNoMarginBottom={true}
+							>
+                                <ToggleGroupControl
+                                    value={cellAlignment}
+									onChange={(value) => setAttributes({ cellAlignment: value })}
+									isBlock
+                                    __next40pxDefaultSize={true}
+                                	__nextHasNoMarginBottom={true}
+                                >
+                                    <ToggleGroupControlOption value="left" label={__("Left", "digiblocks")} aria-label={__("Left", "digiblocks")} />
+                                    <ToggleGroupControlOption value="center" label={__("Center", "digiblocks")} aria-label={__("Center", "digiblocks")} />
+                                    <ToggleGroupControlOption value="right" label={__("Right", "digiblocks")} aria-label={__("Right", "digiblocks")} />
+                                </ToggleGroupControl>
+                            </BaseControl>
                         </TabPanelBody>
                         
                         {hasFooter && (
@@ -1469,18 +1575,22 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                     }}
                                 />
                                 
-                                <SelectControl
-                                    label={__("Text Alignment", "digiblocks")}
-                                    value={footerAlignment}
-                                    options={[
-                                        { label: __("Left", "digiblocks"), value: "left" },
-                                        { label: __("Center", "digiblocks"), value: "center" },
-                                        { label: __("Right", "digiblocks"), value: "right" },
-                                    ]}
-                                    onChange={(value) => setAttributes({ footerAlignment: value })}
-                                    __next40pxDefaultSize={true}
-                                    __nextHasNoMarginBottom={true}
-                                />
+								<BaseControl
+									label={__("Text Alignment", "digiblocks")}
+									__nextHasNoMarginBottom={true}
+								>
+									<ToggleGroupControl
+										value={footerAlignment}
+										onChange={(value) => setAttributes({ footerAlignment: value })}
+										isBlock
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									>
+										<ToggleGroupControlOption value="left" label={__("Left", "digiblocks")} aria-label={__("Left", "digiblocks")} />
+										<ToggleGroupControlOption value="center" label={__("Center", "digiblocks")} aria-label={__("Center", "digiblocks")} />
+										<ToggleGroupControlOption value="right" label={__("Right", "digiblocks")} aria-label={__("Right", "digiblocks")} />
+									</ToggleGroupControl>
+								</BaseControl>
                             </TabPanelBody>
                         )}
                         

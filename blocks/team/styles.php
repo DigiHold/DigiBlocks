@@ -334,21 +334,6 @@ $showPosition             = isset( $attrs['showPosition'] ) ? (bool) $attrs['sho
 $showBio                  = isset( $attrs['showBio'] ) ? (bool) $attrs['showBio'] : true;
 $showSocial               = isset( $attrs['showSocial'] ) ? (bool) $attrs['showSocial'] : true;
 
-// Box shadow CSS helpers
-$box_shadow_css = '';
-if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) {
-	$inset        = $boxShadow['position'] === 'inset' ? 'inset ' : '';
-	$box_shadow_css = $inset . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'];
-} else {
-	$box_shadow_css = 'none';
-}
-
-$box_shadow_hover_css = '';
-if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) {
-	$inset_hover        = $boxShadowHover['position'] === 'inset' ? 'inset ' : '';
-	$box_shadow_hover_css = $inset_hover . $boxShadowHover['horizontal'] . 'px ' . $boxShadowHover['vertical'] . 'px ' . $boxShadowHover['blur'] . 'px ' . $boxShadowHover['spread'] . 'px ' . $boxShadowHover['color'];
-}
-
 // Calculate column width based on number of columns and gutter
 $column_width_desktop = "calc((100% - " . ( ( $columns['desktop'] - 1 ) * $gutter['desktop'] ) . "px) / " . $columns['desktop'] . ")";
 $column_width_tablet  = "calc((100% - " . ( ( $columns['tablet'] - 1 ) * $gutter['tablet'] ) . "px) / " . $columns['tablet'] . ")";
@@ -471,7 +456,7 @@ ob_start();
     border-width: <?php echo esc_attr( $box_border_width_desktop ); ?>;
     border-radius: <?php echo esc_attr( $box_border_radius_desktop ); ?>;
     <?php endif; ?>
-    box-shadow: <?php echo esc_attr( $box_shadow_css ); ?>;
+    box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadow ) ); ?>;
     padding: <?php echo esc_attr( $box_padding_desktop ); ?>;
     transition: all 0.3s ease;
 }
@@ -479,7 +464,7 @@ ob_start();
 /* Hover effects */
 <?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
 [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member:hover {
-    box-shadow: <?php echo esc_attr( $box_shadow_hover_css ); ?>;
+    box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadowHover ) ); ?>;
 }
 <?php endif; ?>
 

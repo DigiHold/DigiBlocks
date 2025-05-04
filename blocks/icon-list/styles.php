@@ -1,0 +1,420 @@
+<?php
+/**
+ * Icon List Block Styles
+ *
+ * @package DigiBlocks
+ */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+// Get block attributes.
+$items              = isset( $attrs['items'] ) ? $attrs['items'] : array();
+$listLayout         = isset( $attrs['listLayout'] ) ? $attrs['listLayout'] : 'vertical';
+$listAlign          = isset( $attrs['listAlign'] ) ? $attrs['listAlign'] : 'left';
+$iconPosition       = isset( $attrs['iconPosition'] ) ? $attrs['iconPosition'] : 'before';
+$iconSize           = isset( $attrs['iconSize'] ) ? $attrs['iconSize'] : array(
+	'desktop' => 24,
+	'tablet'  => 20,
+	'mobile'  => 18,
+);
+$iconSpace          = isset( $attrs['iconSpace'] ) ? $attrs['iconSpace'] : array(
+	'desktop' => 12,
+	'tablet'  => 10,
+	'mobile'  => 8,
+);
+$itemSpace          = isset( $attrs['itemSpace'] ) ? $attrs['itemSpace'] : array(
+	'desktop' => 16,
+	'tablet'  => 12,
+	'mobile'  => 8,
+);
+$iconColor          = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : '#1e73be';
+$iconHoverColor     = isset( $attrs['iconHoverColor'] ) ? $attrs['iconHoverColor'] : '';
+$textColor          = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#333333';
+$textHoverColor     = isset( $attrs['textHoverColor'] ) ? $attrs['textHoverColor'] : '';
+$backgroundColor    = isset( $attrs['backgroundColor'] ) ? $attrs['backgroundColor'] : '';
+$backgroundHoverColor = isset( $attrs['backgroundHoverColor'] ) ? $attrs['backgroundHoverColor'] : '';
+$borderStyle        = isset( $attrs['borderStyle'] ) ? $attrs['borderStyle'] : 'none';
+$borderColor        = isset( $attrs['borderColor'] ) ? $attrs['borderColor'] : '#e0e0e0';
+$borderHoverColor   = isset( $attrs['borderHoverColor'] ) ? $attrs['borderHoverColor'] : '';
+$hoverEffect        = isset( $attrs['hoverEffect'] ) ? $attrs['hoverEffect'] : 'none';
+
+// Get spacing attributes with fallbacks
+$padding = isset( $attrs['padding'] ) ? $attrs['padding'] : array(
+	'desktop' => array(
+		'top'    => 0,
+		'right'  => 0,
+		'bottom' => 0,
+		'left'   => 0,
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => 0,
+		'right'  => 0,
+		'bottom' => 0,
+		'left'   => 0,
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => 0,
+		'right'  => 0,
+		'bottom' => 0,
+		'left'   => 0,
+		'unit'   => 'px',
+	),
+);
+
+$margin = isset( $attrs['margin'] ) ? $attrs['margin'] : array(
+	'desktop' => array(
+		'top'    => 0,
+		'right'  => 0,
+		'bottom' => 30,
+		'left'   => 0,
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => 0,
+		'right'  => 0,
+		'bottom' => 25,
+		'left'   => 0,
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => 0,
+		'right'  => 0,
+		'bottom' => 20,
+		'left'   => 0,
+		'unit'   => 'px',
+	),
+);
+
+// Border attributes
+$borderWidth = isset( $attrs['borderWidth'] ) ? $attrs['borderWidth'] : array(
+	'desktop' => array(
+		'top'    => 1,
+		'right'  => 1,
+		'bottom' => 1,
+		'left'   => 1,
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => 1,
+		'right'  => 1,
+		'bottom' => 1,
+		'left'   => 1,
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => 1,
+		'right'  => 1,
+		'bottom' => 1,
+		'left'   => 1,
+		'unit'   => 'px',
+	),
+);
+
+$borderRadius = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : array(
+	'desktop' => array(
+		'top'    => 8,
+		'right'  => 8,
+		'bottom' => 8,
+		'left'   => 8,
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => 8,
+		'right'  => 8,
+		'bottom' => 8,
+		'left'   => 8,
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => 8,
+		'right'  => 8,
+		'bottom' => 8,
+		'left'   => 8,
+		'unit'   => 'px',
+	),
+);
+
+// Get typography settings with default values
+$contentTypography = isset( $attrs['contentTypography'] ) ? $attrs['contentTypography'] : array(
+	'fontFamily'        => '',
+	'fontSize'          => array(
+		'desktop' => 16,
+		'tablet'  => 15,
+		'mobile'  => 14,
+	),
+	'fontSizeUnit'      => 'px',
+	'fontWeight'        => '',
+	'fontStyle'         => 'normal',
+	'textTransform'     => '',
+	'textDecoration'    => '',
+	'lineHeight'        => array(
+		'desktop' => 1.5,
+		'tablet'  => 1.4,
+		'mobile'  => 1.3,
+	),
+	'lineHeightUnit'    => 'em',
+	'letterSpacing'     => array(
+		'desktop' => 0,
+		'tablet'  => 0,
+		'mobile'  => 0,
+	),
+	'letterSpacingUnit' => 'px',
+);
+
+// Box shadow settings
+$boxShadow = isset( $attrs['boxShadow'] ) ? $attrs['boxShadow'] : array(
+	'enable'     => false,
+	'color'      => 'rgba(0, 0, 0, 0.2)',
+	'horizontal' => 0,
+	'vertical'   => 0,
+	'blur'       => 0,
+	'spread'     => 0,
+	'position'   => 'outset',
+);
+
+$boxShadowHover = isset( $attrs['boxShadowHover'] ) ? $attrs['boxShadowHover'] : array(
+	'enable'     => false,
+	'color'      => 'rgba(0, 0, 0, 0.2)',
+	'horizontal' => 0,
+	'vertical'   => 0,
+	'blur'       => 0,
+	'spread'     => 0,
+	'position'   => 'outset',
+);
+
+// CSS Output
+ob_start();
+?>
+/* Icon List Block - <?php echo esc_attr( $block_id ); ?> */
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	margin: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['right'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['bottom'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['left'] . $margin['desktop']['unit'] ); ?>;
+	<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle ) : ?>
+		border-style: <?php echo esc_attr( $borderStyle ); ?>;
+		border-color: <?php echo esc_attr( $borderColor ); ?>;
+		border-width: <?php echo esc_attr( $borderWidth['desktop']['top'] . $borderWidth['desktop']['unit'] . ' ' . $borderWidth['desktop']['right'] . $borderWidth['desktop']['unit'] . ' ' . $borderWidth['desktop']['bottom'] . $borderWidth['desktop']['unit'] . ' ' . $borderWidth['desktop']['left'] . $borderWidth['desktop']['unit'] ); ?>;
+		border-radius: <?php echo esc_attr( $borderRadius['desktop']['top'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['right'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['bottom'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['left'] . $borderRadius['desktop']['unit'] ); ?>;
+	<?php else : ?>
+		border: none;
+	<?php endif; ?>
+	<?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
+		box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadow ) ); ?>;
+	<?php else : ?>
+		box-shadow: none;
+	<?php endif; ?>
+	<?php if ( $backgroundColor ) : ?>
+		background-color: <?php echo esc_attr( $backgroundColor ); ?>;
+	<?php endif; ?>
+	transition: all 0.3s ease;
+}
+
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover {
+	<?php if ( $backgroundHoverColor ) : ?>
+		background-color: <?php echo esc_attr( $backgroundHoverColor ); ?>;
+	<?php endif; ?>
+	<?php if ( $borderHoverColor ) : ?>
+		border-color: <?php echo esc_attr( $borderHoverColor ); ?>;
+	<?php endif; ?>
+	<?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
+		box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadowHover ) ); ?>;
+	<?php endif; ?>
+	<?php if ( 'lift' === $hoverEffect ) : ?>
+		transform: translateY(-10px);
+	<?php elseif ( 'scale' === $hoverEffect ) : ?>
+		transform: scale(1.05);
+	<?php elseif ( 'glow' === $hoverEffect ) : ?>
+		filter: brightness(1.1);
+	<?php endif; ?>
+}
+
+/* List container */
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-wrapper {
+	text-align: <?php echo esc_attr( $listAlign ); ?>;
+}
+
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: <?php echo esc_attr( 'horizontal' === $listLayout ? 'row' : 'column' ); ?>;
+	flex-wrap: wrap;
+	gap: <?php echo esc_attr( $itemSpace['desktop'] . 'px' ); ?>;
+}
+
+/* List item */
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-item {
+	display: inline-flex;
+	align-items: center;
+	justify-content: <?php echo esc_attr( 'center' === $listAlign ? 'center' : ( 'right' === $listAlign ? 'flex-end' : 'flex-start' ) ); ?>;
+	transition: all 0.3s ease;
+}
+
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-item:last-child {
+	margin-bottom: 0;
+}
+
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-child {
+	display: inline-flex;
+	<?php if ( 'after' === $iconPosition ) : ?>
+		flex-direction: row-reverse;
+	<?php endif; ?>
+	gap: <?php echo esc_attr( $iconSpace['desktop'] . 'px' ); ?>;
+	align-items: center;
+}
+
+/* Icon */
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: <?php echo esc_attr( $iconColor ); ?>;
+	transition: color 0.3s ease;
+}
+
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-icon span {
+	display: flex;
+}
+
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-icon svg {
+	width: <?php echo esc_attr( $iconSize['desktop'] . 'px' ); ?>;
+	height: <?php echo esc_attr( $iconSize['desktop'] . 'px' ); ?>;
+	fill: currentColor;
+}
+
+/* Text content */
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-content {
+	color: <?php echo esc_attr( $textColor ); ?>;
+	<?php if ( ! empty( $contentTypography['fontFamily'] ) ) : ?>
+		font-family: <?php echo esc_attr( $contentTypography['fontFamily'] ); ?>;
+	<?php endif; ?>
+	<?php if ( ! empty( $contentTypography['fontSize']['desktop'] ) ) : ?>
+		font-size: <?php echo esc_attr( $contentTypography['fontSize']['desktop'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+	<?php endif; ?>
+	<?php if ( ! empty( $contentTypography['fontWeight'] ) ) : ?>
+		font-weight: <?php echo esc_attr( $contentTypography['fontWeight'] ); ?>;
+	<?php endif; ?>
+	<?php if ( ! empty( $contentTypography['fontStyle'] ) ) : ?>
+		font-style: <?php echo esc_attr( $contentTypography['fontStyle'] ); ?>;
+	<?php endif; ?>
+	<?php if ( ! empty( $contentTypography['textTransform'] ) ) : ?>
+		text-transform: <?php echo esc_attr( $contentTypography['textTransform'] ); ?>;
+	<?php endif; ?>
+	<?php if ( ! empty( $contentTypography['textDecoration'] ) ) : ?>
+		text-decoration: <?php echo esc_attr( $contentTypography['textDecoration'] ); ?>;
+	<?php endif; ?>
+	<?php if ( ! empty( $contentTypography['lineHeight']['desktop'] ) ) : ?>
+		line-height: <?php echo esc_attr( $contentTypography['lineHeight']['desktop'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+	<?php endif; ?>
+	<?php if ( ! empty( $contentTypography['letterSpacing']['desktop'] ) ) : ?>
+		letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['desktop'] . ( $contentTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+	<?php endif; ?>
+	transition: color 0.3s ease;
+}
+
+/* Hover states */
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-item:hover .digiblocks-icon-list-icon {
+	<?php if ( $iconHoverColor ) : ?>
+		color: <?php echo esc_attr( $iconHoverColor ); ?>;
+	<?php endif; ?>
+}
+
+<?php if ( $textHoverColor ) : ?>
+	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-item:hover .digiblocks-icon-list-content {
+		color: <?php echo esc_attr( $textHoverColor ); ?>;
+	}
+<?php endif; ?>
+
+/* Link cursor for clickable items */
+[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-item a {
+	cursor: pointer;
+	text-decoration: none;
+	color: inherit;
+}
+
+/* Tablet Styles */
+@media (max-width: 991px) {
+	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+		padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
+		margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
+		<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle ) : ?>
+			border-width: <?php echo esc_attr( $borderWidth['tablet']['top'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['right'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['bottom'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['left'] . $borderWidth['tablet']['unit'] ); ?>;
+			border-radius: <?php echo esc_attr( $borderRadius['tablet']['top'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['right'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['bottom'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['left'] . $borderRadius['tablet']['unit'] ); ?>;
+		<?php endif; ?>
+	}
+	
+	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list {
+		gap: <?php echo esc_attr( $itemSpace['tablet'] . 'px' ); ?>;
+	}
+	
+	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-child {
+		gap: <?php echo esc_attr( $iconSpace['tablet'] . 'px' ); ?>;
+	}
+	
+	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-icon svg {
+		width: <?php echo esc_attr( $iconSize['tablet'] . 'px' ); ?>;
+		height: <?php echo esc_attr( $iconSize['tablet'] . 'px' ); ?>;
+	}
+	
+	<?php if ( ! empty( $contentTypography['fontSize']['tablet'] ) || ! empty( $contentTypography['lineHeight']['tablet'] ) || ! empty( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
+		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-content {
+			<?php if ( ! empty( $contentTypography['fontSize']['tablet'] ) ) : ?>
+				font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+			<?php endif; ?>
+			<?php if ( ! empty( $contentTypography['lineHeight']['tablet'] ) ) : ?>
+				line-height: <?php echo esc_attr( $contentTypography['lineHeight']['tablet'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+			<?php endif; ?>
+			<?php if ( ! empty( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
+				letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['tablet'] . ( $contentTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+			<?php endif; ?>
+		}
+	<?php endif; ?>
+}
+
+/* Mobile Styles */
+@media (max-width: 767px) {
+	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+		padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
+		margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
+		<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle ) : ?>
+			border-width: <?php echo esc_attr( $borderWidth['mobile']['top'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['right'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['bottom'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['left'] . $borderWidth['mobile']['unit'] ); ?>;
+			border-radius: <?php echo esc_attr( $borderRadius['mobile']['top'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['right'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['bottom'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['left'] . $borderRadius['mobile']['unit'] ); ?>;
+		<?php endif; ?>
+	}
+	
+	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list {
+		gap: <?php echo esc_attr( $itemSpace['mobile'] . 'px' ); ?>;
+	}
+	
+	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-child {
+		gap: <?php echo esc_attr( $iconSpace['mobile'] . 'px' ); ?>;
+	}
+	
+	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-icon svg {
+		width: <?php echo esc_attr( $iconSize['mobile'] . 'px' ); ?>;
+		height: <?php echo esc_attr( $iconSize['mobile'] . 'px' ); ?>;
+	}
+	
+	<?php if ( ! empty( $contentTypography['fontSize']['mobile'] ) || ! empty( $contentTypography['lineHeight']['mobile'] ) || ! empty( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
+		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-content {
+			<?php if ( ! empty( $contentTypography['fontSize']['mobile'] ) ) : ?>
+				font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+			<?php endif; ?>
+			<?php if ( ! empty( $contentTypography['lineHeight']['mobile'] ) ) : ?>
+				line-height: <?php echo esc_attr( $contentTypography['lineHeight']['mobile'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+			<?php endif; ?>
+			<?php if ( ! empty( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
+				letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['mobile'] . ( $contentTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+			<?php endif; ?>
+		}
+	<?php endif; ?>
+}
+
+<?php
+$digiblocks_css_output = ob_get_clean();

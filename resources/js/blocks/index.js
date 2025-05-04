@@ -9,6 +9,10 @@ const { registerBlockType } = wp.blocks;
  */
 import AccordionEdit from '../../../blocks/accordion/edit';
 import AccordionSave from '../../../blocks/accordion/save';
+import ButtonsEdit from '../../../blocks/buttons/edit';
+import ButtonsSave from '../../../blocks/buttons/save';
+import ButtonEdit from '../../../blocks/button/edit';
+import ButtonSave from '../../../blocks/button/save';
 import CallToActionEdit from '../../../blocks/call-to-action/edit';
 import CallToActionSave from '../../../blocks/call-to-action/save';
 import CountdownEdit from '../../../blocks/countdown/edit';
@@ -25,6 +29,8 @@ import IconEdit from '../../../blocks/icon/edit';
 import IconSave from '../../../blocks/icon/save';
 import IconBoxEdit from '../../../blocks/icon-box/edit';
 import IconBoxSave from '../../../blocks/icon-box/save';
+import IconListEdit from '../../../blocks/icon-list/edit';
+import IconListSave from '../../../blocks/icon-list/save';
 import SeparatorEdit from '../../../blocks/separator/edit';
 import SeparatorSave from '../../../blocks/separator/save';
 import SocialIconsEdit from '../../../blocks/social-icons/edit';
@@ -35,6 +41,8 @@ import TableEdit from '../../../blocks/table/edit';
 import TableSave from '../../../blocks/table/save';
 import TeamEdit from '../../../blocks/team/edit';
 import TeamSave from '../../../blocks/team/save';
+import TestimonialsEdit from '../../../blocks/testimonials/edit';
+import TestimonialsSave from '../../../blocks/testimonials/save';
 
 /**
  * Register blocks based on their status
@@ -293,6 +301,269 @@ registerBlockType('digiblocks/accordion', {
     },
     edit: AccordionEdit,
     save: AccordionSave,
+});
+
+/**
+ * Register Buttons block
+ */
+registerBlockType('digiblocks/buttons', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['buttons'].title,
+    category: 'digiblocks',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['buttons'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['buttons'].description,
+    keywords: [__('buttons', 'digiblocks'), __('button group', 'digiblocks'), __('link', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('buttons') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string'
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        layout: {
+            type: 'string',
+            default: 'horizontal'
+        },
+        align: {
+            type: 'string',
+            default: 'flex-start'
+        },
+        buttonSpacing: {
+            type: 'object',
+            default: {
+                desktop: 10,
+                tablet: 8,
+                mobile: 6
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        }
+    },
+    example: {
+        innerBlocks: [
+            {
+                name: 'digiblocks/button',
+                attributes: {
+                    text: __('Call to Action', 'digiblocks'),
+                }
+            },
+            {
+                name: 'digiblocks/button',
+                attributes: {
+                    text: __('Learn More', 'digiblocks'),
+                }
+            }
+        ]
+    },
+    edit: ButtonsEdit,
+    save: ButtonsSave,
+});
+
+/**
+ * Register Button block
+ */
+registerBlockType('digiblocks/button', {
+    apiVersion: 2,
+	title: __('Button', 'digiblocks'),
+    parent: ['digiblocks/buttons'],
+    icon: {
+        src: () => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <path d="M19 6.5H5c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7c0-1.1-.9-2-2-2zm0 9H5v-7h14v7z"/>
+            </svg>
+        )
+    },
+    description: __('A single button within the buttons block', 'digiblocks'),
+    keywords: [__('button', 'digiblocks'), __('link', 'digiblocks'), __('call to action', 'digiblocks')],
+    supports: {
+        inserter: false, // Can only be inserted within buttons block
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+		reusable: false,
+    },
+    attributes: {
+        id: {
+            type: 'string'
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        text: {
+            type: 'string',
+            default: __('Button', 'digiblocks')
+        },
+        url: {
+            type: 'string',
+            default: ''
+        },
+        opensInNewTab: {
+            type: 'boolean',
+            default: false
+        },
+        rel: {
+            type: 'boolean',
+            default: false
+        },
+        iconValue: {
+            type: 'object',
+            default: null
+        },
+        iconPosition: {
+            type: 'string',
+            default: 'left'
+        },
+        size: {
+            type: 'string',
+            default: 'medium'
+        },
+        fill: {
+            type: 'boolean',
+            default: false
+        },
+        buttonTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: '',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        textColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        textHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        backgroundColor: {
+            type: 'string',
+            default: '#1e73be'
+        },
+        backgroundHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'default'
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: ''
+        },
+        borderHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 12, right: 24, bottom: 12, left: 24, unit: 'px' },
+                tablet: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px' },
+                mobile: { top: 8, right: 16, bottom: 8, left: 16, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        onlyIcon: {
+            type: 'boolean',
+            default: false
+        }
+    },
+    example: {
+        attributes: {
+            text: __('Button', 'digiblocks'),
+            backgroundColor: '#1e73be',
+            textColor: '#ffffff'
+        }
+    },
+    edit: ButtonEdit,
+    save: ButtonSave,
 });
 
 /**
@@ -2571,6 +2842,304 @@ registerBlockType('digiblocks/icon-box', {
 });
 
 /**
+ * Register Icon List block
+ */
+registerBlockType('digiblocks/icon-list', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['icon-list'].title,
+    category: 'digiblocks',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['icon-list'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['icon-list'].description,
+    keywords: [__('icon', 'digiblocks'), __('list', 'digiblocks'), __('menu', 'digiblocks'), __('feature', 'digiblocks'), __('service', 'digiblocks')],
+    // Disable all default controls and settings panels
+    supports: {
+        inserter: getBlockActiveStatus('icon-list') ? true : false, // Remove the block if disabled
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string'
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        items: {
+            type: 'array',
+            default: [
+                {
+                    id: 'item-1',
+                    content: __('First list item with icon', 'digiblocks'),
+                    icon: {
+                        id: 'check',
+                        name: 'Check',
+                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M470.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L192 338.7 425.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>',
+                        style: 'solid',
+                        categories: ['design']
+                    },
+                    linkEnabled: false,
+                    linkUrl: '',
+                    linkOpenInNewTab: false,
+                    linkRel: ''
+                },
+                {
+                    id: 'item-2',
+                    content: __('Second list item with star icon', 'digiblocks'),
+                    icon: {
+                        id: 'star',
+                        name: 'Star',
+                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="1em" height="1em"><path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"/></svg>',
+                        style: 'solid',
+                        categories: ['design']
+                    },
+                    linkEnabled: false,
+                    linkUrl: '',
+                    linkOpenInNewTab: false,
+                    linkRel: ''
+                },
+                {
+                    id: 'item-3',
+                    content: __('Third list item with heart icon', 'digiblocks'),
+                    icon: {
+                        id: 'heart',
+                        name: 'Heart',
+                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"/></svg>',
+                        style: 'solid',
+                        categories: ['design']
+                    },
+                    linkEnabled: false,
+                    linkUrl: '',
+                    linkOpenInNewTab: false,
+                    linkRel: ''
+                }
+            ]
+        },
+        defaultIcon: {
+            type: 'object',
+            default: {
+                id: 'check',
+                name: 'Check',
+                svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M470.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L192 338.7 425.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>',
+                style: 'solid',
+                categories: ['design']
+            }
+        },
+        contentTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: '',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        listLayout: {
+            type: 'string',
+            default: 'vertical'
+        },
+        listAlign: {
+            type: 'string',
+            default: 'left'
+        },
+        iconPosition: {
+            type: 'string',
+            default: 'before'
+        },
+        iconSize: {
+            type: 'object',
+            default: {
+                desktop: 24,
+                tablet: 20,
+                mobile: 18
+            }
+        },
+        iconSpace: {
+            type: 'object',
+            default: {
+                desktop: 12,
+                tablet: 10,
+                mobile: 8
+            }
+        },
+        itemSpace: {
+            type: 'object',
+            default: {
+                desktop: 16,
+                tablet: 12,
+                mobile: 8
+            }
+        },
+        iconColor: {
+            type: 'string',
+            default: '#1e73be'
+        },
+        iconHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        textColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        textHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+            }
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        borderHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        backgroundColor: {
+            type: 'string',
+            default: ''
+        },
+        backgroundHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        hoverEffect: {
+            type: 'string',
+            default: 'none'
+        }
+    },
+    example: {
+        attributes: {
+            items: [
+                {
+                    id: 'item-1',
+                    content: __('Professional feature', 'digiblocks'),
+                    icon: {
+                        id: 'star',
+                        name: 'Star',
+                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="1em" height="1em"><path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"/></svg>',
+                        style: 'solid',
+                        categories: ['design']
+                    }
+                },
+                {
+                    id: 'item-2',
+                    content: __('24/7 support service', 'digiblocks'),
+                    icon: {
+                        id: 'headset',
+                        name: 'Headset',
+                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M256 48C141.1 48 48 141.1 48 256v40c0 13.3-10.7 24-24 24s-24-10.7-24-24V256C0 114.6 114.6 0 256 0S512 114.6 512 256V400.1c0 48.6-39.4 88-88.1 88L313.6 488c-8.3 14.3-23.8 24-41.6 24H240c-26.5 0-48-21.5-48-48s21.5-48 48-48h32c17.8 0 33.3 9.7 41.6 24l110.4 .1c22.1 0 40-17.9 40-40V256c0-114.9-93.1-208-208-208zM144 208h16c17.7 0 32 14.3 32 32V352c0 17.7-14.3 32-32 32H144c-35.3 0-64-28.7-64-64V272c0-35.3 28.7-64 64-64zm224 0c35.3 0 64 28.7 64 64v48c0 35.3-28.7 64-64 64H352c-17.7 0-32-14.3-32-32V240c0-17.7 14.3-32 32-32h16z"/></svg>',
+                        style: 'solid',
+                        categories: ['business', 'technology']
+                    }
+                },
+                {
+                    id: 'item-3',
+                    content: __('Free updates and documentation', 'digiblocks'),
+                    icon: {
+                        id: 'download',
+                        name: 'Download',
+                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M256 0c17.7 0 32 14.3 32 32V242.7l73.4-73.4c12.5-12.5 32.8-12.5 45.3 0s12.5 32.8 0 45.3l-128 128c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L224 242.7V32c0-17.7 14.3-32 32-32zM48 384c-17.7 0-32 14.3-32 32v64c0 17.7 14.3 32 32 32H464c17.7 0 32-14.3 32-32V416c0-17.7-14.3-32-32-32H304 208 48zm272 80c0-8.8-7.2-16-16-16s-16 7.2-16 16s7.2 16 16 16s16-7.2 16-16zm80 0c0-8.8-7.2-16-16-16s-16 7.2-16 16s7.2 16 16 16s16-7.2 16-16z"/></svg>',
+                        style: 'solid',
+                        categories: ['arrows', 'technology']
+                    }
+                }
+            ],
+            iconColor: '#1e73be',
+            textColor: '#333333'
+        },
+        viewportWidth: 800
+    },
+    edit: IconListEdit,
+    save: IconListSave,
+});
+
+/**
  * Register Separator block
  */
 registerBlockType('digiblocks/separator', {
@@ -2793,7 +3362,7 @@ registerBlockType('digiblocks/social-icons', {
                     iconValue: {
                         name: 'Facebook',
                         network: 'facebook',
-                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor"><path d="M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z"></path></svg>'
+                        svg: 'M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z'
                     },
                     url: 'https://facebook.com',
                     label: 'Facebook',
@@ -2805,7 +3374,7 @@ registerBlockType('digiblocks/social-icons', {
                     iconValue: {
                         name: 'Twitter',
                         network: 'twitter',
-                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path></svg>'
+                        svg: 'M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z'
                     },
                     url: 'https://twitter.com',
                     label: 'Twitter',
@@ -2817,7 +3386,7 @@ registerBlockType('digiblocks/social-icons', {
                     iconValue: {
                         name: 'Instagram',
                         network: 'instagram',
-                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"></path></svg>'
+                        svg: 'M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z'
                     },
                     url: 'https://instagram.com',
                     label: 'Instagram',
@@ -2951,7 +3520,7 @@ registerBlockType('digiblocks/social-icons', {
                     iconValue: {
                         name: 'Facebook',
                         network: 'facebook',
-                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.8 90.69 226.4 209.3 245V327.7h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.3 482.4 504 379.8 504 256z"></path></svg>',
+                        svg: 'M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z',
                     },
                     url: 'https://facebook.com',
                     label: 'Facebook',
@@ -2963,7 +3532,7 @@ registerBlockType('digiblocks/social-icons', {
                     iconValue: {
                         name: 'Twitter',
                         network: 'twitter',
-                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path></svg>',
+                        svg: 'M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z',
                     },
                     url: 'https://twitter.com',
                     label: 'Twitter',
@@ -2975,7 +3544,7 @@ registerBlockType('digiblocks/social-icons', {
                     iconValue: {
                         name: 'Instagram',
                         network: 'instagram',
-                        svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"></path></svg>',
+                        svg: 'M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z',
                     },
                     url: 'https://instagram.com',
                     label: 'Instagram',
@@ -3224,6 +3793,18 @@ registerBlockType('digiblocks/table', {
                 horizontal: 0,
                 vertical: 2,
                 blur: 10,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 10,
+                blur: 25,
                 spread: 0,
                 position: 'outset'
             }
@@ -3701,4 +4282,300 @@ registerBlockType('digiblocks/team', {
     },
     edit: TeamEdit,
     save: TeamSave,
+});
+
+/**
+ * Register Testimonials block
+ */
+registerBlockType('digiblocks/testimonials', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['testimonials'].title,
+    category: 'digiblocks',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['testimonials'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['testimonials'].description,
+    keywords: [__('testimonials', 'digiblocks'), __('reviews', 'digiblocks'), __('quotes', 'digiblocks'), __('testimonial', 'digiblocks')],
+    // Disable all default controls and settings panels
+    supports: {
+        inserter: getBlockActiveStatus('testimonials') ? true : false, // Remove the block if disabled
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string'
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        testimonials: {
+            type: 'array',
+            default: [
+                {
+                    id: 'testimonial-1',
+                    name: __('John Doe', 'digiblocks'),
+                    position: __('CEO', 'digiblocks'),
+                    company: __('Tech Innovations Inc.', 'digiblocks'),
+                    content: __('This product has completely transformed our business operations. The support team is incredibly responsive and helpful.', 'digiblocks'),
+                    imageUrl: '',
+                    imageId: '',
+                    rating: 5
+                },
+                {
+                    id: 'testimonial-2',
+                    name: __('Sarah Johnson', 'digiblocks'),
+                    position: __('Marketing Director', 'digiblocks'),
+                    company: __('Creative Solutions', 'digiblocks'),
+                    content: __('I cannot recommend this service enough. The quality and attention to detail exceeded our expectations.', 'digiblocks'),
+                    imageUrl: '',
+                    imageId: '',
+                    rating: 5
+                }
+            ]
+        },
+        columns: {
+            type: 'object',
+            default: {
+                desktop: 2,
+                tablet: 2,
+                mobile: 1
+            }
+        },
+		align: {
+            type: 'string',
+            default: 'left'
+        },
+        autoplay: {
+            type: 'boolean',
+            default: true
+        },
+        autoplaySpeed: {
+            type: 'number',
+            default: 3000
+        },
+        showArrows: {
+            type: 'boolean',
+            default: true
+        },
+        showDots: {
+            type: 'boolean',
+            default: true
+        },
+        nameColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        nameHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        positionColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        contentColor: {
+            type: 'string',
+            default: '#444444'
+        },
+        backgroundColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        backgroundHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        quoteIconColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        ratingColor: {
+            type: 'string',
+            default: '#ffc107'
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'default'
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 12, right: 12, bottom: 12, left: 12, unit: 'px' },
+                tablet: { top: 12, right: 12, bottom: 12, left: 12, unit: 'px' },
+                mobile: { top: 12, right: 12, bottom: 12, left: 12, unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: true,
+                color: 'rgba(0, 0, 0, 0.12)',
+                horizontal: 0,
+                vertical: 5,
+                blur: 15,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: true,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 10,
+                blur: 20,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 40, right: 40, bottom: 40, left: 40, unit: 'px' },
+                tablet: { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' },
+                mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        contentTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: '',
+                fontStyle: 'italic',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.7, tablet: 1.6, mobile: 1.5 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        headingTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 20, tablet: 18, mobile: 16 },
+                fontSizeUnit: 'px',
+                fontWeight: '600',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.3, tablet: 1.3, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        textTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 14, tablet: 13, mobile: 12 },
+                fontSizeUnit: 'px',
+                fontWeight: '',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.4, tablet: 1.4, mobile: 1.4 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0.5, tablet: 0.5, mobile: 0.5 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        imageSize: {
+            type: 'object',
+            default: {
+                desktop: 64,
+                tablet: 56,
+                mobile: 48
+            }
+        },
+        quoteIconSize: {
+            type: 'object',
+            default: {
+                desktop: 80,
+                tablet: 50,
+                mobile: 30
+            }
+        },
+        showRating: {
+            type: 'boolean',
+            default: true
+        },
+        showQuoteIcon: {
+            type: 'boolean',
+            default: true
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+        itemSpacing: {
+            type: 'object',
+            default: {
+                desktop: 30,
+                tablet: 25,
+                mobile: 20
+            }
+        }
+    },
+    example: {
+        attributes: {
+            testimonials: [
+                {
+                    id: 'testimonial-1',
+                    name: __('John Doe', 'digiblocks'),
+                    position: __('CEO', 'digiblocks'),
+                    company: __('Tech Innovations Inc.', 'digiblocks'),
+                    content: __('This product has completely transformed our business operations. The support team is incredibly responsive and helpful.', 'digiblocks'),
+                    imageUrl: '',
+                    imageId: '',
+                    rating: 5
+                }
+            ],
+            layout: 'card',
+            backgroundColor: '#ffffff'
+        },
+        viewportWidth: 800
+    },
+    edit: TestimonialsEdit,
+    save: TestimonialsSave,
 });

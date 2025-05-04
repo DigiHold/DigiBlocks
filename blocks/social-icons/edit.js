@@ -117,24 +117,24 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         // Ensure we have at least one icon if the array is empty
-        if (!icons || icons.length === 0) {
-            setAttributes({
-                icons: [
-                    {
-                        id: `social-icon-${clientId.substr(0, 8)}-1`,
-                        iconValue: {
-                            name: 'Facebook',
-                            network: 'facebook',
-                            svg: 'M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z'
-                        },
-                        url: 'https://facebook.com',
-                        label: 'Facebook',
-                        openInNewTab: true,
-                        rel: 'nofollow'
-                    }
-                ]
-            });
-        }
+		if (!icons || icons.length === 0) {
+			setAttributes({
+				icons: [
+					{
+						id: `social-icon-${clientId.substr(0, 8)}-1`,
+						iconValue: {
+							name: 'Facebook',
+							network: 'facebook',
+							svg: 'M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z'
+						},
+						url: 'https://facebook.com',
+						label: 'Facebook',
+						openInNewTab: true,
+						rel: 'nofollow'
+					}
+				]
+			});
+		}
     }, [clientId, icons, setAttributes, id]);
 
     // Cleanup timeout on unmount
@@ -246,14 +246,6 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
         { label: __("Dotted", "digiblocks"), value: "dotted" },
         { label: __("Dashed", "digiblocks"), value: "dashed" },
         { label: __("Double", "digiblocks"), value: "double" },
-    ];
-
-    // Label position options
-    const labelPositionOptions = [
-        { label: __("Bottom", "digiblocks"), value: "bottom" },
-        { label: __("Right", "digiblocks"), value: "right" },
-        { label: __("Left", "digiblocks"), value: "left" },
-        { label: __("Top", "digiblocks"), value: "top" },
     ];
 
     // Animation options
@@ -540,6 +532,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
             
             [data-custom-id="${blockId}"] .digiblocks-social-wrapper {
                 position: relative;
+				display: flex;
             }
             
             [data-custom-id="${blockId}"] .digiblocks-social-icon {
@@ -605,8 +598,8 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
             /* Editor-specific styles */
             [data-custom-id="${blockId}"] .digiblocks-social-icon-remove {
                 position: absolute;
-                top: -8px;
-                right: -8px;
+                top: -18px;
+                right: -10px;
                 background-color: #fff;
                 border-radius: 50%;
                 padding: 2px;
@@ -934,14 +927,31 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                             />
                             
                             {showLabels && (
-                                <SelectControl
-                                    label={__('Label Position', 'digiblocks')}
-                                    value={labelPosition}
-                                    options={labelPositionOptions}
+                                <ToggleGroupControl
+									label={__("Label Position", "digiblocks")}
+									value={labelPosition}
                                     onChange={(value) => setAttributes({ labelPosition: value })}
-                                    __next40pxDefaultSize={true}
-                                    __nextHasNoMarginBottom={true}
-                                />
+									isBlock
+									__nextHasNoMarginBottom={true}
+									__next40pxDefaultSize={true}
+								>
+									<ToggleGroupControlOption 
+										value="bottom" 
+										label={__("Bottom", "digiblocks")} 
+									/>
+									<ToggleGroupControlOption 
+										value="right" 
+										label={__("Right", "digiblocks")} 
+									/>
+									<ToggleGroupControlOption 
+										value="left" 
+										label={__("Left", "digiblocks")} 
+									/>
+									<ToggleGroupControlOption 
+										value="top" 
+										label={__("Top", "digiblocks")} 
+									/>
+								</ToggleGroupControl>
                             )}
                         </div>
                     </>

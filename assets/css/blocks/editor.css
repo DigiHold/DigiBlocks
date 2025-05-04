@@ -1126,7 +1126,7 @@ body .components-button.is-secondary.digiblocks-reset.is-small:not(:disabled) {
     box-sizing: border-box;
 }
 .width-full {
-	width: 100%;
+    width: 100%;
     justify-content: center;
 }
 .digiblocks-tabs .components-tab-panel__tabs {
@@ -1158,39 +1158,43 @@ body .block-editor-panel-color-gradient-settings {
     margin-bottom: 24px;
     border: 0;
 }
-body .block-editor-tools-panel-color-gradient-settings__item:nth-child(1 of .block-editor-tools-panel-color-gradient-settings__item) {
-	margin-top: 15px;
+body
+    .block-editor-tools-panel-color-gradient-settings__item:nth-child(
+        1 of .block-editor-tools-panel-color-gradient-settings__item
+    ) {
+    margin-top: 15px;
 }
 .digiblocks-control__header .components-base-control {
-		display: flex;
-		align-items: center;
-	}
+        display: flex;
+        align-items: center;
+    }
 .digiblocks-control__header .components-toggle-group-control {
-		padding: 0;
-		border: 0;
-		gap: .25rem;
-		min-height: auto;
-	}
+        padding: 0;
+        border: 0;
+        gap: 0.25rem;
+        min-height: auto;
+    }
 .digiblocks-control__header .components-toggle-group-control > div {
-			min-width: auto;
-		}
+            min-width: auto;
+        }
 .digiblocks-control__header .components-toggle-group-control::before {
-			display: none;
-		}
+            display: none;
+        }
 .digiblocks-control__header .components-toggle-group-control-option-base {
-		padding: 0;
-		background: none;
-	}
+        padding: 0;
+        background: none;
+    }
 .digiblocks-control__header .components-toggle-group-control-option-base[aria-checked="true"] {
-			color: #007cba;
-		}
+            color: #007cba;
+        }
 .digiblocks-control__header .components-toggle-group-control-option-base[aria-checked="false"] {
-			color: #757575;
-		}
+            color: #757575;
+        }
 .digiblocks-control__header .components-toggle-group-control-option-base[aria-checked="false"]:hover {
-				color: #333333;
-			}
-.components-range-control__root .components-range-control__reset.components-button.is-small {
+                color: #333333;
+            }
+.components-range-control__root
+    .components-range-control__reset.components-button.is-small {
     align-items: center;
     box-sizing: initial;
     display: inline-flex;
@@ -1205,15 +1209,17 @@ body .block-editor-tools-panel-color-gradient-settings__item:nth-child(1 of .blo
     background: none;
     outline: none;
 }
-.components-range-control__root .components-range-control__reset.components-button.is-small[aria-disabled=true] {
-		color: #949494;
-	}
-.components-range-control__root .components-range-control__reset.components-button.is-small::before {
-		content: "\f531";
-		font-family: dashicons;
-		font-size: 10px;
-		line-height: 1;
-	}
+.components-range-control__root
+    .components-range-control__reset.components-button.is-small[aria-disabled="true"] {
+        color: #949494;
+    }
+.components-range-control__root
+    .components-range-control__reset.components-button.is-small::before {
+        content: "\f531";
+        font-family: dashicons;
+        font-size: 10px;
+        line-height: 1;
+    }
 /* Help text */
 .digiblocks-tab-panel .components-base-control__help {
     margin-top: calc(8px);
@@ -1227,49 +1233,64 @@ body .block-editor-tools-panel-color-gradient-settings__item:nth-child(1 of .blo
     min-width: auto;
 }
 .digiblocks-tab-panel .block-editor-link-control__field {
-		margin: 0 0 16px;
-	}
+        margin: 0 0 16px;
+    }
 .digiblocks-tab-panel .block-editor-link-control__search-item .components-menu-item__item {
-			min-width: auto;
-		}
+            min-width: auto;
+        }
 .digiblocks-tab-panel .block-editor-link-control__search-item.is-current {
-			padding: 0;
-		}
+            padding: 0;
+        }
 @media (min-width: 600px) {
     .digiblocks-tab-panel .block-editor-url-input {
         min-width: auto;
     }
 }
+/* Link control in modal */
+.digiblocks-link-modal .block-editor-link-control__field {
+        margin: 0 0 16px;
+    }
+.digiblocks-link-modal .block-editor-link-control__search-item.is-current {
+        padding: 0;
+    }
+.digiblocks-link-modal .block-editor-link-control__search-actions {
+        padding: 8px 0 0;
+    }
+.digiblocks-link-modal .block-editor-link-control__search-results-wrapper {
+        max-width: 350px;
+    }
 /* Tab Panel: Normal/Hover */
 .digiblocks-control-tabs .components-tab-panel__tabs {
-		display: flex;
-		gap: .5rem;
-		border-bottom: 1px solid #e0e0e0;
-	}
+        display: flex;
+        gap: 0.5rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
 .digiblocks-control-tabs .components-tab-panel__tabs-item {
-			flex: 1;
-			justify-content: center;
-			padding: 8px 16px;
-			color: #757575;
-			font-size: 13px;
-			cursor: pointer;
-			transition: all 0.2s ease;
-			border-bottom: 2px solid transparent;
-		}
+            flex: 1;
+            justify-content: center;
+            padding: 8px 16px;
+            color: #757575;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 2px solid transparent;
+        }
 .digiblocks-control-tabs .components-tab-panel__tabs-item:hover {
-				  color: #007cba;
-			}
+                color: #007cba;
+            }
 .digiblocks-control-tabs .components-tab-panel__tabs-item.active-tab {
-				color: #007cba;
-				border-bottom: 2px solid #007cba;
-			}
+                color: #007cba;
+                border-bottom: 2px solid #007cba;
+            }
 .digiblocks-control-tabs .components-tab-panel__tabs .components-tab-panel__tab-content {
-			margin-top: 1rem;
-		}
+            margin-top: 1rem;
+        }
 .digiblocks-control-tabs .components-tab-panel__tab-content {
-		margin-top: 1rem;
-	}
+        margin-top: 1rem;
+    }
 /* Countdown */
-.components-datetime__time-field-hours-input, .components-datetime__time-field-minutes-input, .components-datetime__time-field {
+.components-datetime__time-field-hours-input,
+.components-datetime__time-field-minutes-input,
+.components-datetime__time-field {
     margin: 0 !important;
 }

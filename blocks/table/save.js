@@ -54,18 +54,14 @@ const TableSave = ({ attributes }) => {
                 case 'check':
                     return (
                         <span className="digiblocks-cell-icon digiblocks-cell-check">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-4.5 4.75a.75.75 0 0 1-1.08.04L3.47 7.84a.75.75 0 1 1 1.06-1.07l2.5 2.46l4.94-4.26z" />
-                            </svg>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20" height="20" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
                         </span>
                     );
                 case 'cross':
                     return (
                         <span className="digiblocks-cell-icon digiblocks-cell-cross">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8L4.646 5.354a.5.5 0 0 1 0-.708z" />
-                            </svg>
-                        </span>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20" height="20" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"/></svg>
+						</span>
                     );
                 default:
                     return null;
@@ -121,11 +117,13 @@ const TableSave = ({ attributes }) => {
                             <tr>
                                 {tableData[0].map((cell, colIndex) => (
                                     <th key={`header-${colIndex}`}>
-                                        {renderCellIcon(0, colIndex)}
-                                        <RichText.Content
-                                            tagName="span"
-                                            value={cell}
-                                        />
+										<div className="digiblocks-cell-content">
+											{renderCellIcon(0, colIndex)}
+											<RichText.Content
+												tagName="span"
+												value={cell}
+											/>
+										</div>
                                     </th>
                                 ))}
                             </tr>
@@ -141,11 +139,13 @@ const TableSave = ({ attributes }) => {
                                             key={`cell-${actualRowIndex}-${colIndex}`} 
                                             data-label={hasHeader ? tableData[0][colIndex] : ''}
                                         >
-                                            {renderCellIcon(actualRowIndex, colIndex)}
-                                            <RichText.Content
-                                                tagName="span"
-                                                value={cell}
-                                            />
+											<div className="digiblocks-cell-content">
+												{renderCellIcon(actualRowIndex, colIndex)}
+												<RichText.Content
+													tagName="span"
+													value={cell}
+												/>
+											</div>
                                         </td>
                                     ))}
                                 </tr>
@@ -157,11 +157,13 @@ const TableSave = ({ attributes }) => {
                             <tr>
                                 {tableData[tableData.length - 1].map((cell, colIndex) => (
                                     <td key={`footer-${colIndex}`}>
-                                        {renderCellIcon(tableData.length - 1, colIndex)}
-                                        <RichText.Content
-                                            tagName="span"
-                                            value={cell}
-                                        />
+										<div className="digiblocks-cell-content">
+											{renderCellIcon(tableData.length - 1, colIndex)}
+											<RichText.Content
+												tagName="span"
+												value={cell}
+											/>
+										</div>
                                     </td>
                                 ))}
                             </tr>

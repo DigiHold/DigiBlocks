@@ -40,6 +40,7 @@ const AccordionSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-accordion",
+		id,
         iconPosition === 'left' ? "icon-position-left" : "icon-position-right",
         allowMultipleOpen ? "allow-multiple-open" : "single-open",
         animation !== "none" ? `animate-${animation}` : "",
@@ -52,7 +53,6 @@ const AccordionSave = ({ attributes }) => {
     const blockProps = useBlockProps.save({
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id,
         "data-icon-type": iconType,
     });
 

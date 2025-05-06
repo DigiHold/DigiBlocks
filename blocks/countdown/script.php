@@ -11,14 +11,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes for any custom JS
+$id       = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $end_date = isset( $attrs['endDate'] ) ? $attrs['endDate'] : '';
 
 // JS Output
 ob_start();
 ?>
-/* Countdown JavaScript for <?php echo esc_attr( $block_id ); ?> */
+/* Countdown JavaScript for <?php echo esc_attr( $id ); ?> */
 document.addEventListener('DOMContentLoaded', function() {
-    const countdownElement = document.querySelector('[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]');
+    const countdownElement = document.querySelector('.<?php echo esc_attr( $id ); ?>');
     if (!countdownElement) return;
     
     // Get attributes from the element

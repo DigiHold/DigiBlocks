@@ -29,6 +29,7 @@ const CallToActionSave = ({ attributes }) => {
     // Block classes
     const blockClasses = [
         "digiblocks-cta",
+		id,
         `style-${style}`,
         animation !== "none" ? `animate-${animation}` : "",
         customClasses
@@ -148,7 +149,6 @@ const CallToActionSave = ({ attributes }) => {
             {...useBlockProps.save({
                 className: blockClasses,
                 id: anchor || null,
-                "data-custom-id": id,
                 "data-style": style,
                 "data-background-type": backgroundType || 'color',
                 "data-align": align || 'left',

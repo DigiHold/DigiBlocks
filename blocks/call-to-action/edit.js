@@ -29,7 +29,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -95,7 +95,6 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
     
     // State for animation preview
     const [isAnimating, setIsAnimating] = useState(false);
-    const previewTimeoutRef = useRef(null);
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -109,13 +108,12 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
     
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
+
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
     
     // Use useEffect to set the ID only once when component mounts
     useEffect(() => {
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-        
         // Initialize buttons array if it doesn't exist
         if (!buttons || !Array.isArray(buttons) || buttons.length === 0) {
             setAttributes({
@@ -210,109 +208,25 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             });
         }
-    }, [clientId, id, buttons, titleTypography, contentTypography, buttonTypography, boxShadowHover, setAttributes]);
+    }, [buttons, titleTypography, contentTypography, buttonTypography, boxShadowHover, setAttributes]);
 
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
+    // Use ref
+	const previewTimeoutRef = useRef(null);
 
-    // Animation preview function
-    const triggerAnimationPreview = () => {
-        // Only proceed if we have a valid animation
-        if (!animation || animation === 'none') {
-            return;
-        }
-        
-        // Clear any existing timeout
-        if (previewTimeoutRef.current) {
-            clearTimeout(previewTimeoutRef.current);
-        }
-        
-        // Find the block element
-        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-        if (!blockElement) {
-            return;
-        }
-        
-        // Generate a timestamp to ensure unique animation names on each click
-        const timestamp = Date.now();
-        
-        // Apply animation directly
-        if (animations[animation]) {
-            // Extract the original animation name from the keyframes
-            const originalKeyframes = animations[animation].keyframes;
-            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-            
-            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-                console.error('Could not extract animation name from keyframes');
-                return;
-            }
-            
-            const originalAnimName = originalAnimNameMatch[1];
-            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-            
-            // Create a style element with a unique animation name to avoid conflicts
-            const styleElement = document.createElement('style');
-            styleElement.id = `animation-style-${id}_${timestamp}`;
-            
-            // Replace the original animation name with our unique name
-            const updatedKeyframes = originalKeyframes.replace(
-                new RegExp(originalAnimName, 'g'),
-                uniqueAnimName
-            );
-            
-            styleElement.textContent = `
-                ${updatedKeyframes}
-                
-                [data-custom-id="${id}"] {
-                    animation: none; /* Reset first */
-                }
-            `;
-            
-            // Remove any existing animation style for this block
-            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-                el.remove();
-            });
-            
-            // Add the style to the document
-            document.head.appendChild(styleElement);
-            
-            // Force reflow to ensure animation reset
-            blockElement.offsetHeight;
-            
-            // Now apply the animation
-            const animationStyleElement = document.createElement('style');
-            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-            animationStyleElement.textContent = `
-                [data-custom-id="${id}"] {
-                    animation: ${uniqueAnimName} 1.5s forwards !important;
-                }
-            `;
-            document.head.appendChild(animationStyleElement);
-            
-            // Clean up after animation
-            previewTimeoutRef.current = setTimeout(() => {
-                styleElement.remove();
-                animationStyleElement.remove();
-                blockElement.style.animation = '';
-            }, 1500);
-        }
-    };
+	// Effect to trigger animation preview when animation attribute changes
+	useEffect(() => {
+		if (animation && animation !== 'none') {
+			const timeoutId = setTimeout(() => {
+				animationPreview(id, animation, animations, previewTimeoutRef);
+			}, 100);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [animation]);
 
-    // Effect to trigger animation preview when animation attribute changes
-    useEffect(() => {
-        if (animation && animation !== 'none') {
-            const timeoutId = setTimeout(() => {
-                triggerAnimationPreview();
-            }, 100);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [animation]);
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Border style options
     const borderStyleOptions = [
@@ -677,7 +591,6 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        const blockId = id;
         
         // Border styles
         let borderCSS = '';
@@ -876,7 +789,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 
 		// Buttons flex direction on mobile
 		const mobileReverseCSS = reverseColumnsMobile ? 
-            '@media (max-width: 767px) { [data-custom-id="' + blockId + '"] .digiblocks-cta-split-container { flex-direction: column-reverse; } } body[data-digiblocks-device="mobile"] [data-custom-id="' + blockId + '"] .digiblocks-cta-split-container { flex-direction: column-reverse; }' : 
+            '@media (max-width: 767px) { .' + id + ' .digiblocks-cta-split-container { flex-direction: column-reverse; } } body[data-digiblocks-device="mobile"] .' + id + ' .digiblocks-cta-split-container { flex-direction: column-reverse; }' : 
             '';
         
         // Highlight styling
@@ -885,7 +798,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
             switch (highlightType) {
                 case 'background':
                     highlightCSS = `
-                        [data-custom-id="${blockId}"] .digiblocks-cta-highlight {
+                        .${id} .digiblocks-cta-highlight {
                             background-color: ${highlightColor};
                             padding: 0 5px;
                             border-radius: 3px;
@@ -894,14 +807,14 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                     break;
                 case 'text':
                     highlightCSS = `
-                        [data-custom-id="${blockId}"] .digiblocks-cta-highlight {
+                        .${id} .digiblocks-cta-highlight {
                             color: ${highlightColor};
                         }
                     `;
                     break;
                 case 'underline':
                     highlightCSS = `
-                        [data-custom-id="${blockId}"] .digiblocks-cta-highlight {
+                        .${id} .digiblocks-cta-highlight {
                             border-bottom: 2px solid ${highlightColor};
                             padding-bottom: 2px;
                         }
@@ -915,17 +828,17 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
         switch (style) {
             case 'split':
                 styleSpecificCSS = `
-                    [data-custom-id="${blockId}"] {
+                    .${id} {
                         padding: 0;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-split-container {
+                    .${id} .digiblocks-cta-split-container {
                         display: flex;
                         align-items: stretch;
                         min-height: inherit;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-image-container {
+                    .${id} .digiblocks-cta-image-container {
                         flex: 1;
                         min-height: 300px;
                         background-image: url(${backgroundImage?.url || ''});
@@ -934,7 +847,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         background-repeat: ${backgroundRepeat || 'no-repeat'};
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-content-container {
+                    .${id} .digiblocks-cta-content-container {
                         flex: 1;
                         ${paddingCSS}
                         ${backgroundColor ? `background-color: ${backgroundColor};` : ''}
@@ -944,11 +857,11 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                     }
 
 					@media (max-width: 767px) {
-                        [data-custom-id="${blockId}"] .digiblocks-cta-split-container {
+                        .${id} .digiblocks-cta-split-container {
                             flex-direction: column;
                         }
                         
-                        [data-custom-id="${blockId}"] .digiblocks-cta-image-container {
+                        .${id} .digiblocks-cta-image-container {
                             min-height: 200px;
                         }
                     }
@@ -957,7 +870,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 
             case 'cover':
                 styleSpecificCSS = `
-                    [data-custom-id="${blockId}"] {
+                    .${id} {
                         position: relative;
                         z-index: 1;
                         color: #fff;
@@ -966,7 +879,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         justify-content: center;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-background {
+                    .${id} .digiblocks-cta-background {
                         position: absolute;
                         top: 0;
                         left: 0;
@@ -976,7 +889,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         ${backgroundCSS}
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-overlay {
+                    .${id} .digiblocks-cta-overlay {
                         position: absolute;
                         top: 0;
                         left: 0;
@@ -987,31 +900,31 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         opacity: ${backgroundOverlayOpacity !== undefined ? backgroundOverlayOpacity / 100 : 0.5};
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-title {
+                    .${id} .digiblocks-cta-title {
                         color: ${titleColor || '#fff'};
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-content {
+                    .${id} .digiblocks-cta-content {
 						color: ${textColor || 'rgba(255, 255, 255, 0.9)'};
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-button {
+                    .${id} .digiblocks-cta-button {
                         border: 2px solid #fff;
                         color: #fff;
                         background-color: transparent;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-button.is-primary {
+                    .${id} .digiblocks-cta-button.is-primary {
                         background-color: #fff;
                         color: #000;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-button:hover {
+                    .${id} .digiblocks-cta-button:hover {
                         background-color: #fff;
                         color: #000;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-button.is-primary:hover {
+                    .${id} .digiblocks-cta-button.is-primary:hover {
                         background-color: transparent;
                         color: #fff;
                     }
@@ -1020,7 +933,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 
             case 'box':
                 styleSpecificCSS = `
-                    [data-custom-id="${blockId}"] {
+                    .${id} {
                         border: 2px solid ${borderColor || '#e0e0e0'};
                         border-radius: 8px;
                         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -1030,12 +943,12 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 
             case 'modern':
                 styleSpecificCSS = `
-                    [data-custom-id="${blockId}"] {
+                    .${id} {
                         position: relative;
                         padding-left: 50px;
                     }
                     
-                    [data-custom-id="${blockId}"]:before {
+                    .${id}:before {
                         content: '';
                         position: absolute;
                         left: 0;
@@ -1050,37 +963,37 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 
             case 'gradient':
                 styleSpecificCSS = `
-                    [data-custom-id="${blockId}"] {
+                    .${id} {
                         background: linear-gradient(135deg, ${backgroundColor || '#6a11cb'} 0%, ${backgroundHoverColor || '#2575fc'} 100%);
                         color: #fff;
                         border-radius: 10px;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-title {
+                    .${id} .digiblocks-cta-title {
                         color: ${titleColor || '#fff'};
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-content {
+                    .${id} .digiblocks-cta-content {
 						color: ${textColor || 'rgba(255, 255, 255, 0.9)'};
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-button {
+                    .${id} .digiblocks-cta-button {
                         border: 2px solid #fff;
                         color: #fff;
                         background-color: transparent;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-button.is-primary {
+                    .${id} .digiblocks-cta-button.is-primary {
                         background-color: #fff;
                         color: #000;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-button:hover {
+                    .${id} .digiblocks-cta-button:hover {
                         background-color: #fff;
                         color: #000;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-button.is-primary:hover {
+                    .${id} .digiblocks-cta-button.is-primary:hover {
                         background-color: transparent;
                         color: #fff;
                     }
@@ -1089,18 +1002,18 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 
             case 'minimal':
                 styleSpecificCSS = `
-                    [data-custom-id="${blockId}"] {
+                    .${id} {
                         border-top: 1px solid #eee;
                         border-bottom: 1px solid #eee;
                         padding-top: 50px;
                         padding-bottom: 50px;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-buttons {
+                    .${id} .digiblocks-cta-buttons {
                         position: relative;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-buttons:before {
+                    .${id} .digiblocks-cta-buttons:before {
                         content: '';
                         position: absolute;
                         top: -20px;
@@ -1114,7 +1027,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 
             case 'callout':
                 styleSpecificCSS = `
-                    [data-custom-id="${blockId}"] {
+                    .${id} {
                         border-left: 5px solid ${buttonColor || '#1e73be'};
                         background-color: ${backgroundColor || '#f5f5f5'};
                         padding: 30px;
@@ -1122,7 +1035,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         border-radius: 0 4px 4px 0;
                     }
                     
-                    [data-custom-id="${blockId}"]:before {
+                    .${id}:before {
                         content: '';
                         position: absolute;
                         top: 0;
@@ -1133,12 +1046,12 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         border-radius: 4px 0 0 4px;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-title {
+                    .${id} .digiblocks-cta-title {
                         color: ${titleColor || '#333'};
                         margin-bottom: 15px;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-content {
+                    .${id} .digiblocks-cta-content {
                         color: ${textColor || '#666'};
                         margin-bottom: 20px;
                     }
@@ -1147,7 +1060,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 
             case 'banner':
                 styleSpecificCSS = `
-                    [data-custom-id="${blockId}"] {
+                    .${id} {
                         position: relative;
                         padding: 30px;
                         background-color: ${backgroundColor || '#f0f7ff'};
@@ -1155,7 +1068,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         overflow: visible;
                     }
                     
-                    [data-custom-id="${blockId}"]:before {
+                    .${id}:before {
                         content: '';
                         position: absolute;
                         top: 0;
@@ -1165,17 +1078,17 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         background-color: ${buttonColor || '#1e73be'};
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-title {
+                    .${id} .digiblocks-cta-title {
                         color: ${titleColor || '#333'};
                         margin-bottom: 15px;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-content {
+                    .${id} .digiblocks-cta-content {
                         color: ${textColor || '#666'};
                         margin-bottom: 20px;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-button {
+                    .${id} .digiblocks-cta-button {
                         background-color: ${buttonColor || '#1e73be'};
                         color: ${buttonTextColor || '#fff'};
                         border-radius: 4px;
@@ -1183,7 +1096,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         transition: all 0.3s ease;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-button:hover {
+                    .${id} .digiblocks-cta-button:hover {
                         transform: translateY(-2px);
                         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                     }
@@ -1198,7 +1111,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
         let horizontalLayoutCSS = '';
         if (horizontalLayout) {
             highlightCSS = `
-				[data-custom-id="${blockId}"] .digiblocks-cta-horizontal {
+				.${id} .digiblocks-cta-horizontal {
 					display: flex;
 					align-items: center;
 					justify-content: space-between;
@@ -1206,35 +1119,35 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 					width: 100%;
 				}
 				
-				[data-custom-id="${blockId}"] .digiblocks-cta-horizontal .digiblocks-cta-content-wrapper {
+				.${id} .digiblocks-cta-horizontal .digiblocks-cta-content-wrapper {
 					flex: 1;
 				}
 				
-				[data-custom-id="${blockId}"] .digiblocks-cta-horizontal .digiblocks-cta-buttons {
+				.${id} .digiblocks-cta-horizontal .digiblocks-cta-buttons {
 					flex-shrink: 0;
 				}
 				
 				/* Responsive styles for horizontal layout */
 				@media (max-width: 767px) {
-					[data-custom-id="${blockId}"] .digiblocks-cta-horizontal {
+					.${id} .digiblocks-cta-horizontal {
 						flex-direction: column;
 						align-items: ${align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start'};
 						gap: 1rem;
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-cta-horizontal .digiblocks-cta-content-wrapper {
+					.${id} .digiblocks-cta-horizontal .digiblocks-cta-content-wrapper {
 						width: 100%;
 						text-align: ${align};
 					}
 				}
 
-				body[data-digiblocks-device="mobile"] [data-custom-id="${blockId}"] .digiblocks-cta-horizontal {
+				body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-horizontal {
 					flex-direction: column;
 					align-items: ${align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start'};
 					gap: 1rem;
 				}
 				
-				body[data-digiblocks-device="mobile"] [data-custom-id="${blockId}"] .digiblocks-cta-horizontal .digiblocks-cta-content-wrapper {
+				body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-horizontal .digiblocks-cta-content-wrapper {
 					width: 100%;
 					text-align: ${align};
 				}
@@ -1243,30 +1156,30 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 
         // Highlight CSS to add highlight styling to title
         const titleWithHighlightCSS = highlightText && highlightType && highlightType !== 'none' ? `
-            [data-custom-id="${blockId}"] .digiblocks-cta-title {
+            .${id} .digiblocks-cta-title {
                 white-space: pre-wrap;
             }
         ` : '';
         
         // Hover effects
         let hoverCSS = `
-            [data-custom-id="${blockId}"] .digiblocks-cta-title {
+            .${id} .digiblocks-cta-title {
                 transition: color 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cta-content {
+            .${id} .digiblocks-cta-content {
                 transition: color 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"]:hover .digiblocks-cta-title {
+            .${id}:hover .digiblocks-cta-title {
                 ${titleHoverColor ? `color: ${titleHoverColor};` : ''}
             }
             
-            [data-custom-id="${blockId}"]:hover .digiblocks-cta-content {
+            .${id}:hover .digiblocks-cta-content {
                 ${textHoverColor ? `color: ${textHoverColor};` : ''}
             }
             
-            [data-custom-id="${blockId}"]:hover {
+            .${id}:hover {
                 ${backgroundHoverColor && style !== 'gradient' && style !== 'split' ? `background-color: ${backgroundHoverColor};` : ''}
                 
                 ${boxShadowHover && boxShadowHover.enable ? `
@@ -1278,11 +1191,11 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                     ${boxShadowHover.color};` : ''}
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cta-button {
+            .${id} .digiblocks-cta-button {
                 transition: all 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cta-button:hover {
+            .${id} .digiblocks-cta-button:hover {
                 ${buttonHoverColor ? `background-color: ${buttonHoverColor};` : ''}
                 ${buttonTextHoverColor ? `color: ${buttonTextHoverColor};` : ''}
             }
@@ -1290,8 +1203,8 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Complete CSS
         return `
-            /* Call to Action Block - ${blockId} */
-            [data-custom-id="${blockId}"] {
+            /* Call to Action Block - ${id} */
+            .${id} {
                 ${style !== 'split' ? backgroundCSS : ''}
                 ${borderCSS}
                 ${boxShadowCSS}
@@ -1304,26 +1217,26 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 overflow: hidden;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cta-container {
+            .${id} .digiblocks-cta-container {
                 ${contentWidthCSS}
                 margin: 0 auto;
                 ${style !== 'split' ? textAlignCSS : ''}
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cta-title {
+            .${id} .digiblocks-cta-title {
                 color: ${titleColor || '#333333'};
                 margin-top: 0;
                 margin-bottom: 20px;
                 ${titleTypographyCSS}
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cta-content {
+            .${id} .digiblocks-cta-content {
                 color: ${textColor || '#666666'};
                 margin-bottom: 30px;
                 ${contentTypographyCSS}
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cta-buttons {
+            .${id} .digiblocks-cta-buttons {
                 ${buttonsAlignCSS}
                 display: flex;
                 flex-wrap: wrap;
@@ -1331,7 +1244,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 ${buttonsAlign === 'center' ? 'justify-content: center;' : (buttonsAlign === 'right' ? 'justify-content: flex-end;' : 'justify-content: flex-start;')}
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cta-button {
+            .${id} .digiblocks-cta-button {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
@@ -1345,11 +1258,11 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 ${buttonTypographyCSS}
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cta-button.is-full-width {
+            .${id} .digiblocks-cta-button.is-full-width {
                 width: 100%;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cta-button:not(.is-primary) {
+            .${id} .digiblocks-cta-button:not(.is-primary) {
                 background-color: transparent;
                 color: ${buttonColor || '#1e73be'};
                 border: 2px solid ${buttonColor || '#1e73be'};
@@ -1364,7 +1277,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* Responsive styles */
 			@media (max-width: 991px) {
-                [data-custom-id="${blockId}"] {
+                .${id} {
                     ${style !== 'split' ? 
                         (padding && padding['tablet'] && padding['tablet'].top && padding['tablet'].right && 
                         padding['tablet'].bottom && padding['tablet'].left && padding['tablet'].unit) ? 
@@ -1388,7 +1301,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                             `border-radius: ${borderRadius['tablet'].top}${borderRadius['tablet'].unit} ${borderRadius['tablet'].right}${borderRadius['tablet'].unit} ${borderRadius['tablet'].bottom}${borderRadius['tablet'].unit} ${borderRadius['tablet'].left}${borderRadius['tablet'].unit};` : '' : ''}
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-cta-title {
+                .${id} .digiblocks-cta-title {
                     ${titleTypography && titleTypography.fontSize && titleTypography.fontSize['tablet'] ? 
                         `font-size: ${titleTypography.fontSize['tablet']}${titleTypography.fontSizeUnit || 'px'};` : ''}
                     
@@ -1399,7 +1312,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         `letter-spacing: ${titleTypography.letterSpacing['tablet']}${titleTypography.letterSpacingUnit || 'px'};` : ''}
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-cta-content {
+                .${id} .digiblocks-cta-content {
                     ${contentTypography && contentTypography.fontSize && contentTypography.fontSize['tablet'] ? 
                         `font-size: ${contentTypography.fontSize['tablet']}${contentTypography.fontSizeUnit || 'px'};` : ''}
                     
@@ -1410,7 +1323,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         `letter-spacing: ${contentTypography.letterSpacing['tablet']}${contentTypography.letterSpacingUnit || 'px'};` : ''}
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-cta-button {
+                .${id} .digiblocks-cta-button {
                     ${buttonTypography && buttonTypography.fontSize && buttonTypography.fontSize['tablet'] ? 
                         `font-size: ${buttonTypography.fontSize['tablet']}${buttonTypography.fontSizeUnit || 'px'};` : ''}
                     
@@ -1422,7 +1335,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
 
-			body[data-digiblocks-device="tablet"] [data-custom-id="${blockId}"] {
+			body[data-digiblocks-device="tablet"] .${id} {
 				${style !== 'split' ? 
                     (padding && padding['tablet'] && padding['tablet'].top && padding['tablet'].right && 
                     padding['tablet'].bottom && padding['tablet'].left && padding['tablet'].unit) ? 
@@ -1446,7 +1359,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 						`border-radius: ${borderRadius['tablet'].top}${borderRadius['tablet'].unit} ${borderRadius['tablet'].right}${borderRadius['tablet'].unit} ${borderRadius['tablet'].bottom}${borderRadius['tablet'].unit} ${borderRadius['tablet'].left}${borderRadius['tablet'].unit};` : '' : ''}
 			}
 			
-			body[data-digiblocks-device="tablet"] [data-custom-id="${blockId}"] .digiblocks-cta-title {
+			body[data-digiblocks-device="tablet"] .${id} .digiblocks-cta-title {
 				${titleTypography && titleTypography.fontSize && titleTypography.fontSize['tablet'] ? 
 					`font-size: ${titleTypography.fontSize['tablet']}${titleTypography.fontSizeUnit || 'px'};` : ''}
 				
@@ -1457,7 +1370,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 					`letter-spacing: ${titleTypography.letterSpacing['tablet']}${titleTypography.letterSpacingUnit || 'px'};` : ''}
 			}
 			
-			body[data-digiblocks-device="tablet"] [data-custom-id="${blockId}"] .digiblocks-cta-content {
+			body[data-digiblocks-device="tablet"] .${id} .digiblocks-cta-content {
 				${contentTypography && contentTypography.fontSize && contentTypography.fontSize['tablet'] ? 
 					`font-size: ${contentTypography.fontSize['tablet']}${contentTypography.fontSizeUnit || 'px'};` : ''}
 				
@@ -1468,7 +1381,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 					`letter-spacing: ${contentTypography.letterSpacing['tablet']}${contentTypography.letterSpacingUnit || 'px'};` : ''}
 			}
 			
-			body[data-digiblocks-device="tablet"] [data-custom-id="${blockId}"] .digiblocks-cta-button {
+			body[data-digiblocks-device="tablet"] .${id} .digiblocks-cta-button {
 				${buttonTypography && buttonTypography.fontSize && buttonTypography.fontSize['tablet'] ? 
 					`font-size: ${buttonTypography.fontSize['tablet']}${buttonTypography.fontSizeUnit || 'px'};` : ''}
 				
@@ -1480,7 +1393,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 
 			@media (max-width: 767px) {
-                [data-custom-id="${blockId}"] {
+                .${id} {
                     ${style !== 'split' ? 
                         (padding && padding['mobile'] && padding['mobile'].top && padding['mobile'].right && 
                         padding['mobile'].bottom && padding['mobile'].left && padding['mobile'].unit) ? 
@@ -1505,21 +1418,21 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 }
                 
                 ${style === 'split' ? 
-                    `[data-custom-id="${blockId}"] .digiblocks-cta-split-container {
+                    `.${id} .digiblocks-cta-split-container {
                         flex-direction: ${reverseColumnsMobile ? 'column-reverse' : 'column'};
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-image-container {
+                    .${id} .digiblocks-cta-image-container {
                         min-height: 200px;
                     }
                     
-                    [data-custom-id="${blockId}"] .digiblocks-cta-content-container {
+                    .${id} .digiblocks-cta-content-container {
                         padding: ${padding && padding['mobile'] ? 
                             `${padding['mobile'].top}${padding['mobile'].unit} ${padding['mobile'].right}${padding['mobile'].unit} ${padding['mobile'].bottom}${padding['mobile'].unit} ${padding['mobile'].left}${padding['mobile'].unit}` : 
                             '25px 20px'};
                     }` : ''}
                 
-                [data-custom-id="${blockId}"] .digiblocks-cta-title {
+                .${id} .digiblocks-cta-title {
                     ${titleTypography && titleTypography.fontSize && titleTypography.fontSize['mobile'] ? 
                         `font-size: ${titleTypography.fontSize['mobile']}${titleTypography.fontSizeUnit || 'px'};` : ''}
                     
@@ -1530,7 +1443,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         `letter-spacing: ${titleTypography.letterSpacing['mobile']}${titleTypography.letterSpacingUnit || 'px'};` : ''}
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-cta-content {
+                .${id} .digiblocks-cta-content {
                     ${contentTypography && contentTypography.fontSize && contentTypography.fontSize['mobile'] ? 
                         `font-size: ${contentTypography.fontSize['mobile']}${contentTypography.fontSizeUnit || 'px'};` : ''}
                     
@@ -1541,7 +1454,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         `letter-spacing: ${contentTypography.letterSpacing['mobile']}${contentTypography.letterSpacingUnit || 'px'};` : ''}
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-cta-button {
+                .${id} .digiblocks-cta-button {
                     ${buttonTypography && buttonTypography.fontSize && buttonTypography.fontSize['mobile'] ? 
                         `font-size: ${buttonTypography.fontSize['mobile']}${buttonTypography.fontSizeUnit || 'px'};` : ''}
                     
@@ -1552,17 +1465,17 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         `border-radius: ${buttonBorderRadius['mobile'].top}${buttonBorderRadius['mobile'].unit} ${buttonBorderRadius['mobile'].right}${buttonBorderRadius['mobile'].unit} ${buttonBorderRadius['mobile'].bottom}${buttonBorderRadius['mobile'].unit} ${buttonBorderRadius['mobile'].left}${buttonBorderRadius['mobile'].unit};` : ''}
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-cta-buttons {
+                .${id} .digiblocks-cta-buttons {
                     flex-direction: column;
 					gap: 10px;
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-cta-button {
+                .${id} .digiblocks-cta-button {
                     width: 100%;
                 }
             }
 			
-			body[data-digiblocks-device="mobile"] [data-custom-id="${blockId}"] {
+			body[data-digiblocks-device="mobile"] .${id} {
 				${style !== 'split' ? 
                     (padding && padding['mobile'] && padding['mobile'].top && padding['mobile'].right && 
                     padding['mobile'].bottom && padding['mobile'].left && padding['mobile'].unit) ? 
@@ -1587,21 +1500,21 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			${style === 'split' ? 
-				`body[data-digiblocks-device="mobile"] [data-custom-id="${blockId}"] .digiblocks-cta-split-container {
+				`body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-split-container {
 					flex-direction: ${reverseColumnsMobile ? 'column-reverse' : 'column'};
 				}
 				
-				body[data-digiblocks-device="mobile"] [data-custom-id="${blockId}"] .digiblocks-cta-image-container {
+				body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-image-container {
 					min-height: 200px;
 				}
 				
-				body[data-digiblocks-device="mobile"] [data-custom-id="${blockId}"] .digiblocks-cta-content-container {
+				body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-content-container {
 					padding: ${padding && padding['mobile'] ? 
 						`${padding['mobile'].top}${padding['mobile'].unit} ${padding['mobile'].right}${padding['mobile'].unit} ${padding['mobile'].bottom}${padding['mobile'].unit} ${padding['mobile'].left}${padding['mobile'].unit}` : 
 						'25px 20px'};
 				}` : ''}
 			
-			body[data-digiblocks-device="mobile"] [data-custom-id="${blockId}"] .digiblocks-cta-title {
+			body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-title {
 				${titleTypography && titleTypography.fontSize && titleTypography.fontSize['mobile'] ? 
 					`font-size: ${titleTypography.fontSize['mobile']}${titleTypography.fontSizeUnit || 'px'};` : ''}
 				
@@ -1612,7 +1525,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 					`letter-spacing: ${titleTypography.letterSpacing['mobile']}${titleTypography.letterSpacingUnit || 'px'};` : ''}
 			}
 			
-			body[data-digiblocks-device="mobile"] [data-custom-id="${blockId}"] .digiblocks-cta-content {
+			body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-content {
 				${contentTypography && contentTypography.fontSize && contentTypography.fontSize['mobile'] ? 
 					`font-size: ${contentTypography.fontSize['mobile']}${contentTypography.fontSizeUnit || 'px'};` : ''}
 				
@@ -1623,7 +1536,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 					`letter-spacing: ${contentTypography.letterSpacing['mobile']}${contentTypography.letterSpacingUnit || 'px'};` : ''}
 			}
 			
-			body[data-digiblocks-device="mobile"] [data-custom-id="${blockId}"] .digiblocks-cta-button {
+			body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-button {
 				${buttonTypography && buttonTypography.fontSize && buttonTypography.fontSize['mobile'] ? 
 					`font-size: ${buttonTypography.fontSize['mobile']}${buttonTypography.fontSizeUnit || 'px'};` : ''}
 				
@@ -1634,12 +1547,12 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 					`border-radius: ${buttonBorderRadius['mobile'].top}${buttonBorderRadius['mobile'].unit} ${buttonBorderRadius['mobile'].right}${buttonBorderRadius['mobile'].unit} ${buttonBorderRadius['mobile'].bottom}${buttonBorderRadius['mobile'].unit} ${buttonBorderRadius['mobile'].left}${buttonBorderRadius['mobile'].unit};` : ''}
 			}
 			
-			body[data-digiblocks-device="mobile"] [data-custom-id="${blockId}"] .digiblocks-cta-buttons {
+			body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-buttons {
 				flex-direction: column;
 				gap: 10px;
 			}
 			
-			body[data-digiblocks-device="mobile"] [data-custom-id="${blockId}"] .digiblocks-cta-button {
+			body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-button {
 				width: 100%;
 			}
         `;
@@ -1723,7 +1636,6 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         label={__("Primary Button", "digiblocks")}
                         checked={button.isPrimary || false}
                         onChange={(value) => updateButton(button.id, 'isPrimary', value)}
-                        __next40pxDefaultSize={true}
                         __nextHasNoMarginBottom={true}
                     />
                     
@@ -1731,7 +1643,6 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         label={__("Full Width Button", "digiblocks")}
                         checked={button.isFullWidth || false}
                         onChange={(value) => updateButton(button.id, 'isFullWidth', value)}
-                        __next40pxDefaultSize={true}
                         __nextHasNoMarginBottom={true}
                     />
                     
@@ -1739,7 +1650,6 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                         label={__("Custom Colors", "digiblocks")}
                         checked={button.customColors || false}
                         onChange={(value) => updateButton(button.id, 'customColors', value)}
-                        __next40pxDefaultSize={true}
                         __nextHasNoMarginBottom={true}
                     />
                 </div>
@@ -1804,6 +1714,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("CTA Style", "digiblocks")}
                                 id="cta-style-selector"
                                 className="digiblocks-cta-style-selector"
+								__nextHasNoMarginBottom={true}
                             >
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center', margin: '0 -5px' }}>
 									{styleOptions.map((styleOption) => (
@@ -1819,7 +1730,6 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 								help={__("Display content and buttons side by side", "digiblocks")}
 								checked={horizontalLayout || false}
 								onChange={(value) => setAttributes({ horizontalLayout: value })}
-								__next40pxDefaultSize={true}
 								__nextHasNoMarginBottom={true}
 							/>
                             
@@ -1856,7 +1766,6 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                                         help={__("Place the image above the text on mobile devices", "digiblocks")}
                                         checked={reverseColumnsMobile || false}
                                         onChange={(value) => setAttributes({ reverseColumnsMobile: value })}
-                                        __next40pxDefaultSize={true}
                                         __nextHasNoMarginBottom={true}
                                     />
                                 </>
@@ -1906,6 +1815,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Title Highlight", "digiblocks")}
                                 id="title-highlight"
                                 help={__("Enter text within the title to highlight", "digiblocks")}
+								__nextHasNoMarginBottom={true}
                             >
                                 <TextControl
                                     value={highlightText || ''}
@@ -2532,7 +2442,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: '100%' }}
                                     >
                                         {__("Preview Animation", "digiblocks")}
@@ -2611,9 +2521,8 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-cta style-${style} ${animation !== 'none' ? `animate-${animation}` : ''} ${customClasses || ''}`,
+        className: `digiblocks-cta ${id} style-${style} ${animation !== 'none' ? `animate-${animation}` : ''} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     // Render buttons

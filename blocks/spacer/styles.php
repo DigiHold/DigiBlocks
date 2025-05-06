@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes
+$id     = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $height = isset( $attrs['height'] ) ? $attrs['height'] : array(
     'desktop' => 80,
     'tablet'  => 60,
@@ -20,21 +21,21 @@ $height = isset( $attrs['height'] ) ? $attrs['height'] : array(
 // CSS Output
 ob_start();
 ?>
-/* Spacer Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Spacer Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
     height: <?php echo esc_attr( $height['desktop'] ); ?>px;
 }
 
 /* Tablet Styles */
 @media (max-width: 991px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         height: <?php echo esc_attr( $height['tablet'] ); ?>px;
     }
 }
 
 /* Mobile Styles */
 @media (max-width: 767px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         height: <?php echo esc_attr( $height['mobile'] ); ?>px;
     }
 }

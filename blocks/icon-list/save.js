@@ -19,6 +19,7 @@ const IconListSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-icon-list-block",
+		id,
         animation !== "none" ? `animate-${animation}` : "",
         hoverEffect !== "none" ? `has-hover-${hoverEffect}` : "",
         customClasses || ""
@@ -30,7 +31,6 @@ const IconListSave = ({ attributes }) => {
     const blockProps = useBlockProps.save({
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id
     });
 
     // Render list items

@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes.
+$id                       = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $iconValue                = isset( $attrs['iconValue'] ) ? $attrs['iconValue'] : null;
 $startNumber              = isset( $attrs['startNumber'] ) ? intval( $attrs['startNumber'] ) : 0;
 $endNumber                = isset( $attrs['endNumber'] ) ? intval( $attrs['endNumber'] ) : 0;
@@ -240,8 +241,8 @@ $contentTypography = isset( $attrs['contentTypography'] ) ? $attrs['contentTypog
 // CSS Output
 ob_start();
 ?>
-/* Counter Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Counter Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
     background-color: <?php echo esc_attr( $backgroundColor ); ?>;
     <?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle && $borderWidth && isset( $borderWidth['desktop'] ) ) : ?>
         border-style: <?php echo esc_attr( $borderStyle ); ?>;
@@ -268,7 +269,7 @@ ob_start();
 }
 
 /* Hover styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover {
+.<?php echo esc_attr( $id ); ?>:hover {
     <?php if ( $backgroundHoverColor ) : ?>
         background-color: <?php echo esc_attr( $backgroundHoverColor ); ?>;
     <?php endif; ?>
@@ -287,7 +288,7 @@ ob_start();
 }
 
 /* Layout styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-inner {
+.<?php echo esc_attr( $id ); ?> .digiblocks-counter-inner {
     display: flex;
     flex-direction: <?php echo 'inline' === $layoutStyle ? 'row' : 'column'; ?>;
     align-items: <?php echo 'inline' === $layoutStyle ? 'center' : ('left' === $align ? 'flex-start' : ('right' === $align ? 'flex-end' : 'center')); ?>;
@@ -300,7 +301,7 @@ ob_start();
 
 <?php if ( $displayIcon && $iconValue && isset( $iconValue['svg'] ) ) : ?>
 /* Icon styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-counter-icon {
     <?php if ( $iconMargin && isset( $iconMargin['desktop'] ) ) : ?>
         margin: <?php echo esc_attr( $iconMargin['desktop']['top'] . $iconMargin['desktop']['unit'] . ' ' . $iconMargin['desktop']['right'] . $iconMargin['desktop']['unit'] . ' ' . $iconMargin['desktop']['bottom'] . $iconMargin['desktop']['unit'] . ' ' . $iconMargin['desktop']['left'] . $iconMargin['desktop']['unit'] ); ?>;
     <?php endif; ?>
@@ -327,11 +328,11 @@ ob_start();
     transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-icon span {
+.<?php echo esc_attr( $id ); ?> .digiblocks-counter-icon span {
     display: flex;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-icon svg {
+.<?php echo esc_attr( $id ); ?> .digiblocks-counter-icon svg {
     width: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
     height: 100%;
     fill: <?php echo esc_attr( $iconColor ); ?>;
@@ -339,7 +340,7 @@ ob_start();
 }
 
 /* Icon hover styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-counter-icon {
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-counter-icon {
     <?php if ( $iconHoverBackgroundColor ) : ?>
         background-color: <?php echo esc_attr( $iconHoverBackgroundColor ); ?>;
     <?php endif; ?>
@@ -349,7 +350,7 @@ ob_start();
     <?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-counter-icon svg {
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-counter-icon svg {
     <?php if ( $iconHoverColor ) : ?>
         fill: <?php echo esc_attr( $iconHoverColor ); ?> !important;
         color: <?php echo esc_attr( $iconHoverColor ); ?> !important;
@@ -358,14 +359,14 @@ ob_start();
 <?php endif; ?>
 
 /* Counter styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-number-wrapper {
+.<?php echo esc_attr( $id ); ?> .digiblocks-counter-number-wrapper {
     display: flex;
     align-items: center;
     justify-content: <?php echo 'left' === $align ? 'flex-start' : ('right' === $align ? 'flex-end' : 'center'); ?>;
     margin-bottom: 10px;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-prefix {
+.<?php echo esc_attr( $id ); ?> .digiblocks-counter-prefix {
     margin-right: <?php echo esc_attr( $counterPrefixSpacing ); ?>px;
     color: <?php echo esc_attr( $counterColor ); ?>;
     <?php if ( ! empty( $typography['fontFamily'] ) ) : ?>
@@ -403,7 +404,7 @@ ob_start();
     transition: color 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-suffix {
+.<?php echo esc_attr( $id ); ?> .digiblocks-counter-suffix {
     margin-left: <?php echo esc_attr( $counterSuffixSpacing ); ?>px;
     color: <?php echo esc_attr( $counterColor ); ?>;
     <?php if ( ! empty( $typography['fontFamily'] ) ) : ?>
@@ -441,7 +442,7 @@ ob_start();
     transition: color 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-number {
+.<?php echo esc_attr( $id ); ?> .digiblocks-counter-number {
     color: <?php echo esc_attr( $counterColor ); ?>;
     <?php if ( ! empty( $typography['fontFamily'] ) ) : ?>
         font-family: <?php echo esc_attr( $typography['fontFamily'] ); ?>;
@@ -480,15 +481,15 @@ ob_start();
 
 /* Counter hover styles */
 <?php if ( $counterHoverColor ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-counter-number,
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-counter-prefix,
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-counter-suffix {
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-counter-number,
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-counter-prefix,
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-counter-suffix {
     color: <?php echo esc_attr( $counterHoverColor ); ?>;
 }
 <?php endif; ?>
 
 /* Title styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-title {
+.<?php echo esc_attr( $id ); ?> .digiblocks-counter-title {
     color: <?php echo esc_attr( $titleColor ); ?>;
     margin-bottom: 10px;
     
@@ -529,13 +530,13 @@ ob_start();
 
 <?php if ( $titleHoverColor ) : ?>
 /* Title hover styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-counter-title {
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-counter-title {
     color: <?php echo esc_attr( $titleHoverColor ); ?>;
 }
 <?php endif; ?>
 
 /* Description styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-description {
+.<?php echo esc_attr( $id ); ?> .digiblocks-counter-description {
     color: <?php echo esc_attr( $textColor ); ?>;
     
     <?php if ( ! empty( $contentTypography['fontFamily'] ) ) : ?>
@@ -575,14 +576,14 @@ ob_start();
 
 <?php if ( $textHoverColor ) : ?>
 /* Description hover styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-counter-description {
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-counter-description {
     color: <?php echo esc_attr( $textHoverColor ); ?>;
 }
 <?php endif; ?>
 
 /* Tablet Styles */
 @media (max-width: 991px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         <?php if ( $padding && isset( $padding['tablet'] ) ) : ?>
             padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
         <?php endif; ?>
@@ -598,25 +599,25 @@ ob_start();
     
     <?php if ( $displayIcon && $iconValue && isset( $iconValue['svg'] ) ) : ?>
         <?php if ( isset( $iconSize['tablet'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-icon svg {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-counter-icon svg {
                 width: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
             }
         <?php endif; ?>
         
         <?php if ( $iconMargin && isset( $iconMargin['tablet'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-icon {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-counter-icon {
                 margin: <?php echo esc_attr( $iconMargin['tablet']['top'] . $iconMargin['tablet']['unit'] . ' ' . $iconMargin['tablet']['right'] . $iconMargin['tablet']['unit'] . ' ' . $iconMargin['tablet']['bottom'] . $iconMargin['tablet']['unit'] . ' ' . $iconMargin['tablet']['left'] . $iconMargin['tablet']['unit'] ); ?>;
             }
         <?php endif; ?>
         
         <?php if ( $iconPadding && isset( $iconPadding['tablet'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-icon {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-counter-icon {
                 padding: <?php echo esc_attr( $iconPadding['tablet']['top'] . $iconPadding['tablet']['unit'] . ' ' . $iconPadding['tablet']['right'] . $iconPadding['tablet']['unit'] . ' ' . $iconPadding['tablet']['bottom'] . $iconPadding['tablet']['unit'] . ' ' . $iconPadding['tablet']['left'] . $iconPadding['tablet']['unit'] ); ?>;
             }
         <?php endif; ?>
         
         <?php if ( $iconBorderStyle && 'default' !== $iconBorderStyle && 'none' !== $iconBorderStyle && isset( $iconBorderWidth['tablet'] ) && isset( $iconBorderRadius['tablet'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-icon {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-counter-icon {
                 border-width: <?php echo esc_attr( $iconBorderWidth['tablet']['top'] . $iconBorderWidth['tablet']['unit'] . ' ' . $iconBorderWidth['tablet']['right'] . $iconBorderWidth['tablet']['unit'] . ' ' . $iconBorderWidth['tablet']['bottom'] . $iconBorderWidth['tablet']['unit'] . ' ' . $iconBorderWidth['tablet']['left'] . $iconBorderWidth['tablet']['unit'] ); ?>;
                 border-radius: <?php echo esc_attr( $iconBorderRadius['tablet']['top'] . $iconBorderRadius['tablet']['unit'] . ' ' . $iconBorderRadius['tablet']['right'] . $iconBorderRadius['tablet']['unit'] . ' ' . $iconBorderRadius['tablet']['bottom'] . $iconBorderRadius['tablet']['unit'] . ' ' . $iconBorderRadius['tablet']['left'] . $iconBorderRadius['tablet']['unit'] ); ?>;
             }
@@ -624,9 +625,9 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( isset( $typography['fontSize']['tablet'] ) || isset( $typography['lineHeight']['tablet'] ) || isset( $typography['letterSpacing']['tablet'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-number,
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-prefix,
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-suffix {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-counter-number,
+		.<?php echo esc_attr( $id ); ?> .digiblocks-counter-prefix,
+		.<?php echo esc_attr( $id ); ?> .digiblocks-counter-suffix {
             <?php if ( isset( $typography['fontSize']['tablet'] ) ) : ?>
                 font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
@@ -640,7 +641,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( isset( $titleTypography['fontSize']['tablet'] ) || isset( $titleTypography['lineHeight']['tablet'] ) || isset( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-title {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-counter-title {
             <?php if ( isset( $titleTypography['fontSize']['tablet'] ) ) : ?>
                 font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
@@ -654,7 +655,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( isset( $contentTypography['fontSize']['tablet'] ) || isset( $contentTypography['lineHeight']['tablet'] ) || isset( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-description {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-counter-description {
             <?php if ( isset( $contentTypography['fontSize']['tablet'] ) ) : ?>
                 font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
@@ -670,7 +671,7 @@ ob_start();
 
 /* Mobile Styles */
 @media (max-width: 767px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         <?php if ( $padding && isset( $padding['mobile'] ) ) : ?>
             padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
         <?php endif; ?>
@@ -686,25 +687,25 @@ ob_start();
     
     <?php if ( $displayIcon && $iconValue && isset( $iconValue['svg'] ) ) : ?>
         <?php if ( isset( $iconSize['mobile'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-icon svg {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-counter-icon svg {
                 width: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
             }
         <?php endif; ?>
         
         <?php if ( $iconMargin && isset( $iconMargin['mobile'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-icon {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-counter-icon {
                 margin: <?php echo esc_attr( $iconMargin['mobile']['top'] . $iconMargin['mobile']['unit'] . ' ' . $iconMargin['mobile']['right'] . $iconMargin['mobile']['unit'] . ' ' . $iconMargin['mobile']['bottom'] . $iconMargin['mobile']['unit'] . ' ' . $iconMargin['mobile']['left'] . $iconMargin['mobile']['unit'] ); ?>;
             }
         <?php endif; ?>
         
         <?php if ( $iconPadding && isset( $iconPadding['mobile'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-icon {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-counter-icon {
                 padding: <?php echo esc_attr( $iconPadding['mobile']['top'] . $iconPadding['mobile']['unit'] . ' ' . $iconPadding['mobile']['right'] . $iconPadding['mobile']['unit'] . ' ' . $iconPadding['mobile']['bottom'] . $iconPadding['mobile']['unit'] . ' ' . $iconPadding['mobile']['left'] . $iconPadding['mobile']['unit'] ); ?>;
             }
         <?php endif; ?>
         
         <?php if ( $iconBorderStyle && 'default' !== $iconBorderStyle && 'none' !== $iconBorderStyle && isset( $iconBorderWidth['mobile'] ) && isset( $iconBorderRadius['mobile'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-icon {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-counter-icon {
                 border-width: <?php echo esc_attr( $iconBorderWidth['mobile']['top'] . $iconBorderWidth['mobile']['unit'] . ' ' . $iconBorderWidth['mobile']['right'] . $iconBorderWidth['mobile']['unit'] . ' ' . $iconBorderWidth['mobile']['bottom'] . $iconBorderWidth['mobile']['unit'] . ' ' . $iconBorderWidth['mobile']['left'] . $iconBorderWidth['mobile']['unit'] ); ?>;
                 border-radius: <?php echo esc_attr( $iconBorderRadius['mobile']['top'] . $iconBorderRadius['mobile']['unit'] . ' ' . $iconBorderRadius['mobile']['right'] . $iconBorderRadius['mobile']['unit'] . ' ' . $iconBorderRadius['mobile']['bottom'] . $iconBorderRadius['mobile']['unit'] . ' ' . $iconBorderRadius['mobile']['left'] . $iconBorderRadius['mobile']['unit'] ); ?>;
             }
@@ -712,9 +713,9 @@ ob_start();
     <?php endif; ?>
     
 	<?php if ( isset( $typography['fontSize']['mobile'] ) || isset( $typography['lineHeight']['mobile'] ) || isset( $typography['letterSpacing']['mobile'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-number,
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-prefix,
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-suffix {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-counter-number,
+		.<?php echo esc_attr( $id ); ?> .digiblocks-counter-prefix,
+		.<?php echo esc_attr( $id ); ?> .digiblocks-counter-suffix {
             <?php if ( isset( $typography['fontSize']['mobile'] ) ) : ?>
                 font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
@@ -728,7 +729,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( isset( $titleTypography['fontSize']['mobile'] ) || isset( $titleTypography['lineHeight']['mobile'] ) || isset( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-title {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-counter-title {
             <?php if ( isset( $titleTypography['fontSize']['mobile'] ) ) : ?>
                 font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
@@ -742,7 +743,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( isset( $contentTypography['fontSize']['mobile'] ) || isset( $contentTypography['lineHeight']['mobile'] ) || isset( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-counter-description {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-counter-description {
             <?php if ( isset( $contentTypography['fontSize']['mobile'] ) ) : ?>
                 font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>

@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Get block attributes
-$id                     = isset($attrs['id']) ? $attrs['id'] : '';
+$id                     = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $mapHeight              = isset($attrs['mapHeight']) ? $attrs['mapHeight'] : array(
     'desktop' => 400,
     'tablet' => 350,
@@ -89,8 +89,8 @@ $boxShadowHover         = isset($attrs['boxShadowHover']) ? $attrs['boxShadowHov
 // CSS Output
 ob_start();
 ?>
-/* Google Map Block - <?php echo esc_attr($block_id); ?> */
-[data-custom-id="<?php echo esc_attr($block_id); ?>"] {
+/* Google Map Block - <?php echo esc_attr($id); ?> */
+.<?php echo esc_attr($id); ?> {
     height: <?php echo esc_attr($mapHeight['desktop']); ?>px;
     width: 100%;
     overflow: hidden;
@@ -120,7 +120,7 @@ ob_start();
 }
 
 <?php if (isset($boxShadowHover['enable']) && $boxShadowHover['enable']) : ?>
-[data-custom-id="<?php echo esc_attr($block_id); ?>"]:hover {
+.<?php echo esc_attr($id); ?>:hover {
     box-shadow: <?php echo esc_attr(($boxShadowHover['position'] === 'inset' ? 'inset ' : '') 
 		. $boxShadowHover['horizontal'] . 'px ' 
 		. $boxShadowHover['vertical'] . 'px ' 
@@ -130,14 +130,14 @@ ob_start();
 }
 <?php endif; ?>
 
-[data-custom-id="<?php echo esc_attr($block_id); ?>"] .digiblocks-google-map-container {
+.<?php echo esc_attr($id); ?> .digiblocks-google-map-container {
     width: 100%;
     height: 100%;
 }
 
 /* Tablet Styles */
 @media (max-width: 991px) {
-    [data-custom-id="<?php echo esc_attr($block_id); ?>"] {
+    .<?php echo esc_attr($id); ?> {
         height: <?php echo esc_attr(isset($mapHeight['tablet']) ? $mapHeight['tablet'] : 350); ?>px;
         
         <?php if ($borderStyle !== 'none' && isset($borderWidth['tablet']) && isset($borderRadius['tablet'])) : ?>
@@ -155,7 +155,7 @@ ob_start();
 
 /* Mobile Styles */
 @media (max-width: 767px) {
-    [data-custom-id="<?php echo esc_attr($block_id); ?>"] {
+    .<?php echo esc_attr($id); ?> {
         height: <?php echo esc_attr(isset($mapHeight['mobile']) ? $mapHeight['mobile'] : 300); ?>px;
         
         <?php if ($borderStyle !== 'none' && isset($borderWidth['mobile']) && isset($borderRadius['mobile'])) : ?>

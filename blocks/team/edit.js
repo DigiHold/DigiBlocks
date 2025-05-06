@@ -29,7 +29,7 @@ const { useState, useEffect, useRef, Fragment } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -104,6 +104,9 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
         showSocial
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
 
@@ -118,7 +121,6 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
     
     // State for animation preview
     const [animating, setAnimating] = useState(false);
-    const previewTimeoutRef = useRef(null);
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -132,11 +134,6 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
     
     // Use useEffect to set the ID only once when component mounts
     useEffect(() => {
-        // Check if the ID needs to be regenerated using clientId
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-        
         // Initialize members with IDs if needed
         if (members && members.length > 0) {
             const updatedMembers = members.map((member, index) => {
@@ -163,113 +160,25 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                 setAttributes({ members: updatedMembers });
             }
         }
-    }, [clientId, members, setAttributes, id]);
+    }, [clientId, members, setAttributes]);
 
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
+    // Use ref
+	const previewTimeoutRef = useRef(null);
 
-    // Animation preview function
-    const triggerAnimationPreview = () => {
-        // Only proceed if we have a valid animation
-        if (!animation || animation === 'none') {
-            return;
-        }
-        
-        // Clear any existing timeout
-        if (previewTimeoutRef.current) {
-            clearTimeout(previewTimeoutRef.current);
-        }
-        
-        // Find the block element
-        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-        if (!blockElement) {
-            return;
-        }
-        
-        // Generate a timestamp to ensure unique animation names on each click
-        const timestamp = Date.now();
-        
-        // Apply animation directly
-        if (animations[animation]) {
-            // Extract the original animation name from the keyframes
-            const originalKeyframes = animations[animation].keyframes;
-            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-            
-            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-                console.error('Could not extract animation name from keyframes');
-                return;
-            }
-            
-            const originalAnimName = originalAnimNameMatch[1];
-            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-            
-            // Create a style element with a unique animation name to avoid conflicts
-            const styleElement = document.createElement('style');
-            styleElement.id = `animation-style-${id}_${timestamp}`;
-            
-            // Replace the original animation name with our unique name
-            const updatedKeyframes = originalKeyframes.replace(
-                new RegExp(originalAnimName, 'g'),
-                uniqueAnimName
-            );
-            
-            styleElement.textContent = `
-                ${updatedKeyframes}
-                
-                [data-custom-id="${id}"] {
-                    animation: none; /* Reset first */
-                }
-            `;
-            
-            // Remove any existing animation style for this block
-            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-                el.remove();
-            });
-            
-            // Add the style to the document
-            document.head.appendChild(styleElement);
-            
-            // Force reflow to ensure animation reset
-            blockElement.offsetHeight;
-            
-            // Now apply the animation
-            const animationStyleElement = document.createElement('style');
-            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-            animationStyleElement.textContent = `
-                [data-custom-id="${id}"] {
-                    animation: ${uniqueAnimName} 1.5s forwards !important;
-                }
-            `;
-            document.head.appendChild(animationStyleElement);
-            
-            // Set animating state
-            setAnimating(true);
-            
-            // Clean up after animation
-            previewTimeoutRef.current = setTimeout(() => {
-                styleElement.remove();
-                animationStyleElement.remove();
-                blockElement.style.animation = '';
-                setAnimating(false);
-            }, 1500);
-        }
-    };
+	// Effect to trigger animation preview when animation attribute changes
+	useEffect(() => {
+		if (animation && animation !== 'none') {
+			const timeoutId = setTimeout(() => {
+				animationPreview(id, animation, animations, previewTimeoutRef);
+			}, 100);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [animation]);
 
-    // Effect to trigger animation preview when animation attribute changes
-    useEffect(() => {
-        if (animation && animation !== 'none') {
-            const timeoutId = setTimeout(() => {
-                triggerAnimationPreview();
-            }, 100);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [animation]);
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Image style options
     const imageStyleOptions = [
@@ -615,7 +524,6 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for styling the Team block
     const generateCSS = () => {
         const activeDevice = localActiveDevice;
-        const blockId = id;
         
         // Calculate column width based on number of columns and gutter
         const columnWidth = {
@@ -789,13 +697,13 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
         const iconPaddingValue = `${iconPad.top}${iconPad.unit} ${iconPad.right}${iconPad.unit} ${iconPad.bottom}${iconPad.unit} ${iconPad.left}${iconPad.unit}`;
         
         return `
-            /* Team Block - ${blockId} */
-            [data-custom-id="${blockId}"] {
+            /* Team Block - ${id} */
+            .${id} {
                 margin: ${boxMarginValue};
             }
             
             /* Grid Layout */
-            [data-custom-id="${blockId}"] .digiblocks-team-container {
+            .${id} .digiblocks-team-container {
                 display: flex;
                 flex-wrap: wrap;
                 gap: ${gutter[activeDevice]}px;
@@ -803,33 +711,33 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* List Layout */
-            [data-custom-id="${blockId}"].layout-list .digiblocks-team-container {
+            .${id}.layout-list .digiblocks-team-container {
                 display: flex;
 				flex-direction: column;
 				gap: ${gutter[activeDevice]}px;
             }
             
-            [data-custom-id="${blockId}"].layout-list .digiblocks-team-member {
+            .${id}.layout-list .digiblocks-team-member {
                 display: flex;
                 align-items: center;
                 width: 100%;
 				gap: ${gutter[activeDevice]}px;
             }
             
-            [data-custom-id="${blockId}"].layout-list .digiblocks-team-member-image {
+            .${id}.layout-list .digiblocks-team-member-image {
                 margin: 0;
             }
             
-            [data-custom-id="${blockId}"].layout-list .digiblocks-team-member-content {
+            .${id}.layout-list .digiblocks-team-member-content {
                 text-align: left !important;
             }
 
-			[data-custom-id="${blockId}"].layout-list .digiblocks-team-member-social {
+			.${id}.layout-list .digiblocks-team-member-social {
 				justify-content: flex-start;
 			}
             
             /* Team Member */
-            [data-custom-id="${blockId}"] .digiblocks-team-member {
+            .${id} .digiblocks-team-member {
 				display: flex;
 				align-items: ${alignment === 'center' ? 'center' : alignment === 'right' ? 'flex-end' : 'flex-start'};
 				gap: 15px;
@@ -850,13 +758,13 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* Hover effects */
             ${boxShadowHover && boxShadowHover.enable ? `
-                [data-custom-id="${blockId}"] .digiblocks-team-member:hover {
+                .${id} .digiblocks-team-member:hover {
                     ${boxShadowHoverCSS}
                 }
             ` : ''}
             
             /* Team Member Image */
-            [data-custom-id="${blockId}"] .digiblocks-team-member-image {
+            .${id} .digiblocks-team-member-image {
                 width: ${imageSize[activeDevice]}px;
                 height: ${imageSize[activeDevice]}px;
 				max-width: 100%;
@@ -870,7 +778,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                 ` : ''}
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-team-member-image img {
+            .${id} .digiblocks-team-member-image img {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
@@ -878,7 +786,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Team Member Name */
-            [data-custom-id="${blockId}"] .digiblocks-team-member-name {
+            .${id} .digiblocks-team-member-name {
                 color: ${nameColor};
                 margin-top: 0;
                 margin-bottom: 5px;
@@ -886,21 +794,21 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Team Member Position */
-            [data-custom-id="${blockId}"] .digiblocks-team-member-position {
+            .${id} .digiblocks-team-member-position {
                 color: ${positionColor};
                 margin-bottom: 10px;
                 ${positionTypographyCSS}
             }
             
             /* Team Member Bio */
-            [data-custom-id="${blockId}"] .digiblocks-team-member-bio {
+            .${id} .digiblocks-team-member-bio {
                 color: ${bioColor};
                 margin-bottom: ${showSocial ? '15px' : '0'};
                 ${bioTypographyCSS}
             }
             
             /* Team Member Social */
-            [data-custom-id="${blockId}"] .digiblocks-team-member-social {
+            .${id} .digiblocks-team-member-social {
 				display: flex;
 				align-items: center;
 				justify-content: ${alignment === 'center' ? 'center' : alignment === 'right' ? 'flex-end' : 'flex-start'};
@@ -908,7 +816,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 				flex-wrap: wrap;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-team-member-social-icon {
+			.${id} .digiblocks-team-member-social-icon {
 				color: ${iconColor};
 				display: flex;
 				align-items: center;
@@ -922,35 +830,35 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 				z-index: 1;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-team-member-social-icon:hover {
+			.${id} .digiblocks-team-member-social-icon:hover {
 				color: ${iconHoverColor};
 				${iconBackgroundHoverColor ? `background-color: ${iconBackgroundHoverColor};` : ''}
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-team-member-social-icon svg {
+			.${id} .digiblocks-team-member-social-icon svg {
 				width: ${iconSize[activeDevice] ? `${iconSize[activeDevice]}px` : '1.2rem'};
 				height: ${iconSize[activeDevice] ? `${iconSize[activeDevice]}px` : '1.2rem'};
 				fill: currentColor;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-team-member-social-icon-wrapper {
+			.${id} .digiblocks-team-member-social-icon-wrapper {
 				position: relative;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-team-member-social-icon.add-social {
+			.${id} .digiblocks-team-member-social-icon.add-social {
 				background-color: #f0f0f0;
 				color: #333;
 				width: 30px;
 				height: 30px;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-team-member-social-icon.add-social svg {
+			.${id} .digiblocks-team-member-social-icon.add-social svg {
 				width: .6rem;
 				height: .6rem;
 			}
             
             /* Editor Styles */
-            [data-custom-id="${blockId}"] .digiblocks-team-member-controls {
+            .${id} .digiblocks-team-member-controls {
                 display: flex;
                 gap: 5px;
                 position: absolute;
@@ -962,7 +870,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                 z-index: 10;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-team-member-placeholder {
+            .${id} .digiblocks-team-member-placeholder {
                 width: 100%;
                 height: 100%;
                 display: flex;
@@ -974,12 +882,12 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                 cursor: pointer;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-team-member-social-icon.add-social {
+            .${id} .digiblocks-team-member-social-icon.add-social {
                 background-color: #f0f0f0;
                 color: #333;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-team-member-social-icon-controls {
+            .${id} .digiblocks-team-member-social-icon-controls {
                 position: absolute;
                 top: -5px;
                 right: -5px;
@@ -990,11 +898,11 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                 z-index: 2;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-team-member-social-icon-wrapper {
+            .${id} .digiblocks-team-member-social-icon-wrapper {
                 position: relative;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-team-member-social-icon-wrapper:hover .digiblocks-team-member-social-icon-controls {
+            .${id} .digiblocks-team-member-social-icon-wrapper:hover .digiblocks-team-member-social-icon-controls {
                 display: block;
             }
         `;
@@ -1216,28 +1124,60 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__("Layout Settings", "digiblocks")}
                             initialOpen={true}
                         >
-                            <BaseControl id="team-alignment-control" label={__("Layout Type", "digiblocks")}>
+                            <BaseControl
+								id="team-alignment-control"
+								label={__("Layout Type", "digiblocks")}
+								__nextHasNoMarginBottom={true}
+							>
                                 <ToggleGroupControl
                                     value={layout}
 									onChange={(value) => setAttributes({ layout: value })}
                                     isBlock
+									__next40pxDefaultSize={true}
+									__nextHasNoMarginBottom={true}
                                 >
-                                    <ToggleGroupControlOption value="grid" label={__("Grid", "digiblocks")} aria-label={__("Grid Layout", "digiblocks")} />
-                                    <ToggleGroupControlOption value="list" label={__("List", "digiblocks")} aria-label={__("List Layout", "digiblocks")} />
+                                    <ToggleGroupControlOption
+										value="grid"
+										label={__("Grid", "digiblocks")}
+										aria-label={__("Grid Layout", "digiblocks")}
+									/>
+                                    <ToggleGroupControlOption
+										value="list"
+										label={__("List", "digiblocks")}
+										aria-label={__("List Layout", "digiblocks")}
+									/>
                                 </ToggleGroupControl>
                             </BaseControl>
                             
                             {(layout === 'grid') && (
                                 <>
-									<BaseControl id="team-alignment-control" label={__("Alignment", "digiblocks")}>
+									<BaseControl
+										id="team-alignment-control"
+										label={__("Alignment", "digiblocks")}
+										__nextHasNoMarginBottom={true}
+									>
 										<ToggleGroupControl
 											value={alignment}
 											onChange={(value) => setAttributes({ alignment: value })}
 											isBlock
+											__next40pxDefaultSize={true}
+											__nextHasNoMarginBottom={true}
 										>
-											<ToggleGroupControlOption value="left" label={__("Left", "digiblocks")} aria-label={__("Left alignment", "digiblocks")} />
-											<ToggleGroupControlOption value="center" label={__("Center", "digiblocks")} aria-label={__("Center alignment", "digiblocks")} />
-											<ToggleGroupControlOption value="right" label={__("Right", "digiblocks")} aria-label={__("Right alignment", "digiblocks")} />
+											<ToggleGroupControlOption
+												value="left"
+												label={__("Left", "digiblocks")}
+												aria-label={__("Left alignment", "digiblocks")}
+											/>
+											<ToggleGroupControlOption
+												value="center"
+												label={__("Center", "digiblocks")}
+												aria-label={__("Center alignment", "digiblocks")}
+											/>
+											<ToggleGroupControlOption
+												value="right"
+												label={__("Right", "digiblocks")}
+												aria-label={__("Right alignment", "digiblocks")}
+											/>
 										</ToggleGroupControl>
 									</BaseControl>
 
@@ -1296,24 +1236,28 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Show Name", "digiblocks")}
                                 checked={showName}
                                 onChange={() => setAttributes({ showName: !showName })}
+                                __nextHasNoMarginBottom={true}
                             />
                             
                             <ToggleControl
                                 label={__("Show Position", "digiblocks")}
                                 checked={showPosition}
                                 onChange={() => setAttributes({ showPosition: !showPosition })}
+                                __nextHasNoMarginBottom={true}
                             />
                             
                             <ToggleControl
                                 label={__("Show Bio", "digiblocks")}
                                 checked={showBio}
                                 onChange={() => setAttributes({ showBio: !showBio })}
+                                __nextHasNoMarginBottom={true}
                             />
                             
                             <ToggleControl
                                 label={__("Show Social Icons", "digiblocks")}
                                 checked={showSocial}
                                 onChange={() => setAttributes({ showSocial: !showSocial })}
+                                __nextHasNoMarginBottom={true}
                             />
                         </TabPanelBody>
                         
@@ -1729,7 +1673,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                                 <div style={{ marginTop: '10px' }}>
                                     <Button
                                         variant="secondary"
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: '100%' }}
                                         disabled={animating}
                                     >
@@ -1813,9 +1757,8 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-team-block layout-${layout} align-${alignment} ${customClasses || ''}`,
+        className: `digiblocks-team-block ${id} layout-${layout} align-${alignment} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     return (

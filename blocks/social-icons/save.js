@@ -21,6 +21,7 @@ const SocialIconsSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-social-icons",
+		id,
         `align-${align}`,
         animation !== "none" ? `animate-${animation}` : "",
         customClasses || ""
@@ -32,7 +33,6 @@ const SocialIconsSave = ({ attributes }) => {
     const blockProps = useBlockProps.save({
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id,
     });
 
     // Render social icons

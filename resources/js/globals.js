@@ -90,17 +90,8 @@ window.digi.loadedFonts = window.digi.loadedFonts || {};
 import animations from './utils/animations';
 import getGoogleFonts from './utils/google-fonts';
 import { 
-    hexToRgb, 
-    rgbToHex, 
-    hexToRgba,
-    isMobile,
-    isTablet,
-    isDesktop,
-    getDeviceType,
-    toCamelCase,
-    toKebabCase,
-    debounce,
-    throttle,
+    useBlockId,
+	animationPreview,
     prepareFontForUrl,
     loadGoogleFont,
     initializeGoogleFonts,
@@ -112,6 +103,7 @@ import {
 import ResponsiveControl from './components/responsive-control';
 import DimensionControl from './components/dimension-control';
 import TypographyControl from './components/typography-control';
+import ResponsiveRangeControl from './components/range-control';
 import BoxShadowControl from './components/box-shadow-control';
 import CustomTabPanel from './components/tab-panel';
 import FontAwesomeControl from './components/font-awesome-control';
@@ -125,17 +117,8 @@ const tabIcons = {
 
 // Assign the utilities to the digi.utils object
 window.digi.utils.animations = animations;
-window.digi.utils.hexToRgb = hexToRgb;
-window.digi.utils.rgbToHex = rgbToHex;
-window.digi.utils.hexToRgba = hexToRgba;
-window.digi.utils.isMobile = isMobile;
-window.digi.utils.isTablet = isTablet;
-window.digi.utils.isDesktop = isDesktop;
-window.digi.utils.getDeviceType = getDeviceType;
-window.digi.utils.toCamelCase = toCamelCase;
-window.digi.utils.toKebabCase = toKebabCase;
-window.digi.utils.debounce = debounce;
-window.digi.utils.throttle = throttle;
+window.digi.utils.useBlockId = useBlockId;
+window.digi.utils.animationPreview = animationPreview;
 window.digi.utils.prepareFontForUrl = prepareFontForUrl;
 window.digi.utils.loadGoogleFont = loadGoogleFont;
 window.digi.utils.initializeGoogleFonts = initializeGoogleFonts;
@@ -198,6 +181,7 @@ window.digi.components.TabPanelBody = ({ tab, name, title, children, initialOpen
 window.digi.components.ResponsiveControl = ResponsiveControl;
 window.digi.components.DimensionControl = DimensionControl;
 window.digi.components.TypographyControl = TypographyControl;
+window.digi.components.ResponsiveRangeControl = ResponsiveRangeControl;
 window.digi.components.BoxShadowControl = BoxShadowControl;
 window.digi.components.CustomTabPanel = CustomTabPanel;
 window.digi.components.FontAwesomeControl = FontAwesomeControl;

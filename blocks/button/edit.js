@@ -21,7 +21,7 @@ const { useState, useEffect } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, BoxShadowControl, TypographyControl, CustomTabPanel, TabPanelBody, FontAwesomeControl } = digi.components;
 
@@ -58,6 +58,9 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         buttonTypography,
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // Use global responsive state for local rendering
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
@@ -76,14 +79,6 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         // Cleanup subscription on unmount
         return unsubscribe;
     }, []);
-    
-    // Use useEffect to set the ID only once when component mounts
-    useEffect(() => {
-        // Check if the ID needs to be regenerated using clientId
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-    }, [clientId, setAttributes]);
 
     // Border style options
     const borderStyleOptions = [
@@ -143,7 +138,6 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
     // Generate CSS for button styling
     const generateCSS = () => {
         const activeDevice = localActiveDevice;
-        const blockId = id;
         
         // Size-based padding
         let sizeCSS = '';
@@ -228,8 +222,8 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         }
         
         return `
-            /* Button Block - ${blockId} */
-            [data-custom-id="${blockId}"] {
+            /* Button Block - ${id} */
+            .${id} {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
@@ -246,7 +240,7 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                 ${textColor ? `color: ${textColor};` : ''}
             }
             
-            [data-custom-id="${blockId}"]:hover {
+            .${id}:hover {
                 ${textHoverColor ? `color: ${textHoverColor};` : ''}
                 ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
                 ${borderHoverColor ? `border-color: ${borderHoverColor};` : ''}
@@ -254,20 +248,20 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
             }
             
             /* Icon styles */
-            [data-custom-id="${blockId}"] .digiblocks-button-icon {
+            .${id} .digiblocks-button-icon {
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-button-icon svg {
+            .${id} .digiblocks-button-icon svg {
                 width: 1em;
                 height: 1em;
                 fill: currentColor;
             }
             
             /* Button typography */
-            [data-custom-id="${blockId}"] {
+            .${id} {
                 ${buttonTypographyCSS}
             }
         `;
@@ -326,7 +320,6 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                         label={__('Only Icon', 'digiblocks')}
                                         checked={onlyIcon}
                                         onChange={(value) => setAttributes({ onlyIcon: value })}
-                                        __next40pxDefaultSize={true}
                                         __nextHasNoMarginBottom={true}
                                     />
                                     
@@ -336,8 +329,8 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                             value={iconPosition}
                                             onChange={(value) => setAttributes({ iconPosition: value })}
                                             isBlock
-                                            __nextHasNoMarginBottom={true}
                                             __next40pxDefaultSize={true}
+											__nextHasNoMarginBottom={true}
                                         >
                                             <ToggleGroupControlOption 
                                                 value="left" 
@@ -345,7 +338,7 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                             />
                                             <ToggleGroupControlOption 
                                                 value="right" 
-                                                label={__("Right", "digiblocks")} 
+                                                label={__("Right", "digiblocks")}
                                             />
                                         </ToggleGroupControl>
                                     )}
@@ -403,7 +396,6 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                 label={__('Expand to Container Width', 'digiblocks')}
                                 checked={fill}
                                 onChange={(value) => setAttributes({ fill: value })}
-                                __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
                             />
                         </TabPanelBody>
@@ -732,9 +724,8 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
 
     // Block props
     const blockProps = useBlockProps({
-        className: `digiblocks-button ${size} ${fill ? 'is-fill' : ''} ${customClasses || ''}`,
+        className: `digiblocks-button ${id} ${size} ${fill ? 'is-fill' : ''} ${customClasses || ''}`,
         id: anchor || null,
-        "data-custom-id": id,
     });
 
     return (

@@ -26,6 +26,7 @@ const TestimonialsSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-testimonials-block",
+		id,
         "grid",
         animation !== "none" ? `animate-${animation}` : "",
         customClasses || ""
@@ -37,7 +38,6 @@ const TestimonialsSave = ({ attributes }) => {
     const blockProps = useBlockProps.save({
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id,
     });
 
     // Generate rating stars

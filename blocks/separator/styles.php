@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes
+$id                 = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $contentType        = isset( $attrs['contentType'] ) ? $attrs['contentType'] : 'none';
 $content            = isset( $attrs['content'] ) ? $attrs['content'] : '';
 $align              = isset( $attrs['align'] ) ? $attrs['align'] : 'center';
@@ -101,8 +102,8 @@ $typography         = isset( $attrs['typography'] ) ? $attrs['typography'] : arr
 // CSS Output
 ob_start();
 ?>
-/* Separator Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Separator Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
     margin-top: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] ); ?>;
     margin-bottom: <?php echo esc_attr( $margin['desktop']['bottom'] . $margin['desktop']['unit'] ); ?>;
     width: 100%;
@@ -113,7 +114,7 @@ ob_start();
 }
 
 /* Container that holds both content and line */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-container {
+.<?php echo esc_attr( $id ); ?> .digiblocks-separator-container {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -122,7 +123,7 @@ ob_start();
 }
 
 /* Separator line base styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-line {
+.<?php echo esc_attr( $id ); ?> .digiblocks-separator-line {
     /* Apply style-specific properties */
     <?php if ( 'line' === $separatorStyle ) : ?>
     background-color: <?php echo esc_attr( $primaryColor ); ?>;
@@ -175,7 +176,7 @@ ob_start();
 }
 
 /* SVG shape styles for special separators */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-shape {
+.<?php echo esc_attr( $id ); ?> .digiblocks-separator-shape {
     width: 100%;
     height: 100%;
     
@@ -198,7 +199,7 @@ ob_start();
     <?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-shape svg {
+.<?php echo esc_attr( $id ); ?> .digiblocks-separator-shape svg {
     width: 100%;
     height: 100%;
     display: block;
@@ -206,7 +207,7 @@ ob_start();
 
 /* Content styles for text or icon - only for compatible separator styles */
 <?php if ( 'none' !== $contentType && !in_array($separatorStyle, array('wave', 'zigzag', 'slant')) ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-content {
+.<?php echo esc_attr( $id ); ?> .digiblocks-separator-content {
     position: relative;
     z-index: 2;
     display: inline-flex;
@@ -222,13 +223,13 @@ ob_start();
 
 /* Icon-specific styles */
 <?php if ( 'icon' === $contentType && $iconValue && isset($iconValue['svg']) ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-separator-icon {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-icon svg {
+.<?php echo esc_attr( $id ); ?> .digiblocks-separator-icon svg {
     width: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
     height: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
     fill: <?php echo esc_attr( $textColor ?: $primaryColor ); ?>;
@@ -237,7 +238,7 @@ ob_start();
 
 /* Text-specific styles with typography */
 <?php if ( 'text' === $contentType ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-text {
+.<?php echo esc_attr( $id ); ?> .digiblocks-separator-text {
     <?php if ( !empty($typography['fontFamily']) ) : ?>
     font-family: <?php echo esc_attr( $typography['fontFamily'] ); ?>;
     <?php endif; ?>
@@ -270,12 +271,12 @@ ob_start();
 
 /* Tablet Styles */
 @media (max-width: 991px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         margin-top: <?php echo esc_attr( isset($margin['tablet']['top']) ? $margin['tablet']['top'] . ($margin['tablet']['unit'] ?: 'px') : $margin['desktop']['top'] . $margin['desktop']['unit'] ); ?>;
         margin-bottom: <?php echo esc_attr( isset($margin['tablet']['bottom']) ? $margin['tablet']['bottom'] . ($margin['tablet']['unit'] ?: 'px') : $margin['desktop']['bottom'] . $margin['desktop']['unit'] ); ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-line {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-line {
         width: <?php echo esc_attr( isset($width['tablet']) ? $width['tablet'] . $widthUnit : $width['desktop'] . $widthUnit ); ?>;
         <?php if ( !in_array($separatorStyle, array('dashed', 'dotted')) ) : ?>
         height: <?php echo esc_attr( isset($height['tablet']) ? $height['tablet'] . $heightUnit : $height['desktop'] . $heightUnit ); ?>;
@@ -288,26 +289,26 @@ ob_start();
         <?php endif; ?>
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-shape {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-shape {
         width: 100%;
         height: 100%;
     }
     
     <?php if ( 'none' !== $contentType && !in_array($separatorStyle, array('wave', 'zigzag', 'slant')) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-content {
         padding: 0 <?php echo esc_attr( isset($gap['tablet']) ? $gap['tablet'] : $gap['desktop'] ); ?>px;
     }
     <?php endif; ?>
     
     <?php if ( 'icon' === $contentType && $iconValue && isset($iconValue['svg']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-icon svg {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-icon svg {
         width: <?php echo esc_attr( isset($iconSize['tablet']) ? $iconSize['tablet'] : $iconSize['desktop'] ); ?>px;
         height: <?php echo esc_attr( isset($iconSize['tablet']) ? $iconSize['tablet'] : $iconSize['desktop'] ); ?>px;
     }
     <?php endif; ?>
     
     <?php if ( 'text' === $contentType && isset($typography['fontSize']['tablet']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-text {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-text {
         <?php if ( isset($typography['fontSize']['tablet']) ) : ?>
         font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ($typography['fontSizeUnit'] ?: 'px') ); ?>;
         <?php endif; ?>
@@ -325,12 +326,12 @@ ob_start();
 
 /* Mobile Styles */
 @media (max-width: 767px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         margin-top: <?php echo esc_attr( isset($margin['mobile']['top']) ? $margin['mobile']['top'] . ($margin['mobile']['unit'] ?: 'px') : $margin['desktop']['top'] . $margin['desktop']['unit'] ); ?>;
         margin-bottom: <?php echo esc_attr( isset($margin['mobile']['bottom']) ? $margin['mobile']['bottom'] . ($margin['mobile']['unit'] ?: 'px') : $margin['desktop']['bottom'] . $margin['desktop']['unit'] ); ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-line {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-line {
         width: <?php echo esc_attr( isset($width['mobile']) ? $width['mobile'] . $widthUnit : $width['desktop'] . $widthUnit ); ?>;
         <?php if ( !in_array($separatorStyle, array('dashed', 'dotted')) ) : ?>
         height: <?php echo esc_attr( isset($height['mobile']) ? $height['mobile'] . $heightUnit : $height['desktop'] . $heightUnit ); ?>;
@@ -343,26 +344,26 @@ ob_start();
         <?php endif; ?>
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-shape {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-shape {
         width: 100%;
         height: 100%;
     }
     
     <?php if ( 'none' !== $contentType && !in_array($separatorStyle, array('wave', 'zigzag', 'slant')) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-content {
         padding: 0 <?php echo esc_attr( isset($gap['mobile']) ? $gap['mobile'] : $gap['desktop'] ); ?>px;
     }
     <?php endif; ?>
     
     <?php if ( 'icon' === $contentType && $iconValue && isset($iconValue['svg']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-icon svg {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-icon svg {
         width: <?php echo esc_attr( isset($iconSize['mobile']) ? $iconSize['mobile'] : $iconSize['desktop'] ); ?>px;
         height: <?php echo esc_attr( isset($iconSize['mobile']) ? $iconSize['mobile'] : $iconSize['desktop'] ); ?>px;
     }
     <?php endif; ?>
     
     <?php if ( 'text' === $contentType && isset($typography['fontSize']['mobile']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-separator-text {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-text {
         <?php if ( isset($typography['fontSize']['mobile']) ) : ?>
         font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ($typography['fontSizeUnit'] ?: 'px') ); ?>;
         <?php endif; ?>

@@ -23,7 +23,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const {animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, TypographyControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -220,11 +220,11 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
         textColor
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // Use global responsive state for local rendering
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
-    
-    // State for animation preview
-    const previewTimeoutRef = useRef(null);
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -238,22 +238,6 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
     
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
-    
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
-
-    // Add unique data-custom-id
-	useEffect(() => {
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-    }, [clientId]);
 
     // State to track if global components are loaded
     const [componentsLoaded, setComponentsLoaded] = useState(false);
@@ -286,98 +270,23 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
         setAttributes({ iconValue: newIcon });
     };
 
-    // Animation preview function
-    const triggerAnimationPreview = () => {
-        // Only proceed if we have a valid animation
-        if (!animation || animation === 'none') {
-            return;
-        }
-        
-        // Clear any existing timeout
-        if (previewTimeoutRef.current) {
-            clearTimeout(previewTimeoutRef.current);
-        }
-        
-        // Find the block element
-        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-        if (!blockElement) {
-            return;
-        }
-        
-        // Generate a timestamp to ensure unique animation names on each click
-        const timestamp = Date.now();
-        
-        // Apply animation directly
-        if (animations[animation]) {
-            // Extract the original animation name from the keyframes
-            const originalKeyframes = animations[animation].keyframes;
-            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-            
-            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-                console.error('Could not extract animation name from keyframes');
-                return;
-            }
-            
-            const originalAnimName = originalAnimNameMatch[1];
-            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-            
-            // Create a style element with a unique animation name to avoid conflicts
-            const styleElement = document.createElement('style');
-            styleElement.id = `animation-style-${id}_${timestamp}`;
-            
-            // Replace the original animation name with our unique name
-            const updatedKeyframes = originalKeyframes.replace(
-                new RegExp(originalAnimName, 'g'),
-                uniqueAnimName
-            );
-            
-            styleElement.textContent = `
-                ${updatedKeyframes}
-                
-                [data-custom-id="${id}"] {
-                    animation: none; /* Reset first */
-                }
-            `;
-            
-            // Remove any existing animation style for this block
-            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-                el.remove();
-            });
-            
-            // Add the style to the document
-            document.head.appendChild(styleElement);
-            
-            // Force reflow to ensure animation reset
-            blockElement.offsetHeight;
-            
-            // Now apply the animation
-            const animationStyleElement = document.createElement('style');
-            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-            animationStyleElement.textContent = `
-                [data-custom-id="${id}"] {
-                    animation: ${uniqueAnimName} 1.5s forwards !important;
-                }
-            `;
-            document.head.appendChild(animationStyleElement);
-            
-            // Clean up after animation
-            previewTimeoutRef.current = setTimeout(() => {
-                styleElement.remove();
-                animationStyleElement.remove();
-                blockElement.style.animation = '';
-            }, 1500);
-        }
-    };
+    // Use ref
+	const previewTimeoutRef = useRef(null);
 
-    // Effect to trigger animation preview when animation attribute changes
-    useEffect(() => {
-        if (animation && animation !== 'none') {
-            const timeoutId = setTimeout(() => {
-                triggerAnimationPreview();
-            }, 100);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [animation]);
+	// Effect to trigger animation preview when animation attribute changes
+	useEffect(() => {
+		if (animation && animation !== 'none') {
+			const timeoutId = setTimeout(() => {
+				animationPreview(id, animation, animations, previewTimeoutRef);
+			}, 100);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [animation]);
+
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Width unit options
     const widthUnitOptions = [
@@ -460,7 +369,6 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for the separator
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        const blockId = id;
         
         // Base styles
         let separatorBaseStyles = '';
@@ -536,11 +444,11 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                     position: relative;
                 `;
                 separatorSpecificStyles = `
-                    [data-custom-id="${blockId}"] .digiblocks-separator-shape {
+                    .${id} .digiblocks-separator-shape {
                         width: 100%;
                         height: 100%;
                     }
-                    [data-custom-id="${blockId}"] .digiblocks-separator-shape svg {
+                    .${id} .digiblocks-separator-shape svg {
                         width: 100%;
                         height: 100%;
                         display: block;
@@ -556,7 +464,7 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
             
             // Common styles for text/icon container
             contentStyles = `
-                [data-custom-id="${blockId}"] .digiblocks-separator-content {
+                .${id} .digiblocks-separator-content {
                     position: relative;
                     z-index: 2;
                     display: inline-flex;
@@ -567,7 +475,7 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                     ${contentType === 'text' && textColor ? `color: ${textColor};` : ''}
                 }
                 
-                [data-custom-id="${blockId}"].digiblocks-separator-has-content .digiblocks-separator-line {
+                .${id}.digiblocks-separator-has-content .digiblocks-separator-line {
                     position: absolute;
                     top: 50%;
                     left: 0;
@@ -581,13 +489,13 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
         // Icon-specific styles
         if (contentType === 'icon' && iconValue && iconValue.svg) {
             contentStyles += `
-                [data-custom-id="${blockId}"] .digiblocks-separator-icon {
+                .${id} .digiblocks-separator-icon {
                     display: flex;
                     align-items: center;
                     justify-content: center;
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-separator-icon svg {
+                .${id} .digiblocks-separator-icon svg {
                     width: ${iconSize[activeDevice] || 24}px;
                     height: ${iconSize[activeDevice] || 24}px;
                     fill: ${textColor || primaryColor};
@@ -628,7 +536,7 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             contentStyles += `
-                [data-custom-id="${blockId}"] .digiblocks-separator-text {
+                .${id} .digiblocks-separator-text {
                     ${typographyStyles}
                 }
             `;
@@ -656,8 +564,8 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Complete CSS
         return `
-            /* Separator Block - ${blockId} */
-            [data-custom-id="${blockId}"] {
+            /* Separator Block - ${id} */
+            .${id} {
                 margin-top: ${marginValue.top}${marginValue.unit};
                 margin-bottom: ${marginValue.bottom}${marginValue.unit};
                 display: flex;
@@ -668,7 +576,7 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                 width: 100%;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-separator-container {
+            .${id} .digiblocks-separator-container {
                 position: relative;
                 display: flex;
                 flex-direction: column;
@@ -676,7 +584,7 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                 width: 100%;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-separator-line {
+            .${id} .digiblocks-separator-line {
                 ${separatorBaseStyles}
                 ${alignmentStyles}
             }
@@ -687,38 +595,38 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* Responsive styles will be handled by media queries */
             @media (max-width: 991px) {
-                [data-custom-id="${blockId}"] {
+                .${id} {
                     margin-top: ${margin.tablet ? margin.tablet.top + (margin.tablet.unit || 'px') : marginValue.top + marginValue.unit};
                     margin-bottom: ${margin.tablet ? margin.tablet.bottom + (margin.tablet.unit || 'px') : marginValue.bottom + marginValue.unit};
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-separator-line {
+                .${id} .digiblocks-separator-line {
                     width: ${width.tablet ? width.tablet + widthUnit : currentWidth + widthUnit};
                     height: ${height.tablet ? height.tablet + heightUnit : currentHeight + heightUnit};
                     ${borderRadius.tablet ? `border-radius: ${borderRadius.tablet}px;` : ''}
                 }
                 
                 ${contentType === 'icon' ? `
-                [data-custom-id="${blockId}"] .digiblocks-separator-icon svg {
+                .${id} .digiblocks-separator-icon svg {
                     width: ${iconSize.tablet || 20}px;
                     height: ${iconSize.tablet || 20}px;
                 }` : ''}
             }
             
             @media (max-width: 767px) {
-                [data-custom-id="${blockId}"] {
+                .${id} {
                     margin-top: ${margin.mobile ? margin.mobile.top + (margin.mobile.unit || 'px') : marginValue.top + marginValue.unit};
                     margin-bottom: ${margin.mobile ? margin.mobile.bottom + (margin.mobile.unit || 'px') : marginValue.bottom + marginValue.unit};
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-separator-line {
+                .${id} .digiblocks-separator-line {
                     width: ${width.mobile ? width.mobile + widthUnit : currentWidth + widthUnit};
                     height: ${height.mobile ? height.mobile + heightUnit : currentHeight + heightUnit};
                     ${borderRadius.mobile ? `border-radius: ${borderRadius.mobile}px;` : ''}
                 }
                 
                 ${contentType === 'icon' ? `
-                [data-custom-id="${blockId}"] .digiblocks-separator-icon svg {
+                .${id} .digiblocks-separator-icon svg {
                     width: ${iconSize.mobile || 16}px;
                     height: ${iconSize.mobile || 16}px;
                 }` : ''}
@@ -810,6 +718,7 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                             <BaseControl
                                 label={__("Separator Style", "digiblocks")}
                                 id="separator-style-selector"
+								__nextHasNoMarginBottom={true}
                             >
                                 {renderSeparatorStyleGrid()}
                             </BaseControl>
@@ -1259,7 +1168,7 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: '100%' }}
                                     >
                                         {__("Preview Animation", "digiblocks")}
@@ -1338,9 +1247,8 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-separator ${contentType !== 'none' && !['wave', 'zigzag', 'slant'].includes(separatorStyle) ? 'digiblocks-separator-has-content' : ''} ${customClasses || ''}`,
+        className: `digiblocks-separator ${id} ${contentType !== 'none' && !['wave', 'zigzag', 'slant'].includes(separatorStyle) ? 'digiblocks-separator-has-content' : ''} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     return (

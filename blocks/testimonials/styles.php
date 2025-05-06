@@ -11,7 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes
-$columns               = isset( $attrs['columns'] ) ? $attrs['columns'] : array(
+$id                   = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
+$columns              = isset( $attrs['columns'] ) ? $attrs['columns'] : array(
     'desktop' => 2,
     'tablet'  => 2,
     'mobile'  => 1,
@@ -243,14 +244,14 @@ $textTypography = isset( $attrs['textTypography'] ) ? $attrs['textTypography'] :
 // CSS Output
 ob_start();
 ?>
-/* Testimonials Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Testimonials Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
     position: relative;
     width: 100%;
 }
 
 /* Basic testimonial styling */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-content {
+.<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-content {
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
@@ -278,7 +279,7 @@ ob_start();
 	text-align: <?php echo esc_attr( $align ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-content:hover {
+.<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-content:hover {
     <?php if ( $backgroundHoverColor ) : ?>
         background-color: <?php echo esc_attr( $backgroundHoverColor ); ?>;
     <?php endif; ?>
@@ -289,7 +290,7 @@ ob_start();
 }
 
 <?php if ( $showQuoteIcon ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-quote-icon {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-quote-icon {
         position: absolute;
         top: 6px;
         left: 10px;
@@ -298,13 +299,13 @@ ob_start();
         line-height: 1;
     }
 
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-quote-icon svg {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-quote-icon svg {
 		width: <?php echo esc_attr( $quoteIconSize['desktop'] ); ?>px;
 		height: <?php echo esc_attr( $quoteIconSize['desktop'] ); ?>px;
 	}
 <?php endif; ?>
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-text {
+.<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-text {
     color: <?php echo esc_attr( $contentColor ); ?>;
     margin: 0;
     
@@ -343,7 +344,7 @@ ob_start();
 	z-index: 1;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-author {
+.<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-author {
     display: flex;
     align-items: center;
     gap: 15px;
@@ -357,7 +358,7 @@ ob_start();
 	z-index: 1;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-image {
+.<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-image {
     width: <?php echo esc_attr( $imageSize['desktop'] ); ?>px;
     height: <?php echo esc_attr( $imageSize['desktop'] ); ?>px;
     border-radius: 50%;
@@ -366,7 +367,7 @@ ob_start();
     flex-shrink: 0;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-name {
+.<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-name {
     color: <?php echo esc_attr( $nameColor ); ?>;
     margin: 0;
     transition: color 0.3s ease;
@@ -405,12 +406,12 @@ ob_start();
 }
 
 <?php if ( $nameHoverColor ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-content:hover .digiblocks-testimonial-name {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-content:hover .digiblocks-testimonial-name {
         color: <?php echo esc_attr( $nameHoverColor ); ?>;
     }
 <?php endif; ?>
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-position {
+.<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-position {
     color: <?php echo esc_attr( $positionColor ); ?>;
     margin: 5px 0 0 0;
     
@@ -448,7 +449,7 @@ ob_start();
 }
 
 <?php if ( $showRating ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-rating {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-rating {
         display: flex;
 		align-items: center;
 		gap: 2px;
@@ -457,12 +458,12 @@ ob_start();
 		z-index: 1;
     }
 
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-rating-star {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-rating-star {
         font-size: 16px;
     }
 <?php endif; ?>
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonials-grid {
+.<?php echo esc_attr( $id ); ?> .digiblocks-testimonials-grid {
 	display: grid;
 	grid-template-columns: repeat(<?php echo esc_attr( $columns['desktop'] ); ?>, 1fr);
 	gap: <?php echo esc_attr( isset( $attrs['itemSpacing'] ) ? $attrs['itemSpacing']['desktop'] : 30 ); ?>px;
@@ -470,7 +471,7 @@ ob_start();
 
 /* Tablet Styles */
 @media (max-width: 991px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-content {
         <?php if ( $padding && isset( $padding['tablet'] ) ) : ?>
             padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
         <?php endif; ?>
@@ -485,27 +486,27 @@ ob_start();
     }
 
     <?php if ( $showQuoteIcon && isset( $quoteIconSize['tablet'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-quote-icon svg {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-quote-icon svg {
             width: <?php echo esc_attr( $quoteIconSize['tablet'] ); ?>px;
             height: <?php echo esc_attr( $quoteIconSize['tablet'] ); ?>px;
         }
     <?php endif; ?>
 
     <?php if ( $showRating && isset( $attrs['ratingColor'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-rating-star {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-rating-star {
             color: <?php echo esc_attr( $ratingColor ); ?>;
         }
     <?php endif; ?>
 
     <?php if ( isset( $imageSize['tablet'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-image {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-image {
             width: <?php echo esc_attr( $imageSize['tablet'] ); ?>px;
             height: <?php echo esc_attr( $imageSize['tablet'] ); ?>px;
         }
     <?php endif; ?>
 
     <?php if ( isset( $contentTypography['fontSize']['tablet']) || isset( $contentTypography['lineHeight']['tablet']) || isset( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-text {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-text {
             <?php if ( isset( $contentTypography['fontSize']['tablet'] ) ) : ?>
                 font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
@@ -519,7 +520,7 @@ ob_start();
     <?php endif; ?>
 
     <?php if ( isset( $headingTypography['fontSize']['tablet']) || isset( $headingTypography['lineHeight']['tablet']) || isset( $headingTypography['letterSpacing']['tablet'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-name {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-name {
             <?php if ( isset( $headingTypography['fontSize']['tablet'] ) ) : ?>
                 font-size: <?php echo esc_attr( $headingTypography['fontSize']['tablet'] . ( $headingTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
@@ -533,7 +534,7 @@ ob_start();
     <?php endif; ?>
 
     <?php if ( isset( $textTypography['fontSize']['tablet']) || isset( $textTypography['lineHeight']['tablet']) || isset( $textTypography['letterSpacing']['tablet'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-position {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-position {
             <?php if ( isset( $textTypography['fontSize']['tablet'] ) ) : ?>
                 font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
@@ -546,7 +547,7 @@ ob_start();
         }
     <?php endif; ?>
 
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonials-grid {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-testimonials-grid {
 		grid-template-columns: repeat(<?php echo esc_attr( $columns['tablet'] ); ?>, 1fr);
 		gap: <?php echo esc_attr( isset( $attrs['itemSpacing'] ) ? $attrs['itemSpacing']['tablet'] : 25 ); ?>px;
 	}
@@ -554,7 +555,7 @@ ob_start();
 
 /* Mobile Styles */
 @media (max-width: 767px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-content {
         <?php if ( $padding && isset( $padding['mobile'] ) ) : ?>
             padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
         <?php endif; ?>
@@ -569,21 +570,21 @@ ob_start();
     }
 
     <?php if ( $showQuoteIcon && isset( $quoteIconSize['mobile'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-quote-icon svg {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-quote-icon svg {
             width: <?php echo esc_attr( $quoteIconSize['mobile'] ); ?>px;
             height: <?php echo esc_attr( $quoteIconSize['mobile'] ); ?>px;
         }
     <?php endif; ?>
 
     <?php if ( isset( $imageSize['mobile'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-image {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-image {
             width: <?php echo esc_attr( $imageSize['mobile'] ); ?>px;
             height: <?php echo esc_attr( $imageSize['mobile'] ); ?>px;
         }
     <?php endif; ?>
 
     <?php if ( isset( $contentTypography['fontSize']['mobile']) || isset( $contentTypography['lineHeight']['mobile']) || isset( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-text {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-text {
             <?php if ( isset( $contentTypography['fontSize']['mobile'] ) ) : ?>
                 font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
@@ -597,7 +598,7 @@ ob_start();
     <?php endif; ?>
 
     <?php if ( isset( $headingTypography['fontSize']['mobile']) || isset( $headingTypography['lineHeight']['mobile']) || isset( $headingTypography['letterSpacing']['mobile'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-name {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-name {
             <?php if ( isset( $headingTypography['fontSize']['mobile'] ) ) : ?>
                 font-size: <?php echo esc_attr( $headingTypography['fontSize']['mobile'] . ( $headingTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
@@ -611,7 +612,7 @@ ob_start();
     <?php endif; ?>
 
     <?php if ( isset( $textTypography['fontSize']['mobile']) || isset( $textTypography['lineHeight']['mobile']) || isset( $textTypography['letterSpacing']['mobile'] ) ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonial-position {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-position {
             <?php if ( isset( $textTypography['fontSize']['mobile'] ) ) : ?>
                 font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
@@ -624,7 +625,7 @@ ob_start();
         }
     <?php endif; ?>
 
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-testimonials-grid {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-testimonials-grid {
 		grid-template-columns: repeat(<?php echo esc_attr( $columns['mobile'] ); ?>, 1fr);
 		gap: <?php echo esc_attr( isset( $attrs['itemSpacing'] ) ? $attrs['itemSpacing']['mobile'] : 20 ); ?>px;
 	}

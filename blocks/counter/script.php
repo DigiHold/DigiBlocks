@@ -10,12 +10,12 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Get the block ID and animation settings
-$block_id = esc_attr( $block_id );
+
+$id = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 
 ob_start();
 ?>
-/* Counter Animation Script for <?php echo esc_attr( $block_id ); ?> */
+/* Counter Animation Script for <?php echo esc_attr( $id ); ?> */
 document.addEventListener('DOMContentLoaded', function() {
     const counterInit = function() {
         // Find all counter blocks on the page

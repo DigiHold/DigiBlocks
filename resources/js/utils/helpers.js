@@ -5,161 +5,191 @@
  */
 
 /**
- * Convert color to RGB format
- * 
- * @param {string} color - Hex color
- * @return {object} RGB color object
+ * Custom hook to handle unique block ID generation
+ *
+ * @param {string} id Current block ID from attributes
+ * @param {string} clientId Block client ID from WordPress
+ * @param {Function} setAttributes Function to update block attributes
+ * @param {boolean} isParent Whether this block is a parent container with inner blocks
+ * @return {string} The current block ID
  */
-export const hexToRgb = (hex) => {
-    if (!hex) {
-        return { r: 0, g: 0, b: 0 };
-    }
+export const useBlockId = (id, clientId, setAttributes, isParent = false) => {
+    const { useEffect, useRef } = wp.element;
+    const { getBlock, getBlocks } = wp.data.select('core/block-editor');
+    const { updateBlockAttributes } = wp.data.dispatch('core/block-editor');
     
-    // Remove hash if present
-    hex = hex.replace(/^#/, '');
+    // Track if this is an initial render
+    const isInitialRender = useRef(true);
     
-    // Convert shorthand (3 digits) to full form (6 digits)
-    if (hex.length === 3) {
-        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-    }
-    
-    // Parse the hex values
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    
-    return { r, g, b };
-};
-
-/**
- * Convert RGB to Hex color
- * 
- * @param {number} r - Red (0-255)
- * @param {number} g - Green (0-255)
- * @param {number} b - Blue (0-255)
- * @return {string} Hex color
- */
-export const rgbToHex = (r, g, b) => {
-    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-};
-
-/**
- * Add transparency to a color
- * 
- * @param {string} color - Hex color
- * @param {number} opacity - Opacity value (0-1)
- * @return {string} RGBA color
- */
-export const hexToRgba = (color, opacity = 1) => {
-    const { r, g, b } = hexToRgb(color);
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-};
-
-/**
- * Check if device is mobile
- * 
- * @return {boolean} True if mobile device
- */
-export const isMobile = () => {
-    return window.innerWidth <= 767;
-};
-
-/**
- * Check if device is tablet
- * 
- * @return {boolean} True if tablet device
- */
-export const isTablet = () => {
-    return window.innerWidth > 767 && window.innerWidth <= 991;
-};
-
-/**
- * Check if device is desktop
- * 
- * @return {boolean} True if desktop device
- */
-export const isDesktop = () => {
-    return window.innerWidth > 991;
-};
-
-/**
- * Get current device type
- * 
- * @return {string} Device type (mobile, tablet, desktop)
- */
-export const getDeviceType = () => {
-    if (isMobile()) {
-        return 'mobile';
-    } else if (isTablet()) {
-        return 'tablet';
-    }
-    return 'desktop';
-};
-
-/**
- * Convert string to camelCase
- * 
- * @param {string} str - Input string
- * @return {string} camelCase string
- */
-export const toCamelCase = (str) => {
-    return str
-        .replace(/(?:^\w|[A-Z]|\b\w)/g, (letter, index) => {
-            return index === 0 ? letter.toLowerCase() : letter.toUpperCase();
-        })
-        .replace(/\s+|-/g, '');
-};
-
-/**
- * Convert string to kebab-case
- * 
- * @param {string} str - Input string
- * @return {string} kebab-case string
- */
-export const toKebabCase = (str) => {
-    return str
-        .replace(/([a-z])([A-Z])/g, '$1-$2')
-        .replace(/\s+/g, '-')
-        .toLowerCase();
-};
-
-/**
- * Debounce function
- * 
- * @param {Function} func - Function to debounce
- * @param {number} wait - Wait time in ms
- * @return {Function} Debounced function
- */
-export const debounce = (func, wait = 300) => {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-};
-
-/**
- * Throttle function
- * 
- * @param {Function} func - Function to throttle
- * @param {number} limit - Limit time in ms
- * @return {Function} Throttled function
- */
-export const throttle = (func, limit = 300) => {
-    let inThrottle;
-    return function throttledFunction(...args) {
-        if (!inThrottle) {
-            func(...args);
-            inThrottle = true;
-            setTimeout(() => {
-                inThrottle = false;
-            }, limit);
+    // First generate or verify own ID
+    useEffect(() => {
+        // Generate a new ID if none exists
+        if (!id || id === '') {
+            const randomStr = Math.random().toString(36).substr(2, 9);
+            setAttributes({ id: `digi-${randomStr}` });
         }
+    }, []);
+    
+    // Helper function to find all blocks recursively, including nested blocks
+    const getAllBlocksRecursively = (blocks = []) => {
+        let allBlocks = [];
+        
+        blocks.forEach(block => {
+            allBlocks.push(block);
+            
+            if (block.innerBlocks && block.innerBlocks.length > 0) {
+                allBlocks = allBlocks.concat(getAllBlocksRecursively(block.innerBlocks));
+            }
+        });
+        
+        return allBlocks;
     };
+    
+    useEffect(() => {
+        // Skip this effect on initial render
+        if (isInitialRender.current) {
+            isInitialRender.current = false;
+            return;
+        }
+        
+        // Check if this is a duplicate block
+        const block = getBlock(clientId);
+        
+        if (block && id && id !== '') {
+            setTimeout(() => {
+                // Get all blocks including nested ones
+                const rootBlocks = getBlocks();
+                const allBlocks = getAllBlocksRecursively(rootBlocks);
+                
+                // Check if multiple blocks have the same ID
+                const duplicates = allBlocks.filter(b => 
+                    b.attributes && b.attributes.id === id && b.clientId !== clientId
+                );
+                
+                if (duplicates.length > 0) {
+                    // This is a duplicate, generate a new ID
+                    const randomStr = Math.random().toString(36).substr(2, 9);
+                    const newId = `digi-${randomStr}`;
+                    setAttributes({ id: newId });
+                    
+                    // If this is a parent block, we need to update IDs of inner blocks too
+                    if (isParent && block.innerBlocks && block.innerBlocks.length > 0) {
+                        block.innerBlocks.forEach(innerBlock => {
+                            // Generate a new unique ID for each inner block
+                            const innerRandomStr = Math.random().toString(36).substr(2, 9);
+                            updateBlockAttributes(innerBlock.clientId, { 
+                                id: `digi-${innerRandomStr}` 
+                            });
+                            
+                            // Recursively handle nested inner blocks if needed
+                            const nestedBlock = getBlock(innerBlock.clientId);
+                            if (nestedBlock && nestedBlock.innerBlocks && nestedBlock.innerBlocks.length > 0) {
+                                nestedBlock.innerBlocks.forEach(nestedInnerBlock => {
+                                    const nestedRandomStr = Math.random().toString(36).substr(2, 9);
+                                    updateBlockAttributes(nestedInnerBlock.clientId, { 
+                                        id: `digi-${nestedRandomStr}` 
+                                    });
+                                });
+                            }
+                        });
+                    }
+                }
+            }, 10); // Slight delay to ensure the DOM has updated
+        }
+    }, [clientId, id]);
+    
+    return id;
+};
+
+/**
+ * Trigger animation preview for a block
+ * 
+ * @param {string} id - The block's unique ID
+ * @param {string} animation - The animation name
+ * @param {Object} animations - The animations object containing keyframes
+ * @param {Object} previewTimeoutRef - useRef object to store timeout reference
+ * @return {void}
+ */
+export const animationPreview = (id, animation, animations, previewTimeoutRef) => {
+    // Only proceed if we have a valid animation
+    if (!animation || animation === 'none') {
+        return;
+    }
+    
+    // Clear any existing timeout
+    if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current);
+    }
+    
+    // Find the block element
+    const blockElement = document.querySelector(`.${id}`);
+    if (!blockElement) {
+        return;
+    }
+    
+    // Generate a timestamp to ensure unique animation names on each click
+    const timestamp = Date.now();
+    
+    // Apply animation directly
+    if (animations[animation]) {
+        // Extract the original animation name from the keyframes
+        const originalKeyframes = animations[animation].keyframes;
+        const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
+        
+        if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
+            console.error('Could not extract animation name from keyframes');
+            return;
+        }
+        
+        const originalAnimName = originalAnimNameMatch[1];
+        const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
+        
+        // Create a style element with a unique animation name to avoid conflicts
+        const styleElement = document.createElement('style');
+        styleElement.id = `animation-style-${id}_${timestamp}`;
+        
+        // Replace the original animation name with our unique name
+        const updatedKeyframes = originalKeyframes.replace(
+            new RegExp(originalAnimName, 'g'),
+            uniqueAnimName
+        );
+        
+        styleElement.textContent = `
+            ${updatedKeyframes}
+            
+            .${id} {
+                animation: none; /* Reset first */
+            }
+        `;
+        
+        // Remove any existing animation style for this block
+        document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
+            el.remove();
+        });
+        
+        // Add the style to the document
+        document.head.appendChild(styleElement);
+        
+        // Force reflow to ensure animation reset
+        blockElement.offsetHeight;
+        
+        // Now apply the animation
+        const animationStyleElement = document.createElement('style');
+        animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
+        animationStyleElement.textContent = `
+            .${id} {
+                animation: ${uniqueAnimName} 1.5s forwards !important;
+            }
+        `;
+        document.head.appendChild(animationStyleElement);
+        
+        // Clean up after animation
+        previewTimeoutRef.current = setTimeout(() => {
+            styleElement.remove();
+            animationStyleElement.remove();
+            blockElement.style.animation = '';
+        }, 1500);
+    }
 };
 
 /**

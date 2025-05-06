@@ -23,7 +23,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -65,11 +65,11 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
         iconType
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // Use global responsive state for local rendering
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
-    
-    // State for animation preview
-    const previewTimeoutRef = useRef(null);
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -90,22 +90,6 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
     const [iconColorTab, setIconColorTab] = useState("normal");
     const [borderColorTab, setBorderColorTab] = useState("normal");
     const [contentColorTab, setContentColorTab] = useState("normal");
-
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
-
-    // Add unique data-custom-id
-	useEffect(() => {
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-    }, [clientId]);
 
     // Add a new accordion item
     const addItem = () => {
@@ -218,98 +202,23 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
         })),
     ];
 
-    // Animation preview function
-	const triggerAnimationPreview = () => {
-		// Only proceed if we have a valid animation
-		if (!animation || animation === 'none') {
-			return;
-		}
-		
-		// Clear any existing timeout
-		if (previewTimeoutRef.current) {
-			clearTimeout(previewTimeoutRef.current);
-		}
-		
-		// Find the block element
-		const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-		if (!blockElement) {
-			return;
-		}
-		
-		// Generate a timestamp to ensure unique animation names on each click
-		const timestamp = Date.now();
-		
-		// Apply animation directly
-		if (animations[animation]) {
-			// Extract the original animation name from the keyframes
-			const originalKeyframes = animations[animation].keyframes;
-			const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-			
-			if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-				console.error('Could not extract animation name from keyframes');
-				return;
-			}
-			
-			const originalAnimName = originalAnimNameMatch[1];
-			const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-			
-			// Create a style element with a unique animation name to avoid conflicts
-			const styleElement = document.createElement('style');
-			styleElement.id = `animation-style-${id}_${timestamp}`;
-			
-			// Replace the original animation name with our unique name
-			const updatedKeyframes = originalKeyframes.replace(
-				new RegExp(originalAnimName, 'g'),
-				uniqueAnimName
-			);
-			
-			styleElement.textContent = `
-				${updatedKeyframes}
-				
-				[data-custom-id="${id}"] {
-					animation: none; /* Reset first */
-				}
-			`;
-			
-			// Remove any existing animation style for this block
-			document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-				el.remove();
-			});
-			
-			// Add the style to the document
-			document.head.appendChild(styleElement);
-			
-			// Force reflow to ensure animation reset
-			blockElement.offsetHeight;
-			
-			// Now apply the animation
-			const animationStyleElement = document.createElement('style');
-			animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-			animationStyleElement.textContent = `
-				[data-custom-id="${id}"] {
-					animation: ${uniqueAnimName} 1.5s forwards !important;
-				}
-			`;
-			document.head.appendChild(animationStyleElement);
-			
-			// Clean up after animation
-			previewTimeoutRef.current = setTimeout(() => {
-				styleElement.remove();
-				animationStyleElement.remove();
-				blockElement.style.animation = '';
-			}, 1500);
-		}
-	};
+	// Use ref
+	const previewTimeoutRef = useRef(null);
 
 	// Effect to trigger animation preview when animation attribute changes
 	useEffect(() => {
 		if (animation && animation !== 'none') {
 			const timeoutId = setTimeout(() => {
-				triggerAnimationPreview();
+				animationPreview(id, animation, animations, previewTimeoutRef);
 			}, 100);
 			return () => clearTimeout(timeoutId);
 		}
 	}, [animation]);
+
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Define the tabs for the custom tab panel
     const tabList = [
@@ -354,7 +263,6 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for all styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        const blockId = id;
         
         // Border styles
         let borderCSS = '';
@@ -471,7 +379,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
         // Assemble the full CSS
         return `
             /* Accordion item */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-item {
+            .${id} .digiblocks-accordion-item {
                 overflow: hidden;
                 background-color: ${backgroundColor || '#ffffff'};
                 ${borderCSS}
@@ -481,14 +389,14 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
             }
 
 			/* Hover effects */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-item:hover {
+            .${id} .digiblocks-accordion-item:hover {
                 ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
                 ${borderHoverColor ? `border-color: ${borderHoverColor};` : ''}
 				${boxShadowHover && boxShadowHover.enable ? boxShadowHoverCSS : ''}
             }
             
             /* Accordion header */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-header {
+            .${id} .digiblocks-accordion-header {
                 position: relative;
                 cursor: pointer;
                 ${paddingCSS}
@@ -502,7 +410,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Accordion title */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-title {
+            .${id} .digiblocks-accordion-title {
                 margin: 0;
                 color: ${titleColor || '#333333'};
                 flex: 1;
@@ -511,24 +419,24 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Hover effects for title */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-header:hover .digiblocks-accordion-title {
+            .${id} .digiblocks-accordion-header:hover .digiblocks-accordion-title {
                 ${titleHoverColor ? `color: ${titleHoverColor};` : ''}
             }
             
             /* Accordion title active state */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-item.is-active .digiblocks-accordion-title {
+            .${id} .digiblocks-accordion-item.is-active .digiblocks-accordion-title {
                 color: ${titleActiveColor || '#1e73be'};
             }
             
             /* Accordion icon */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-icon {
+            .${id} .digiblocks-accordion-icon {
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
             
             /* SVG icon fill color */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-icon svg {
+            .${id} .digiblocks-accordion-icon svg {
                 fill: ${iconColor || '#333333'};
                 width: ${iconSize[activeDevice]}px;
                 height: ${iconSize[activeDevice]}px;
@@ -536,22 +444,22 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Hover effects for icon */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-header:hover .digiblocks-accordion-icon svg {
+            .${id} .digiblocks-accordion-header:hover .digiblocks-accordion-icon svg {
                 ${iconHoverColor ? `fill: ${iconHoverColor};` : ''}
             }
             
             /* Active icon color */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-item.is-active .digiblocks-accordion-icon svg {
+            .${id} .digiblocks-accordion-item.is-active .digiblocks-accordion-icon svg {
                 fill: ${iconActiveColor || '#1e73be'};
             }
             
             /* Active header background */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-item.is-active .digiblocks-accordion-header {
+            .${id} .digiblocks-accordion-item.is-active .digiblocks-accordion-header {
                 background-color: ${backgroundActiveColor || '#f7f7f7'};
             }
             
             /* Accordion content */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-content {
+            .${id} .digiblocks-accordion-content {
                 overflow: hidden;
                 ${paddingCSS}
                 color: ${contentColor || '#666666'};
@@ -560,24 +468,24 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Hover effects for content */
-            [data-custom-id="${blockId}"] .digiblocks-accordion-item:hover .digiblocks-accordion-content {
+            .${id} .digiblocks-accordion-item:hover .digiblocks-accordion-content {
                 ${contentHoverColor ? `color: ${contentHoverColor};` : ''}
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-accordion-content p:first-child {
+            .${id} .digiblocks-accordion-content p:first-child {
                 margin-top: 0;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-accordion-content p:last-child {
+            .${id} .digiblocks-accordion-content p:last-child {
                 margin-bottom: 0;
             }
             
             /* Item controls in editor */
-			[data-custom-id="${blockId}"] .digiblocks-accordion-item {
+			.${id} .digiblocks-accordion-item {
 				position: relative;
 			}
 
-			[data-custom-id="${blockId}"] .digiblocks-accordion-item-controls {
+			.${id} .digiblocks-accordion-item-controls {
 				display: flex;
 				gap: 5px;
 				position: absolute;
@@ -615,16 +523,16 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                 value={iconType}
                                 onChange={(value) => setAttributes({ iconType: value })}
                                 isBlock
-                                __nextHasNoMarginBottom={true}
                                 __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
                             >
                                 <ToggleGroupControlOption 
                                     value="plusMinus" 
-                                    label={__("Plus/Minus", "digiblocks")} 
+                                    label={__("Plus/Minus", "digiblocks")}
                                 />
                                 <ToggleGroupControlOption 
                                     value="arrowUpDown" 
-                                    label={__("Up/Down", "digiblocks")} 
+                                    label={__("Up/Down", "digiblocks")}
                                 />
                             </ToggleGroupControl>
                             
@@ -633,8 +541,8 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                 value={iconPosition}
                                 onChange={(value) => setAttributes({ iconPosition: value })}
                                 isBlock
-                                __nextHasNoMarginBottom={true}
                                 __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
                             >
                                 <ToggleGroupControlOption 
                                     value="left" 
@@ -1019,7 +927,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: '100%' }}
                                     >
                                         {__("Preview Animation", "digiblocks")}
@@ -1102,9 +1010,8 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-accordion ${customClasses || ''}`,
+        className: `digiblocks-accordion ${id} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     return (

@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes
+$id                    = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $items                 = isset( $attrs['items'] ) ? $attrs['items'] : array();
 $titleColor            = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '#333333';
 $titleHoverColor       = isset( $attrs['titleHoverColor'] ) ? $attrs['titleHoverColor'] : '';
@@ -126,19 +127,19 @@ $iconSize = isset( $attrs['iconSize'] ) ? $attrs['iconSize'] : array(
 // CSS Output
 ob_start();
 ?>
-/* FAQ Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* FAQ Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
 	margin: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['right'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['bottom'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['left'] . $margin['desktop']['unit'] ); ?>;
 	width: 100%;
 }
 
 /* Base styles for questions and answers */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item {
 	position: relative;
 	margin-bottom: <?php echo esc_attr( $itemsSpacing['desktop'] ); ?>px;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
 	cursor: pointer;
 	-webkit-user-select: none;
 	-moz-user-select: none;
@@ -154,8 +155,8 @@ ob_start();
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-text,
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-text-content {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-text,
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-text-content {
 	color: <?php echo esc_attr( $titleColor ); ?>;
 	<?php if ( ! empty( $titleTypography['fontFamily'] ) ) : ?>
 	font-family: <?php echo esc_attr( $titleTypography['fontFamily'] ); ?>;
@@ -191,25 +192,25 @@ ob_start();
 	transition: color 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-text-content {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-text-content {
 	margin: 0;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-prefix {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-prefix {
 	<?php if ( $questionPrefixColor ) : ?>
 	color: <?php echo esc_attr( $questionPrefixColor ); ?>;
 	<?php endif; ?>
 	font-weight: bold;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer-prefix {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer-prefix {
 	<?php if ( $answerPrefixColor ) : ?>
 	color: <?php echo esc_attr( $answerPrefixColor ); ?>;
 	<?php endif; ?>
 	font-weight: bold;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer-content {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer-content {
 	color: <?php echo esc_attr( $contentColor ); ?>;
 	<?php if ( ! empty( $contentTypography['fontFamily'] ) ) : ?>
 	font-family: <?php echo esc_attr( $contentTypography['fontFamily'] ); ?>;
@@ -242,22 +243,22 @@ ob_start();
 }
 
 /* Handle answer display states */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 	overflow: hidden;
 	display: none;
 	transition: height 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-answer {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-answer {
 	display: block;
 }
 
 /* Icon styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
 	gap: 15px;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-icon {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -266,13 +267,13 @@ ob_start();
 	font-size: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-icon span {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-icon span {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-icon svg {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-icon svg {
 	width: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
 	height: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
 	transition: transform 0.3s ease;
@@ -280,40 +281,40 @@ ob_start();
 }
 
 /* Rotate icons when active */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-arrow,
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-chevron,
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-triangle {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-arrow,
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-chevron,
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-triangle {
 	transform: rotate(180deg);
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-icon-arrow,
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-icon-chevron,
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-icon-triangle {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-icon-arrow,
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-icon-chevron,
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-icon-triangle {
 	display: inline-flex;
 	transition: transform 0.3s ease;
 }
 
 /* Handle hover state */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question:hover .digiblocks-faq-question-text,
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question:hover .digiblocks-faq-question-text-content {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question:hover .digiblocks-faq-question-text,
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question:hover .digiblocks-faq-question-text-content {
 	<?php if ( $titleHoverColor ) : ?>
 	color: <?php echo esc_attr( $titleHoverColor ); ?>;
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question:hover .digiblocks-faq-question-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question:hover .digiblocks-faq-question-icon {
 	<?php if ( $iconHoverColor ) : ?>
 	color: <?php echo esc_attr( $iconHoverColor ); ?>;
 	<?php endif; ?>
 }
 
 /* Handle active state */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-question-text,
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-question-text-content {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-question-text,
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-question-text-content {
 	color: <?php echo esc_attr( $titleActiveColor ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-question-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-question-icon {
 	color: <?php echo esc_attr( $iconActiveColor ); ?>;
 }
 
@@ -323,7 +324,7 @@ switch ( $layout ) :
 	case 'boxed':
 ?>
 /* Boxed layout */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item {
 	<?php 
 	// Always apply border for boxed layout
 	$current_border_style = ($borderStyle && $borderStyle !== 'default' && $borderStyle !== 'none') ? $borderStyle : 'solid';
@@ -345,7 +346,7 @@ switch ( $layout ) :
 	transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item:hover {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item:hover {
 	<?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
 	box-shadow: <?php echo esc_attr( ( 'inset' === $boxShadowHover['position'] ? 'inset ' : '' ) . $boxShadowHover['horizontal'] . 'px ' . $boxShadowHover['vertical'] . 'px ' . $boxShadowHover['blur'] . 'px ' . $boxShadowHover['spread'] . 'px ' . $boxShadowHover['color'] ); ?>;
 	<?php endif; ?>
@@ -359,11 +360,11 @@ switch ( $layout ) :
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
 	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 	padding: 0 <?php echo esc_attr( $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
 	border-top: 1px solid <?php echo esc_attr( $borderColor ); ?>;
 	<?php if ( $contentBackgroundColor ) : ?>
@@ -371,13 +372,13 @@ switch ( $layout ) :
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active {
 	<?php if ( $backgroundActiveColor ) : ?>
 	background-color: <?php echo esc_attr( $backgroundActiveColor ); ?>;
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-answer {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-answer {
 	padding-top: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] ); ?>;
 }
 <?php
@@ -385,22 +386,22 @@ switch ( $layout ) :
 	case 'classic':
 ?>
 /* Classic layout */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item {
 	border: none;
 	border-bottom: 1px solid <?php echo esc_attr( $borderColor ); ?>;
 	background-color: transparent;
 	transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
 	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 	padding: 0 <?php echo esc_attr( $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-answer {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-answer {
 	padding-top: 0;
 }
 <?php
@@ -408,11 +409,11 @@ switch ( $layout ) :
 	case 'separated':
 ?>
 /* Separated layout */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item {
 	transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
 	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
 	<?php 
 	// Apply borders to separated layout questions 
@@ -434,7 +435,7 @@ switch ( $layout ) :
 	background-color: <?php echo esc_attr( $backgroundColor ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question:hover {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question:hover {
 	<?php if ( $titleHoverColor ) : ?>
 	color: <?php echo esc_attr( $titleHoverColor ); ?>;
 	<?php endif; ?>
@@ -452,7 +453,7 @@ switch ( $layout ) :
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-question {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-question {
 	<?php if ( $titleActiveColor ) : ?>
 	color: <?php echo esc_attr( $titleActiveColor ); ?>;
 	<?php endif; ?>
@@ -462,7 +463,7 @@ switch ( $layout ) :
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
 	<?php if ( $contentBackgroundColor ) : ?>
 	background-color: <?php echo esc_attr( $contentBackgroundColor ); ?>;
@@ -479,17 +480,17 @@ switch ( $layout ) :
 	case 'minimalist':
 ?>
 /* Minimalist layout */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item {
 	transition: all 0.3s ease;
 	background-color: transparent;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
 	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
 	border-bottom: 2px solid <?php echo esc_attr( $borderColor ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question:hover {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question:hover {
 	<?php if ( $titleHoverColor ) : ?>
 	color: <?php echo esc_attr( $titleHoverColor ); ?>;
 	<?php endif; ?>
@@ -497,7 +498,7 @@ switch ( $layout ) :
 	border-color: <?php echo esc_attr( $titleHoverColor ?: $borderHoverColor ?: '#cccccc' ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-question {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-question {
 	<?php if ( $titleActiveColor ) : ?>
 	color: <?php echo esc_attr( $titleActiveColor ); ?>;
 	<?php endif; ?>
@@ -505,7 +506,7 @@ switch ( $layout ) :
 	border-color: <?php echo esc_attr( $titleActiveColor ?: '#1e73be' ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] ); ?> 0 <?php echo esc_attr( $padding['desktop']['bottom'] . $padding['desktop']['unit'] ); ?> 0;
 }
 <?php
@@ -513,7 +514,7 @@ switch ( $layout ) :
 	case 'bordered':
 ?>
 /* Bordered layout */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item {
 	<?php 
 	// Apply borders to bordered layout
 	$current_border_style = ($borderStyle && $borderStyle !== 'default' && $borderStyle !== 'none') ? $borderStyle : 'solid';
@@ -530,18 +531,18 @@ switch ( $layout ) :
 	overflow: hidden;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item:hover {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item:hover {
 	<?php if ( $borderHoverColor ) : ?>
 	border-color: <?php echo esc_attr( $borderHoverColor ); ?>;
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
 	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
 	background-color: <?php echo esc_attr( $backgroundColor ?: '#f8f9fa' ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question:hover {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question:hover {
 	<?php if ( $titleHoverColor ) : ?>
 	color: <?php echo esc_attr( $titleHoverColor ); ?>;
 	<?php endif; ?>
@@ -551,7 +552,7 @@ switch ( $layout ) :
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-question {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-question {
 	<?php if ( $titleActiveColor ) : ?>
 	color: <?php echo esc_attr( $titleActiveColor ); ?>;
 	<?php endif; ?>
@@ -561,14 +562,14 @@ switch ( $layout ) :
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
 	<?php if ( $contentBackgroundColor ) : ?>
 	background-color: <?php echo esc_attr( $contentBackgroundColor ); ?>;
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active {
 	border-color: <?php echo esc_attr( $titleActiveColor ?: $borderColor ?: '#1e73be' ); ?>;
 }
 <?php
@@ -576,7 +577,7 @@ switch ( $layout ) :
 	default:
 ?>
 /* Default layout */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item {
 	<?php 
 	// Apply borders to default layout
 	$current_border_style = ($borderStyle && $borderStyle !== 'default' && $borderStyle !== 'none') ? $borderStyle : 'solid';
@@ -598,16 +599,16 @@ switch ( $layout ) :
 	transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
 	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 	padding: 0 <?php echo esc_attr( $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
 	border-top: 1px solid <?php echo esc_attr( $borderColor ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-answer {
+.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-answer {
 	padding-top: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] ); ?>;
 }
 <?php
@@ -617,54 +618,54 @@ endswitch;
 
 /* Animation CSS if provided */
 <?php if ( 'none' !== $animation && function_exists( 'digiblocks_get_animation_css' ) ) : ?>
-<?php echo esc_html( digiblocks_get_animation_css( $animation, $block_id ) ); ?>
+<?php echo esc_html( digiblocks_get_animation_css( $animation, $id ) ); ?>
 <?php endif; ?>
 
 /* Tablet Styles */
 @media (max-width: 991px) {
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	.<?php echo esc_attr( $id ); ?> {
 		<?php if ( isset( $margin['tablet'] ) ) : ?>
 		margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
 		<?php endif; ?>
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item {
 		margin-bottom: <?php echo esc_attr( isset( $itemsSpacing['tablet'] ) ? $itemsSpacing['tablet'] : $itemsSpacing['desktop'] ); ?>px;
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question,
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-answer {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question,
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-answer {
 		<?php if ( isset( $padding['tablet'] ) ) : ?>
 		padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
 		<?php endif; ?>
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 		<?php if ( isset( $padding['tablet'] ) ) : ?>
 		padding: 0 <?php echo esc_attr( $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
 		<?php endif; ?>
 	}
 	
 	<?php if ( 'minimalist' === $layout ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 		padding: <?php echo esc_attr( ( isset( $padding['tablet'] ) ? $padding['tablet']['top'] : $padding['desktop']['top'] ) . ( isset( $padding['tablet'] ) ? $padding['tablet']['unit'] : $padding['desktop']['unit'] ) ); ?> 0 <?php echo esc_attr( ( isset( $padding['tablet'] ) ? $padding['tablet']['bottom'] : $padding['desktop']['bottom'] ) . ( isset( $padding['tablet'] ) ? $padding['tablet']['unit'] : $padding['desktop']['unit'] ) ); ?> 0;
 	}
 	<?php endif; ?>
 	
 	<?php if ( isset( $iconSize['tablet'] ) ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-icon {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-icon {
 		font-size: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-icon svg {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-icon svg {
 		width: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
 		height: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
 	}
 	<?php endif; ?>
 	
 	<?php if ( isset( $titleTypography['fontSize']['tablet'] ) ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-text,
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-text-content {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-text,
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-text-content {
 		font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 		<?php if ( isset( $titleTypography['lineHeight']['tablet'] ) ) : ?>
 		line-height: <?php echo esc_attr( $titleTypography['lineHeight']['tablet'] . ( $titleTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
@@ -673,7 +674,7 @@ endswitch;
 	<?php endif; ?>
 	
 	<?php if ( isset( $contentTypography['fontSize']['tablet'] ) ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer-content {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer-content {
 		font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 		<?php if ( isset( $contentTypography['lineHeight']['tablet'] ) ) : ?>
 		line-height: <?php echo esc_attr( $contentTypography['lineHeight']['tablet'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
@@ -684,49 +685,49 @@ endswitch;
 
 /* Mobile Styles */
 @media (max-width: 767px) {
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	.<?php echo esc_attr( $id ); ?> {
 		<?php if ( isset( $margin['mobile'] ) ) : ?>
 		margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
 		<?php endif; ?>
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item {
 		margin-bottom: <?php echo esc_attr( isset( $itemsSpacing['mobile'] ) ? $itemsSpacing['mobile'] : $itemsSpacing['desktop'] ); ?>px;
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question,
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-item.is-active .digiblocks-faq-answer {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question,
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-answer {
 		<?php if ( isset( $padding['mobile'] ) ) : ?>
 		padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
 		<?php endif; ?>
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 		<?php if ( isset( $padding['mobile'] ) ) : ?>
 		padding: 0 <?php echo esc_attr( $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
 		<?php endif; ?>
 	}
 	
 	<?php if ( 'minimalist' === $layout ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 		padding: <?php echo esc_attr( ( isset( $padding['mobile'] ) ? $padding['mobile']['top'] : $padding['desktop']['top'] ) . ( isset( $padding['mobile'] ) ? $padding['mobile']['unit'] : $padding['desktop']['unit'] ) ); ?> 0 <?php echo esc_attr( ( isset( $padding['mobile'] ) ? $padding['mobile']['bottom'] : $padding['desktop']['bottom'] ) . ( isset( $padding['mobile'] ) ? $padding['mobile']['unit'] : $padding['desktop']['unit'] ) ); ?> 0;
 	}
 	<?php endif; ?>
 	
 	<?php if ( isset( $iconSize['mobile'] ) ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-icon {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-icon {
 		font-size: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-icon svg {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-icon svg {
 		width: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
 		height: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
 	}
 	<?php endif; ?>
 	
 	<?php if ( isset( $titleTypography['fontSize']['mobile'] ) ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-text,
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-question-text-content {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-text,
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-text-content {
 		font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 		<?php if ( isset( $titleTypography['lineHeight']['mobile'] ) ) : ?>
 		line-height: <?php echo esc_attr( $titleTypography['lineHeight']['mobile'] . ( $titleTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
@@ -735,7 +736,7 @@ endswitch;
 	<?php endif; ?>
 	
 	<?php if ( isset( $contentTypography['fontSize']['mobile'] ) ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-faq-answer-content {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer-content {
 		font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 		<?php if ( isset( $contentTypography['lineHeight']['mobile'] ) ) : ?>
 		line-height: <?php echo esc_attr( $contentTypography['lineHeight']['mobile'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;

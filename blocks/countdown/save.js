@@ -33,6 +33,7 @@ const CountdownSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-countdown",
+		id,
         `align-${align}`,
         animation !== "none" ? `animate-${animation}` : "",
         style === "boxes" ? "digiblocks-countdown-boxes" : "digiblocks-countdown-simple",
@@ -49,7 +50,6 @@ const CountdownSave = ({ attributes }) => {
     const blockProps = useBlockProps.save({
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id,
         "data-end-date": endDate || "",
         "data-show-days": showDays ? "true" : "false",
         "data-show-hours": showHours ? "true" : "false",

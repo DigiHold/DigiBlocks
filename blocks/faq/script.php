@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes
+$id                = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $allowMultipleOpen = isset( $attrs['allowMultipleOpen'] ) ? $attrs['allowMultipleOpen'] : false;
 $schemaEnabled     = isset( $attrs['schemaEnabled'] ) ? (bool) $attrs['schemaEnabled'] : true;
 $schemaType        = isset( $attrs['schemaType'] ) ? $attrs['schemaType'] : 'FAQPage';
@@ -26,7 +27,7 @@ ob_start();
     // Wait for DOM to be ready
     document.addEventListener('DOMContentLoaded', function() {
         // Find the FAQ element
-        const faqElement = document.querySelector('[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]');
+        const faqElement = document.querySelector('.<?php echo esc_attr( $id ); ?>');
         
         if (!faqElement) return;
         

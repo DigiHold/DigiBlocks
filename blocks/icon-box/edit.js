@@ -25,7 +25,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -77,12 +77,14 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         linkRel,
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
     // State for animation preview
     const [isAnimating, setIsAnimating] = useState(false);
-    const previewTimeoutRef = useRef(null);
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -99,11 +101,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
     
     // Use useEffect to set the ID only once when component mounts and initialize missing attributes
     useEffect(() => {
-        // Check if the ID needs to be regenerated using clientId
-		if (!id || !id.includes(clientId.substr(0, 8))) {
-			setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-		}
-
         // Initialize iconMargin if it's null
         if (!iconMargin) {
             setAttributes({
@@ -114,16 +111,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             });
         }
-    }, [clientId, iconMargin, setAttributes]);
-
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
+    }, [iconMargin, setAttributes]);
 
     // State to track if global components are loaded
     const [componentsLoaded, setComponentsLoaded] = useState(false);
@@ -156,98 +144,23 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         setAttributes({ iconValue: newIcon });
     };
 
-    // Animation preview function
-	const triggerAnimationPreview = () => {
-		// Only proceed if we have a valid animation
-		if (!animation || animation === 'none') {
-			return;
-		}
-		
-		// Clear any existing timeout
-		if (previewTimeoutRef.current) {
-			clearTimeout(previewTimeoutRef.current);
-		}
-		
-		// Find the block element
-		const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-		if (!blockElement) {
-			return;
-		}
-		
-		// Generate a timestamp to ensure unique animation names on each click
-		const timestamp = Date.now();
-		
-		// Apply animation directly
-		if (animations[animation]) {
-			// Extract the original animation name from the keyframes
-			const originalKeyframes = animations[animation].keyframes;
-			const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-			
-			if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-				console.error('Could not extract animation name from keyframes');
-				return;
-			}
-			
-			const originalAnimName = originalAnimNameMatch[1];
-			const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-			
-			// Create a style element with a unique animation name to avoid conflicts
-			const styleElement = document.createElement('style');
-			styleElement.id = `animation-style-${id}_${timestamp}`;
-			
-			// Replace the original animation name with our unique name
-			const updatedKeyframes = originalKeyframes.replace(
-				new RegExp(originalAnimName, 'g'),
-				uniqueAnimName
-			);
-			
-			styleElement.textContent = `
-				${updatedKeyframes}
-				
-				[data-custom-id="${id}"] {
-					animation: none; /* Reset first */
-				}
-			`;
-			
-			// Remove any existing animation style for this block
-			document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-				el.remove();
-			});
-			
-			// Add the style to the document
-			document.head.appendChild(styleElement);
-			
-			// Force reflow to ensure animation reset
-			blockElement.offsetHeight;
-			
-			// Now apply the animation
-			const animationStyleElement = document.createElement('style');
-			animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-			animationStyleElement.textContent = `
-				[data-custom-id="${id}"] {
-					animation: ${uniqueAnimName} 1.5s forwards !important;
-				}
-			`;
-			document.head.appendChild(animationStyleElement);
-			
-			// Clean up after animation
-			previewTimeoutRef.current = setTimeout(() => {
-				styleElement.remove();
-				animationStyleElement.remove();
-				blockElement.style.animation = '';
-			}, 1500);
-		}
-	};
+    // Use ref
+	const previewTimeoutRef = useRef(null);
 
 	// Effect to trigger animation preview when animation attribute changes
 	useEffect(() => {
 		if (animation && animation !== 'none') {
 			const timeoutId = setTimeout(() => {
-				triggerAnimationPreview();
+				animationPreview(id, animation, animations, previewTimeoutRef);
 			}, 100);
 			return () => clearTimeout(timeoutId);
 		}
 	}, [animation]);
+
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Border style options
     const borderStyleOptions = [
@@ -318,7 +231,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        const blockId = id;
         
         // Border styles
         let borderCSS = '';
@@ -506,7 +418,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         // Set base styles for the block
         return `
             /* Main block styles */
-            [data-custom-id="${blockId}"] {
+            .${id} {
                 background-color: ${backgroundColor || 'transparent'};
                 ${boxShadowCSS}
                 ${paddingCSS}
@@ -517,14 +429,14 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Hover effects */
-            [data-custom-id="${blockId}"]:hover {
+            .${id}:hover {
                 ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
                 ${hoverCSS}
             }
             
             ${iconValue && iconValue.svg ? `
             /* Icon styles */
-            [data-custom-id="${blockId}"] .digiblocks-icon-box-icon {
+            .${id} .digiblocks-icon-box-icon {
                 margin: ${iconMarginCSS};
                 display: inline-flex;
                 align-items: center;
@@ -533,11 +445,11 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 transition: all 0.3s ease;
             }
 
-            [data-custom-id="${blockId}"] .digiblocks-icon-box-icon span {
+            .${id} .digiblocks-icon-box-icon span {
                 display: flex;
             }
 
-            [data-custom-id="${blockId}"] .digiblocks-icon-box-icon svg {
+            .${id} .digiblocks-icon-box-icon svg {
                 width: ${iconSize[activeDevice]}px;
                 height: 100%;
                 fill: ${iconColor || 'inherit'};
@@ -545,17 +457,17 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Icon hover styles */
-            [data-custom-id="${blockId}"]:hover .digiblocks-icon-box-icon {
+            .${id}:hover .digiblocks-icon-box-icon {
                 ${iconHoverCSS}
             }
             
-            [data-custom-id="${blockId}"]:hover .digiblocks-icon-box-icon svg {
+            .${id}:hover .digiblocks-icon-box-icon svg {
                 ${iconHoverColor ? `fill: ${iconHoverColor};` : ''}
             }
             ` : ''}
             
             /* Title styles */
-            [data-custom-id="${blockId}"] .digiblocks-icon-box-title {
+            .${id} .digiblocks-icon-box-title {
                 color: ${titleColor || 'inherit'};
                 margin-bottom: 10px;
                 ${titleTypographyCSS}
@@ -563,19 +475,19 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Title hover styles */
-            [data-custom-id="${blockId}"]:hover .digiblocks-icon-box-title {
+            .${id}:hover .digiblocks-icon-box-title {
                 ${titleHoverColor ? `color: ${titleHoverColor};` : ''}
             }
             
             /* Content styles */
-            [data-custom-id="${blockId}"] .digiblocks-icon-box-text {
+            .${id} .digiblocks-icon-box-text {
                 color: ${textColor || 'inherit'};
                 ${contentTypographyCSS}
                 transition: color 0.3s ease;
             }
             
             /* Content hover styles */
-            [data-custom-id="${blockId}"]:hover .digiblocks-icon-box-text {
+            .${id}:hover .digiblocks-icon-box-text {
                 ${textHoverColor ? `color: ${textHoverColor};` : ''}
             }
         `;
@@ -1392,7 +1304,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: '100%' }}
                                     >
                                         {__("Preview Animation", "digiblocks")}
@@ -1474,9 +1386,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-icon-box align-${align} ${customClasses || ''}`,
+        className: `digiblocks-icon-box ${id} align-${align} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     // Prepare content

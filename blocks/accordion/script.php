@@ -11,12 +11,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes.
-$block_id          = isset( $attrs['id'] ) ? $attrs['id'] : '';
-$allow_multiple    = isset( $attrs['allowMultipleOpen'] ) ? $attrs['allowMultipleOpen'] : false;
-$icon_type         = isset( $attrs['iconType'] ) ? $attrs['iconType'] : 'plusMinus';
+$id             = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
+$allow_multiple = isset( $attrs['allowMultipleOpen'] ) ? $attrs['allowMultipleOpen'] : false;
+$icon_type      = isset( $attrs['iconType'] ) ? $attrs['iconType'] : 'plusMinus';
 
 // Only generate JS if we have a block ID
-if ( empty( $block_id ) ) {
+if ( empty( $id ) ) {
     $digiblocks_js_output = '';
     return;
 }
@@ -24,9 +24,9 @@ if ( empty( $block_id ) ) {
 // JavaScript Output
 ob_start();
 ?>
-/* Accordion Block - <?php echo esc_attr( $block_id ); ?> */
+/* Accordion Block - <?php echo esc_attr( $id ); ?> */
 document.addEventListener('DOMContentLoaded', function() {
-    const accordion = document.querySelector('[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]');
+    const accordion = document.querySelector('.<?php echo esc_attr( $id ); ?>');
     
     if (!accordion) return;
     

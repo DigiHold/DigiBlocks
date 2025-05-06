@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes.
+$id                 = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $items              = isset( $attrs['items'] ) ? $attrs['items'] : array();
 $listLayout         = isset( $attrs['listLayout'] ) ? $attrs['listLayout'] : 'vertical';
 $listAlign          = isset( $attrs['listAlign'] ) ? $attrs['listAlign'] : 'left';
@@ -190,8 +191,8 @@ $boxShadowHover = isset( $attrs['boxShadowHover'] ) ? $attrs['boxShadowHover'] :
 // CSS Output
 ob_start();
 ?>
-/* Icon List Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Icon List Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
 	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
 	margin: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['right'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['bottom'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['left'] . $margin['desktop']['unit'] ); ?>;
 	<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle ) : ?>
@@ -213,7 +214,7 @@ ob_start();
 	transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover {
+.<?php echo esc_attr( $id ); ?>:hover {
 	<?php if ( $backgroundHoverColor ) : ?>
 		background-color: <?php echo esc_attr( $backgroundHoverColor ); ?>;
 	<?php endif; ?>
@@ -233,11 +234,11 @@ ob_start();
 }
 
 /* List container */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-wrapper {
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-wrapper {
 	text-align: <?php echo esc_attr( $listAlign ); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list {
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -248,18 +249,18 @@ ob_start();
 }
 
 /* List item */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-item {
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-item {
 	display: inline-flex;
 	align-items: center;
 	justify-content: <?php echo esc_attr( 'center' === $listAlign ? 'center' : ( 'right' === $listAlign ? 'flex-end' : 'flex-start' ) ); ?>;
 	transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-item:last-child {
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-item:last-child {
 	margin-bottom: 0;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-child {
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-child {
 	display: inline-flex;
 	<?php if ( 'after' === $iconPosition ) : ?>
 		flex-direction: row-reverse;
@@ -269,7 +270,7 @@ ob_start();
 }
 
 /* Icon */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-icon {
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
@@ -278,18 +279,18 @@ ob_start();
 	transition: color 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-icon span {
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-icon span {
 	display: flex;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-icon svg {
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-icon svg {
 	width: <?php echo esc_attr( $iconSize['desktop'] . 'px' ); ?>;
 	height: <?php echo esc_attr( $iconSize['desktop'] . 'px' ); ?>;
 	fill: currentColor;
 }
 
 /* Text content */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-content {
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-content {
 	color: <?php echo esc_attr( $textColor ); ?>;
 	<?php if ( ! empty( $contentTypography['fontFamily'] ) ) : ?>
 		font-family: <?php echo esc_attr( $contentTypography['fontFamily'] ); ?>;
@@ -319,20 +320,20 @@ ob_start();
 }
 
 /* Hover states */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-item:hover .digiblocks-icon-list-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-item:hover .digiblocks-icon-list-icon {
 	<?php if ( $iconHoverColor ) : ?>
 		color: <?php echo esc_attr( $iconHoverColor ); ?>;
 	<?php endif; ?>
 }
 
 <?php if ( $textHoverColor ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-item:hover .digiblocks-icon-list-content {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-item:hover .digiblocks-icon-list-content {
 		color: <?php echo esc_attr( $textHoverColor ); ?>;
 	}
 <?php endif; ?>
 
 /* Link cursor for clickable items */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-item a {
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-item a {
 	cursor: pointer;
 	text-decoration: none;
 	color: inherit;
@@ -340,7 +341,7 @@ ob_start();
 
 /* Tablet Styles */
 @media (max-width: 991px) {
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	.<?php echo esc_attr( $id ); ?> {
 		padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
 		margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
 		<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle ) : ?>
@@ -349,21 +350,21 @@ ob_start();
 		<?php endif; ?>
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list {
 		gap: <?php echo esc_attr( $itemSpace['tablet'] . 'px' ); ?>;
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-child {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-child {
 		gap: <?php echo esc_attr( $iconSpace['tablet'] . 'px' ); ?>;
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-icon svg {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-icon svg {
 		width: <?php echo esc_attr( $iconSize['tablet'] . 'px' ); ?>;
 		height: <?php echo esc_attr( $iconSize['tablet'] . 'px' ); ?>;
 	}
 	
 	<?php if ( ! empty( $contentTypography['fontSize']['tablet'] ) || ! empty( $contentTypography['lineHeight']['tablet'] ) || ! empty( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-content {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-content {
 			<?php if ( ! empty( $contentTypography['fontSize']['tablet'] ) ) : ?>
 				font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 			<?php endif; ?>
@@ -379,7 +380,7 @@ ob_start();
 
 /* Mobile Styles */
 @media (max-width: 767px) {
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	.<?php echo esc_attr( $id ); ?> {
 		padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
 		margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
 		<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle ) : ?>
@@ -388,21 +389,21 @@ ob_start();
 		<?php endif; ?>
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list {
 		gap: <?php echo esc_attr( $itemSpace['mobile'] . 'px' ); ?>;
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-child {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-child {
 		gap: <?php echo esc_attr( $iconSpace['mobile'] . 'px' ); ?>;
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-icon svg {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-icon svg {
 		width: <?php echo esc_attr( $iconSize['mobile'] . 'px' ); ?>;
 		height: <?php echo esc_attr( $iconSize['mobile'] . 'px' ); ?>;
 	}
 	
 	<?php if ( ! empty( $contentTypography['fontSize']['mobile'] ) || ! empty( $contentTypography['lineHeight']['mobile'] ) || ! empty( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon-list-content {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-content {
 			<?php if ( ! empty( $contentTypography['fontSize']['mobile'] ) ) : ?>
 				font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 			<?php endif; ?>

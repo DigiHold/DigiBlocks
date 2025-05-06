@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes with defaults.
+$id                  = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $size                = isset( $attrs['size'] ) ? $attrs['size'] : 'medium';
 $fill                = isset( $attrs['fill'] ) ? $attrs['fill'] : false;
 $onlyIcon            = isset( $attrs['onlyIcon'] ) ? $attrs['onlyIcon'] : false;
@@ -84,8 +85,8 @@ $buttonTypography = isset( $attrs['buttonTypography'] ) ? $attrs['buttonTypograp
 // CSS Output
 ob_start();
 ?>
-/* Button Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Button Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -134,7 +135,7 @@ ob_start();
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover {
+.<?php echo esc_attr( $id ); ?>:hover {
 	color: <?php echo esc_attr( $textHoverColor ?: $textColor ); ?>;
 	background-color: <?php echo esc_attr( $backgroundHoverColor ?: $backgroundColor ); ?>;
 	text-decoration: none;
@@ -149,20 +150,20 @@ ob_start();
 }
 
 /* Icon styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-button-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-button-icon {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-button-icon svg {
+.<?php echo esc_attr( $id ); ?> .digiblocks-button-icon svg {
 	width: 1em;
 	height: 1em;
 	fill: currentColor;
 }
 
 /* Typography for all inner buttons */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+.<?php echo esc_attr( $id ); ?> {
 	<?php if ( ! empty( $buttonTypography['fontFamily'] ) ) : ?>
 		font-family: <?php echo esc_attr( $buttonTypography['fontFamily'] ); ?>;
 	<?php endif; ?>
@@ -199,12 +200,12 @@ ob_start();
 /* Responsive styles */
 @media (max-width: 991px) {
 	<?php if ( 'custom' === $size ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+		.<?php echo esc_attr( $id ); ?> {
 			padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
 		}
 	<?php endif; ?>
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	.<?php echo esc_attr( $id ); ?> {
 		margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
 		
 		<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle ) : ?>
@@ -213,7 +214,7 @@ ob_start();
 		<?php endif; ?>
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	.<?php echo esc_attr( $id ); ?> {
 		<?php if ( ! empty( $buttonTypography['fontSize']['tablet'] ) ) : ?>
 			font-size: <?php echo esc_attr( $buttonTypography['fontSize']['tablet'] . ( $buttonTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 		<?php endif; ?>
@@ -230,12 +231,12 @@ ob_start();
 
 @media (max-width: 767px) {
 	<?php if ( 'custom' === $size ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+		.<?php echo esc_attr( $id ); ?> {
 			padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
 		}
 	<?php endif; ?>
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	.<?php echo esc_attr( $id ); ?> {
 		margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
 		
 		<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle ) : ?>
@@ -244,7 +245,7 @@ ob_start();
 		<?php endif; ?>
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	.<?php echo esc_attr( $id ); ?> {
 		<?php if ( ! empty( $buttonTypography['fontSize']['mobile'] ) ) : ?>
 			font-size: <?php echo esc_attr( $buttonTypography['fontSize']['mobile'] . ( $buttonTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 		<?php endif; ?>

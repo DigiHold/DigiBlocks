@@ -64,6 +64,7 @@ const SeparatorSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-separator",
+		id,
         contentType !== 'none' && !['wave', 'zigzag', 'slant'].includes(separatorStyle) ? 'digiblocks-separator-has-content' : '',
         `align-${align}`,
         animation !== "none" ? `animate-${animation}` : "",
@@ -76,7 +77,6 @@ const SeparatorSave = ({ attributes }) => {
     const blockProps = useBlockProps.save({
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id,
         "data-separator-style": separatorStyle,
     });
 

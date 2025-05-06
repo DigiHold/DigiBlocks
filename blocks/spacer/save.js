@@ -17,6 +17,7 @@ const SpacerSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-spacer",
+		id,
         customClasses || ""
     ]
         .filter(Boolean)
@@ -26,7 +27,6 @@ const SpacerSave = ({ attributes }) => {
     const blockProps = useBlockProps.save({
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id
     });
 
     return (

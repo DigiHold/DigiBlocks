@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes
+$id                     = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $content                = isset( $attrs['content'] ) ? $attrs['content'] : '';
 $level                  = isset( $attrs['level'] ) ? $attrs['level'] : 2;
 $textColor              = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#333333';
@@ -164,8 +165,8 @@ $typography = isset( $attrs['typography'] ) ? $attrs['typography'] : array(
 // CSS Output
 ob_start();
 ?>
-/* Heading Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Heading Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
     display: flex;
     flex-direction: column;
     position: relative;
@@ -178,7 +179,7 @@ ob_start();
     transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-heading-text {
+.<?php echo esc_attr( $id ); ?> .digiblocks-heading-text {
 	color: <?php echo esc_attr( $textColor ); ?>;
 	<?php if ( $shadowEnabled && $textShadow ) : ?>
         text-shadow: <?php echo esc_attr( $textShadow['horizontal'] . 'px ' . $textShadow['vertical'] . 'px ' . $textShadow['blur'] . 'px ' . $textShadow['color'] ); ?>;
@@ -188,7 +189,7 @@ ob_start();
 }
 
 /* Typography styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-heading-text {
+.<?php echo esc_attr( $id ); ?> .digiblocks-heading-text {
     <?php if ( ! empty( $typography['fontFamily'] ) ) : ?>
         font-family: <?php echo esc_attr( $typography['fontFamily'] ); ?>;
     <?php endif; ?>
@@ -225,13 +226,13 @@ ob_start();
 <?php if ( $textHoverColor || $backgroundHoverColor ) : ?>
 	/* Hover effects */
 	<?php if ( $backgroundHoverColor ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover {
+		.<?php echo esc_attr( $id ); ?>:hover {
 			background-color: <?php echo esc_attr( $backgroundHoverColor ); ?>;
 		}
 	<?php endif; ?>
 
 	<?php if ( $textHoverColor ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-heading-text {
+		.<?php echo esc_attr( $id ); ?>:hover .digiblocks-heading-text {
 			color: <?php echo esc_attr( $textHoverColor ); ?>;
 		}
 	<?php endif; ?>
@@ -239,7 +240,7 @@ ob_start();
 
 <?php if ( $linkEnabled ) : ?>
 /* Link styles */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+.<?php echo esc_attr( $id ); ?> {
     cursor: pointer;
     text-decoration: none;
 }
@@ -248,17 +249,17 @@ ob_start();
 <?php if ( $highlightText && ! empty( $highlightText ) ) : ?>
 /* Highlight styles */
 <?php if ( 'background' === $highlightType ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-highlight {
+.<?php echo esc_attr( $id ); ?> .digiblocks-highlight {
     background-color: <?php echo esc_attr( $highlightColor ); ?>;
     padding: 0 5px;
     border-radius: 3px;
 }
 <?php elseif ( 'color' === $highlightType ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-highlight {
+.<?php echo esc_attr( $id ); ?> .digiblocks-highlight {
     color: <?php echo esc_attr( $highlightColor ); ?>;
 }
 <?php elseif ( 'underline' === $highlightType ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-highlight {
+.<?php echo esc_attr( $id ); ?> .digiblocks-highlight {
     text-decoration: underline;
     text-decoration-color: <?php echo esc_attr( $highlightColor ); ?>;
     text-decoration-thickness: 2px;
@@ -305,7 +306,7 @@ $spacing_margin = $separatorPosition === 'top'
 switch ( $separatorStyle ) :
     
     case 'line-solid': ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+.<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
     <?php echo $position_css; ?>
@@ -319,7 +320,7 @@ switch ( $separatorStyle ) :
 <?php break;
 
     case 'line-gradient': ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+.<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
     <?php echo $position_css; ?>
@@ -333,7 +334,7 @@ switch ( $separatorStyle ) :
 <?php break;
 
     case 'line-double': ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+.<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
     <?php echo $position_css; ?>
@@ -345,7 +346,7 @@ switch ( $separatorStyle ) :
     <?php echo $spacing_margin; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::after {
+.<?php echo esc_attr( $id ); ?>::after {
     content: '';
     position: absolute;
     <?php echo $position_css; ?>
@@ -361,7 +362,7 @@ switch ( $separatorStyle ) :
 <?php break;
 
     case 'line-dashed': ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+.<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
     <?php echo $position_css; ?>
@@ -381,7 +382,7 @@ switch ( $separatorStyle ) :
 <?php break;
 
     case 'line-dotted': ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+.<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
     <?php echo $position_css; ?>
@@ -401,7 +402,7 @@ switch ( $separatorStyle ) :
 <?php break;
 
     case 'wave': ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+.<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
     <?php echo $position_css; ?>
@@ -434,7 +435,7 @@ switch ( $separatorStyle ) :
 <?php break;
 
     case 'dots': ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+.<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
     <?php echo $position_css; ?>
@@ -452,7 +453,7 @@ switch ( $separatorStyle ) :
 <?php break;
 
     case 'glow': ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+.<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
     <?php echo $position_css; ?>
@@ -467,7 +468,7 @@ switch ( $separatorStyle ) :
 <?php break;
 
     case 'faded': ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+.<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
     <?php echo $position_css; ?>
@@ -481,7 +482,7 @@ switch ( $separatorStyle ) :
 <?php break;
 
     default: ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+.<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
     <?php echo $position_css; ?>
@@ -498,13 +499,13 @@ switch ( $separatorStyle ) :
 
 /* Tablet Styles */
 @media (max-width: 991px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
         margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
     }
     
     <?php if ( isset( $typography['fontSize']['tablet'] ) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-heading-text {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-heading-text {
         font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
         
         <?php if ( isset( $typography['lineHeight']['tablet'] ) ) : ?>
@@ -540,7 +541,7 @@ switch ( $separatorStyle ) :
         case 'line-dotted':
         case 'glow': 
         case 'faded': ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+    .<?php echo esc_attr( $id ); ?>::before {
         width: <?php echo esc_attr( $separatorWidth['tablet'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['tablet'] ); ?>px;
         border-radius: <?php echo esc_attr( $tablet_border_radius ); ?>;
@@ -549,14 +550,14 @@ switch ( $separatorStyle ) :
     <?php break;
     
         case 'line-double': ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+    .<?php echo esc_attr( $id ); ?>::before {
         width: <?php echo esc_attr( $separatorWidth['tablet'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['tablet'] ); ?>px;
         border-radius: <?php echo esc_attr( $tablet_border_radius ); ?>;
         <?php echo $tablet_spacing; ?>
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::after {
+    .<?php echo esc_attr( $id ); ?>::after {
         width: <?php echo esc_attr( $separatorWidth['tablet'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['tablet'] ); ?>px;
         border-radius: <?php echo esc_attr( $tablet_border_radius ); ?>;
@@ -567,7 +568,7 @@ switch ( $separatorStyle ) :
     <?php break;
     
         case 'wave': ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+    .<?php echo esc_attr( $id ); ?>::before {
         width: <?php echo esc_attr( $separatorWidth['tablet'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['tablet'] * 4 ); ?>px;
         background-size: <?php echo esc_attr( $separatorHeight['tablet'] * 2 ); ?>px <?php echo esc_attr( $separatorHeight['tablet'] * 2 ); ?>px;
@@ -576,7 +577,7 @@ switch ( $separatorStyle ) :
     <?php break;
     
         case 'dots': ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+    .<?php echo esc_attr( $id ); ?>::before {
         width: <?php echo esc_attr( $separatorWidth['tablet'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['tablet'] * 3 ); ?>px;
         background-size: <?php echo esc_attr( $separatorHeight['tablet'] * 3 ); ?>px <?php echo esc_attr( $separatorHeight['tablet'] * 3 ); ?>px;
@@ -590,13 +591,13 @@ switch ( $separatorStyle ) :
 
 /* Mobile Styles */
 @media (max-width: 767px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
         margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
     }
     
     <?php if ( isset( $typography['fontSize']['mobile'] ) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-heading-text {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-heading-text {
         font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
         
         <?php if ( isset( $typography['lineHeight']['mobile'] ) ) : ?>
@@ -632,7 +633,7 @@ switch ( $separatorStyle ) :
         case 'line-dotted':
         case 'glow':
         case 'faded': ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+    .<?php echo esc_attr( $id ); ?>::before {
         width: <?php echo esc_attr( $separatorWidth['mobile'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['mobile'] ); ?>px;
         border-radius: <?php echo esc_attr( $mobile_border_radius ); ?>;
@@ -641,14 +642,14 @@ switch ( $separatorStyle ) :
     <?php break;
     
         case 'line-double': ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+    .<?php echo esc_attr( $id ); ?>::before {
         width: <?php echo esc_attr( $separatorWidth['mobile'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['mobile'] ); ?>px;
         border-radius: <?php echo esc_attr( $mobile_border_radius ); ?>;
         <?php echo $mobile_spacing; ?>
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::after {
+    .<?php echo esc_attr( $id ); ?>::after {
         width: <?php echo esc_attr( $separatorWidth['mobile'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['mobile'] ); ?>px;
         border-radius: <?php echo esc_attr( $mobile_border_radius ); ?>;
@@ -659,7 +660,7 @@ switch ( $separatorStyle ) :
     <?php break;
     
         case 'wave': ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+    .<?php echo esc_attr( $id ); ?>::before {
         width: <?php echo esc_attr( $separatorWidth['mobile'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['mobile'] * 4 ); ?>px;
         background-size: <?php echo esc_attr( $separatorHeight['mobile'] * 2 ); ?>px <?php echo esc_attr( $separatorHeight['mobile'] * 2 ); ?>px;
@@ -668,7 +669,7 @@ switch ( $separatorStyle ) :
     <?php break;
     
         case 'dots': ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]::before {
+    .<?php echo esc_attr( $id ); ?>::before {
         width: <?php echo esc_attr( $separatorWidth['mobile'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['mobile'] * 3 ); ?>px;
         background-size: <?php echo esc_attr( $separatorHeight['mobile'] * 3 ); ?>px <?php echo esc_attr( $separatorHeight['mobile'] * 3 ); ?>px;

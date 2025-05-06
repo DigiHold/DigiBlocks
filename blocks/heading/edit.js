@@ -26,7 +26,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -69,12 +69,14 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         textShadow
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
     // State for animation preview
     const [isAnimating, setIsAnimating] = useState(false);
-    const previewTimeoutRef = useRef(null);
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -89,114 +91,23 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
 
-	// Add unique data-custom-id
+    // Use ref
+	const previewTimeoutRef = useRef(null);
+
+	// Effect to trigger animation preview when animation attribute changes
 	useEffect(() => {
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-    }, [clientId]);
+		if (animation && animation !== 'none') {
+			const timeoutId = setTimeout(() => {
+				animationPreview(id, animation, animations, previewTimeoutRef);
+			}, 100);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [animation]);
 
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
-
-    // Animation preview function
-    const triggerAnimationPreview = () => {
-        // Only proceed if we have a valid animation
-        if (!animation || animation === 'none') {
-            return;
-        }
-        
-        // Clear any existing timeout
-        if (previewTimeoutRef.current) {
-            clearTimeout(previewTimeoutRef.current);
-        }
-        
-        // Find the block element
-        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-        if (!blockElement) {
-            return;
-        }
-        
-        // Generate a timestamp to ensure unique animation names on each click
-        const timestamp = Date.now();
-        
-        // Apply animation directly
-        if (animations[animation]) {
-            // Extract the original animation name from the keyframes
-            const originalKeyframes = animations[animation].keyframes;
-            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-            
-            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-                console.error('Could not extract animation name from keyframes');
-                return;
-            }
-            
-            const originalAnimName = originalAnimNameMatch[1];
-            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-            
-            // Create a style element with a unique animation name to avoid conflicts
-            const styleElement = document.createElement('style');
-            styleElement.id = `animation-style-${id}_${timestamp}`;
-            
-            // Replace the original animation name with our unique name
-            const updatedKeyframes = originalKeyframes.replace(
-                new RegExp(originalAnimName, 'g'),
-                uniqueAnimName
-            );
-            
-            styleElement.textContent = `
-                ${updatedKeyframes}
-                
-                [data-custom-id="${id}"] {
-                    animation: none; /* Reset first */
-                }
-            `;
-            
-            // Remove any existing animation style for this block
-            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-                el.remove();
-            });
-            
-            // Add the style to the document
-            document.head.appendChild(styleElement);
-            
-            // Force reflow to ensure animation reset
-            blockElement.offsetHeight;
-            
-            // Now apply the animation
-            const animationStyleElement = document.createElement('style');
-            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-            animationStyleElement.textContent = `
-                [data-custom-id="${id}"] {
-                    animation: ${uniqueAnimName} 1.5s forwards !important;
-                }
-            `;
-            document.head.appendChild(animationStyleElement);
-            
-            // Clean up after animation
-            previewTimeoutRef.current = setTimeout(() => {
-                styleElement.remove();
-                animationStyleElement.remove();
-                blockElement.style.animation = '';
-            }, 1500);
-        }
-    };
-
-    // Effect to trigger animation preview when animation attribute changes
-    useEffect(() => {
-        if (animation && animation !== 'none') {
-            const timeoutId = setTimeout(() => {
-                triggerAnimationPreview();
-            }, 100);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [animation]);
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Animation options
     const animationOptions = [
@@ -262,7 +173,6 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        const blockId = id;
         
         // Typography CSS
         let typographyCSS = '';
@@ -336,7 +246,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
             switch (separatorStyle) {
                 case 'line-solid':
                     separatorCSS = `
-                        [data-custom-id="${blockId}"]::before {
+                        .${id}::before {
                             content: '';
                             position: absolute;
                             ${position}
@@ -352,7 +262,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 
                 case 'line-gradient':
                     separatorCSS = `
-                        [data-custom-id="${blockId}"]::before {
+                        .${id}::before {
                             content: '';
                             position: absolute;
                             ${position}
@@ -368,7 +278,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 
                 case 'line-double':
                     separatorCSS = `
-                        [data-custom-id="${blockId}"]::before {
+                        .${id}::before {
                             content: '';
                             position: absolute;
                             ${position}
@@ -380,7 +290,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                             ${separatorPosition === 'top' ? `margin-top: ${separatorSpacingValue}px;` : `margin-bottom: ${separatorSpacingValue}px;`}
                         }
                         
-                        [data-custom-id="${blockId}"]::after {
+                        .${id}::after {
                             content: '';
                             position: absolute;
                             ${position}
@@ -396,7 +306,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 
                 case 'line-dashed':
                     separatorCSS = `
-                        [data-custom-id="${blockId}"]::before {
+                        .${id}::before {
                             content: '';
                             position: absolute;
                             ${position}
@@ -418,7 +328,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 
                 case 'line-dotted':
                     separatorCSS = `
-                        [data-custom-id="${blockId}"]::before {
+                        .${id}::before {
                             content: '';
                             position: absolute;
                             ${position}
@@ -440,7 +350,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 
                 case 'wave':
                     separatorCSS = `
-                        [data-custom-id="${blockId}"]::before {
+                        .${id}::before {
                             content: '';
                             position: absolute;
                             ${position}
@@ -475,7 +385,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 
                 case 'dots':
                     separatorCSS = `
-                        [data-custom-id="${blockId}"]::before {
+                        .${id}::before {
                             content: '';
                             position: absolute;
                             ${position}
@@ -495,7 +405,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 
                 case 'glow':
                     separatorCSS = `
-                        [data-custom-id="${blockId}"]::before {
+                        .${id}::before {
                             content: '';
                             position: absolute;
                             ${position}
@@ -512,7 +422,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 
                 case 'faded':
                     separatorCSS = `
-                        [data-custom-id="${blockId}"]::before {
+                        .${id}::before {
                             content: '';
                             position: absolute;
                             ${position}
@@ -528,7 +438,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 
                 default:
                     separatorCSS = `
-                        [data-custom-id="${blockId}"]::before {
+                        .${id}::before {
                             content: '';
                             position: absolute;
                             ${position}
@@ -548,7 +458,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         if (highlightText && highlightText.trim() !== '') {
             if (highlightType === 'background') {
                 highlightCSS = `
-                    [data-custom-id="${blockId}"] .digiblocks-highlight {
+                    .${id} .digiblocks-highlight {
                         background-color: ${highlightColor};
                         padding: 0 5px;
                         border-radius: 3px;
@@ -556,13 +466,13 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 `;
             } else if (highlightType === 'color') {
                 highlightCSS = `
-                    [data-custom-id="${blockId}"] .digiblocks-highlight {
+                    .${id} .digiblocks-highlight {
                         color: ${highlightColor};
                     }
                 `;
             } else if (highlightType === 'underline') {
                 highlightCSS = `
-                    [data-custom-id="${blockId}"] .digiblocks-highlight {
+                    .${id} .digiblocks-highlight {
                         text-decoration: underline;
                         text-decoration-color: ${highlightColor};
                         text-decoration-thickness: 2px;
@@ -576,13 +486,13 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         let linkCSS = '';
         if (linkEnabled) {
             linkCSS = `
-                [data-custom-id="${blockId}"] {
+                .${id} {
                     cursor: pointer;
                     text-decoration: none;
                     transition: color 0.3s ease, background-color 0.3s ease;
                 }
                 
-                [data-custom-id="${blockId}"]:hover {
+                .${id}:hover {
                     ${textHoverColor ? `color: ${textHoverColor};` : ''}
                     ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
                 }
@@ -592,7 +502,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         // Set base styles for the block
         return `
             /* Main heading styles */
-            [data-custom-id="${blockId}"] {
+            .${id} {
                 display: flex;
                 flex-direction: column;
                 position: relative;
@@ -603,7 +513,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 transition: color 0.3s ease, background-color 0.3s ease;
             }
 
-            [data-custom-id="${blockId}"] .digiblocks-heading-text {
+            .${id} .digiblocks-heading-text {
                 ${typographyCSS}
                 ${textShadowCSS}
                 color: ${textColor || 'inherit'};
@@ -611,11 +521,11 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Hover effects */
-            [data-custom-id="${blockId}"]:hover {
+            .${id}:hover {
                 ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
             }
 
-            [data-custom-id="${blockId}"]:hover .digiblocks-heading-text {
+            .${id}:hover .digiblocks-heading-text {
                 ${textHoverColor ? `color: ${textHoverColor};` : ''}
             }
             
@@ -933,6 +843,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                     <BaseControl
                                         label={__("Separator Style", "digiblocks")}
                                         className="digiblocks-separator-style-selector"
+										__nextHasNoMarginBottom={true}
                                     >
                                         {renderSeparatorStyleGrid()}
                                     </BaseControl>
@@ -942,16 +853,16 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                         value={separatorPosition}
                                         onChange={(value) => setAttributes({ separatorPosition: value })}
                                         isBlock
-                                        __nextHasNoMarginBottom={true}
                                         __next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
                                     >
                                         <ToggleGroupControlOption 
                                             value="bottom" 
-                                            label={__("Bottom", "digiblocks")} 
+                                            label={__("Bottom", "digiblocks")}
                                         />
                                         <ToggleGroupControlOption 
                                             value="top" 
-                                            label={__("Top", "digiblocks")} 
+                                            label={__("Top", "digiblocks")}
                                         />
                                     </ToggleGroupControl>
                                     
@@ -1102,20 +1013,20 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                         value={highlightType}
                                         onChange={(value) => setAttributes({ highlightType: value })}
                                         isBlock
-                                        __nextHasNoMarginBottom={true}
                                         __next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
                                     >
                                         <ToggleGroupControlOption 
                                             value="background" 
-                                            label={__("Background", "digiblocks")} 
+                                            label={__("Background", "digiblocks")}
                                         />
                                         <ToggleGroupControlOption 
                                             value="color" 
-                                            label={__("Text", "digiblocks")} 
+                                            label={__("Text", "digiblocks")}
                                         />
                                         <ToggleGroupControlOption 
                                             value="underline" 
-                                            label={__("Underline", "digiblocks")} 
+                                            label={__("Underline", "digiblocks")}
                                         />
                                     </ToggleGroupControl>
                                     
@@ -1370,7 +1281,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: '100%' }}
                                     >
                                         {__("Preview Animation", "digiblocks")}
@@ -1453,9 +1364,8 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-heading align-${align} ${customClasses || ''}`,
+        className: `digiblocks-heading ${id} align-${align} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     // Create the proper heading tag based on level

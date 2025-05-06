@@ -27,6 +27,7 @@ const IconSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-icon",
+		id,
         `align-${align}`,
         animation !== "none" ? `animate-${animation}` : "",
         hoverEffect !== "none" ? `has-hover-${hoverEffect}` : "",
@@ -39,7 +40,6 @@ const IconSave = ({ attributes }) => {
     const commonProps = {
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id
     };
 
     // Render icon

@@ -26,6 +26,7 @@ const FAQSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-faq-block",
+		id,
         layout || 'boxed',
         customClasses || "",
         animation !== "none" ? `animate-${animation}` : ""
@@ -103,7 +104,6 @@ const FAQSave = ({ attributes }) => {
     const blockProps = useBlockProps.save({
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id,
         "data-allow-multiple": allowMultipleOpen ? "true" : "false"
     });
 

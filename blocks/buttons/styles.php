@@ -11,14 +11,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes with defaults.
-$layout = isset( $attrs['layout'] ) ? $attrs['layout'] : 'horizontal';
-$align  = isset( $attrs['align'] ) ? $attrs['align'] : 'flex-start';
+$id            = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
+$layout        = isset( $attrs['layout'] ) ? $attrs['layout'] : 'horizontal';
+$align         = isset( $attrs['align'] ) ? $attrs['align'] : 'flex-start';
+$buttonSpacing = isset( $attrs['buttonSpacing'] ) ? $attrs['buttonSpacing'] : ['desktop' => 10, 'tablet' => 8, 'mobile' => 6];
 
 // CSS Output
 ob_start();
 ?>
-/* Buttons Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Buttons Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: <?php echo esc_attr( $align ); ?>;
@@ -31,13 +33,13 @@ ob_start();
 
 /* Responsive styles */
 @media (max-width: 991px) {
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	.<?php echo esc_attr( $id ); ?> {
 		gap: <?php echo esc_attr( $buttonSpacing['tablet'] ); ?>px;
 	}
 }
 
 @media (max-width: 767px) {
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	.<?php echo esc_attr( $id ); ?> {
 		gap: <?php echo esc_attr( $buttonSpacing['mobile'] ); ?>px;
 	}
 }

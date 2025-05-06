@@ -26,7 +26,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -78,6 +78,9 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
         style
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
@@ -91,7 +94,6 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
     
     // State for animation preview
     const [isAnimating, setIsAnimating] = useState(false);
-    const previewTimeoutRef = useRef(null);
     const countdownIntervalRef = useRef(null);
     
     // Subscribe to global device state changes
@@ -112,12 +114,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
     
     // Use useEffect to set the ID only once when component mounts
     useEffect(() => {
-        // Check if the ID needs to be regenerated using clientId
-		if (!id || !id.includes(clientId.substr(0, 8))) {
-			setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-		}
-
-		// Set a default end date only if one doesn't exist yet
+        // Set a default end date only if one doesn't exist yet
 		if (!endDate) {
 			const oneWeekFromNow = new Date();
 			oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
@@ -175,108 +172,26 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
             if (countdownIntervalRef.current) {
                 clearInterval(countdownIntervalRef.current);
             }
-            
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
         };
-    }, [clientId, endDate, setAttributes]);
+    }, [endDate, setAttributes]);
 
-    // Animation preview function
-    const triggerAnimationPreview = () => {
-        // Only proceed if we have a valid animation
-        if (!animation || animation === 'none') {
-            return;
-        }
-        
-        // Clear any existing timeout
-        if (previewTimeoutRef.current) {
-            clearTimeout(previewTimeoutRef.current);
-        }
-        
-        // Find the block element
-        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-        if (!blockElement) {
-            return;
-        }
-        
-        setIsAnimating(true);
-        
-        // Generate a timestamp to ensure unique animation names on each click
-        const timestamp = Date.now();
-        
-        // Apply animation directly
-        if (animations[animation]) {
-            // Extract the original animation name from the keyframes
-            const originalKeyframes = animations[animation].keyframes;
-            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-            
-            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-                console.error('Could not extract animation name from keyframes');
-                return;
-            }
-            
-            const originalAnimName = originalAnimNameMatch[1];
-            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-            
-            // Create a style element with a unique animation name to avoid conflicts
-            const styleElement = document.createElement('style');
-            styleElement.id = `animation-style-${id}_${timestamp}`;
-            
-            // Replace the original animation name with our unique name
-            const updatedKeyframes = originalKeyframes.replace(
-                new RegExp(originalAnimName, 'g'),
-                uniqueAnimName
-            );
-            
-            styleElement.textContent = `
-                ${updatedKeyframes}
-                
-                [data-custom-id="${id}"] {
-                    animation: none; /* Reset first */
-                }
-            `;
-            
-            // Remove any existing animation style for this block
-            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-                el.remove();
-            });
-            
-            // Add the style to the document
-            document.head.appendChild(styleElement);
-            
-            // Force reflow to ensure animation reset
-            blockElement.offsetHeight;
-            
-            // Now apply the animation
-            const animationStyleElement = document.createElement('style');
-            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-            animationStyleElement.textContent = `
-                [data-custom-id="${id}"] {
-                    animation: ${uniqueAnimName} 1.5s forwards !important;
-                }
-            `;
-            document.head.appendChild(animationStyleElement);
-            
-            // Clean up after animation
-            previewTimeoutRef.current = setTimeout(() => {
-                styleElement.remove();
-                animationStyleElement.remove();
-                blockElement.style.animation = '';
-                setIsAnimating(false);
-            }, 1500);
-        }
-    };
+    // Use ref
+	const previewTimeoutRef = useRef(null);
 
-    // Effect to trigger animation preview when animation attribute changes
-    useEffect(() => {
-        if (animation && animation !== 'none') {
-            const timeoutId = setTimeout(() => {
-                triggerAnimationPreview();
-            }, 100);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [animation]);
+	// Effect to trigger animation preview when animation attribute changes
+	useEffect(() => {
+		if (animation && animation !== 'none') {
+			const timeoutId = setTimeout(() => {
+				animationPreview(id, animation, animations, previewTimeoutRef);
+			}, 100);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [animation]);
+
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Box style options
     const boxStyleOptions = [
@@ -361,7 +276,6 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for the countdown box styling
     const generateCSS = () => {
         const activeDevice = localActiveDevice;
-        const blockId = id;
         
         // Get device-specific values
         const currentBoxPadding = boxPadding && boxPadding[activeDevice] ? boxPadding[activeDevice] : { top: 10, right: 10, bottom: 10, left: 10, unit: 'px' };
@@ -445,14 +359,14 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
             switch (boxStyle) {
                 case 'filled':
                     specificStyles = `
-                        [data-custom-id="${blockId}"] .digiblocks-countdown-item-inner {
+                        .${id} .digiblocks-countdown-item-inner {
                             background-color: ${digitBackground || '#f0f0f0'};
                             color: ${digitColor || '#333333'};
                             border-radius: ${currentBoxBorderRadius.top}${currentBoxBorderRadius.unit} ${currentBoxBorderRadius.right}${currentBoxBorderRadius.unit} ${currentBoxBorderRadius.bottom}${currentBoxBorderRadius.unit} ${currentBoxBorderRadius.left}${currentBoxBorderRadius.unit};
                             padding: ${currentBoxPadding.top}${currentBoxPadding.unit} ${currentBoxPadding.right}${currentBoxPadding.unit} ${currentBoxPadding.bottom}${currentBoxPadding.unit} ${currentBoxPadding.left}${currentBoxPadding.unit};
                             ${boxShadowCSS}
                         }
-                        [data-custom-id="${blockId}"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+                        .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
                             background-color: ${digitHoverBackground || digitBackground || '#e0e0e0'};
                             color: ${digitHoverColor || digitColor || '#333333'};
                             ${boxShadowHoverCSS}
@@ -461,7 +375,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                     break;
                 case 'outlined':
                     specificStyles = `
-                        [data-custom-id="${blockId}"] .digiblocks-countdown-item-inner {
+                        .${id} .digiblocks-countdown-item-inner {
                             background-color: transparent;
                             color: ${digitColor || '#333333'};
                             border: ${currentBoxBorderWidth.top}${currentBoxBorderWidth.unit} solid ${boxBorderColor || '#e0e0e0'};
@@ -469,7 +383,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                             padding: ${currentBoxPadding.top}${currentBoxPadding.unit} ${currentBoxPadding.right}${currentBoxPadding.unit} ${currentBoxPadding.bottom}${currentBoxPadding.unit} ${currentBoxPadding.left}${currentBoxPadding.unit};
                             ${boxShadowCSS}
                         }
-                        [data-custom-id="${blockId}"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+                        .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
                             background-color: ${digitHoverBackground || 'transparent'};
                             color: ${digitHoverColor || digitColor || '#333333'};
                             ${boxShadowHoverCSS}
@@ -478,14 +392,14 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                     break;
                 case 'pill':
                     specificStyles = `
-                        [data-custom-id="${blockId}"] .digiblocks-countdown-item-inner {
+                        .${id} .digiblocks-countdown-item-inner {
                             background-color: ${digitBackground || '#f0f0f0'};
                             color: ${digitColor || '#333333'};
                             border-radius: 50px;
                             padding: ${currentBoxPadding.top}${currentBoxPadding.unit} ${currentBoxPadding.right}${currentBoxPadding.unit} ${currentBoxPadding.bottom}${currentBoxPadding.unit} ${currentBoxPadding.left}${currentBoxPadding.unit};
                             ${boxShadowCSS}
                         }
-                        [data-custom-id="${blockId}"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+                        .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
                             background-color: ${digitHoverBackground || digitBackground || '#e0e0e0'};
                             color: ${digitHoverColor || digitColor || '#333333'};
                             ${boxShadowHoverCSS}
@@ -494,14 +408,14 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                     break;
                 case 'rounded':
                     specificStyles = `
-                        [data-custom-id="${blockId}"] .digiblocks-countdown-item-inner {
+                        .${id} .digiblocks-countdown-item-inner {
                             background-color: ${digitBackground || '#f0f0f0'};
                             color: ${digitColor || '#333333'};
                             border-radius: 8px;
                             padding: ${currentBoxPadding.top}${currentBoxPadding.unit} ${currentBoxPadding.right}${currentBoxPadding.unit} ${currentBoxPadding.bottom}${currentBoxPadding.unit} ${currentBoxPadding.left}${currentBoxPadding.unit};
                             ${boxShadowCSS}
                         }
-                        [data-custom-id="${blockId}"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+                        .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
                             background-color: ${digitHoverBackground || digitBackground || '#e0e0e0'};
                             color: ${digitHoverColor || digitColor || '#333333'};
                             ${boxShadowHoverCSS}
@@ -510,7 +424,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                     break;
                 case 'circle':
                     specificStyles = `
-                        [data-custom-id="${blockId}"] .digiblocks-countdown-item-inner {
+                        .${id} .digiblocks-countdown-item-inner {
                             background-color: ${digitBackground || '#f0f0f0'};
                             color: ${digitColor || '#333333'};
                             border-radius: 50%;
@@ -521,7 +435,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                             padding: ${currentBoxPadding.top}${currentBoxPadding.unit} ${currentBoxPadding.right}${currentBoxPadding.unit} ${currentBoxPadding.bottom}${currentBoxPadding.unit} ${currentBoxPadding.left}${currentBoxPadding.unit};
                             ${boxShadowCSS}
                         }
-                        [data-custom-id="${blockId}"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+                        .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
                             background-color: ${digitHoverBackground || digitBackground || '#e0e0e0'};
                             color: ${digitHoverColor || digitColor || '#333333'};
                             ${boxShadowHoverCSS}
@@ -531,11 +445,11 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                 case 'default':
                 default:
                     specificStyles = `
-                        [data-custom-id="${blockId}"] .digiblocks-countdown-item-inner {
+                        .${id} .digiblocks-countdown-item-inner {
                             color: ${digitColor || '#333333'};
                             ${boxShadowCSS}
                         }
-                        [data-custom-id="${blockId}"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+                        .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
                             color: ${digitHoverColor || digitColor || '#333333'};
                             ${boxShadowHoverCSS}
                         }
@@ -545,10 +459,10 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
         } else {
             // Simple style (no boxes)
             specificStyles = `
-                [data-custom-id="${blockId}"] .digiblocks-countdown-item-inner {
+                .${id} .digiblocks-countdown-item-inner {
                     color: ${digitColor || '#333333'};
                 }
-                [data-custom-id="${blockId}"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+                .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
                     color: ${digitHoverColor || digitColor || '#333333'};
                 }
             `;
@@ -578,14 +492,14 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             separatorStyles = `
-                [data-custom-id="${blockId}"] .digiblocks-countdown-separator {
+                .${id} .digiblocks-countdown-separator {
                     color: ${separatorColor || '#333333'};
                     font-size: ${titleTypography && titleTypography.fontSize && titleTypography.fontSize[activeDevice] ? titleTypography.fontSize[activeDevice] + (titleTypography.fontSizeUnit || 'px') : '2rem'};
                 }
-                [data-custom-id="${blockId}"] .digiblocks-countdown-separator::before {
+                .${id} .digiblocks-countdown-separator::before {
                     content: "${separatorContent}";
                 }
-                [data-custom-id="${blockId}"]:hover .digiblocks-countdown-separator {
+                .${id}:hover .digiblocks-countdown-separator {
                     color: ${separatorHoverColor || separatorColor || '#333333'};
                 }
             `;
@@ -595,10 +509,10 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
         let equalWidthStyles = '';
         if (style === 'boxes' && boxesEqual) {
             equalWidthStyles = `
-                [data-custom-id="${blockId}"] .digiblocks-countdown-item {
+                .${id} .digiblocks-countdown-item {
                     flex: 1 0 0;
                 }
-                [data-custom-id="${blockId}"] .digiblocks-countdown-item-inner {
+                .${id} .digiblocks-countdown-item-inner {
                     width: 100%;
                     text-align: center;
                     box-sizing: border-box;
@@ -610,10 +524,10 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
         let labelPositionStyles = '';
         if (labelPosition === 'top') {
             labelPositionStyles = `
-                [data-custom-id="${blockId}"] .digiblocks-countdown-item {
+                .${id} .digiblocks-countdown-item {
                     flex-direction: column-reverse;
                 }
-                [data-custom-id="${blockId}"] .digiblocks-countdown-label {
+                .${id} .digiblocks-countdown-label {
                     margin-bottom: ${currentLabelSpacing}px;
                     margin-top: 0;
                 }
@@ -621,16 +535,16 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
         } else if (labelPosition === 'inside') {
             if (style === 'boxes') {
                 labelPositionStyles = `
-                    [data-custom-id="${blockId}"] .digiblocks-countdown-item {
+                    .${id} .digiblocks-countdown-item {
                         flex-direction: column;
                     }
-                    [data-custom-id="${blockId}"] .digiblocks-countdown-digit {
+                    .${id} .digiblocks-countdown-digit {
                         margin-bottom: ${currentLabelSpacing}px;
                     }
-                    [data-custom-id="${blockId}"] .digiblocks-countdown-label {
+                    .${id} .digiblocks-countdown-label {
                         margin-top: 0;
                     }
-                    [data-custom-id="${blockId}"] .digiblocks-countdown-item-inner {
+                    .${id} .digiblocks-countdown-item-inner {
                         display: flex;
                         flex-direction: column;
                         align-items: center;
@@ -640,10 +554,10 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
             } else {
                 // For simple style with inside labels, make it similar to bottom labels
                 labelPositionStyles = `
-                    [data-custom-id="${blockId}"] .digiblocks-countdown-item {
+                    .${id} .digiblocks-countdown-item {
                         flex-direction: column;
                     }
-                    [data-custom-id="${blockId}"] .digiblocks-countdown-label {
+                    .${id} .digiblocks-countdown-label {
                         margin-top: ${currentLabelSpacing}px;
                     }
                 `;
@@ -651,10 +565,10 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
         } else {
             // Default bottom position
             labelPositionStyles = `
-                [data-custom-id="${blockId}"] .digiblocks-countdown-item {
+                .${id} .digiblocks-countdown-item {
                     flex-direction: column;
                 }
-                [data-custom-id="${blockId}"] .digiblocks-countdown-label {
+                .${id} .digiblocks-countdown-label {
                     margin-top: ${currentLabelSpacing}px;
                 }
             `;
@@ -662,44 +576,44 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
 
         // Complete CSS
         return `
-            /* Countdown Block - ${blockId} */
-            [data-custom-id="${blockId}"] {
+            /* Countdown Block - ${id} */
+            .${id} {
                 margin: ${currentBoxMargin.top}${currentBoxMargin.unit} ${currentBoxMargin.right}${currentBoxMargin.unit} ${currentBoxMargin.bottom}${currentBoxMargin.unit} ${currentBoxMargin.left}${currentBoxMargin.unit};
                 text-align: ${align};
                 display: block;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-countdown-container {
+            .${id} .digiblocks-countdown-container {
                 display: inline-flex;
                 flex-wrap: wrap;
                 justify-content: ${align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start'};
                 gap: ${currentItemSpacing}px;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-countdown-item {
+            .${id} .digiblocks-countdown-item {
                 display: flex;
                 align-items: center;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-countdown-item-inner {
+            .${id} .digiblocks-countdown-item-inner {
                 transition: all 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-countdown-digit {
+            .${id} .digiblocks-countdown-digit {
                 ${titleTypographyCSS}
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-countdown-label {
+            .${id} .digiblocks-countdown-label {
                 ${contentTypographyCSS}
                 color: ${labelColor || '#666666'};
                 transition: color 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"]:hover .digiblocks-countdown-label {
+            .${id}:hover .digiblocks-countdown-label {
                 color: ${labelHoverColor || labelColor || '#666666'};
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-countdown-expired {
+            .${id} .digiblocks-countdown-expired {
                 ${titleTypographyCSS}
                 color: ${digitColor || '#333333'};
                 text-align: ${align};
@@ -777,7 +691,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Show Separators", "digiblocks")}
                                 checked={!!displaySeparator}
                                 onChange={() => setAttributes({ displaySeparator: !displaySeparator })}
-								__nextHasNoMarginBottom={true}
+                                __nextHasNoMarginBottom={true}
                             />
 
                             {displaySeparator && (
@@ -1204,7 +1118,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         disabled={isAnimating}
                                         style={{ width: '100%' }}
                                     >
@@ -1288,9 +1202,8 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-countdown ${customClasses || ''}`,
+        className: `digiblocks-countdown ${id} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     // If no digit units are shown, display a message

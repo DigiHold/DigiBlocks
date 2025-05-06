@@ -26,7 +26,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -68,6 +68,9 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
         itemSpacing,
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
 
@@ -76,7 +79,6 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
     
     // State for animation preview
     const [isAnimating, setIsAnimating] = useState(false);
-    const previewTimeoutRef = useRef(null);
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -90,11 +92,6 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
     
     // Use useEffect to set the ID only once when component mounts
     useEffect(() => {
-        // Check if the ID needs to be regenerated using clientId
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-        
         // Initialize testimonials with IDs if needed
         if (testimonials && testimonials.length > 0) {
             const updatedTestimonials = testimonials.map((item, index) => {
@@ -110,107 +107,23 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
         }
     }, [clientId, testimonials, setAttributes]);
 
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
+    // Use ref
+	const previewTimeoutRef = useRef(null);
 
-    // Animation preview function
-    const triggerAnimationPreview = () => {
-        // Only proceed if we have a valid animation
-        if (!animation || animation === 'none') {
-            return;
-        }
-        
-        // Clear any existing timeout
-        if (previewTimeoutRef.current) {
-            clearTimeout(previewTimeoutRef.current);
-        }
-        
-        // Find the block element
-        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-        if (!blockElement) {
-            return;
-        }
-        
-        // Generate a timestamp to ensure unique animation names on each click
-        const timestamp = Date.now();
-        
-        // Apply animation directly
-        if (animations[animation]) {
-            // Extract the original animation name from the keyframes
-            const originalKeyframes = animations[animation].keyframes;
-            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-            
-            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-                console.error('Could not extract animation name from keyframes');
-                return;
-            }
-            
-            const originalAnimName = originalAnimNameMatch[1];
-            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-            
-            // Create a style element with a unique animation name to avoid conflicts
-            const styleElement = document.createElement('style');
-            styleElement.id = `animation-style-${id}_${timestamp}`;
-            
-            // Replace the original animation name with our unique name
-            const updatedKeyframes = originalKeyframes.replace(
-                new RegExp(originalAnimName, 'g'),
-                uniqueAnimName
-            );
-            
-            styleElement.textContent = `
-                ${updatedKeyframes}
-                
-                [data-custom-id="${id}"] {
-                    animation: none; /* Reset first */
-                }
-            `;
-            
-            // Remove any existing animation style for this block
-            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-                el.remove();
-            });
-            
-            // Add the style to the document
-            document.head.appendChild(styleElement);
-            
-            // Force reflow to ensure animation reset
-            blockElement.offsetHeight;
-            
-            // Now apply the animation
-            const animationStyleElement = document.createElement('style');
-            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-            animationStyleElement.textContent = `
-                [data-custom-id="${id}"] {
-                    animation: ${uniqueAnimName} 1.5s forwards !important;
-                }
-            `;
-            document.head.appendChild(animationStyleElement);
-            
-            // Clean up after animation
-            previewTimeoutRef.current = setTimeout(() => {
-                styleElement.remove();
-                animationStyleElement.remove();
-                blockElement.style.animation = '';
-            }, 1500);
-        }
-    };
+	// Effect to trigger animation preview when animation attribute changes
+	useEffect(() => {
+		if (animation && animation !== 'none') {
+			const timeoutId = setTimeout(() => {
+				animationPreview(id, animation, animations, previewTimeoutRef);
+			}, 100);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [animation]);
 
-    // Effect to trigger animation preview when animation attribute changes
-    useEffect(() => {
-        if (animation && animation !== 'none') {
-            const timeoutId = setTimeout(() => {
-                triggerAnimationPreview();
-            }, 100);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [animation]);
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Border style options
     const borderStyleOptions = [
@@ -417,7 +330,6 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for styling the Testimonials block
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        const blockId = id;
         
         // Border styles
         let borderCSS = '';
@@ -568,19 +480,19 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Set base styles for the block
         return `
-            /* Testimonials Block - ${blockId} */
-            [data-custom-id="${blockId}"] {
+            /* Testimonials Block - ${id} */
+            .${id} {
                 position: relative;
                 width: 100%;
             }
 
-			[data-custom-id="${blockId}"] .digiblocks-testimonials-grid {
+			.${id} .digiblocks-testimonials-grid {
 				display: grid;
 				grid-template-columns: repeat(${columnsDevice}, 1fr);
 				gap: ${spacingDevice}px;
 			}
             
-            [data-custom-id="${blockId}"] .digiblocks-testimonial-content {
+            .${id} .digiblocks-testimonial-content {
 				display: flex;
 				flex-direction: column;
 				gap: 1rem;
@@ -594,13 +506,13 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
 				text-align: ${align};
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-testimonial-content:hover {
+            .${id} .digiblocks-testimonial-content:hover {
                 ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
                 ${hoverCSS}
             }
             
             ${showQuoteIcon ? `
-            [data-custom-id="${blockId}"] .digiblocks-testimonial-quote-icon {
+            .${id} .digiblocks-testimonial-quote-icon {
                 position: absolute;
                 top: 6px;
                 left: 10px;
@@ -609,13 +521,13 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                 line-height: 1;
             }
 
-            [data-custom-id="${blockId}"] .digiblocks-testimonial-quote-icon svg {
+            .${id} .digiblocks-testimonial-quote-icon svg {
                 width: ${quoteIconSize[activeDevice]}px;
 				height: ${quoteIconSize[activeDevice]}px;
             }
             ` : ''}
             
-            [data-custom-id="${blockId}"] .digiblocks-testimonial-text {
+            .${id} .digiblocks-testimonial-text {
                 ${contentTypographyCSS}
                 color: ${contentColor};
                 margin: 0;
@@ -623,7 +535,7 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
 				z-index: 1;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-testimonial-author {
+            .${id} .digiblocks-testimonial-author {
                 display: flex;
                 align-items: center;
                 gap: 15px;
@@ -634,7 +546,7 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
 				z-index: 1;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-testimonial-image {
+            .${id} .digiblocks-testimonial-image {
                 width: ${imageSize[activeDevice]}px;
                 height: ${imageSize[activeDevice]}px;
                 border-radius: 50%;
@@ -643,25 +555,25 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                 flex-shrink: 0;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-testimonial-name {
+            .${id} .digiblocks-testimonial-name {
                 ${headingTypographyCSS}
                 color: ${nameColor};
                 margin: 0;
                 transition: color 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-testimonial-content:hover .digiblocks-testimonial-name {
+            .${id} .digiblocks-testimonial-content:hover .digiblocks-testimonial-name {
                 ${nameHoverColor ? `color: ${nameHoverColor};` : ''}
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-testimonial-position {
+            .${id} .digiblocks-testimonial-position {
                 ${textTypographyCSS}
                 color: ${positionColor};
                 margin: 5px 0 0 0;
             }
             
             ${showRating ? `
-            [data-custom-id="${blockId}"] .digiblocks-testimonial-rating {
+            .${id} .digiblocks-testimonial-rating {
                 display: flex;
 				align-items: center;
 				gap: 2px;
@@ -670,13 +582,13 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
 				z-index: 1;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-rating-star {
+            .${id} .digiblocks-rating-star {
                 font-size: 16px;
             }
             ` : ''}
             
             /* Editor-specific styles */
-            [data-custom-id="${blockId}"] .digiblocks-testimonial-item-controls {
+            .${id} .digiblocks-testimonial-item-controls {
                 display: flex;
                 gap: 5px;
                 position: absolute;
@@ -689,13 +601,13 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                 z-index: 10;
             }
 
-			[data-custom-id="${blockId}"] .digiblocks-image-button {
+			.${id} .digiblocks-image-button {
 				position: relative;
 				height: auto;
 				padding: 0;
 			}
 
-			[data-custom-id="${blockId}"] .digiblocks-image-button span {
+			.${id} .digiblocks-image-button span {
 				position: absolute;
 			}
         `;
@@ -755,15 +667,32 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                                 />
                             </ResponsiveControl>
 
-							<BaseControl label={__("Alignment", "digiblocks")}>
+							<BaseControl
+								label={__("Alignment", "digiblocks")}
+								__nextHasNoMarginBottom={true}
+							>
 								<ToggleGroupControl
 									value={align}
 									onChange={(value) => setAttributes({ align: value })}
 									isBlock
+									__next40pxDefaultSize={true}
+									__nextHasNoMarginBottom={true}
 								>
-									<ToggleGroupControlOption value="left" label={__("Left", "digiblocks")} aria-label={__("Left alignment", "digiblocks")} />
-									<ToggleGroupControlOption value="center" label={__("Center", "digiblocks")} aria-label={__("Center alignment", "digiblocks")} />
-									<ToggleGroupControlOption value="right" label={__("Right", "digiblocks")} aria-label={__("Right alignment", "digiblocks")} />
+									<ToggleGroupControlOption
+										value="left"
+										label={__("Left", "digiblocks")}
+										aria-label={__("Left alignment", "digiblocks")}
+									/>
+									<ToggleGroupControlOption
+										value="center"
+										label={__("Center", "digiblocks")}
+										aria-label={__("Center alignment", "digiblocks")}
+									/>
+									<ToggleGroupControlOption
+										value="right"
+										label={__("Right", "digiblocks")}
+										aria-label={__("Right alignment", "digiblocks")}
+									/>
 								</ToggleGroupControl>
 							</BaseControl>
                         </TabPanelBody>
@@ -778,7 +707,6 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Show Ratings", "digiblocks")}
                                 checked={showRating}
                                 onChange={() => setAttributes({ showRating: !showRating })}
-                                __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
                             />
                             
@@ -786,7 +714,6 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Show Quote Icon", "digiblocks")}
                                 checked={showQuoteIcon}
                                 onChange={() => setAttributes({ showQuoteIcon: !showQuoteIcon })}
-                                __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
                             />
                         </TabPanelBody>
@@ -1198,7 +1125,7 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: '100%' }}
                                     >
                                         {__("Preview Animation", "digiblocks")}
@@ -1413,9 +1340,8 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-testimonials-block grid ${customClasses || ''}`,
+        className: `digiblocks-testimonials-block ${id} grid ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     return (

@@ -5,7 +5,7 @@ const { __ } = wp.i18n;
 const { registerBlockType } = wp.blocks;
 
 /**
- * Internal dependencies
+ * DigiBlocks
  */
 import AccordionEdit from '../../../blocks/accordion/edit';
 import AccordionSave from '../../../blocks/accordion/save';
@@ -31,6 +31,8 @@ import IconBoxEdit from '../../../blocks/icon-box/edit';
 import IconBoxSave from '../../../blocks/icon-box/save';
 import IconListEdit from '../../../blocks/icon-list/edit';
 import IconListSave from '../../../blocks/icon-list/save';
+import PricingTableEdit from '../../../blocks/pricing-table/edit';
+import PricingTableSave from '../../../blocks/pricing-table/save';
 import SeparatorEdit from '../../../blocks/separator/edit';
 import SeparatorSave from '../../../blocks/separator/save';
 import SocialIconsEdit from '../../../blocks/social-icons/edit';
@@ -43,6 +45,14 @@ import TeamEdit from '../../../blocks/team/edit';
 import TeamSave from '../../../blocks/team/save';
 import TestimonialsEdit from '../../../blocks/testimonials/edit';
 import TestimonialsSave from '../../../blocks/testimonials/save';
+
+/**
+ * DigiBlocks Theme
+ */
+import LogoEdit from '../../../blocks/logo/edit';
+import LogoSave from '../../../blocks/logo/save';
+import NavigationEdit from '../../../blocks/navigation/edit';
+import NavigationSave from '../../../blocks/navigation/save';
 
 /**
  * Register blocks based on their status
@@ -85,7 +95,8 @@ registerBlockType('digiblocks/accordion', {
     },
 	attributes: {
 		id: {
-			type: 'string'
+			type: 'string',
+			default: '',
 		},
 		anchor: {
 			type: 'string',
@@ -331,7 +342,8 @@ registerBlockType('digiblocks/buttons', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -408,7 +420,8 @@ registerBlockType('digiblocks/button', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -594,7 +607,8 @@ registerBlockType('digiblocks/call-to-action', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -848,7 +862,8 @@ registerBlockType('digiblocks/countdown', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -1127,7 +1142,8 @@ registerBlockType('digiblocks/counter', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -1560,7 +1576,8 @@ registerBlockType('digiblocks/faq', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -1854,7 +1871,8 @@ registerBlockType('digiblocks/google-map', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -1981,15 +1999,6 @@ registerBlockType('digiblocks/google-map', {
             },
             zoom: 12,
             mapType: 'roadmap',
-            markers: [
-                {
-                    id: 'marker-1',
-                    address: 'New York, NY',
-                    latitude: 40.7128,
-                    longitude: -74.0060,
-                    title: 'New York City'
-                }
-            ]
         }
     },
     edit: GoogleMapEdit,
@@ -2025,7 +2034,8 @@ registerBlockType('digiblocks/heading', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -2241,7 +2251,8 @@ registerBlockType('digiblocks/icon', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -2510,7 +2521,8 @@ registerBlockType('digiblocks/icon-box', {
 	},
 	attributes: {
 		id: {
-			type: 'string'
+			type: 'string',
+			default: '',
 		},
 		anchor: {
 			type: 'string',
@@ -2870,7 +2882,8 @@ registerBlockType('digiblocks/icon-list', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -3140,6 +3153,259 @@ registerBlockType('digiblocks/icon-list', {
 });
 
 /**
+ * Register Pricing Table block
+ */
+registerBlockType('digiblocks/pricing-table', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['pricing-table'].title,
+    category: 'digiblocks',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['pricing-table'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['pricing-table'].description,
+    keywords: [__('pricing', 'digiblocks'), __('price', 'digiblocks'), __('table', 'digiblocks'), __('plan', 'digiblocks'), __('subscription', 'digiblocks')],
+    // Disable all default controls and settings panels
+    supports: {
+        inserter: getBlockActiveStatus('icon-list') ? true : false, // Remove the block if disabled
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+        },
+        anchor: {
+            type: 'string',
+        },
+        customClasses: {
+            type: 'string',
+        },
+        columns: {
+            type: 'array',
+            default: [],
+        },
+        columnGap: {
+            type: 'number',
+            default: 30,
+        },
+        headerBackgroundColor: {
+            type: 'string',
+            default: '#f8f9fa',
+        },
+        headerTextColor: {
+            type: 'string',
+            default: '#333333',
+        },
+        bodyBackgroundColor: {
+            type: 'string',
+            default: '#ffffff',
+        },
+        bodyTextColor: {
+            type: 'string',
+            default: '#666666',
+        },
+        featuredColumnHighlightColor: {
+            type: 'string',
+            default: '#4a6cf7',
+        },
+        buttonBackgroundColor: {
+            type: 'string',
+            default: '#4a6cf7',
+        },
+        buttonBackgroundHoverColor: {
+            type: 'string',
+            default: '#3151d3',
+        },
+        buttonTextColor: {
+            type: 'string',
+            default: '#ffffff',
+        },
+        buttonTextHoverColor: {
+            type: 'string',
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' },
+                tablet: { top: 25, right: 25, bottom: 25, left: 25, unit: 'px' },
+                mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' }
+            }
+        },
+        titleTypography: {
+            type: 'object',
+        },
+        headingTypography: {
+            type: 'object',
+        },
+        textTypography: {
+            type: 'object',
+        },
+        buttonTypography: {
+            type: 'object',
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+            }
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'solid',
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0',
+        },
+        align: {
+            type: 'string',
+        },
+        textAlign: {
+            type: 'string',
+            default: 'center',
+        },
+        animation: {
+            type: 'string',
+            default: 'none',
+        },
+        ribbonStyle: {
+            type: 'string',
+            default: 'corner',
+        },
+        ribbonColor: {
+            type: 'string',
+            default: '#4a6cf7',
+        },
+        ribbonTextColor: {
+            type: 'string',
+            default: '#ffffff',
+        },
+        iconIncludedColor: {
+            type: 'string',
+            default: '#28a745',
+        },
+        iconExcludedColor: {
+            type: 'string',
+            default: '#dc3545',
+        },
+    },
+    example: {
+        attributes: {
+            columns: [
+                {
+                    id: 'example-column-1',
+                    title: 'Basic',
+                    subtitle: 'For small businesses',
+                    currency: '$',
+                    price: '9.99',
+                    period: '/month',
+                    features: [
+                        {
+                            text: '1 Website',
+                            included: true
+                        },
+                        {
+                            text: '5GB Storage',
+                            included: true
+                        },
+                        {
+                            text: 'Live Chat Support',
+                            included: false
+                        }
+                    ],
+                    buttonText: 'Get Started',
+                    buttonUrl: '',
+                    featured: false
+                },
+                {
+                    id: 'example-column-2',
+                    title: 'Pro',
+                    subtitle: 'For growing businesses',
+                    currency: '$',
+                    price: '19.99',
+                    period: '/month',
+                    features: [
+                        {
+                            text: '5 Websites',
+                            included: true
+                        },
+                        {
+                            text: '20GB Storage',
+                            included: true
+                        },
+                        {
+                            text: 'Live Chat Support',
+                            included: true
+                        }
+                    ],
+                    buttonText: 'Get Started',
+                    buttonUrl: '',
+                    featured: true
+                }
+            ],
+            headerBackgroundColor: '#f8f9fa',
+            bodyBackgroundColor: '#ffffff',
+            buttonBackgroundColor: '#4a6cf7',
+            iconIncludedColor: '#28a745',
+            iconExcludedColor: '#dc3545'
+        }
+    },
+    edit: PricingTableEdit,
+    save: PricingTableSave,
+});
+
+/**
  * Register Separator block
  */
 registerBlockType('digiblocks/separator', {
@@ -3168,7 +3434,8 @@ registerBlockType('digiblocks/separator', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -3344,7 +3611,8 @@ registerBlockType('digiblocks/social-icons', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -3593,7 +3861,8 @@ registerBlockType('digiblocks/spacer', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -3651,7 +3920,8 @@ registerBlockType('digiblocks/table', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -3897,7 +4167,8 @@ registerBlockType('digiblocks/team', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -4313,7 +4584,8 @@ registerBlockType('digiblocks/testimonials', {
     },
     attributes: {
         id: {
-            type: 'string'
+            type: 'string',
+			default: '',
         },
         anchor: {
             type: 'string',
@@ -4578,4 +4850,431 @@ registerBlockType('digiblocks/testimonials', {
     },
     edit: TestimonialsEdit,
     save: TestimonialsSave,
+});
+
+/**
+ * Register Logo block
+ */
+registerBlockType('digiblocks/logo', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['logo'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['logo'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['logo'].description,
+    keywords: [__('logo', 'digiblocks'), __('brand', 'digiblocks'), __('identity', 'digiblocks'), __('header', 'digiblocks'), __('theme', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('logo') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+			default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        logoType: {
+            type: 'string',
+            default: 'image'
+        },
+        imageId: {
+            type: 'number',
+            default: 0
+        },
+        imageUrl: {
+            type: 'string',
+            default: ''
+        },
+        imageAlt: {
+            type: 'string',
+            default: ''
+        },
+        text: {
+            type: 'string',
+            default: __('Site Logo', 'digiblocks')
+        },
+        textTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 28, tablet: 26, mobile: 24 },
+                fontSizeUnit: 'px',
+                fontWeight: '700',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+		textIcon: {
+			type: 'object',
+			default: null
+		},
+		iconPosition: {
+			type: 'string',
+			default: 'before'
+		},
+        logoWidth: {
+			type: 'object',
+			default: {
+				desktop: { value: 200, unit: 'px' },
+				tablet: { value: 180, unit: 'px' },
+				mobile: { value: 150, unit: 'px' }
+			}
+		},
+		logoHeight: {
+			type: 'object',
+			default: {
+				desktop: { value: 0, unit: 'px' },
+				tablet: { value: 0, unit: 'px' },
+				mobile: { value: 0, unit: 'px' }
+			}
+		},
+		iconSize: {
+			type: 'object',
+			default: {
+				desktop: { value: 30, unit: 'px' },
+				tablet: { value: 28, unit: 'px' },
+				mobile: { value: 26, unit: 'px' }
+			}
+		},
+        logoAlignment: {
+            type: 'string',
+            default: 'center'
+        },
+        textColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        textHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        backgroundColor: {
+            type: 'string',
+            default: ''
+        },
+        backgroundHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        linkEnabled: {
+            type: 'boolean',
+            default: true
+        },
+        linkUrl: {
+            type: 'string',
+            default: ''
+        },
+        linkOpenInNewTab: {
+            type: 'boolean',
+            default: false
+        },
+        linkRel: {
+            type: 'string',
+            default: ''
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        borderHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+        hoverEffect: {
+            type: 'string',
+            default: 'none'
+        }
+    },
+    example: {
+        attributes: {
+            logoType: 'text',
+            text: __('My Company', 'digiblocks'),
+            logoAlignment: 'center',
+            textColor: '#333333'
+        }
+    },
+    edit: LogoEdit,
+    save: LogoSave,
+});
+
+/**
+ * Register Navigation block
+ */
+registerBlockType('digiblocks/navigation', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['navigation'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['navigation'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['navigation'].description,
+    keywords: [__('navigation', 'digiblocks'), __('menu', 'digiblocks'), __('header', 'digiblocks')],
+    supports: {
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+			default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        menuType: {
+            type: 'string',
+            default: 'wordpress'
+        },
+        selectedMenu: {
+            type: 'object',
+            default: null
+        },
+        customItems: {
+            type: 'array',
+            default: []
+        },
+        orientation: {
+            type: 'string',
+            default: 'horizontal'
+        },
+        layout: {
+            type: 'string',
+            default: 'default'
+        },
+        align: {
+            type: 'string',
+            default: 'flex-start'
+        },
+        mobileBreakpoint: {
+            type: 'number',
+            default: 768
+        },
+        showMobileToggle: {
+            type: 'boolean',
+            default: true
+        },
+        toggleIcon: {
+            type: 'string',
+            default: 'hamburger'
+        },
+        customToggleIcon: {
+            type: 'object',
+            default: null
+        },
+        toggleIconColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        toggleIconHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        textTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: '',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        linkColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        linkHoverColor: {
+            type: 'string',
+            default: '#1e73be'
+        },
+        linkBackgroundColor: {
+            type: 'string',
+            default: 'transparent'
+        },
+        linkHoverBackgroundColor: {
+            type: 'string',
+            default: 'transparent'
+        },
+        submenuBackgroundColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        submenuBorderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        itemSpacing: {
+            type: 'object',
+            default: {
+                desktop: 20,
+                tablet: 15,
+                mobile: 12
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 10, bottom: 8, left: 10, unit: 'px' },
+                tablet: { top: 6, right: 8, bottom: 6, left: 8, unit: 'px' },
+                mobile: { top: 5, right: 5, bottom: 5, left: 5, unit: 'px' }
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+        openSubmenusOn: {
+            type: 'string',
+            default: 'hover'
+        },
+        mobileFullWidth: {
+            type: 'boolean',
+            default: true
+        }
+    },
+    example: {
+        attributes: {
+            menuType: 'custom',
+            customItems: [
+                {
+                    id: 'nav-item-1',
+                    text: __('Home', 'digiblocks'),
+                    url: '#',
+                    opensInNewTab: false,
+                    icon: null
+                },
+                {
+                    id: 'nav-item-2',
+                    text: __('About', 'digiblocks'),
+                    url: '#',
+                    opensInNewTab: false,
+                    icon: null
+                },
+                {
+                    id: 'nav-item-3', 
+                    text: __('Contact', 'digiblocks'),
+                    url: '#',
+                    opensInNewTab: false,
+                    icon: null
+                }
+            ]
+        }
+    },
+    edit: NavigationEdit,
+    save: NavigationSave,
 });

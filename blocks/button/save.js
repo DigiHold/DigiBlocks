@@ -25,6 +25,7 @@ const ButtonSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-button",
+		id,
         size,
         fill ? 'is-fill' : '',
         customClasses || ''
@@ -62,7 +63,6 @@ const ButtonSave = ({ attributes }) => {
                 {...useBlockProps.save({
                     className: blockClasses,
                     id: anchor || null,
-                    "data-custom-id": id,
                     href: url,
                     target: opensInNewTab ? '_blank' : undefined,
                     rel: rel ? 'noopener noreferrer' : undefined,
@@ -78,7 +78,6 @@ const ButtonSave = ({ attributes }) => {
             {...useBlockProps.save({
                 className: blockClasses,
                 id: anchor || null,
-                "data-custom-id": id,
             })}
         >
             {buttonContent}

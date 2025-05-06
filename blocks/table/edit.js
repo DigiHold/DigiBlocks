@@ -28,7 +28,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -72,12 +72,14 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
         cellControls
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
     // State for animation preview
     const [isAnimating, setIsAnimating] = useState(false);
-    const previewTimeoutRef = useRef(null);
     
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
@@ -100,11 +102,6 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
     
     // Use useEffect to set the ID only once when component mounts
     useEffect(() => {
-        // Check if the ID needs to be regenerated using clientId
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-        
         // Initialize default table data if empty
         if (!tableData || tableData.length === 0) {
             setAttributes({
@@ -122,99 +119,25 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 cellControls: {}
             });
         }
-    }, [clientId, id, tableData, cellControls, setAttributes]);
+    }, [tableData, cellControls, setAttributes]);
 
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
+    // Use ref
+	const previewTimeoutRef = useRef(null);
 
-    // Animation preview function
-    const triggerAnimationPreview = () => {
-        // Only proceed if we have a valid animation
-        if (!animation || animation === 'none') {
-            return;
-        }
-        
-        // Clear any existing timeout
-        if (previewTimeoutRef.current) {
-            clearTimeout(previewTimeoutRef.current);
-        }
-        
-        // Find the block element
-        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-        if (!blockElement) {
-            return;
-        }
-        
-        // Generate a timestamp to ensure unique animation names on each click
-        const timestamp = Date.now();
-        
-        // Apply animation directly
-        if (animations[animation]) {
-            // Extract the original animation name from the keyframes
-            const originalKeyframes = animations[animation].keyframes;
-            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-            
-            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-                console.error('Could not extract animation name from keyframes');
-                return;
-            }
-            
-            const originalAnimName = originalAnimNameMatch[1];
-            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-            
-            // Create a style element with a unique animation name to avoid conflicts
-            const styleElement = document.createElement('style');
-            styleElement.id = `animation-style-${id}_${timestamp}`;
-            
-            // Replace the original animation name with our unique name
-            const updatedKeyframes = originalKeyframes.replace(
-                new RegExp(originalAnimName, 'g'),
-                uniqueAnimName
-            );
-            
-            styleElement.textContent = `
-                ${updatedKeyframes}
-                
-                [data-custom-id="${id}"] {
-                    animation: none; /* Reset first */
-                }
-            `;
-            
-            // Remove any existing animation style for this block
-            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-                el.remove();
-            });
-            
-            // Add the style to the document
-            document.head.appendChild(styleElement);
-            
-            // Force reflow to ensure animation reset
-            blockElement.offsetHeight;
-            
-            // Now apply the animation
-            const animationStyleElement = document.createElement('style');
-            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-            animationStyleElement.textContent = `
-                [data-custom-id="${id}"] {
-                    animation: ${uniqueAnimName} 1.5s forwards !important;
-                }
-            `;
-            document.head.appendChild(animationStyleElement);
-            
-            // Clean up after animation
-            previewTimeoutRef.current = setTimeout(() => {
-                styleElement.remove();
-                animationStyleElement.remove();
-                blockElement.style.animation = '';
-            }, 1500);
-        }
-    };
+	// Effect to trigger animation preview when animation attribute changes
+	useEffect(() => {
+		if (animation && animation !== 'none') {
+			const timeoutId = setTimeout(() => {
+				animationPreview(id, animation, animations, previewTimeoutRef);
+			}, 100);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [animation]);
+
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Border style options
     const borderStyleOptions = [
@@ -512,9 +435,7 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        const blockId = id;
-        
-        if (!blockId) return ''; // Prevent rendering if ID is not yet set
+        if (!id) return ''; // Prevent rendering if ID is not yet set
 
 		const getFlexAlignment = (textAlign) => {
 			switch (textAlign) {
@@ -683,8 +604,8 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Base styles for the table
         return `
-            /* Table Block - ${blockId} */
-            [data-custom-id="${blockId}"] {
+            /* Table Block - ${id} */
+            .${id} {
                 ${marginCSS}
                 ${boxShadowCSS}
                 ${borderRadiusCSS}
@@ -694,13 +615,13 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 
 			/* Hover effects */
             ${boxShadowHover && boxShadowHover.enable ? `
-                [data-custom-id="${blockId}"]:hover {
+                .${id}:hover {
                     ${boxShadowHoverCSS}
                 }
             ` : ''}
             
             /* Set up main table styles */
-            [data-custom-id="${blockId}"] .digiblocks-table {
+            .${id} .digiblocks-table {
                 width: 100%;
                 border-collapse: ${tableBorderCollapse};
                 border-spacing: 0;
@@ -711,7 +632,7 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Table header styles */
-            [data-custom-id="${blockId}"] .digiblocks-table thead th {
+            .${id} .digiblocks-table thead th {
                 background-color: ${headerBackgroundColor};
                 color: ${headerTextColor};
                 ${headingTypographyCSS}
@@ -720,43 +641,43 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
             }
 
-            [data-custom-id="${blockId}"] .digiblocks-table thead th .digiblocks-cell-content {
+            .${id} .digiblocks-table thead th .digiblocks-cell-content {
                 justify-content: ${getFlexAlignment(headerAlignment)};
             }
             
             /* Table body styles */
-            [data-custom-id="${blockId}"] .digiblocks-table tbody td {
+            .${id} .digiblocks-table tbody td {
                 background-color: ${bodyBackgroundColor};
                 ${cellPaddingCSS}
                 vertical-align: middle;
                 border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
             }
 
-            [data-custom-id="${blockId}"] .digiblocks-table tbody td .digiblocks-cell-content {
+            .${id} .digiblocks-table tbody td .digiblocks-cell-content {
                 justify-content: ${getFlexAlignment(cellAlignment)};
             }
             
             /* First column styles if it's a header */
             ${firstColHeader ? `
-            [data-custom-id="${blockId}"] .digiblocks-table tbody td:first-child {
+            .${id} .digiblocks-table tbody td:first-child {
                 background-color: ${headerBackgroundColor};
                 color: ${headerTextColor};
                 ${headingTypographyCSS}
                 font-weight: bold;
             }
 
-            [data-custom-id="${blockId}"] .digiblocks-table tbody td:first-child .digiblocks-cell-content {
+            .${id} .digiblocks-table tbody td:first-child .digiblocks-cell-content {
                 justify-content: ${getFlexAlignment(headerAlignment)};
             }
             ` : ''}
             
             /* Alternating row styles if enabled */
             ${altRowBackgroundColor ? `
-            [data-custom-id="${blockId}"] .digiblocks-table tbody tr:nth-child(even) td {
+            .${id} .digiblocks-table tbody tr:nth-child(even) td {
                 background-color: ${altRowBackgroundColor};
             }
             ${firstColHeader ? `
-            [data-custom-id="${blockId}"] .digiblocks-table tbody tr:nth-child(even) td:first-child {
+            .${id} .digiblocks-table tbody tr:nth-child(even) td:first-child {
                 background-color: ${headerBackgroundColor};
             }
             ` : ''}
@@ -764,7 +685,7 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* Footer styles if enabled */
             ${hasFooter ? `
-            [data-custom-id="${blockId}"] .digiblocks-table tfoot td {
+            .${id} .digiblocks-table tfoot td {
                 background-color: ${footerBackgroundColor};
                 color: ${footerTextColor};
                 ${contentTypographyCSS}
@@ -773,7 +694,7 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
             }
 
-            [data-custom-id="${blockId}"] .digiblocks-table tfoot td .digiblocks-cell-content {
+            .${id} .digiblocks-table tfoot td .digiblocks-cell-content {
                 justify-content: ${getFlexAlignment(footerAlignment)};
             }
             ` : ''}
@@ -782,29 +703,29 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
             @media (max-width: 767px) {
                 /* Stack mode */
                 ${responsiveMode === 'stack' ? `
-                [data-custom-id="${blockId}"] {
+                .${id} {
 					border-radius: 0;
 					box-shadow: none;
                 }
 
-                [data-custom-id="${blockId}"] .digiblocks-table {
+                .${id} .digiblocks-table {
                     border-collapse: collapse;
 					border: 0;
 					border-radius: 0;
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-table thead,
-                [data-custom-id="${blockId}"] .digiblocks-table tfoot {
+                .${id} .digiblocks-table thead,
+                .${id} .digiblocks-table tfoot {
                     display: none;
                 }
 
-				[data-custom-id="${blockId}"] .digiblocks-table tbody {
+				.${id} .digiblocks-table tbody {
 					display: flex;
 					flex-direction: column;
 					gap: 1rem;
 				}
                 
-                [data-custom-id="${blockId}"] .digiblocks-table tbody tr {
+                .${id} .digiblocks-table tbody tr {
                     display: block;
                     border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
 					${boxShadowCSS}
@@ -813,12 +734,12 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 
 				/* Hover effects */
 				${boxShadowHover && boxShadowHover.enable ? `
-				[data-custom-id="${blockId}"] .digiblocks-table tbody tr:hover {
+				.${id} .digiblocks-table tbody tr:hover {
 						${boxShadowHoverCSS}
 					}
 				` : ''}
                 
-                [data-custom-id="${blockId}"] .digiblocks-table tbody td {
+                .${id} .digiblocks-table tbody td {
                     display: flex;
                     justify-content: space-between;
 					gap: 1rem;
@@ -829,26 +750,26 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                     border-right: none;
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-table tbody td::before {
+                .${id} .digiblocks-table tbody td::before {
                     content: attr(data-label);
                     font-weight: bold;
                     text-align: left;
                     flex: 1;
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-table tbody td:last-child {
+                .${id} .digiblocks-table tbody td:last-child {
                     border-bottom: none;
                 }
                 
                 ${firstColHeader ? `
-                [data-custom-id="${blockId}"] .digiblocks-table tbody td:first-child {
+                .${id} .digiblocks-table tbody td:first-child {
                     text-align: center;
                     background-color: ${headerBackgroundColor};
                     color: ${headerTextColor};
                     justify-content: center;
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-table tbody td:first-child::before {
+                .${id} .digiblocks-table tbody td:first-child::before {
                     content: '';
                     display: none;
                 }
@@ -857,50 +778,50 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 
                 /* Scroll mode */
                 ${responsiveMode === 'scroll' ? `
-                [data-custom-id="${blockId}"] {
+                .${id} {
                     overflow-x: auto;
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-table {
+                .${id} .digiblocks-table {
                     min-width: 600px; /* Ensure it's wider than most mobile screens */
                 }
                 ` : ''}
             }
             
             /* Cell content layout */
-            [data-custom-id="${blockId}"] .digiblocks-cell-content {
+            .${id} .digiblocks-cell-content {
                 display: flex;
                 align-items: center;
                 gap: 6px;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cell-icon {
+            .${id} .digiblocks-cell-icon {
                 flex-shrink: 0;
             }
             
             /* Cell control icons */
-            [data-custom-id="${blockId}"] .digiblocks-table .digiblocks-cell-icon {
+            .${id} .digiblocks-table .digiblocks-cell-icon {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-table .digiblocks-cell-check {
+            .${id} .digiblocks-table .digiblocks-cell-check {
                 color: #28a745;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-table .digiblocks-cell-cross {
+            .${id} .digiblocks-table .digiblocks-cell-cross {
                 color: #dc3545;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-table .digiblocks-cell-stars {
+            .${id} .digiblocks-table .digiblocks-cell-stars {
                 color: #ffc107;
                 display: inline-flex;
 				gap: 5px;
             }
             
             /* Selected cell highlight */
-            [data-custom-id="${blockId}"] .digiblocks-table .digiblocks-selected-cell {
+            .${id} .digiblocks-table .digiblocks-selected-cell {
                 position: relative;
                 outline: 2px solid #4a6cf7;
                 outline-offset: -2px;
@@ -908,7 +829,7 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Cell Controls Toolbar */
-            [data-custom-id="${blockId}"] .digiblocks-cell-controls-toolbar {
+            .${id} .digiblocks-cell-controls-toolbar {
                 margin-bottom: 15px;
                 padding: 12px;
                 background-color: #f0f0f1;
@@ -920,28 +841,28 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 gap: 10px;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cell-controls-label {
+            .${id} .digiblocks-cell-controls-label {
                 font-weight: bold;
             }
 
-			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .components-button-group {
+			.${id} .digiblocks-cell-controls-buttons .components-button-group {
                 display: flex;
                 align-items: center;
             }
 
-			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .digiblocks-cell-control-check-button {
+			.${id} .digiblocks-cell-controls-buttons .digiblocks-cell-control-check-button {
                 color: #28a745;
             }
 
-			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .digiblocks-cell-control-cross-button {
+			.${id} .digiblocks-cell-controls-buttons .digiblocks-cell-control-cross-button {
                 color: #dc3545;
             }
 
-			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .digiblocks-cell-control-rating-button {
+			.${id} .digiblocks-cell-controls-buttons .digiblocks-cell-control-rating-button {
                 color: #ffc107;
             }
 
-			[data-custom-id="${blockId}"] .digiblocks-cell-controls-buttons .digiblocks-cell-control-remove-button {
+			.${id} .digiblocks-cell-controls-buttons .digiblocks-cell-control-remove-button {
                 color: #fe5252;
             }
             
@@ -964,14 +885,14 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
             
             /* Table instructions */
-            [data-custom-id="${blockId}"] .digiblocks-table-instructions {
+            .${id} .digiblocks-table-instructions {
                 margin-bottom: 15px;
                 font-style: italic;
                 color: #555;
             }
             
             /* Editor controls */
-            [data-custom-id="${blockId}"] .digiblocks-table-controls {
+            .${id} .digiblocks-table-controls {
                 margin-top: 20px;
                 margin-bottom: 10px;
                 display: flex;
@@ -980,12 +901,12 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 gap: 10px;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-row-controls,
-            [data-custom-id="${blockId}"] .digiblocks-col-controls {
+            .${id} .digiblocks-row-controls,
+            .${id} .digiblocks-col-controls {
                 position: relative;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cell-control-panel {
+            .${id} .digiblocks-cell-control-panel {
                 position: absolute;
                 top: 100%;
                 left: 0;
@@ -998,13 +919,13 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 width: 240px;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-cell-control-panel h3 {
+            .${id} .digiblocks-cell-control-panel h3 {
                 margin-top: 0;
                 font-size: 14px;
                 margin-bottom: 10px;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-control-buttons {
+            .${id} .digiblocks-control-buttons {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 5px;
@@ -1012,7 +933,7 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Table caption if any */
-            [data-custom-id="${blockId}"] .digiblocks-table-caption {
+            .${id} .digiblocks-table-caption {
                 text-align: center;
                 margin-bottom: 10px;
                 font-style: italic;
@@ -1253,8 +1174,16 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                     __next40pxDefaultSize={true}
                                 	__nextHasNoMarginBottom={true}
                                 >
-                                    <ToggleGroupControlOption value="stack" label={__("Stack", "digiblocks")} aria-label={__("Stack Behavior", "digiblocks")} />
-                                    <ToggleGroupControlOption value="scroll" label={__("Scroll", "digiblocks")} aria-label={__("Scroll Behavior", "digiblocks")} />
+                                    <ToggleGroupControlOption
+										value="stack"
+										label={__("Stack", "digiblocks")}
+										aria-label={__("Stack Behavior", "digiblocks")}
+									/>
+                                    <ToggleGroupControlOption
+										value="scroll"
+										label={__("Scroll", "digiblocks")}
+										aria-label={__("Scroll Behavior", "digiblocks")}
+									/>
                                 </ToggleGroupControl>
                             </BaseControl>
                         </TabPanelBody>
@@ -1422,9 +1351,21 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                     __next40pxDefaultSize={true}
                                 	__nextHasNoMarginBottom={true}
                                 >
-                                    <ToggleGroupControlOption value="left" label={__("Left", "digiblocks")} aria-label={__("Left", "digiblocks")} />
-                                    <ToggleGroupControlOption value="center" label={__("Center", "digiblocks")} aria-label={__("Center", "digiblocks")} />
-                                    <ToggleGroupControlOption value="right" label={__("Right", "digiblocks")} aria-label={__("Right", "digiblocks")} />
+                                    <ToggleGroupControlOption
+										value="left"
+										label={__("Left", "digiblocks")}
+										aria-label={__("Left", "digiblocks")}
+									/>
+                                    <ToggleGroupControlOption
+										value="center"
+										label={__("Center", "digiblocks")}
+										aria-label={__("Center", "digiblocks")}
+									/>
+                                    <ToggleGroupControlOption
+										value="right"
+										label={__("Right", "digiblocks")}
+										aria-label={__("Right", "digiblocks")}
+									/>
                                 </ToggleGroupControl>
                             </BaseControl>
                         </TabPanelBody>
@@ -1509,9 +1450,21 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                     __next40pxDefaultSize={true}
                                 	__nextHasNoMarginBottom={true}
                                 >
-                                    <ToggleGroupControlOption value="left" label={__("Left", "digiblocks")} aria-label={__("Left", "digiblocks")} />
-                                    <ToggleGroupControlOption value="center" label={__("Center", "digiblocks")} aria-label={__("Center", "digiblocks")} />
-                                    <ToggleGroupControlOption value="right" label={__("Right", "digiblocks")} aria-label={__("Right", "digiblocks")} />
+                                    <ToggleGroupControlOption
+										value="left"
+										label={__("Left", "digiblocks")}
+										aria-label={__("Left", "digiblocks")}
+									/>
+                                    <ToggleGroupControlOption
+										value="center"
+										label={__("Center", "digiblocks")}
+										aria-label={__("Center", "digiblocks")}
+									/>
+                                    <ToggleGroupControlOption
+										value="right"
+										label={__("Right", "digiblocks")}
+										aria-label={__("Right", "digiblocks")}
+									/>
                                 </ToggleGroupControl>
                             </BaseControl>
                         </TabPanelBody>
@@ -1586,9 +1539,21 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 										__next40pxDefaultSize={true}
 										__nextHasNoMarginBottom={true}
 									>
-										<ToggleGroupControlOption value="left" label={__("Left", "digiblocks")} aria-label={__("Left", "digiblocks")} />
-										<ToggleGroupControlOption value="center" label={__("Center", "digiblocks")} aria-label={__("Center", "digiblocks")} />
-										<ToggleGroupControlOption value="right" label={__("Right", "digiblocks")} aria-label={__("Right", "digiblocks")} />
+										<ToggleGroupControlOption
+											value="left"
+											label={__("Left", "digiblocks")}
+											aria-label={__("Left", "digiblocks")}
+										/>
+										<ToggleGroupControlOption
+											value="center"
+											label={__("Center", "digiblocks")}
+											aria-label={__("Center", "digiblocks")}
+										/>
+										<ToggleGroupControlOption
+											value="right"
+											label={__("Right", "digiblocks")}
+											aria-label={__("Right", "digiblocks")}
+										/>
 									</ToggleGroupControl>
 								</BaseControl>
                             </TabPanelBody>
@@ -1677,7 +1642,7 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: '100%' }}
                                     >
                                         {__("Preview Animation", "digiblocks")}
@@ -1844,9 +1809,8 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-table-block ${customClasses || ''}`,
+        className: `digiblocks-table-block ${id} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     // Safety check for tableData

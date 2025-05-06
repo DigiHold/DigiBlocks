@@ -1125,6 +1125,9 @@ body .components-button.is-secondary.digiblocks-reset.is-small:not(:disabled) {
 .is-root-container * {
     box-sizing: border-box;
 }
+.components-panel__body .digiblocks-control-tabs.first {
+    margin-top: -16px;
+}
 .width-full {
     width: 100%;
     justify-content: center;
@@ -1250,9 +1253,12 @@ body
 .digiblocks-link-modal .block-editor-link-control__field {
         margin: 0 0 16px;
     }
-.digiblocks-link-modal .block-editor-link-control__search-item.is-current {
-        padding: 0;
+.digiblocks-link-modal .block-editor-link-control__search-item {
+        max-width: 350px;
     }
+.digiblocks-link-modal .block-editor-link-control__search-item.is-current {
+            padding: 0;
+        }
 .digiblocks-link-modal .block-editor-link-control__search-actions {
         padding: 8px 0 0;
     }
@@ -1268,7 +1274,8 @@ body
 .digiblocks-control-tabs .components-tab-panel__tabs-item {
             flex: 1;
             justify-content: center;
-            padding: 8px 16px;
+            padding: 0 16px 8px;
+            height: 32px !important;
             color: #757575;
             font-size: 13px;
             cursor: pointer;

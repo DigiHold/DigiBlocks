@@ -41,13 +41,12 @@ const TeamSave = ({ attributes }) => {
     } = attributes;
 
     // Get block classes
-    const blockClass = `digiblocks-team-block layout-${layout} align-${alignment} ${animation !== 'none' ? `animate-${animation}` : ''} ${customClasses || ''}`;
+    const blockClass = `digiblocks-team-block ${id} layout-${layout} align-${alignment} ${animation !== 'none' ? `animate-${animation}` : ''} ${customClasses || ''}`;
 
     // Block props
     const blockProps = useBlockProps.save({
         className: blockClass,
         id: anchor || null,
-        "data-custom-id": id
     });
 
     /**

@@ -42,8 +42,12 @@ ob_start();
     
     // Function to initialize Google Maps
     async function initDigiGoogleMaps() {
+        console.log("DigiBlocks - Initializing Google Maps");
+        
         // Find all map blocks
         const mapBlocks = document.querySelectorAll('.digiblocks-google-map');
+        
+        console.log("DigiBlocks Map Count:", mapBlocks.length);
         
         if (!mapBlocks.length) return;
 
@@ -52,6 +56,8 @@ ob_start();
         
         // Initialize each map
         mapBlocks.forEach(async function(mapBlock) {
+            console.log("Processing map:", mapBlock.className);
+            
             const mapContainer = mapBlock.querySelector('.digiblocks-google-map-container');
             const markersContainer = mapBlock.querySelector('.digiblocks-google-map-markers');
             const addressElement = mapBlock.querySelector('.digiblocks-google-map-address');
@@ -68,12 +74,12 @@ ob_start();
             const enableStreetView = mapBlock.getAttribute('data-enable-streetview') !== 'false';
             const enableMapType = mapBlock.getAttribute('data-enable-maptype') !== 'false';
             
+            console.log("Map ID from data attribute:", mapId);
+            console.log("Markers container exists:", !!markersContainer);
+            
             // Get map style options from data attributes
             const mapStyle = mapBlock.getAttribute('data-map-style') || 'default';
             const customMapStyle = mapBlock.getAttribute('data-custom-map-style') || '';
-            
-            // Check if we have markers
-            const hasMarkers = markersContainer && markersContainer.querySelectorAll('.digiblocks-google-map-marker').length > 0;
             
             // Default center
             const defaultCenter = { lat: 40.7128, lng: -74.0060 };
@@ -90,13 +96,24 @@ ob_start();
                 mapTypeControl: enableMapType
             };
             
-            // Add Map ID if provided and we have markers
-            if (mapId && hasMarkers) {
-                mapOptions.mapId = mapId;
+            // Check if we have markers
+            let hasMarkers = false;
+            let markerElements = [];
+            
+            if (markersContainer) {
+                markerElements = markersContainer.querySelectorAll('.digiblocks-google-map-marker');
+                hasMarkers = markerElements.length > 0;
+                console.log("Marker count:", markerElements.length);
             }
             
-            // Only apply map styles if we don't have markers or don't need Map ID
-            if (mapStyle && mapStyle !== 'default' && (!hasMarkers || !mapId)) {
+            // Add Map ID if provided
+            if (mapId) {
+                mapOptions.mapId = mapId;
+                console.log("Applied Map ID:", mapId);
+            }
+            
+            // Only apply map styles if we don't have a Map ID (they can't be used together)
+            if (!mapId && mapStyle && mapStyle !== 'default') {
                 if (mapStyle === 'custom' && customMapStyle) {
                     try {
                         const customStyleObj = JSON.parse(customMapStyle);
@@ -241,42 +258,126 @@ ob_start();
             // Create map
             const map = new google.maps.Map(mapContainer, mapOptions);
             
-            // Process markers only if Map ID is set AND we have markers
-            if (markersContainer && mapId && hasMarkers) {
-                try {
-                    // Load the marker library
-                    await google.maps.importLibrary("marker");
-                    
-                    const markerElements = markersContainer.querySelectorAll('.digiblocks-google-map-marker');
-                    const markers = [];
-                    
-                    // Create map markers
-                    markerElements.forEach(markerElement => {
+            // Process markers if we have any
+            if (hasMarkers) {
+                console.log("Processing markers - Map ID:", mapId);
+                
+                // Array to collect all markers
+                const markers = [];
+                
+                // Process markers with appropriate type based on Map ID availability
+                if (mapId) {
+                    try {
+                        // Load the marker library
+                        await google.maps.importLibrary("marker");
+                        
+                        // Create map markers with Advanced Marker API
+                        for (let i = 0; i < markerElements.length; i++) {
+                            const markerElement = markerElements[i];
+                            const lat = parseFloat(markerElement.getAttribute('data-lat'));
+                            const lng = parseFloat(markerElement.getAttribute('data-lng'));
+                            const title = markerElement.getAttribute('data-title') || '';
+                            const description = markerElement.getAttribute('data-description') || '';
+                            
+                            console.log("Processing marker with lat/lng:", lat, lng);
+                            
+                            if (!isNaN(lat) && !isNaN(lng)) {
+                                const position = { lat: lat, lng: lng };
+                                
+                                // Create the advanced marker
+                                const advancedMarker = new google.maps.marker.AdvancedMarkerElement({
+                                    map: map,
+                                    position: position,
+                                    title: title
+                                });
+                                
+                                markers.push(advancedMarker);
+                                
+                                // If there's a description, create an info window with the description
+                                if (description) {
+                                    // Create info window content
+                                    const infoContent = document.createElement('div');
+                                    infoContent.className = 'digiblocks-map-info-content';
+                                    infoContent.style.cssText = 'min-width: 200px; max-width: 300px; padding: 10px; background-color: white; border-radius: 8px; box-shadow: 0 2px 7px 1px rgba(0,0,0,0.3);';
+                                    
+                                    // Add title if exists
+                                    if (title) {
+                                        const titleElement = document.createElement('div');
+                                        titleElement.className = 'digiblocks-map-info-title';
+                                        titleElement.style.cssText = 'font-weight: bold; margin-bottom: 5px; font-size: 16px;';
+                                        titleElement.textContent = title;
+                                        infoContent.appendChild(titleElement);
+                                    }
+                                    
+                                    // Add description
+                                    const descElement = document.createElement('div');
+                                    descElement.className = 'digiblocks-map-info-description';
+                                    descElement.style.cssText = 'font-size: 14px;';
+                                    descElement.innerHTML = description;
+                                    infoContent.appendChild(descElement);
+                                    
+                                    // Create info window
+                                    const infoWindow = new google.maps.InfoWindow({
+                                        content: infoContent
+                                    });
+                                    
+                                    // Add click listener to open info window
+                                    google.maps.event.addListener(advancedMarker, 'click', function() {
+                                        infoWindow.open({
+                                            anchor: advancedMarker,
+                                            map: map
+                                        });
+                                    });
+                                    
+                                    // If there's only one marker with description, open it by default
+                                    if (markerElements.length === 1) {
+                                        infoWindow.open({
+                                            anchor: advancedMarker,
+                                            map: map
+                                        });
+                                    }
+                                }
+                            } else {
+                                console.error("Invalid marker coordinates:", lat, lng);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error creating advanced markers, falling back to basic markers:', error);
+                        createBasicMarkers();
+                    }
+                } else {
+                    // No Map ID, use basic markers
+                    console.log("No Map ID available, using basic markers");
+                    createBasicMarkers();
+                }
+                
+                // Helper function to create basic markers
+                function createBasicMarkers() {
+                    for (let i = 0; i < markerElements.length; i++) {
+                        const markerElement = markerElements[i];
                         const lat = parseFloat(markerElement.getAttribute('data-lat'));
                         const lng = parseFloat(markerElement.getAttribute('data-lng'));
                         const title = markerElement.getAttribute('data-title') || '';
                         const description = markerElement.getAttribute('data-description') || '';
                         
-                        if (lat && lng) {
+                        if (!isNaN(lat) && !isNaN(lng)) {
                             const position = { lat: lat, lng: lng };
                             
-                            // Create the marker
-                            const advancedMarker = new google.maps.marker.AdvancedMarkerElement({
+                            // Create a basic marker
+                            const basicMarker = new google.maps.Marker({
                                 map: map,
                                 position: position,
                                 title: title
                             });
                             
-                            markers.push(advancedMarker);
+                            markers.push(basicMarker);
                             
-                            // If there's a description, create an info window with the description
+                            // If there's a description, create an info window
                             if (description) {
-                                // Create info window container
                                 const infoContent = document.createElement('div');
                                 infoContent.className = 'digiblocks-map-info-content';
                                 infoContent.style.cssText = 'min-width: 200px; max-width: 300px; padding: 10px; background-color: white; border-radius: 8px; box-shadow: 0 2px 7px 1px rgba(0,0,0,0.3);';
                                 
-                                // Add title if exists
                                 if (title) {
                                     const titleElement = document.createElement('div');
                                     titleElement.className = 'digiblocks-map-info-title';
@@ -285,43 +386,43 @@ ob_start();
                                     infoContent.appendChild(titleElement);
                                 }
                                 
-                                // Add description
                                 const descElement = document.createElement('div');
                                 descElement.className = 'digiblocks-map-info-description';
                                 descElement.style.cssText = 'font-size: 14px;';
                                 descElement.innerHTML = description;
                                 infoContent.appendChild(descElement);
                                 
-                                // Create info window
                                 const infoWindow = new google.maps.InfoWindow({
                                     content: infoContent
                                 });
                                 
-                                // Add click listener to open info window
-                                google.maps.event.addListener(advancedMarker, 'click', function() {
+                                basicMarker.addListener('click', function() {
                                     infoWindow.open({
-                                        anchor: advancedMarker,
+                                        anchor: basicMarker,
                                         map: map
                                     });
                                 });
                                 
-                                // If there's only one marker with description, open it by default
                                 if (markerElements.length === 1) {
                                     infoWindow.open({
-                                        anchor: advancedMarker,
+                                        anchor: basicMarker,
                                         map: map
                                     });
                                 }
                             }
+                        } else {
+                            console.error("Invalid marker coordinates:", lat, lng);
                         }
-                    });
-                    
-                    // Center map on first marker if no address
-                    if (markers.length > 0 && !addressElement) {
+                    }
+                }
+                
+                // Center map on first marker if no address
+                if (markers.length > 0 && !addressElement) {
+                    if (typeof markers[0].position === 'function') {
+                        map.setCenter(markers[0].position());
+                    } else {
                         map.setCenter(markers[0].position);
                     }
-                } catch (error) {
-                    console.error('Error creating markers:', error);
                 }
             }
             
@@ -335,8 +436,8 @@ ob_start();
                             const location = results[0].geometry.location;
                             map.setCenter(location);
                             
-                            // Add marker at address if no markers exist and Map ID is set
-                            if (mapId && !hasMarkers) {
+                            // Add marker at address if no markers exist
+                            if (!hasMarkers && mapId) {
                                 try {
                                     if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
                                         new google.maps.marker.AdvancedMarkerElement({
@@ -347,7 +448,21 @@ ob_start();
                                     }
                                 } catch (error) {
                                     console.error('Error creating marker at address:', error);
+                                    
+                                    // Fallback to basic marker if advanced marker fails
+                                    new google.maps.Marker({
+                                        map: map,
+                                        position: location,
+                                        title: address
+                                    });
                                 }
+                            } else if (!hasMarkers) {
+                                // Use basic marker if no Map ID
+                                new google.maps.Marker({
+                                    map: map,
+                                    position: location,
+                                    title: address
+                                });
                             }
                         }
                     });

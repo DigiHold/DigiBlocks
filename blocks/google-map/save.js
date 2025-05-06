@@ -30,6 +30,7 @@ const GoogleMapSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-google-map",
+		id,
         animation !== "none" ? `animate-${animation}` : "",
         customClasses || ""
     ]
@@ -40,7 +41,6 @@ const GoogleMapSave = ({ attributes }) => {
     const blockProps = useBlockProps.save({
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id,
         "data-map-zoom": zoom || 10,
         "data-map-type": mapType || 'roadmap',
 		"data-map-style": mapStyle || 'default',

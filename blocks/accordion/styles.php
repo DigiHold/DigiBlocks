@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes
+$id                     = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $items                  = isset( $attrs['items'] ) ? $attrs['items'] : array();
 $titleColor             = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '#333333';
 $titleHoverColor        = isset( $attrs['titleHoverColor'] ) ? $attrs['titleHoverColor'] : '';
@@ -216,13 +217,13 @@ $contentTypography = isset( $attrs['contentTypography'] ) ? $attrs['contentTypog
 // CSS Output
 ob_start();
 ?>
-/* Accordion Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Accordion Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
     width: 100%;
 }
 
 /* Accordion item */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-item {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-item {
     overflow: hidden;
     margin: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['right'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['bottom'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['left'] . $margin['desktop']['unit'] ); ?>;
     background-color: <?php echo esc_attr( $backgroundColor ); ?>;
@@ -242,27 +243,27 @@ ob_start();
 
 <?php if ( !empty( $backgroundHoverColor ) ) : ?>
 	/* Accordion item hover state */
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-item:hover {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-item:hover {
 		background-color: <?php echo esc_attr( $backgroundHoverColor ); ?>;
 	}
 <?php endif; ?>
 
 <?php if ( !empty( $borderHoverColor ) ) : ?>
 	/* Border hover color */
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-item:hover {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-item:hover {
 		border-color: <?php echo esc_attr( $borderHoverColor ); ?>;
 	}
 <?php endif; ?>
 
 <?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
 	/* Box shadow hover color */
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-item:hover {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-item:hover {
 		box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadowHover ) ); ?>;
 	}
 <?php endif; ?>
 
 /* Accordion header */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-header {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-header {
     position: relative;
     cursor: pointer;
     padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
@@ -278,7 +279,7 @@ ob_start();
 }
 
 /* Accordion title */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-title {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-title {
     margin: 0;
     color: <?php echo esc_attr( $titleColor ); ?>;
     flex: 1;
@@ -318,25 +319,25 @@ ob_start();
 
 <?php if ( !empty( $titleHoverColor ) ) : ?>
 /* Title hover state */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-header:hover .digiblocks-accordion-title {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-header:hover .digiblocks-accordion-title {
     color: <?php echo esc_attr( $titleHoverColor ); ?>;
 }
 <?php endif; ?>
 
 /* Accordion title active state */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-item.is-active .digiblocks-accordion-title {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-item.is-active .digiblocks-accordion-title {
     color: <?php echo esc_attr( $titleActiveColor ); ?>;
 }
 
 /* Accordion icon */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-icon {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 /* SVG icon fill color */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-icon svg {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-icon svg {
     fill: <?php echo esc_attr( $iconColor ); ?>;
     width: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
     height: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
@@ -345,23 +346,23 @@ ob_start();
 
 <?php if ( !empty( $iconHoverColor ) ) : ?>
 /* Icon hover state */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-header:hover .digiblocks-accordion-icon svg {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-header:hover .digiblocks-accordion-icon svg {
     fill: <?php echo esc_attr( $iconHoverColor ); ?>;
 }
 <?php endif; ?>
 
 /* Active icon color */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-item.is-active .digiblocks-accordion-icon svg {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-item.is-active .digiblocks-accordion-icon svg {
     fill: <?php echo esc_attr( $iconActiveColor ); ?>;
 }
 
 /* Active header background */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-item.is-active .digiblocks-accordion-header {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-item.is-active .digiblocks-accordion-header {
     background-color: <?php echo esc_attr( $backgroundActiveColor ); ?>;
 }
 
 /* Accordion content */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-content {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-content {
     overflow: hidden;
     padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
     color: <?php echo esc_attr( $contentColor ); ?>;
@@ -401,54 +402,54 @@ ob_start();
 
 <?php if ( !empty( $contentHoverColor ) ) : ?>
 /* Content hover color */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-item:hover .digiblocks-accordion-content {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-item:hover .digiblocks-accordion-content {
     color: <?php echo esc_attr( $contentHoverColor ); ?>;
 }
 <?php endif; ?>
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-content p:first-child {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-content p:first-child {
     margin-top: 0;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-content p:last-child {
+.<?php echo esc_attr( $id ); ?> .digiblocks-accordion-content p:last-child {
     margin-bottom: 0;
 }
 
 /* Tablet Styles */
 @media (max-width: 991px) {
 <?php if ( $margin && isset($margin['tablet']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
     }
 <?php endif; ?>
     
 <?php if ( $padding && isset($padding['tablet']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-header {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-header {
         padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-content {
         padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
         padding-top: 0;
     }
 <?php endif; ?>
     
 <?php if ( isset($borderWidth['tablet']) && isset($borderRadius['tablet']) && 'none' !== $borderStyle ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-item {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-item {
         border-width: <?php echo esc_attr( $borderWidth['tablet']['top'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['right'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['bottom'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['left'] . $borderWidth['tablet']['unit'] ); ?>;
         border-radius: <?php echo esc_attr( $borderRadius['tablet']['top'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['right'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['bottom'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['left'] . $borderRadius['tablet']['unit'] ); ?>;
     }
 <?php endif; ?>
     
 <?php if ( isset($iconSize['tablet']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-icon svg {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-icon svg {
         width: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
         height: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
     }
 <?php endif; ?>
     
 <?php if ( isset($titleTypography['fontSize']['tablet']) || isset($titleTypography['lineHeight']['tablet']) || isset($titleTypography['letterSpacing']['tablet']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-title {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-title {
 <?php if ( isset($titleTypography['fontSize']['tablet']) ) : ?>
         font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ($titleTypography['fontSizeUnit'] ?: 'px') ); ?>;
 <?php endif; ?>
@@ -462,7 +463,7 @@ ob_start();
 <?php endif; ?>
     
 <?php if ( isset($contentTypography['fontSize']['tablet']) || isset($contentTypography['lineHeight']['tablet']) || isset($contentTypography['letterSpacing']['tablet']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-content {
 <?php if ( isset($contentTypography['fontSize']['tablet']) ) : ?>
         font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ($contentTypography['fontSizeUnit'] ?: 'px') ); ?>;
 <?php endif; ?>
@@ -479,38 +480,38 @@ ob_start();
 /* Mobile Styles */
 @media (max-width: 767px) {
 <?php if ( $margin && isset($margin['mobile']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
     }
 <?php endif; ?>
     
 <?php if ( $padding && isset($padding['mobile']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-header {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-header {
         padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-content {
         padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
         padding-top: 0;
     }
 <?php endif; ?>
     
 <?php if ( isset($borderWidth['mobile']) && isset($borderRadius['mobile']) && 'none' !== $borderStyle ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-item {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-item {
         border-width: <?php echo esc_attr( $borderWidth['mobile']['top'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['right'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['bottom'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['left'] . $borderWidth['mobile']['unit'] ); ?>;
         border-radius: <?php echo esc_attr( $borderRadius['mobile']['top'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['right'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['bottom'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['left'] . $borderRadius['mobile']['unit'] ); ?>;
     }
 <?php endif; ?>
     
 <?php if ( isset($iconSize['mobile']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-icon svg {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-icon svg {
         width: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
         height: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
     }
 <?php endif; ?>
     
 <?php if ( isset($titleTypography['fontSize']['mobile']) || isset($titleTypography['lineHeight']['mobile']) || isset($titleTypography['letterSpacing']['mobile']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-title {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-title {
 <?php if ( isset($titleTypography['fontSize']['mobile']) ) : ?>
         font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ($titleTypography['fontSizeUnit'] ?: 'px') ); ?>;
 <?php endif; ?>
@@ -524,7 +525,7 @@ ob_start();
 <?php endif; ?>
     
 <?php if ( isset($contentTypography['fontSize']['mobile']) || isset($contentTypography['lineHeight']['mobile']) || isset($contentTypography['letterSpacing']['mobile']) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-accordion-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-content {
 <?php if ( isset($contentTypography['fontSize']['mobile']) ) : ?>
         font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ($contentTypography['fontSizeUnit'] ?: 'px') ); ?>;
 <?php endif; ?>

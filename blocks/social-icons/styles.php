@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes
+$id                   = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $icons                = isset( $attrs['icons'] ) ? $attrs['icons'] : array();
 $iconSize             = isset( $attrs['iconSize'] ) ? $attrs['iconSize'] : array(
     'desktop' => 24,
@@ -84,15 +85,15 @@ $textTypography      = isset( $attrs['textTypography'] ) ? $attrs['textTypograph
 // CSS Output
 ob_start();
 ?>
-/* Social Icons Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Social Icons Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
     display: flex;
     flex-wrap: wrap;
     gap: <?php echo esc_attr( $iconSpacing['desktop'] ); ?>px;
     justify-content: <?php echo $align === 'center' ? 'center' : ($align === 'right' ? 'flex-end' : 'flex-start'); ?>;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon {
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -101,7 +102,7 @@ ob_start();
     <?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -119,20 +120,20 @@ ob_start();
     transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon-icon span {
+.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon span {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon-icon svg {
+.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon svg {
     width: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
     height: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
     fill: <?php echo esc_attr( $iconColor ); ?>;
     transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon:hover .digiblocks-social-icon-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon:hover .digiblocks-social-icon-icon {
     <?php if ( $iconHoverBackground ) : ?>
     background-color: <?php echo esc_attr( $iconHoverBackground ); ?>;
     <?php endif; ?>
@@ -141,14 +142,14 @@ ob_start();
     <?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon:hover .digiblocks-social-icon-icon svg {
+.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon:hover .digiblocks-social-icon-icon svg {
     <?php if ( $iconHoverColor ) : ?>
     fill: <?php echo esc_attr( $iconHoverColor ); ?>;
     <?php endif; ?>
 }
 
 <?php if ( $showLabels ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon-label {
+.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-label {
     <?php if ( ! empty( $textTypography['fontFamily'] ) ) : ?>
     	font-family: <?php echo esc_attr( $textTypography['fontFamily'] ); ?>;
     <?php endif; ?>
@@ -185,26 +186,26 @@ ob_start();
     transition: color 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon:hover .digiblocks-social-icon-label {
+.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon:hover .digiblocks-social-icon-label {
     <?php if ( $labelHoverColor || $iconHoverColor ) : ?>
     	color: <?php echo esc_attr( $labelHoverColor ?: $iconHoverColor ); ?>;
     <?php endif; ?>
 }
 
 <?php if ( $labelPosition === 'top' ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon {
     flex-direction: column-reverse;
 }
 <?php elseif ( $labelPosition === 'right' ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon {
     flex-direction: row;
 }
 <?php elseif ( $labelPosition === 'bottom' ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon {
     flex-direction: column;
 }
 <?php elseif ( $labelPosition === 'left' ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon {
     flex-direction: row-reverse;
 }
 <?php endif; ?>
@@ -212,17 +213,17 @@ ob_start();
 
 /* Tablet Styles */
 @media (max-width: 991px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         gap: <?php echo esc_attr( isset( $iconSpacing['tablet'] ) ? $iconSpacing['tablet'] : $iconSpacing['desktop'] ); ?>px;
     }
 
 	<?php if ( $labelSpacing && isset( $labelSpacing['tablet'] ) ) : ?>
-    	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon {
+    	.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon {
 			gap: <?php echo esc_attr( isset( $labelSpacing['tablet'] ) ? $labelSpacing['tablet'] : $labelSpacing['desktop'] ); ?>px;
 		}
     <?php endif; ?>
 
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon-icon {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon {
         <?php if ( $iconBorderStyle && $iconBorderStyle !== 'none' && isset( $iconBorderWidth['tablet'] ) ) : ?>
         	border-width: <?php echo esc_attr( $iconBorderWidth['tablet']['value'] . $iconBorderWidth['tablet']['unit'] ); ?>;
         <?php endif; ?>
@@ -234,13 +235,13 @@ ob_start();
         <?php endif; ?>
     }
 
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon-icon svg {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon svg {
         width: <?php echo esc_attr( isset( $iconSize['tablet'] ) ? $iconSize['tablet'] : $iconSize['desktop'] ); ?>px;
         height: <?php echo esc_attr( isset( $iconSize['tablet'] ) ? $iconSize['tablet'] : $iconSize['desktop'] ); ?>px;
     }
     
     <?php if ( $showLabels && isset( $textTypography['fontSize']['tablet'] ) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon-label {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-label {
         font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ($textTypography['fontSizeUnit'] ?: 'px') ); ?>;
         
         <?php if ( isset( $textTypography['lineHeight']['tablet'] ) ) : ?>
@@ -256,17 +257,17 @@ ob_start();
 
 /* Mobile Styles */
 @media (max-width: 767px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         gap: <?php echo esc_attr( isset( $iconSpacing['mobile'] ) ? $iconSpacing['mobile'] : (isset( $iconSpacing['tablet'] ) ? $iconSpacing['tablet'] : $iconSpacing['desktop']) ); ?>px;
     }
 
 	<?php if ( $labelSpacing && isset( $labelSpacing['mobile'] ) ) : ?>
-    	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon {
+    	.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon {
         	gap: <?php echo esc_attr( isset( $labelSpacing['mobile'] ) ? $labelSpacing['mobile'] : (isset( $labelSpacing['tablet'] ) ? $labelSpacing['tablet'] : $labelSpacing['desktop']) ); ?>px;
 		}
     <?php endif; ?>
 
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon-icon {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon {
         <?php if ( $iconBorderStyle && $iconBorderStyle !== 'none' && isset( $iconBorderWidth['mobile'] ) ) : ?>
         	border-width: <?php echo esc_attr( $iconBorderWidth['mobile']['value'] . $iconBorderWidth['mobile']['unit'] ); ?>;
         <?php endif; ?>
@@ -278,13 +279,13 @@ ob_start();
         <?php endif; ?>
     }
 
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon-icon svg {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon svg {
         width: <?php echo esc_attr( isset( $iconSize['mobile'] ) ? $iconSize['mobile'] : (isset( $iconSize['tablet'] ) ? $iconSize['tablet'] : $iconSize['desktop']) ); ?>px;
         height: <?php echo esc_attr( isset( $iconSize['mobile'] ) ? $iconSize['mobile'] : (isset( $iconSize['tablet'] ) ? $iconSize['tablet'] : $iconSize['desktop']) ); ?>px;
     }
     
     <?php if ( $showLabels && isset( $textTypography['fontSize']['mobile'] ) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-social-icon-label {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-label {
         font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ($textTypography['fontSizeUnit'] ?: 'px') ); ?>;
         
         <?php if ( isset( $textTypography['lineHeight']['mobile'] ) ) : ?>

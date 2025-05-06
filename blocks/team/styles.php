@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes.
+$id                       = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $members                  = isset( $attrs['members'] ) ? $attrs['members'] : array();
 $columns                  = isset( $attrs['columns'] ) ? $attrs['columns'] : array(
 	'desktop' => 3,
@@ -400,13 +401,13 @@ $icon_padding_mobile  = $iconPadding['mobile']['top'] . $iconPadding['mobile']['
 // CSS Output
 ob_start();
 ?>
-/* Team Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Team Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
     margin: <?php echo esc_attr( $box_margin_desktop ); ?>;
 }
 
 /* Grid Layout */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-container {
+.<?php echo esc_attr( $id ); ?> .digiblocks-team-container {
     display: flex;
     flex-wrap: wrap;
     gap: <?php echo esc_attr( $gutter['desktop'] ); ?>px;
@@ -414,33 +415,33 @@ ob_start();
 }
 
 /* List Layout */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"].layout-list .digiblocks-team-container {
+.<?php echo esc_attr( $id ); ?>.layout-list .digiblocks-team-container {
 	display: flex;
 	flex-direction: column;
 	gap: <?php echo esc_attr( $gutter['desktop'] ); ?>px;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"].layout-list .digiblocks-team-member {
+.<?php echo esc_attr( $id ); ?>.layout-list .digiblocks-team-member {
 	display: flex;
 	align-items: center;
 	width: 100%;
 	gap: <?php echo esc_attr( $gutter['desktop'] ); ?>px;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"].layout-list .digiblocks-team-member-image {
+.<?php echo esc_attr( $id ); ?>.layout-list .digiblocks-team-member-image {
 	margin: 0;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"].layout-list .digiblocks-team-member-content {
+.<?php echo esc_attr( $id ); ?>.layout-list .digiblocks-team-member-content {
 	text-align: left !important;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"].layout-list .digiblocks-team-member-social {
+.<?php echo esc_attr( $id ); ?>.layout-list .digiblocks-team-member-social {
 	justify-content: flex-start;
 }
 
 /* Team Member */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member {
+.<?php echo esc_attr( $id ); ?> .digiblocks-team-member {
 	display: flex;
     align-items: <?php echo 'center' === $alignment ? 'center' : ( 'right' === $alignment ? 'flex-end' : 'flex-start' ); ?>;
     gap: 15px;
@@ -463,13 +464,13 @@ ob_start();
 
 /* Hover effects */
 <?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member:hover {
+.<?php echo esc_attr( $id ); ?> .digiblocks-team-member:hover {
     box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadowHover ) ); ?>;
 }
 <?php endif; ?>
 
 /* Team Member Image */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-image {
+.<?php echo esc_attr( $id ); ?> .digiblocks-team-member-image {
     width: <?php echo esc_attr( $imageSize['desktop'] ); ?>px;
     height: <?php echo esc_attr( $imageSize['desktop'] ); ?>px;
 	max-width: 100%;
@@ -483,7 +484,7 @@ ob_start();
     <?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-image img {
+.<?php echo esc_attr( $id ); ?> .digiblocks-team-member-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -491,7 +492,7 @@ ob_start();
 }
 
 /* Team Member Name */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-name {
+.<?php echo esc_attr( $id ); ?> .digiblocks-team-member-name {
     color: <?php echo esc_attr( $nameColor ); ?>;
 	margin-top: 0;
     margin-bottom: 5px;
@@ -522,7 +523,7 @@ ob_start();
 }
 
 /* Team Member Position */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-position {
+.<?php echo esc_attr( $id ); ?> .digiblocks-team-member-position {
     color: <?php echo esc_attr( $positionColor ); ?>;
     margin-bottom: 10px;
     <?php if ( ! empty( $textTypography['fontFamily'] ) ) : ?>
@@ -552,7 +553,7 @@ ob_start();
 }
 
 /* Team Member Bio */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-bio {
+.<?php echo esc_attr( $id ); ?> .digiblocks-team-member-bio {
     color: <?php echo esc_attr( $bioColor ); ?>;
     margin-bottom: <?php echo $showSocial ? '15px' : '0'; ?>;
     <?php if ( ! empty( $contentTypography['fontFamily'] ) ) : ?>
@@ -582,14 +583,14 @@ ob_start();
 }
 
 /* Team Member Social */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-social {
+.<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social {
     display: flex;
     justify-content: <?php echo 'center' === $alignment ? 'center' : ( 'right' === $alignment ? 'flex-end' : 'flex-start' ); ?>;
     gap: <?php echo esc_attr( $iconSpacing['desktop'] ); ?>px;
     flex-wrap: wrap;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-social-icon {
+.<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon {
     color: <?php echo esc_attr( $iconColor ); ?>;
     display: flex;
     align-items: center;
@@ -601,14 +602,14 @@ ob_start();
     cursor: pointer;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-social-icon:hover {
+.<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon:hover {
     color: <?php echo esc_attr( $iconHoverColor ); ?>;
     <?php if ( $iconBackgroundHoverColor ) : ?>
     background-color: <?php echo esc_attr( $iconBackgroundHoverColor ); ?>;
     <?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-social-icon svg {
+.<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon svg {
 	width: <?php echo !empty($iconSize['desktop']) ? esc_attr($iconSize['desktop']) . 'px' : '1.2rem'; ?>;
     height: <?php echo !empty($iconSize['desktop']) ? esc_attr($iconSize['desktop']) . 'px' : '1.2rem'; ?>;
     fill: currentColor;
@@ -616,23 +617,23 @@ ob_start();
 
 /* Tablet Styles */
 @media (max-width: 991px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         margin: <?php echo esc_attr( $box_margin_tablet ); ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-container {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-container {
         gap: <?php echo esc_attr( $gutter['tablet'] ); ?>px;
     }
 
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"].layout-list .digiblocks-team-container {
+	.<?php echo esc_attr( $id ); ?>.layout-list .digiblocks-team-container {
 		gap: <?php echo esc_attr( $gutter['tablet'] ); ?>px;
 	}
 
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"].layout-list .digiblocks-team-member {
+	.<?php echo esc_attr( $id ); ?>.layout-list .digiblocks-team-member {
 		gap: <?php echo esc_attr( $gutter['tablet'] ); ?>px;
 	}
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member {
         <?php if ( 'grid' === $layout ) : ?>
         width: <?php echo esc_attr( $column_width_tablet ); ?>;
         <?php endif; ?>
@@ -642,7 +643,7 @@ ob_start();
         <?php endif; ?>
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-image {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-image {
         width: <?php echo esc_attr( $imageSize['tablet'] ); ?>px;
         height: <?php echo esc_attr( $imageSize['tablet'] ); ?>px;
         border-radius: <?php echo esc_attr( $image_border_radius_value_tablet ); ?>;
@@ -652,7 +653,7 @@ ob_start();
     }
     
     <?php if ( ! empty( $typography['fontSize']['tablet'] ) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-name {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-name {
         font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ( isset( $typography['fontSizeUnit'] ) ? $typography['fontSizeUnit'] : 'px' ) ); ?>;
         <?php if ( ! empty( $typography['lineHeight']['tablet'] ) ) : ?>
         line-height: <?php echo esc_attr( $typography['lineHeight']['tablet'] . ( isset( $typography['lineHeightUnit'] ) ? $typography['lineHeightUnit'] : 'em' ) ); ?>;
@@ -664,7 +665,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $textTypography['fontSize']['tablet'] ) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-position {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-position {
         font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ( isset( $textTypography['fontSizeUnit'] ) ? $textTypography['fontSizeUnit'] : 'px' ) ); ?>;
         <?php if ( ! empty( $textTypography['lineHeight']['tablet'] ) ) : ?>
         line-height: <?php echo esc_attr( $textTypography['lineHeight']['tablet'] . ( isset( $textTypography['lineHeightUnit'] ) ? $textTypography['lineHeightUnit'] : 'em' ) ); ?>;
@@ -676,7 +677,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $contentTypography['fontSize']['tablet'] ) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-bio {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-bio {
         font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( isset( $contentTypography['fontSizeUnit'] ) ? $contentTypography['fontSizeUnit'] : 'px' ) ); ?>;
         <?php if ( ! empty( $contentTypography['lineHeight']['tablet'] ) ) : ?>
         line-height: <?php echo esc_attr( $contentTypography['lineHeight']['tablet'] . ( isset( $contentTypography['lineHeightUnit'] ) ? $contentTypography['lineHeightUnit'] : 'em' ) ); ?>;
@@ -687,16 +688,16 @@ ob_start();
     }
     <?php endif; ?>
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-social {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social {
         gap: <?php echo esc_attr( $iconSpacing['tablet'] ); ?>px;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-social-icon {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon {
         border-radius: <?php echo esc_attr( $icon_border_radius_tablet ); ?>;
         padding: <?php echo esc_attr( $icon_padding_tablet ); ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-social-icon svg {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon svg {
         width: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
         height: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
     }
@@ -704,23 +705,23 @@ ob_start();
 
 /* Mobile Styles */
 @media (max-width: 767px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         margin: <?php echo esc_attr( $box_margin_mobile ); ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-container {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-container {
         gap: <?php echo esc_attr( $gutter['mobile'] ); ?>px;
     }
     
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"].layout-list .digiblocks-team-container {
+	.<?php echo esc_attr( $id ); ?>.layout-list .digiblocks-team-container {
 		gap: <?php echo esc_attr( $gutter['mobile'] ); ?>px;
 	}
 
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"].layout-list .digiblocks-team-member {
+	.<?php echo esc_attr( $id ); ?>.layout-list .digiblocks-team-member {
 		gap: <?php echo esc_attr( $gutter['mobile'] ); ?>px;
 	}
     
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-team-member {
     	<?php if ( 'grid' === $layout ) : ?>
 		width: <?php echo esc_attr( $column_width_mobile ); ?>;
 		<?php endif; ?>
@@ -730,7 +731,7 @@ ob_start();
 		<?php endif; ?>
 	}
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-image {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-image {
         width: <?php echo esc_attr( $imageSize['mobile'] ); ?>px;
         height: <?php echo esc_attr( $imageSize['mobile'] ); ?>px;
         border-radius: <?php echo esc_attr( $image_border_radius_value_mobile ); ?>;
@@ -740,7 +741,7 @@ ob_start();
     }
     
     <?php if ( ! empty( $typography['fontSize']['mobile'] ) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-name {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-name {
         font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ( isset( $typography['fontSizeUnit'] ) ? $typography['fontSizeUnit'] : 'px' ) ); ?>;
         <?php if ( ! empty( $typography['lineHeight']['mobile'] ) ) : ?>
         line-height: <?php echo esc_attr( $typography['lineHeight']['mobile'] . ( isset( $typography['lineHeightUnit'] ) ? $typography['lineHeightUnit'] : 'em' ) ); ?>;
@@ -752,7 +753,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $textTypography['fontSize']['mobile'] ) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-position {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-position {
         font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ( isset( $textTypography['fontSizeUnit'] ) ? $textTypography['fontSizeUnit'] : 'px' ) ); ?>;
         <?php if ( ! empty( $textTypography['lineHeight']['mobile'] ) ) : ?>
         line-height: <?php echo esc_attr( $textTypography['lineHeight']['mobile'] . ( isset( $textTypography['lineHeightUnit'] ) ? $textTypography['lineHeightUnit'] : 'em' ) ); ?>;
@@ -764,7 +765,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $contentTypography['fontSize']['mobile'] ) ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-bio {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-bio {
         font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( isset( $contentTypography['fontSizeUnit'] ) ? $contentTypography['fontSizeUnit'] : 'px' ) ); ?>;
         <?php if ( ! empty( $contentTypography['lineHeight']['mobile'] ) ) : ?>
         line-height: <?php echo esc_attr( $contentTypography['lineHeight']['mobile'] . ( isset( $contentTypography['lineHeightUnit'] ) ? $contentTypography['lineHeightUnit'] : 'em' ) ); ?>;
@@ -775,16 +776,16 @@ ob_start();
     }
     <?php endif; ?>
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-social {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social {
         gap: <?php echo esc_attr( $iconSpacing['mobile'] ); ?>px;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-social-icon {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon {
         border-radius: <?php echo esc_attr( $icon_border_radius_mobile ); ?>;
         padding: <?php echo esc_attr( $icon_padding_mobile ); ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-team-member-social-icon svg {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon svg {
         width: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
         height: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
     }

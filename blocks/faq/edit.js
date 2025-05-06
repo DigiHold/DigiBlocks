@@ -24,7 +24,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -76,6 +76,9 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
         schemaName
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
 
@@ -84,7 +87,6 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
     
     // State for animation preview
     const [isAnimating, setIsAnimating] = useState(false);
-    const previewTimeoutRef = useRef(null);
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -98,11 +100,6 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
     
     // Use useEffect to set the ID only once when component mounts
     useEffect(() => {
-        // Check if the ID needs to be regenerated using clientId
-		if (!id || !id.includes(clientId.substr(0, 8))) {
-			setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-		}
-        
         // Initialize items with IDs if needed
         if (items && items.length > 0) {
             const updatedItems = items.map((item, index) => {
@@ -118,107 +115,23 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
         }
     }, [clientId, items, setAttributes]);
 
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
+    // Use ref
+	const previewTimeoutRef = useRef(null);
 
-    // Animation preview function
-    const triggerAnimationPreview = () => {
-        // Only proceed if we have a valid animation
-        if (!animation || animation === 'none') {
-            return;
-        }
-        
-        // Clear any existing timeout
-        if (previewTimeoutRef.current) {
-            clearTimeout(previewTimeoutRef.current);
-        }
-        
-        // Find the block element
-        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-        if (!blockElement) {
-            return;
-        }
-        
-        // Generate a timestamp to ensure unique animation names on each click
-        const timestamp = Date.now();
-        
-        // Apply animation directly
-        if (animations[animation]) {
-            // Extract the original animation name from the keyframes
-            const originalKeyframes = animations[animation].keyframes;
-            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-            
-            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-                console.error('Could not extract animation name from keyframes');
-                return;
-            }
-            
-            const originalAnimName = originalAnimNameMatch[1];
-            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-            
-            // Create a style element with a unique animation name to avoid conflicts
-            const styleElement = document.createElement('style');
-            styleElement.id = `animation-style-${id}_${timestamp}`;
-            
-            // Replace the original animation name with our unique name
-            const updatedKeyframes = originalKeyframes.replace(
-                new RegExp(originalAnimName, 'g'),
-                uniqueAnimName
-            );
-            
-            styleElement.textContent = `
-                ${updatedKeyframes}
-                
-                [data-custom-id="${id}"] {
-                    animation: none; /* Reset first */
-                }
-            `;
-            
-            // Remove any existing animation style for this block
-            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-                el.remove();
-            });
-            
-            // Add the style to the document
-            document.head.appendChild(styleElement);
-            
-            // Force reflow to ensure animation reset
-            blockElement.offsetHeight;
-            
-            // Now apply the animation
-            const animationStyleElement = document.createElement('style');
-            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-            animationStyleElement.textContent = `
-                [data-custom-id="${id}"] {
-                    animation: ${uniqueAnimName} 1.5s forwards !important;
-                }
-            `;
-            document.head.appendChild(animationStyleElement);
-            
-            // Clean up after animation
-            previewTimeoutRef.current = setTimeout(() => {
-                styleElement.remove();
-                animationStyleElement.remove();
-                blockElement.style.animation = '';
-            }, 1500);
-        }
-    };
+	// Effect to trigger animation preview when animation attribute changes
+	useEffect(() => {
+		if (animation && animation !== 'none') {
+			const timeoutId = setTimeout(() => {
+				animationPreview(id, animation, animations, previewTimeoutRef);
+			}, 100);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [animation]);
 
-    // Effect to trigger animation preview when animation attribute changes
-    useEffect(() => {
-        if (animation && animation !== 'none') {
-            const timeoutId = setTimeout(() => {
-                triggerAnimationPreview();
-            }, 100);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [animation]);
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Border style options
     const borderStyleOptions = [
@@ -502,7 +415,6 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for styling the FAQ block
 	const generateCSS = () => {
 		const activeDevice = window.digi.responsiveState.activeDevice;
-		const blockId = id;
 		
 		// Base styles
 		let baseStyles = '';
@@ -617,14 +529,14 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 		
 		// Base styles for all layouts
 		const baseCSS = `
-			/* FAQ Block - ${blockId} */
-			[data-custom-id="${blockId}"] {
+			/* FAQ Block - ${id} */
+			.${id} {
 				margin: ${marginValue.top}${marginValue.unit} ${marginValue.right}${marginValue.unit} ${marginValue.bottom}${marginValue.unit} ${marginValue.left}${marginValue.unit};
 				width: 100%;
 			}
 			
 			/* Base styles for questions and answers */
-			[data-custom-id="${blockId}"] .digiblocks-faq-question {
+			.${id} .digiblocks-faq-question {
 				cursor: pointer;
 				-webkit-user-select: none;
 				-moz-user-select: none;
@@ -635,7 +547,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 				${iconPosition === 'left' ? 'flex-direction: row-reverse; justify-content: flex-end;' : 'justify-content: space-between;'}
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-question-text {
+			.${id} .digiblocks-faq-question-text {
 				color: ${titleColor};
 				${titleTypographyCSS}
 				margin: 0;
@@ -644,17 +556,17 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 				transition: color 0.3s ease;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-question-prefix {
+			.${id} .digiblocks-faq-question-prefix {
 				${questionPrefixColor ? `color: ${questionPrefixColor};` : ''}
 				font-weight: bold;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-answer-prefix {
+			.${id} .digiblocks-faq-answer-prefix {
 				${answerPrefixColor ? `color: ${answerPrefixColor};` : ''}
 				font-weight: bold;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-answer-content {
+			.${id} .digiblocks-faq-answer-content {
 				display: flex;
 				${answerPrefix ? 'display: flex; gap: .5rem;' : ''}
 				color: ${contentColor};
@@ -662,22 +574,22 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			/* Handle answer display states */
-			[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+			.${id} .digiblocks-faq-answer {
 				overflow: hidden;
 				display: none;
 				transition: height 0.3s ease;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-answer {
+			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-answer {
 				display: block;
 			}
 			
 			/* Icon styles */
-			[data-custom-id="${blockId}"] .digiblocks-faq-question {
+			.${id} .digiblocks-faq-question {
 				gap: 15px;
 			}
 
-			[data-custom-id="${blockId}"] .digiblocks-faq-question-icon {
+			.${id} .digiblocks-faq-question-icon {
 				display: flex;
 				align-items: center;
 				justify-content: center;
@@ -686,13 +598,13 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 				font-size: ${iconSize[activeDevice]}px;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-question-icon span {
+			.${id} .digiblocks-faq-question-icon span {
 				display: flex;
 				align-items: center;
 				justify-content: center;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-question-icon svg {
+			.${id} .digiblocks-faq-question-icon svg {
 				width: ${iconSize[activeDevice]}px;
 				height: ${iconSize[activeDevice]}px;
 				transition: transform 0.3s ease;
@@ -700,34 +612,34 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			/* Rotate icons when active */
-			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-arrow,
-			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-chevron,
-			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-triangle {
+			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-arrow,
+			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-chevron,
+			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-triangle {
 				transform: rotate(180deg);
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-icon-arrow,
-			[data-custom-id="${blockId}"] .digiblocks-faq-icon-chevron,
-			[data-custom-id="${blockId}"] .digiblocks-faq-icon-triangle {
+			.${id} .digiblocks-faq-icon-arrow,
+			.${id} .digiblocks-faq-icon-chevron,
+			.${id} .digiblocks-faq-icon-triangle {
 				display: inline-flex;
 				transition: transform 0.3s ease;
 			}
 			
 			/* Handle hover state */
-			[data-custom-id="${blockId}"] .digiblocks-faq-question:hover .digiblocks-faq-question-text {
+			.${id} .digiblocks-faq-question:hover .digiblocks-faq-question-text {
 				${titleHoverColor ? `color: ${titleHoverColor};` : ''}
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-question:hover .digiblocks-faq-question-icon {
+			.${id} .digiblocks-faq-question:hover .digiblocks-faq-question-icon {
 				${iconHoverColor ? `color: ${iconHoverColor};` : ''}
 			}
 			
 			/* Handle active state */
-			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question-text {
+			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question-text {
 				color: ${titleActiveColor};
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question-icon {
+			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon {
 				color: ${iconActiveColor};
 			}
 		`;
@@ -737,7 +649,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 		switch (layout) {
 			case 'boxed':
 				layoutCSS = `
-					[data-custom-id="${blockId}"] .digiblocks-faq-item {
+					.${id} .digiblocks-faq-item {
 						${borderCSS}
 						${boxShadowCSS}
 						background-color: ${backgroundColor || '#ffffff'};
@@ -745,23 +657,23 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 						margin-bottom: ${itemSpacing}px;
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-item:hover {
+					.${id} .digiblocks-faq-item:hover {
 						${boxShadowHoverCSS}
 						${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
 						${borderHoverColor ? `border-color: ${borderHoverColor};` : ''}
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-question {
+					.${id} .digiblocks-faq-question {
 						${paddingCSS}
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+					.${id} .digiblocks-faq-answer {
 						${paddingCSS}
 						border-top: 1px solid ${borderColor || '#e0e0e0'};
 						${contentBackgroundColor ? `background-color: ${contentBackgroundColor};` : ''}
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active {
+					.${id} .digiblocks-faq-item.is-active {
 						${backgroundActiveColor ? `background-color: ${backgroundActiveColor};` : ''}
 					}
 				`;
@@ -769,7 +681,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 			
 			case 'classic':
 				layoutCSS = `
-					[data-custom-id="${blockId}"] .digiblocks-faq-item {
+					.${id} .digiblocks-faq-item {
 						border: none;
 						border-bottom: 1px solid ${borderColor || '#e0e0e0'};
 						background-color: transparent;
@@ -777,11 +689,11 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 						transition: all 0.3s ease;
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-question {
+					.${id} .digiblocks-faq-question {
 						${paddingCSS}
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+					.${id} .digiblocks-faq-answer {
 						padding: 0 ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};
 					}
 				`;
@@ -789,31 +701,31 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 			
 			case 'separated':
 				layoutCSS = `
-					[data-custom-id="${blockId}"] .digiblocks-faq-item {
+					.${id} .digiblocks-faq-item {
 						margin-bottom: ${itemSpacing}px;
 						transition: all 0.3s ease;
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-question {
+					.${id} .digiblocks-faq-question {
 						${paddingCSS}
 						${borderCSS}
 						${boxShadowCSS}
 						background-color: ${backgroundColor || '#ffffff'};
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-question:hover {
+					.${id} .digiblocks-faq-question:hover {
 						${titleHoverColor ? `color: ${titleHoverColor};` : ''}
 						${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
 						${borderHoverColor ? `border-color: ${borderHoverColor};` : ''}
 						${boxShadowHoverCSS}
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question {
+					.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question {
 						${titleActiveColor ? `color: ${titleActiveColor};` : ''}
 						${backgroundActiveColor ? `background-color: ${backgroundActiveColor};` : ''}
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+					.${id} .digiblocks-faq-answer {
 						${paddingCSS}
 						${contentBackgroundColor ? `background-color: ${contentBackgroundColor};` : ''}
 						border: 1px solid ${borderColor || '#e0e0e0'};
@@ -827,28 +739,28 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 			
 			case 'minimalist':
 				layoutCSS = `
-					[data-custom-id="${blockId}"] .digiblocks-faq-item {
+					.${id} .digiblocks-faq-item {
 						margin-bottom: ${itemSpacing}px;
 						transition: all 0.3s ease;
 						background-color: transparent;
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-question {
+					.${id} .digiblocks-faq-question {
 						${paddingCSS}
 						border-bottom: 2px solid ${borderColor || '#e0e0e0'};
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-question:hover {
+					.${id} .digiblocks-faq-question:hover {
 						${titleHoverColor ? `color: ${titleHoverColor};` : ''}
 						border-color: ${titleHoverColor || borderHoverColor || '#cccccc'};
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question {
+					.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question {
 						${titleActiveColor ? `color: ${titleActiveColor};` : ''}
 						border-color: ${titleActiveColor || '#1e73be'};
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+					.${id} .digiblocks-faq-answer {
 						padding: ${padding[activeDevice].top}${padding[activeDevice].unit} 0 ${padding[activeDevice].bottom}${padding[activeDevice].unit} 0;
 					}
 				`;
@@ -856,7 +768,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 			
 			case 'bordered':
 				layoutCSS = `
-					[data-custom-id="${blockId}"] .digiblocks-faq-item {
+					.${id} .digiblocks-faq-item {
 						${borderCSS}
 						background-color: transparent;
 						margin-bottom: ${itemSpacing}px;
@@ -864,31 +776,31 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 						overflow: hidden;
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-item:hover {
+					.${id} .digiblocks-faq-item:hover {
 						${borderHoverColor ? `border-color: ${borderHoverColor};` : ''}
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-question {
+					.${id} .digiblocks-faq-question {
 						${paddingCSS}
 						background-color: ${backgroundColor || '#f8f9fa'};
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-question:hover {
+					.${id} .digiblocks-faq-question:hover {
 						${titleHoverColor ? `color: ${titleHoverColor};` : ''}
 						${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-question {
+					.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question {
 						${titleActiveColor ? `color: ${titleActiveColor};` : ''}
 						${backgroundActiveColor ? `background-color: ${backgroundActiveColor};` : ''}
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+					.${id} .digiblocks-faq-answer {
 						${paddingCSS}
 						${contentBackgroundColor ? `background-color: ${contentBackgroundColor};` : ''}
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active {
+					.${id} .digiblocks-faq-item.is-active {
 						border-color: ${titleActiveColor || borderColor || '#1e73be'};
 					}
 				`;
@@ -896,7 +808,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 			
 			default:
 				layoutCSS = `
-					[data-custom-id="${blockId}"] .digiblocks-faq-item {
+					.${id} .digiblocks-faq-item {
 						${borderCSS}
 						${boxShadowCSS}
 						background-color: ${backgroundColor || '#ffffff'};
@@ -904,11 +816,11 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 						margin-bottom: ${itemSpacing}px;
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-question {
+					.${id} .digiblocks-faq-question {
 						${paddingCSS}
 					}
 					
-					[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+					.${id} .digiblocks-faq-answer {
 						${paddingCSS}
 						border-top: 1px solid #e0e0e0;
 					}
@@ -917,11 +829,11 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 		
 		// Editor-specific styles
 		const editorCSS = `
-			[data-custom-id="${blockId}"] .digiblocks-faq-item {
+			.${id} .digiblocks-faq-item {
 				position: relative;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-item-controls {
+			.${id} .digiblocks-faq-item-controls {
 				display: flex;
 				gap: 5px;
 				position: absolute;
@@ -935,16 +847,16 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 		
 			/* Respect the is-active class for showing/hiding answers */
-			[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+			.${id} .digiblocks-faq-answer {
 				display: none;
 				transition: height 0.3s ease;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-item.is-active .digiblocks-faq-answer {
+			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-answer {
 				display: block;
 			}
 			
-			[data-custom-id="${blockId}"] .digiblocks-faq-schema {
+			.${id} .digiblocks-faq-schema {
 				margin-top: 15px;
 			}
 		`;
@@ -952,45 +864,45 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 		// Responsive styles
 		const tabletStyles = `
 			@media (max-width: 991px) {
-				[data-custom-id="${blockId}"] {
+				.${id} {
 					${margin.tablet ? `margin: ${margin.tablet.top}${margin.tablet.unit} ${margin.tablet.right}${margin.tablet.unit} ${margin.tablet.bottom}${margin.tablet.unit} ${margin.tablet.left}${margin.tablet.unit};` : ''}
 				}
 				
-				[data-custom-id="${blockId}"] .digiblocks-faq-item {
+				.${id} .digiblocks-faq-item {
 					margin-bottom: ${itemsSpacing.tablet !== undefined ? itemsSpacing.tablet : itemSpacing}px;
 				}
 				
-				[data-custom-id="${blockId}"] .digiblocks-faq-question,
-				[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+				.${id} .digiblocks-faq-question,
+				.${id} .digiblocks-faq-answer {
 					${padding.tablet ? `padding: ${padding.tablet.top}${padding.tablet.unit} ${padding.tablet.right}${padding.tablet.unit} ${padding.tablet.bottom}${padding.tablet.unit} ${padding.tablet.left}${padding.tablet.unit};` : ''}
 				}
 				
 				${layout === 'minimalist' ? `
-				[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+				.${id} .digiblocks-faq-answer {
 					padding: ${padding.tablet?.top || padding[activeDevice].top}${padding.tablet?.unit || padding[activeDevice].unit} 0 ${padding.tablet?.bottom || padding[activeDevice].bottom}${padding.tablet?.unit || padding[activeDevice].unit} 0;
 				}
 				` : ''}
 				
 				${iconSize && iconSize.tablet ? `
-				[data-custom-id="${blockId}"] .digiblocks-faq-question-icon {
+				.${id} .digiblocks-faq-question-icon {
 					font-size: ${iconSize.tablet}px;
 				}
 				
-				[data-custom-id="${blockId}"] .digiblocks-faq-question-icon svg {
+				.${id} .digiblocks-faq-question-icon svg {
 					width: ${iconSize.tablet}px;
 					height: ${iconSize.tablet}px;
 				}
 				` : ''}
 				
 				${titleTypography && titleTypography.fontSize && titleTypography.fontSize.tablet ? `
-				[data-custom-id="${blockId}"] .digiblocks-faq-question-text {
+				.${id} .digiblocks-faq-question-text {
 					font-size: ${titleTypography.fontSize.tablet}${titleTypography.fontSizeUnit || 'px'};
 					${titleTypography.lineHeight && titleTypography.lineHeight.tablet ? `line-height: ${titleTypography.lineHeight.tablet}${titleTypography.lineHeightUnit || 'em'};` : ''}
 				}
 				` : ''}
 				
 				${contentTypography && contentTypography.fontSize && contentTypography.fontSize.tablet ? `
-				[data-custom-id="${blockId}"] .digiblocks-faq-answer-content {
+				.${id} .digiblocks-faq-answer-content {
 					font-size: ${contentTypography.fontSize.tablet}${contentTypography.fontSizeUnit || 'px'};
 					${contentTypography.lineHeight && contentTypography.lineHeight.tablet ? `line-height: ${contentTypography.lineHeight.tablet}${contentTypography.lineHeightUnit || 'em'};` : ''}
 				}
@@ -1000,45 +912,45 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 		
 		const mobileStyles = `
 			@media (max-width: 767px) {
-				[data-custom-id="${blockId}"] {
+				.${id} {
 					${margin.mobile ? `margin: ${margin.mobile.top}${margin.mobile.unit} ${margin.mobile.right}${margin.mobile.unit} ${margin.mobile.bottom}${margin.mobile.unit} ${margin.mobile.left}${margin.mobile.unit};` : ''}
 				}
 				
-				[data-custom-id="${blockId}"] .digiblocks-faq-item {
+				.${id} .digiblocks-faq-item {
 					margin-bottom: ${itemsSpacing.mobile !== undefined ? itemsSpacing.mobile : itemSpacing}px;
 				}
 				
-				[data-custom-id="${blockId}"] .digiblocks-faq-question,
-				[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+				.${id} .digiblocks-faq-question,
+				.${id} .digiblocks-faq-answer {
 					${padding.mobile ? `padding: ${padding.mobile.top}${padding.mobile.unit} ${padding.mobile.right}${padding.mobile.unit} ${padding.mobile.bottom}${padding.mobile.unit} ${padding.mobile.left}${padding.mobile.unit};` : ''}
 				}
 				
 				${layout === 'minimalist' ? `
-				[data-custom-id="${blockId}"] .digiblocks-faq-answer {
+				.${id} .digiblocks-faq-answer {
 					padding: ${padding.mobile?.top || padding[activeDevice].top}${padding.mobile?.unit || padding[activeDevice].unit} 0 ${padding.mobile?.bottom || padding[activeDevice].bottom}${padding.mobile?.unit || padding[activeDevice].unit} 0;
 				}
 				` : ''}
 				
 				${iconSize && iconSize.mobile ? `
-				[data-custom-id="${blockId}"] .digiblocks-faq-question-icon {
+				.${id} .digiblocks-faq-question-icon {
 					font-size: ${iconSize.mobile}px;
 				}
 				
-				[data-custom-id="${blockId}"] .digiblocks-faq-question-icon svg {
+				.${id} .digiblocks-faq-question-icon svg {
 					width: ${iconSize.mobile}px;
 					height: ${iconSize.mobile}px;
 				}
 				` : ''}
 				
 				${titleTypography && titleTypography.fontSize && titleTypography.fontSize.mobile ? `
-				[data-custom-id="${blockId}"] .digiblocks-faq-question-text {
+				.${id} .digiblocks-faq-question-text {
 					font-size: ${titleTypography.fontSize.mobile}${titleTypography.fontSizeUnit || 'px'};
 					${titleTypography.lineHeight && titleTypography.lineHeight.mobile ? `line-height: ${titleTypography.lineHeight.mobile}${titleTypography.lineHeightUnit || 'em'};` : ''}
 				}
 				` : ''}
 				
 				${contentTypography && contentTypography.fontSize && contentTypography.fontSize.mobile ? `
-				[data-custom-id="${blockId}"] .digiblocks-faq-answer-content {
+				.${id} .digiblocks-faq-answer-content {
 					font-size: ${contentTypography.fontSize.mobile}${contentTypography.fontSizeUnit || 'px'};
 					${contentTypography.lineHeight && contentTypography.lineHeight.mobile ? `line-height: ${contentTypography.lineHeight.mobile}${contentTypography.lineHeightUnit || 'em'};` : ''}
 				}
@@ -1347,6 +1259,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
                                 checked={allowMultipleOpen}
                                 onChange={() => setAttributes({ allowMultipleOpen: !allowMultipleOpen })}
                                 help={__("When enabled, multiple FAQ items can be open at the same time.", "digiblocks")}
+                                __nextHasNoMarginBottom={true}
                             />
                             
                             <SelectControl
@@ -1368,6 +1281,8 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
                                         value={questionPrefix || ""}
                                         onChange={(value) => setAttributes({ questionPrefix: value })}
                                         placeholder={__("Example: Q:", "digiblocks")}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
                                     />
                                     <p className="components-base-control__help">
                                         {__("Add a prefix to questions (e.g., 'Q:').", "digiblocks")}
@@ -1385,6 +1300,8 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
                                         value={answerPrefix || ""}
                                         onChange={(value) => setAttributes({ answerPrefix: value })}
                                         placeholder={__("Example: A:", "digiblocks")}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
                                     />
                                     <p className="components-base-control__help">
                                         {__("Add a prefix to answers (e.g., 'A:').", "digiblocks")}
@@ -1471,6 +1388,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
                                 checked={schemaEnabled}
                                 onChange={() => setAttributes({ schemaEnabled: !schemaEnabled })}
                                 help={__("Add JSON-LD schema markup for better SEO results.", "digiblocks")}
+                                __nextHasNoMarginBottom={true}
                             />
                             
                             {schemaEnabled && (
@@ -1813,7 +1731,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: '100%' }}
                                     >
                                         {__("Preview Animation", "digiblocks")}
@@ -1992,9 +1910,8 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-faq-block ${layout || 'boxed'} ${customClasses || ''}`,
+        className: `digiblocks-faq-block ${id} ${layout || 'boxed'} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     return (

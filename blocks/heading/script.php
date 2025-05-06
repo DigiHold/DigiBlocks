@@ -11,12 +11,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes.
-$block_id         = isset( $attrs['id'] ) ? $attrs['id'] : '';
-$highlightText    = isset( $attrs['highlightText'] ) ? $attrs['highlightText'] : '';
-$linkEnabled      = isset( $attrs['linkEnabled'] ) ? $attrs['linkEnabled'] : false;
+$id            = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
+$highlightText = isset( $attrs['highlightText'] ) ? $attrs['highlightText'] : '';
+$linkEnabled   = isset( $attrs['linkEnabled'] ) ? $attrs['linkEnabled'] : false;
 
 // Only generate JS if we have a block ID and highlight text or link is enabled
-if ( empty( $block_id ) || ( empty( $highlightText ) && !$linkEnabled ) ) {
+if ( empty( $id ) || ( empty( $highlightText ) && !$linkEnabled ) ) {
     $digiblocks_js_output = '';
     return;
 }
@@ -24,9 +24,9 @@ if ( empty( $block_id ) || ( empty( $highlightText ) && !$linkEnabled ) ) {
 // JavaScript Output
 ob_start();
 ?>
-/* Heading Block - <?php echo esc_attr( $block_id ); ?> */
+/* Heading Block - <?php echo esc_attr( $id ); ?> */
 document.addEventListener('DOMContentLoaded', function() {
-    const heading = document.querySelector('[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]');
+    const heading = document.querySelector('.<?php echo esc_attr( $id ); ?>');
     
     if (!heading) return;
     

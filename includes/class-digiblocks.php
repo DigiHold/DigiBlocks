@@ -2,6 +2,17 @@
 /**
  * DigiBlocks Plugin
  */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * DigiBlocks main class.
+ *
+ * @package DigiBlocks
+ */
 class DigiBlocks {
 	/**
 	 * Instance of the plugin.
@@ -47,9 +58,6 @@ class DigiBlocks {
 		// Register block category.
 		add_filter( 'block_categories_all', array( $this, 'register_block_category' ), 9999999, 2 );
 
-		// Register blocks.
-		add_action( 'init', array( $this, 'register_blocks' ) );
-
 		// Register custom REST API routes.
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
@@ -70,6 +78,9 @@ class DigiBlocks {
 
 		// Initialize fonts manager
 		$this->init_fonts_manager();
+
+		// Register navigation block with server-side rendering
+		add_action( 'init', array( $this, 'register_navigation_block' ) );
 	}
 
 	/**
@@ -155,6 +166,11 @@ class DigiBlocks {
 					'title' => esc_html__( 'DigiBlocks', 'digiblocks' ),
 					'icon'  => $this->get_category_icon(),
 				),
+				array(
+					'slug'  => 'digiblocks-theme',
+					'title' => esc_html__( 'DigiBlocks Theme', 'digiblocks' ),
+					'icon'  => $this->get_category_icon(),
+				),
 			),
 			$categories
 		);
@@ -167,20 +183,6 @@ class DigiBlocks {
 	 */
 	private function get_category_icon() {
 		return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="currentColor"/></svg>';
-	}
-
-	/**
-	 * Register all blocks.
-	 */
-	public function register_blocks() {
-		$active_blocks = get_option( 'digiblocks_active_blocks', array() );
-		$blocks        = $this->get_blocks_list();
-
-		foreach ( $blocks as $block ) {
-			if ( ! isset( $active_blocks[ $block['name'] ] ) || $active_blocks[ $block['name'] ] ) {
-				$this->register_block( $block['name'] );
-			}
-		}
 	}
 
 	/**
@@ -305,6 +307,14 @@ class DigiBlocks {
 				),
 				'description' => __( 'Display a list of items with custom icons.', 'digiblocks' ),
 			),
+			'pricing-table' => array(
+				'title'       => __( 'Pricing Table', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '320 512',
+					'path'    => 'M176 16c0-8.8-7.2-16-16-16s-16 7.2-16 16l0 47.5c-6.3 .1-12.6 .3-18.8 .9c-24 2-47.9 7.8-67.4 20.6C37.7 98.1 23.2 118 17.9 146c-3.8 20.3-1.9 38.2 5.7 53.7C31 215 43.1 226.5 57.1 235.4c26.7 17 63.6 26.7 97.2 35.5l1.7 .4c35.7 9.4 67.8 17.9 89.8 31.9c10.6 6.8 17.8 14.2 21.9 22.6c4 8.3 5.8 19 3 33.8c-3.9 20.7-18.4 36.4-42.9 46c-24.9 9.8-59.1 12.6-98 7c-24.4-3.6-61-12.1-91.3-25.2c-8.1-3.5-17.5 .2-21 8.4s.2 17.5 8.4 21c33.6 14.5 73.1 23.5 99.3 27.4c0 0 .1 0 .1 0c6.4 .9 12.7 1.6 18.9 2.1l0 49.5c0 8.8 7.2 16 16 16s16-7.2 16-16l0-48.6c23.2-.7 44.8-4.7 63.4-11.9c32-12.5 56.2-35.7 62.7-69.9c3.8-20.3 1.9-38.2-5.7-53.7c-7.4-15.3-19.6-26.8-33.5-35.6c-26.7-17-63.6-26.7-97.2-35.5l-1.7-.4c-35.7-9.4-67.8-17.9-89.8-31.9c-10.6-6.8-17.8-14.2-21.9-22.6c-4-8.3-5.8-19-3-33.8c3.6-19.3 13.1-31.8 26-40.2c13.4-8.8 31.5-13.7 52.6-15.5c42.3-3.5 91.3 6 124.3 14c8.6 2.1 17.2-3.2 19.3-11.8s-3.2-17.2-11.8-19.3c-21.9-5.3-52.1-11.7-83.8-14.4L176 16z',
+				),
+				'description' => __( 'Create beautiful pricing tables with multiple plans and features.', 'digiblocks' ),
+			),
 			'separator' => array(
 				'title'       => __( 'Separator', 'digiblocks' ),
 				'icon'        => array(
@@ -353,7 +363,25 @@ class DigiBlocks {
 				),
 				'description' => __( 'Display customer testimonials in beautiful layouts.', 'digiblocks' ),
 			),
-			
+			/**
+			 * Digiblocks Theme
+			 */
+			'logo' => array(
+				'title'       => __( 'Logo', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '576 512',
+					'path'    => 'M117.2 136C160.3 96 217.6 64 288 64s127.7 32 170.8 72c43.1 40 71.9 88 85.2 120c-13.3 32-42.1 80-85.2 120c-43.1 40-100.4 72-170.8 72s-127.7-32-170.8-72C74.1 336 45.3 288 32 256c13.3-32 42.1-80 85.2-120zM288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM192 256a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zm224 0a128 128 0 1 0 -256 0 128 128 0 1 0 256 0z',
+				),
+				'description' => __( 'Add a customizable logo for your website header or footer.', 'digiblocks' ),
+			),
+			'navigation' => array(
+				'title'       => __( 'Navigation', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '448 512',
+					'path'    => 'M0 80c0-8.8 7.2-16 16-16l416 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L16 96C7.2 96 0 88.8 0 80zM0 240c0-8.8 7.2-16 16-16l416 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L16 256c-8.8 0-16-7.2-16-16zM448 400c0 8.8-7.2 16-16 16L16 416c-8.8 0-16-7.2-16-16s7.2-16 16-16l416 0c8.8 0 16 7.2 16 16z',
+				),
+				'description' => __( 'Add a responsive navigation menu with custom or WordPress menus.', 'digiblocks' ),
+			),
 		);
 
 		// If block name is specified, return data for that block
@@ -363,20 +391,6 @@ class DigiBlocks {
 
 		// Otherwise return all blocks data
 		return $blocks_data;
-	}
-
-	/**
-	 * Register a single block.
-	 *
-	 * @param string $block_name Block name.
-	 */
-	private function register_block( $block_name ) {
-		$block_dir       = DIGIBLOCKS_PLUGIN_DIR . 'blocks/' . $block_name;
-		$block_json_file = $block_dir . '/block.json';
-
-		if ( file_exists( $block_json_file ) ) {
-			register_block_type( $block_json_file );
-		}
 	}
 
 	/**
@@ -985,6 +999,7 @@ class DigiBlocks {
 				'activeBlocks'     => get_option( 'digiblocks_active_blocks', array() ),
 				'googleMapsApiKey' => $google_maps_api_key,
 				'googleMapsMapId'  => $google_maps_map_id,
+				'navigation_nonce' => wp_create_nonce('digiblocks_nav_nonce'),
 			)
 		);
 	}
@@ -1121,5 +1136,124 @@ class DigiBlocks {
 	 */
 	private function get_plugin_icon() {
 		return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="24" height="24" fill="#fff"><path d="m48.9542389 5.0452399-21.4456806 11.5626397c9.7644787 5.3564796 4.6071224 2.5277596 21.4441586 11.7617607l21.4472008-11.7617588z"/><path d="m25.1662388 45.1154823-21.4456787 11.5611191c9.5319195 5.2303162 4.5615196 2.5034409 21.4441586 11.7617607l21.3712006-11.7207184c-6.8780023-3.8136863-2.5885583-1.4774398-21.3696805-11.6021614z"/><path d="m26.2788792 94.9547577 21.5551204-11.9487152v-24.4491997l-21.5551204 11.8210411z"/><path d="m72.7376785 45.1154823c-18.8555984 10.1642342-14.6254425 7.862957-21.3712005 11.6021614 8.4952812 4.6618423 4.0827217 2.2419968 21.3696823 11.7222443l21.4472046-11.7617607z"/><path d="m71.6204758 42.9358025v-24.4492035l-21.5551186 11.8210411v24.4917603c7.0406418-3.7939225 2.7223206-1.4242402 21.5551186-11.8635979z"/><path d="m50.0714417 58.5568428v24.4491997l21.5444793 11.9487152v-24.5783997c-18.2627983-10.0198402-13.8046417-7.5741577-21.5444793-11.8195152z"/><path d="m47.8324776 54.7963562v-24.4902363c-17.3903179-9.5410404-12.936718-7.0984001-21.5444775-11.819519v24.4492016c18.6853619 10.3633613 14.3518391 7.983036 21.5444775 11.8605537z"/><path d="m73.8488007 94.9547577 21.5551147-11.9487152v-24.4491997l-21.5551147 11.8210411z"/><path d="m2.5 58.5568428v24.4491997l21.5444794 11.9487152v-24.5783997c-17.2352791-9.4574394-12.7771197-7.0102386-21.5444794-11.8195152z"/><path d="m97.3297577 55.9622002c.059288.0440788.1185608.0896759.1489639.1489601.0106354.0167236.0121613.0349579.0212784.0516815-.0075989-.0182419-.0060806-.0395241-.0151978-.0562401-.0364761-.0623207-.1018448-.0987968-.1504745-.1519966-.0775223-.0881577-.1413651-.1869621-.2447205-.247757l.0015182.0015182c.1048737.0607949.1641541.1641503.2386323.2538339z"/></svg>';
+	}
+
+	/**
+	 * Register navigation block with render callback
+	 */
+	public function register_navigation_block() {
+		// Only register if block is active
+		$active_blocks = get_option('digiblocks_active_blocks', array());
+		if (!isset($active_blocks['navigation']) || !$active_blocks['navigation']) {
+			return;
+		}
+		
+		// Register block type with render callback
+		register_block_type('digiblocks/navigation', array(
+			'render_callback' => array($this, 'render_navigation_block'),
+		));
+	}
+
+	/**
+	 * Render callback for navigation block
+	 */
+	public function render_navigation_block( $attributes, $content, $block ) {
+		// Get block attributes
+		$id = $attributes['id'] ?? '';
+		$anchor = $attributes['anchor'] ?? '';
+		$customClasses = $attributes['customClasses'] ?? '';
+		$menuType = $attributes['menuType'] ?? 'wordpress';
+		$selectedMenu = $attributes['selectedMenu'] ?? null;
+		$customItems = $attributes['customItems'] ?? array();
+		$showMobileToggle = $attributes['showMobileToggle'] ?? true;
+		$toggleIcon = $attributes['toggleIcon'] ?? 'hamburger';
+		$customToggleIcon = $attributes['customToggleIcon'] ?? null;
+		
+		// Build class names
+		$block_classes = array(
+			'digiblocks-navigation',
+			$id,
+			$customClasses,
+		);
+		
+		$block_classes = array_filter($block_classes);
+		$block_classes = implode(' ', $block_classes);
+
+		// Get SVG allowed elements
+		$allowed_svg = digiblocks_allow_svg_in_kses();
+		
+		// Start output buffering
+		ob_start();
+		?>
+		<nav class="<?php echo esc_attr($block_classes); ?>"<?php echo !empty($anchor) ? ' id="' . esc_attr($anchor) . '"' : ''; ?>>
+			
+			<?php if ($showMobileToggle): ?>
+				<button class="digiblocks-mobile-toggle" 
+						aria-label="<?php esc_attr_e('Toggle navigation', 'digiblocks'); ?>"
+						data-toggle-target="<?php echo esc_attr($id); ?>">
+					<?php if ($toggleIcon === 'hamburger'): ?>
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<line x1="3" y1="12" x2="21" y2="12"></line>
+							<line x1="3" y1="6" x2="21" y2="6"></line>
+							<line x1="3" y1="18" x2="21" y2="18"></line>
+						</svg>
+					<?php elseif ($customToggleIcon && !empty($customToggleIcon['svg'])): ?>
+						<span><?php echo wp_kses($customToggleIcon['svg'], $allowed_svg); ?></span>
+					<?php endif; ?>
+				</button>
+			<?php endif; ?>
+			
+			<ul class="digiblocks-navigation-menu" id="<?php echo esc_attr('menu-' . $id); ?>">
+				<?php if ($menuType === 'wordpress' && $selectedMenu): ?>
+					<?php
+					// Render WordPress menu
+					wp_nav_menu(array(
+						'menu' => $selectedMenu['id'],
+						'container' => false,
+						'items_wrap' => '%3$s',
+						'depth' => 0,
+						'fallback_cb' => false,
+						'walker' => new DigiBlocks_Navigation_Walker()
+					));
+					?>
+				<?php endif; ?>
+				
+				<?php foreach($customItems as $item): ?>
+					<li class="digiblocks-navigation-menu-item">
+						<a href="<?php echo esc_url($item['url']); ?>" 
+						class="digiblocks-navigation-link"
+						<?php echo (!empty($item['opensInNewTab']) ? 'target="_blank"' : ''); ?>
+						<?php echo (!empty($item['rel']) ? 'rel="' . esc_attr($item['rel']) . '"' : (!empty($item['opensInNewTab']) ? 'rel="noopener noreferrer"' : '')); ?>>
+							
+							<?php 
+							// Get icon position - defaults to 'before' if not set
+							$icon_position = isset($item['iconPosition']) ? $item['iconPosition'] : 'before'; 
+							
+							// Display icon before text if position is 'before'
+							if ($icon_position === 'before' && !empty($item['icon']['svg'])): 
+							?>
+								<span class="digiblocks-navigation-icon">
+								<?php echo wp_kses($item['icon']['svg'], $allowed_svg); ?>
+								</span>
+							<?php endif; ?>
+							
+							<span class="digiblocks-navigation-text"><?php echo esc_html($item['text']); ?></span>
+							
+							<?php 
+							// Display icon after text if position is 'after'
+							if ($icon_position === 'after' && !empty($item['icon']['svg'])): 
+							?>
+								<span class="digiblocks-navigation-icon">
+									<?php echo wp_kses($item['icon']['svg'], $allowed_svg); ?>
+								</span>
+							<?php endif; ?>
+						</a>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		</nav>
+		<?php
+		
+		return ob_get_clean();
 	}
 }

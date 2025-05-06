@@ -11,12 +11,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes.
-$block_id         = isset( $attrs['id'] ) ? $attrs['id'] : '';
+$id               = isset( $attrs['id'] ) ? $attrs['id'] : '';
 $highlightText    = isset( $attrs['highlightText'] ) ? $attrs['highlightText'] : '';
 $highlightType    = isset( $attrs['highlightType'] ) ? $attrs['highlightType'] : 'none';
 
 // Only generate JS if we have a block ID and highlight text
-if ( empty( $block_id ) || empty( $highlightText ) || $highlightType === 'none' ) {
+if ( empty( $id ) || empty( $highlightText ) || $highlightType === 'none' ) {
     $digiblocks_js_output = '';
     return;
 }
@@ -24,9 +24,9 @@ if ( empty( $block_id ) || empty( $highlightText ) || $highlightType === 'none' 
 // JavaScript Output
 ob_start();
 ?>
-/* Call to Action Block - <?php echo esc_attr( $block_id ); ?> */
+/* Call to Action Block - <?php echo esc_attr( $id ); ?> */
 document.addEventListener('DOMContentLoaded', function() {
-    const ctaBlock = document.querySelector('[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]');
+    const ctaBlock = document.querySelector('.<?php echo esc_attr( $id ); ?>');
     
     if (!ctaBlock) return;
     

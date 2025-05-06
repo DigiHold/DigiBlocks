@@ -20,7 +20,7 @@ const { useState, useEffect } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -54,13 +54,8 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
         return unsubscribe;
     }, []);
     
-    // Use useEffect to set the ID only once when component mounts
-    useEffect(() => {
-        // Check if the ID needs to be regenerated using clientId
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-    }, [clientId, setAttributes]);
+    // Create unique class
+	useBlockId( id, clientId, setAttributes, true );
 
     // Animation options
     const animationOptions = [
@@ -90,11 +85,10 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        const blockId = id;
         
         return `
-            /* Buttons Block - ${blockId} */
-            [data-custom-id="${blockId}"] {
+            /* Buttons Block - ${id} */
+            .${id} {
                 display: flex;
                 flex-wrap: wrap;
                 ${layout === 'vertical' ? 'flex-direction: column;' : ''}
@@ -125,16 +119,16 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
                                 value={layout}
                                 onChange={(value) => setAttributes({ layout: value })}
                                 isBlock
-                                __nextHasNoMarginBottom={true}
                                 __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
                             >
                                 <ToggleGroupControlOption 
                                     value="horizontal" 
-                                    label={__("Horizontal", "digiblocks")} 
+                                    label={__("Horizontal", "digiblocks")}
                                 />
                                 <ToggleGroupControlOption 
                                     value="vertical" 
-                                    label={__("Vertical", "digiblocks")} 
+                                    label={__("Vertical", "digiblocks")}
                                 />
                             </ToggleGroupControl>
                             
@@ -143,20 +137,20 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
                                 value={align}
                                 onChange={(value) => setAttributes({ align: value })}
                                 isBlock
-                                __nextHasNoMarginBottom={true}
                                 __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
                             >
                                 <ToggleGroupControlOption 
                                     value="flex-start" 
-                                    label={layout === 'horizontal' ? __("Top", "digiblocks") : __("Left", "digiblocks")} 
+                                    label={layout === 'horizontal' ? __("Top", "digiblocks") : __("Left", "digiblocks")}
                                 />
                                 <ToggleGroupControlOption 
                                     value="center" 
-                                    label={__("Center", "digiblocks")} 
+                                    label={__("Center", "digiblocks")}
                                 />
                                 <ToggleGroupControlOption 
                                     value="flex-end" 
-                                    label={layout === 'horizontal' ? __("Bottom", "digiblocks") : __("Right", "digiblocks")} 
+                                    label={layout === 'horizontal' ? __("Bottom", "digiblocks") : __("Right", "digiblocks")}
                                 />
                             </ToggleGroupControl>
                             
@@ -275,9 +269,8 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props
     const blockProps = useBlockProps({
-        className: `digiblocks-buttons-block ${customClasses || ''}`,
+        className: `digiblocks-buttons-block ${id} ${customClasses || ''}`,
         id: anchor || null,
-        "data-custom-id": id,
     });
 
     // Inner blocks props

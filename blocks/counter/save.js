@@ -33,6 +33,7 @@ const CounterSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-counter",
+		id,
         `align-${align || 'center'}`,
         `layout-${layoutStyle || 'stacked'}`,
         animation !== "none" ? `animate-${animation}` : "",
@@ -45,7 +46,6 @@ const CounterSave = ({ attributes }) => {
     const blockProps = useBlockProps.save({
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id,
         "data-start-value": startNumber || 0,
         "data-end-value": endNumber || 0,
         "data-animation-duration": animationDuration || 2000,

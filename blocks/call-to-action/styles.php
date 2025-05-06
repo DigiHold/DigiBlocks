@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes
+$id                      = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $style                   = isset( $attrs['style'] ) ? $attrs['style'] : 'basic';
 $horizontalLayout        = isset( $attrs['horizontalLayout'] ) ? $attrs['horizontalLayout'] : false;
 $title                   = isset( $attrs['title'] ) ? $attrs['title'] : '';
@@ -291,8 +292,8 @@ $boxShadowHover = isset( $attrs['boxShadowHover'] ) ? $attrs['boxShadowHover'] :
 // CSS Output
 ob_start();
 ?>
-/* Call to Action Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Call to Action Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
     <?php if ( $style !== 'split' ) : ?>
         <?php if ( $backgroundType === 'color' ) : ?>
             background-color: <?php echo esc_attr( $backgroundColor ); ?>;
@@ -332,7 +333,7 @@ ob_start();
     <?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-container {
+.<?php echo esc_attr( $id ); ?> .digiblocks-cta-container {
     <?php if ( $contentWidth ) : ?>
         max-width: <?php echo esc_attr( is_numeric( $contentWidth ) ? $contentWidth . '%' : $contentWidth ); ?>;
     <?php endif; ?>
@@ -342,7 +343,7 @@ ob_start();
     <?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-title {
+.<?php echo esc_attr( $id ); ?> .digiblocks-cta-title {
     color: <?php echo esc_attr( $titleColor ); ?>;
     margin-top: 0;
     margin-bottom: 20px;
@@ -382,7 +383,7 @@ ob_start();
     transition: color 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-content {
+.<?php echo esc_attr( $id ); ?> .digiblocks-cta-content {
     color: <?php echo esc_attr( $textColor ); ?>;
     margin-bottom: 30px;
     
@@ -421,7 +422,7 @@ ob_start();
     transition: color 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-buttons {
+.<?php echo esc_attr( $id ); ?> .digiblocks-cta-buttons {
     text-align: <?php echo esc_attr( $buttonsAlign ); ?>;
     display: flex;
     flex-wrap: wrap;
@@ -435,7 +436,7 @@ ob_start();
     <?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button {
+.<?php echo esc_attr( $id ); ?> .digiblocks-cta-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -482,11 +483,11 @@ ob_start();
     transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button.is-full-width {
+.<?php echo esc_attr( $id ); ?> .digiblocks-cta-button.is-full-width {
     width: 100%;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button:not(.is-primary) {
+.<?php echo esc_attr( $id ); ?> .digiblocks-cta-button:not(.is-primary) {
     background-color: transparent;
     color: <?php echo esc_attr( $buttonColor ); ?>;
     border: 2px solid <?php echo esc_attr( $buttonColor ); ?>;
@@ -494,11 +495,11 @@ ob_start();
 
 <?php if ( $highlightText && $highlightType && $highlightType !== 'none' ) : ?>
     /* Highlight styles */
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-title {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-title {
         white-space: pre-wrap;
     }
 
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-highlight {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-highlight {
         <?php if ( $highlightType === 'background' ) : ?>
             background-color: <?php echo esc_attr( $highlightColor ); ?>;
             padding: 0 5px;
@@ -514,17 +515,17 @@ ob_start();
 
 /* Custom styles based on CTA style */
 <?php if ( $style === 'split' ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         padding: 0;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-split-container {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-split-container {
         display: flex;
         align-items: stretch;
         min-height: inherit;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-image-container {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-image-container {
         flex: 1;
         min-height: 300px;
         <?php if ( $backgroundImage && isset( $backgroundImage['url'] ) ) : ?>
@@ -535,7 +536,7 @@ ob_start();
         <?php endif; ?>
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-content-container {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-content-container {
         flex: 1;
         padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
         <?php if ( $backgroundColor ) : ?>
@@ -548,7 +549,7 @@ ob_start();
 <?php endif; ?>
 
 <?php if ( $style === 'cover' ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         position: relative;
         z-index: 1;
         color: #fff;
@@ -557,7 +558,7 @@ ob_start();
         justify-content: center;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-background {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-background {
         position: absolute;
         top: 0;
         left: 0;
@@ -574,7 +575,7 @@ ob_start();
         <?php endif; ?>
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-overlay {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-overlay {
         position: absolute;
         top: 0;
         left: 0;
@@ -585,38 +586,38 @@ ob_start();
         opacity: <?php echo esc_attr( $backgroundOverlayOpacity / 100 ); ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-title {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-title {
         color: <?php echo !empty($titleColor) ? esc_attr($titleColor) : '#fff'; ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-content {
         color: <?php echo !empty($textColor) ? esc_attr($textColor) : 'rgba(255, 255, 255, 0.9)'; ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button {
         border: 2px solid #fff;
         color: #fff;
         background-color: transparent;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button.is-primary {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button.is-primary {
         background-color: #fff;
         color: #000;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button:hover {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button:hover {
         background-color: #fff;
         color: #000;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button.is-primary:hover {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button.is-primary:hover {
         background-color: transparent;
         color: #fff;
     }
 <?php endif; ?>
 
 <?php if ( $style === 'box' ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         border: 2px solid <?php echo esc_attr( $borderColor ); ?>;
         border-radius: 8px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -624,12 +625,12 @@ ob_start();
 <?php endif; ?>
 
 <?php if ( $style === 'modern' ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         position: relative;
         padding-left: 50px;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:before {
+    .<?php echo esc_attr( $id ); ?>:before {
         content: '';
         position: absolute;
         left: 0;
@@ -642,55 +643,55 @@ ob_start();
 <?php endif; ?>
 
 <?php if ( $style === 'gradient' ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         background: linear-gradient(135deg, <?php echo esc_attr( $backgroundColor ); ?> 0%, <?php echo esc_attr( $backgroundHoverColor ? $backgroundHoverColor : '#2575fc' ); ?> 100%);
         color: #fff;
         border-radius: 10px;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-title {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-title {
         color: <?php echo !empty($titleColor) ? esc_attr($titleColor) : '#fff'; ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-content {
         color: <?php echo !empty($textColor) ? esc_attr($textColor) : 'rgba(255, 255, 255, 0.9)'; ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button {
         border: 2px solid #fff;
         color: #fff;
         background-color: transparent;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button.is-primary {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button.is-primary {
         background-color: #fff;
         color: #000;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button:hover {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button:hover {
         background-color: #fff;
         color: #000;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button.is-primary:hover {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button.is-primary:hover {
         background-color: transparent;
         color: #fff;
     }
 <?php endif; ?>
 
 <?php if ( $style === 'minimal' ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         border-top: 1px solid #eee;
         border-bottom: 1px solid #eee;
         padding-top: 50px;
         padding-bottom: 50px;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-buttons {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-buttons {
         position: relative;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-buttons:before {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-buttons:before {
         content: '';
         position: absolute;
         top: -20px;
@@ -702,7 +703,7 @@ ob_start();
 <?php endif; ?>
 
 <?php if ( $style === 'callout' ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         border-left: 5px solid <?php echo esc_attr( $buttonColor ); ?>;
         background-color: <?php echo esc_attr( $backgroundColor ); ?>;
         padding: 30px;
@@ -710,7 +711,7 @@ ob_start();
         border-radius: 0 4px 4px 0;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:before {
+    .<?php echo esc_attr( $id ); ?>:before {
         content: '';
         position: absolute;
         top: 0;
@@ -721,19 +722,19 @@ ob_start();
         border-radius: 4px 0 0 4px;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-title {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-title {
         color: <?php echo esc_attr( $titleColor ); ?>;
         margin-bottom: 15px;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-content {
         color: <?php echo esc_attr( $textColor ); ?>;
         margin-bottom: 20px;
     }
 <?php endif; ?>
 
 <?php if ( $style === 'banner' ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         position: relative;
         padding: 30px;
         background-color: <?php echo esc_attr( $backgroundColor ); ?>;
@@ -741,7 +742,7 @@ ob_start();
         overflow: visible;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:before {
+    .<?php echo esc_attr( $id ); ?>:before {
         content: '';
         position: absolute;
         top: 0;
@@ -751,17 +752,17 @@ ob_start();
         background-color: <?php echo esc_attr( $buttonColor ); ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-title {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-title {
         color: <?php echo esc_attr( $titleColor ); ?>;
         margin-bottom: 15px;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-content {
         color: <?php echo esc_attr( $textColor ); ?>;
         margin-bottom: 20px;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button {
         background-color: <?php echo esc_attr( $buttonColor ); ?>;
         color: <?php echo esc_attr( $buttonTextColor ); ?>;
         border-radius: 4px;
@@ -769,14 +770,14 @@ ob_start();
         transition: all 0.3s ease;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button:hover {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 <?php endif; ?>
 
 <?php if ( $horizontalLayout ) : ?>
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-horizontal {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-horizontal {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -784,23 +785,23 @@ ob_start();
         width: 100%;
     }
 
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-horizontal .digiblocks-cta-content-wrapper {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-horizontal .digiblocks-cta-content-wrapper {
         flex: 1;
     }
 
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-horizontal .digiblocks-cta-buttons {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-horizontal .digiblocks-cta-buttons {
         flex-shrink: 0;
     }
 
     /* Responsive styles for horizontal layout */
     @media (max-width: 767px) {
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-horizontal {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-cta-horizontal {
             flex-direction: column;
             align-items: <?php echo $align === 'center' ? 'center' : ($align === 'right' ? 'flex-end' : 'flex-start'); ?>;
             gap: 1rem;
         }
         
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-horizontal .digiblocks-cta-content-wrapper {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-cta-horizontal .digiblocks-cta-content-wrapper {
             width: 100%;
             text-align: <?php echo esc_attr( $align ); ?>;
         }
@@ -808,27 +809,27 @@ ob_start();
 <?php endif; ?>
 
 /* Hover effects */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-title {
+.<?php echo esc_attr( $id ); ?> .digiblocks-cta-title {
     transition: color 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-content {
+.<?php echo esc_attr( $id ); ?> .digiblocks-cta-content {
     transition: color 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-cta-title {
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-cta-title {
     <?php if ( $titleHoverColor ) : ?>
         color: <?php echo esc_attr( $titleHoverColor ); ?>;
     <?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-cta-content {
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-cta-content {
     <?php if ( $textHoverColor ) : ?>
         color: <?php echo esc_attr( $textHoverColor ); ?>;
     <?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover {
+.<?php echo esc_attr( $id ); ?>:hover {
     <?php if ( $backgroundHoverColor && $style !== 'gradient' && $style !== 'split' && $backgroundType === 'color' ) : ?>
         background-color: <?php echo esc_attr( $backgroundHoverColor ); ?>;
     <?php endif; ?>
@@ -838,11 +839,11 @@ ob_start();
     <?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button {
+.<?php echo esc_attr( $id ); ?> .digiblocks-cta-button {
     transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button:hover {
+.<?php echo esc_attr( $id ); ?> .digiblocks-cta-button:hover {
     <?php if ( $buttonHoverColor ) : ?>
         background-color: <?php echo esc_attr( $buttonHoverColor ); ?>;
     <?php endif; ?>
@@ -855,7 +856,7 @@ ob_start();
 <?php if ( !empty( $buttons ) && is_array( $buttons ) ) : ?>
     <?php foreach ( $buttons as $button ) : ?>
         <?php if ( isset( $button['customColors'] ) && $button['customColors'] ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button[data-button-id="<?php echo esc_attr( $button['id'] ); ?>"] {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button[data-button-id="<?php echo esc_attr( $button['id'] ); ?>"] {
                 <?php if ( isset( $button['isPrimary'] ) && $button['isPrimary'] ) : ?>
                     background-color: <?php echo esc_attr( isset($button['backgroundColor']) ? $button['backgroundColor'] : $buttonColor ); ?>;
                     color: <?php echo esc_attr( isset($button['textColor']) ? $button['textColor'] : $buttonTextColor ); ?>;
@@ -870,7 +871,7 @@ ob_start();
                 <?php endif; ?>
             }
             
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button[data-button-id="<?php echo esc_attr( $button['id'] ); ?>"]:hover {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button[data-button-id="<?php echo esc_attr( $button['id'] ); ?>"]:hover {
                 <?php if ( isset( $button['hoverBackgroundColor'] ) && $button['hoverBackgroundColor'] ) : ?>
                     background-color: <?php echo esc_attr( $button['hoverBackgroundColor'] ); ?>;
                 <?php endif; ?>
@@ -885,7 +886,7 @@ ob_start();
 
 /* Tablet styles */
 @media (max-width: 991px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         <?php if ( $style !== 'split' ) : ?>
             padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
         <?php endif; ?>
@@ -903,12 +904,12 @@ ob_start();
     }
     
     <?php if ( $style === 'split' ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-content-container {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-cta-content-container {
             padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
         }
     <?php endif; ?>
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-title {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-title {
         <?php if ( isset( $titleTypography['fontSize']['tablet'] ) ) : ?>
             font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ( isset($titleTypography['fontSizeUnit']) ? $titleTypography['fontSizeUnit'] : 'px' ) ); ?>;
         <?php endif; ?>
@@ -922,7 +923,7 @@ ob_start();
         <?php endif; ?>
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-content {
         <?php if ( isset( $contentTypography['fontSize']['tablet'] ) ) : ?>
             font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( isset($contentTypography['fontSizeUnit']) ? $contentTypography['fontSizeUnit'] : 'px' ) ); ?>;
         <?php endif; ?>
@@ -936,7 +937,7 @@ ob_start();
         <?php endif; ?>
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button {
         <?php if ( isset( $buttonTypography['fontSize']['tablet'] ) ) : ?>
             font-size: <?php echo esc_attr( $buttonTypography['fontSize']['tablet'] . ( isset($buttonTypography['fontSizeUnit']) ? $buttonTypography['fontSizeUnit'] : 'px' ) ); ?>;
         <?php endif; ?>
@@ -949,7 +950,7 @@ ob_start();
 
 /* Mobile styles */
 @media (max-width: 767px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         <?php if ( $style !== 'split' ) : ?>
             padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
         <?php endif; ?>
@@ -967,20 +968,20 @@ ob_start();
     }
     
     <?php if ( $style === 'split' ) : ?>
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-split-container {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-cta-split-container {
             flex-direction: <?php echo $reverseColumnsMobile ? 'column-reverse' : 'column'; ?>;
         }
         
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-image-container {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-cta-image-container {
             min-height: 200px;
         }
         
-        [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-content-container {
+        .<?php echo esc_attr( $id ); ?> .digiblocks-cta-content-container {
             padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
         }
     <?php endif; ?>
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-title {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-title {
         <?php if ( isset( $titleTypography['fontSize']['mobile'] ) ) : ?>
             font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ( isset($titleTypography['fontSizeUnit']) ? $titleTypography['fontSizeUnit'] : 'px' ) ); ?>;
         <?php endif; ?>
@@ -994,7 +995,7 @@ ob_start();
         <?php endif; ?>
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-content {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-content {
         <?php if ( isset( $contentTypography['fontSize']['mobile'] ) ) : ?>
             font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( isset($contentTypography['fontSizeUnit']) ? $contentTypography['fontSizeUnit'] : 'px' ) ); ?>;
         <?php endif; ?>
@@ -1008,7 +1009,7 @@ ob_start();
         <?php endif; ?>
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button {
         <?php if ( isset( $buttonTypography['fontSize']['mobile'] ) ) : ?>
             font-size: <?php echo esc_attr( $buttonTypography['fontSize']['mobile'] . ( isset($buttonTypography['fontSizeUnit']) ? $buttonTypography['fontSizeUnit'] : 'px' ) ); ?>;
         <?php endif; ?>
@@ -1018,12 +1019,12 @@ ob_start();
         border-radius: <?php echo esc_attr( $buttonBorderRadius['mobile']['top'] . $buttonBorderRadius['mobile']['unit'] . ' ' . $buttonBorderRadius['mobile']['right'] . $buttonBorderRadius['mobile']['unit'] . ' ' . $buttonBorderRadius['mobile']['bottom'] . $buttonBorderRadius['mobile']['unit'] . ' ' . $buttonBorderRadius['mobile']['left'] . $buttonBorderRadius['mobile']['unit'] ); ?>;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-buttons {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-buttons {
         flex-direction: column;
 		gap: 10px;
     }
     
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-cta-button {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-cta-button {
         width: 100%;
     }
 }

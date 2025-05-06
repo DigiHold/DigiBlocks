@@ -25,7 +25,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const {
     ResponsiveControl,
@@ -73,6 +73,9 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
         hoverEffect,
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(
         window.digi.responsiveState.activeDevice
@@ -83,7 +86,6 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
     const [linkModalOpen, setLinkModalOpen] = useState(false);
     const [currentEditingItem, setCurrentEditingItem] = useState(null);
     const [isAnimating, setIsAnimating] = useState(false);
-    const previewTimeoutRef = useRef(null);
 
     // Subscribe to global device state changes
     useEffect(() => {
@@ -98,121 +100,23 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
 
-    // Use useEffect to set the ID only once when component mounts
-    useEffect(() => {
-        // Check if the ID needs to be regenerated using clientId
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-    }, [clientId, setAttributes]);
+    // Use ref
+	const previewTimeoutRef = useRef(null);
 
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
+	// Effect to trigger animation preview when animation attribute changes
+	useEffect(() => {
+		if (animation && animation !== 'none') {
+			const timeoutId = setTimeout(() => {
+				animationPreview(id, animation, animations, previewTimeoutRef);
+			}, 100);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [animation]);
 
-    // Animation preview function
-    const triggerAnimationPreview = () => {
-        // Only proceed if we have a valid animation
-        if (!animation || animation === "none") {
-            return;
-        }
-
-        // Clear any existing timeout
-        if (previewTimeoutRef.current) {
-            clearTimeout(previewTimeoutRef.current);
-        }
-
-        // Find the block element
-        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-        if (!blockElement) {
-            return;
-        }
-
-        // Generate a timestamp to ensure unique animation names on each click
-        const timestamp = Date.now();
-
-        // Apply animation directly
-        if (animations[animation]) {
-            // Extract the original animation name from the keyframes
-            const originalKeyframes = animations[animation].keyframes;
-            const originalAnimNameMatch = originalKeyframes.match(
-                /@keyframes\s+([a-zA-Z0-9]+)/
-            );
-
-            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-                console.error(
-                    "Could not extract animation name from keyframes"
-                );
-                return;
-            }
-
-            const originalAnimName = originalAnimNameMatch[1];
-            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-
-            // Create a style element with a unique animation name to avoid conflicts
-            const styleElement = document.createElement("style");
-            styleElement.id = `animation-style-${id}_${timestamp}`;
-
-            // Replace the original animation name with our unique name
-            const updatedKeyframes = originalKeyframes.replace(
-                new RegExp(originalAnimName, "g"),
-                uniqueAnimName
-            );
-
-            styleElement.textContent = `
-                ${updatedKeyframes}
-                
-                [data-custom-id="${id}"] {
-                    animation: none; /* Reset first */
-                }
-            `;
-
-            // Remove any existing animation style for this block
-            document
-                .querySelectorAll(`[id^="animation-style-${id}"]`)
-                .forEach((el) => {
-                    el.remove();
-                });
-
-            // Add the style to the document
-            document.head.appendChild(styleElement);
-
-            // Force reflow to ensure animation reset
-            blockElement.offsetHeight;
-
-            // Now apply the animation
-            const animationStyleElement = document.createElement("style");
-            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-            animationStyleElement.textContent = `
-                [data-custom-id="${id}"] {
-                    animation: ${uniqueAnimName} 1.5s forwards !important;
-                }
-            `;
-            document.head.appendChild(animationStyleElement);
-
-            // Clean up after animation
-            previewTimeoutRef.current = setTimeout(() => {
-                styleElement.remove();
-                animationStyleElement.remove();
-                blockElement.style.animation = "";
-            }, 1500);
-        }
-    };
-
-    // Effect to trigger animation preview when animation attribute changes
-    useEffect(() => {
-        if (animation && animation !== "none") {
-            const timeoutId = setTimeout(() => {
-                triggerAnimationPreview();
-            }, 100);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [animation]);
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Border style options
     const borderStyleOptions = [
@@ -349,7 +253,6 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        const blockId = id;
 
         // Border styles
         let borderCSS = "";
@@ -453,8 +356,8 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
         }
 
         return `
-            /* Icon List Block - ${blockId} */
-            [data-custom-id="${blockId}"] {
+            /* Icon List Block - ${id} */
+            .${id} {
                 ${paddingCSS}
                 ${marginCSS}
                 ${borderCSS}
@@ -463,18 +366,18 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                 transition: all 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"]:hover {
+            .${id}:hover {
                 ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ""}
                 ${borderHoverColor ? `border-color: ${borderHoverColor};` : ""}
                 ${hoverCSS}
             }
             
             /* List container */
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-wrapper {
+            .${id} .digiblocks-icon-list-wrapper {
                 text-align: ${listAlign};
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-icon-list {
+            .${id} .digiblocks-icon-list {
                 list-style: none;
                 margin: 0;
                 padding: 0;
@@ -485,7 +388,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* List item */
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-item {
+            .${id} .digiblocks-icon-list-item {
                 display: inline-flex;
                 align-items: center;
 				gap: ${iconSpace[activeDevice] !== undefined ? iconSpace[activeDevice] : 12}px;
@@ -493,12 +396,12 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                 transition: all 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-item:last-child {
+            .${id} .digiblocks-icon-list-item:last-child {
                 margin-bottom: 0;
             }
             
             /* Icon */
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-icon {
+            .${id} .digiblocks-icon-list-icon {
                 flex-shrink: 0;
                 display: flex;
                 align-items: center;
@@ -507,33 +410,33 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                 transition: color 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-icon span {
+            .${id} .digiblocks-icon-list-icon span {
                 display: flex;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-icon svg {
+            .${id} .digiblocks-icon-list-icon svg {
                 width: ${iconSize[activeDevice] !== undefined ? iconSize[activeDevice] : 24}px;
                 height: ${iconSize[activeDevice] !== undefined ? iconSize[activeDevice] : 24}px;
                 fill: currentColor;
             }
             
             /* Text content */
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-content {
+            .${id} .digiblocks-icon-list-content {
                 color: ${textColor || "#333333"};
                 ${contentTypographyCSS}
                 transition: color 0.3s ease;
             }
             
             /* Hover states */
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-item:hover .digiblocks-icon-list-icon {
+            .${id} .digiblocks-icon-list-item:hover .digiblocks-icon-list-icon {
                 color: ${iconHoverColor};
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-item:hover .digiblocks-icon-list-content {
+            .${id} .digiblocks-icon-list-item:hover .digiblocks-icon-list-content {
                 color: ${textHoverColor};
             }
 
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-child {
+            .${id} .digiblocks-icon-list-child {
                 display: inline-flex;
                 ${iconPosition === "after" ? "flex-direction: row-reverse;" : ""}
 				gap: ${iconSpace[activeDevice] !== undefined ? iconSpace[activeDevice] : 12}px;
@@ -541,7 +444,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Link cursor for clickable items */
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-item a {
+            .${id} .digiblocks-icon-list-item a {
                 cursor: pointer;
                 text-decoration: none;
                 color: inherit;
@@ -563,11 +466,11 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                 transition: opacity 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-item {
+            .${id} .digiblocks-icon-list-item {
                 position: relative;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-icon-list-item:hover .digiblocks-icon-list-item-controls {
+            .${id} .digiblocks-icon-list-item:hover .digiblocks-icon-list-item-controls {
                 opacity: 1;
             }
         `;
@@ -598,16 +501,16 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 								value={listLayout}
 								onChange={(value) => setAttributes({ listLayout: value })}
 								isBlock
-								__nextHasNoMarginBottom={true}
 								__next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
 							>
 								<ToggleGroupControlOption 
 									value="horizontal" 
-									label={__("Horizontal", "digiblocks")} 
+									label={__("Horizontal", "digiblocks")}
 								/>
 								<ToggleGroupControlOption 
 									value="vertical" 
-									label={__("Vertical", "digiblocks")} 
+									label={__("Vertical", "digiblocks")}
 								/>
 							</ToggleGroupControl>
 
@@ -616,20 +519,20 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 								value={listAlign}
 								onChange={(value) => setAttributes({ listAlign: value })}
 								isBlock
-								__nextHasNoMarginBottom={true}
 								__next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
 							>
 								<ToggleGroupControlOption 
 									value="left" 
-									label={__("Left", "digiblocks")} 
+									label={__("Left", "digiblocks")}
 								/>
 								<ToggleGroupControlOption 
 									value="center" 
-									label={__("Center", "digiblocks")} 
+									label={__("Center", "digiblocks")}
 								/>
 								<ToggleGroupControlOption 
 									value="right" 
-									label={__("Right", "digiblocks")} 
+									label={__("Right", "digiblocks")}
 								/>
 							</ToggleGroupControl>
 							
@@ -638,16 +541,16 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 								value={iconPosition}
 								onChange={(value) => setAttributes({ iconPosition: value })}
 								isBlock
-								__nextHasNoMarginBottom={true}
 								__next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
 							>
 								<ToggleGroupControlOption 
 									value="before" 
-									label={__("Before", "digiblocks")} 
+									label={__("Before", "digiblocks")}
 								/>
 								<ToggleGroupControlOption 
 									value="after" 
-									label={__("After", "digiblocks")} 
+									label={__("After", "digiblocks")}
 								/>
 							</ToggleGroupControl>
 
@@ -1118,7 +1021,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: "100%" }}
                                     >
                                         {__("Preview Animation", "digiblocks")}
@@ -1319,9 +1222,8 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
     };
 
     const blockProps = useBlockProps({
-        className: `digiblocks-icon-list-block ${customClasses || ""}`,
+        className: `digiblocks-icon-list-block ${id} ${customClasses || ""}`,
         id: anchor || null,
-        "data-custom-id": id,
     });
 
     return (

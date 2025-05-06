@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes.
+$id                       = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $iconValue                = isset( $attrs['iconValue'] ) ? $attrs['iconValue'] : null;
 $iconColor                = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : '#1e73be';
 $iconBackgroundColor      = isset( $attrs['iconBackgroundColor'] ) ? $attrs['iconBackgroundColor'] : null;
@@ -155,8 +156,8 @@ $borderRadius = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : array
 // CSS Output
 ob_start();
 ?>
-/* Icon Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Icon Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
     display: flex;
     justify-content: <?php echo $align === 'center' ? 'center' : ($align === 'right' ? 'flex-end' : 'flex-start'); ?>;
     align-items: center;
@@ -186,7 +187,7 @@ ob_start();
 }
 
 /* Hover effects for the main block */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover {
+.<?php echo esc_attr( $id ); ?>:hover {
     <?php if ( $backgroundHoverColor ) : ?>
         background-color: <?php echo esc_attr( $backgroundHoverColor ); ?>;
     <?php endif; ?>
@@ -210,7 +211,7 @@ ob_start();
     to { transform: rotate(360deg); }
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-icon span {
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-icon span {
     animation: digiblocks-icon-spin 2s linear infinite;
 }
 <?php elseif ( 'pulse' === $hoverEffect ) : ?>
@@ -220,7 +221,7 @@ ob_start();
     100% { transform: scale(1); }
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-icon span {
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-icon span {
     animation: digiblocks-icon-pulse 1.5s ease-in-out infinite;
 }
 <?php elseif ( 'shake' === $hoverEffect ) : ?>
@@ -232,14 +233,14 @@ ob_start();
     100% { transform: translateX(0); }
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-icon span {
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-icon span {
     animation: digiblocks-icon-shake 0.5s ease-in-out infinite;
 }
 <?php endif; ?>
 
 <?php if ( $iconValue ) : ?>
     /* Icon styles */
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -262,14 +263,14 @@ ob_start();
         transition: all 0.3s ease;
     }
 
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon span {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-icon span {
         display: flex;
         <?php if ( $transformCSS ) : ?>
             <?php echo $transformCSS; ?>
         <?php endif; ?>
     }
 
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon svg {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-icon svg {
         width: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
         height: 100%;
         fill: <?php echo esc_attr( $iconColor ); ?>;
@@ -277,7 +278,7 @@ ob_start();
     }
 
     /* Icon hover styles */
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-icon {
+    .<?php echo esc_attr( $id ); ?>:hover .digiblocks-icon {
         <?php if ( $iconHoverBackgroundColor ) : ?>
             background-color: <?php echo esc_attr( $iconHoverBackgroundColor ); ?>;
         <?php endif; ?>
@@ -287,7 +288,7 @@ ob_start();
         <?php endif; ?>
     }
 
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-icon svg {
+    .<?php echo esc_attr( $id ); ?>:hover .digiblocks-icon svg {
         <?php if ( $iconHoverColor ) : ?>
             fill: <?php echo esc_attr( $iconHoverColor ); ?> !important; 
             color: <?php echo esc_attr( $iconHoverColor ); ?> !important;
@@ -297,7 +298,7 @@ ob_start();
 
 /* Tablet Styles */
 @media (max-width: 991px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         <?php if ( isset( $iconMargin['tablet'] ) ) : ?>
             margin: <?php echo esc_attr( $iconMargin['tablet']['top'] . $iconMargin['tablet']['unit'] . ' ' . $iconMargin['tablet']['right'] . $iconMargin['tablet']['unit'] . ' ' . $iconMargin['tablet']['bottom'] . $iconMargin['tablet']['unit'] . ' ' . $iconMargin['tablet']['left'] . $iconMargin['tablet']['unit'] ); ?>;
         <?php endif; ?>
@@ -310,19 +311,19 @@ ob_start();
 
     <?php if ( $iconValue ) : ?>
         <?php if ( isset( $iconSize['tablet'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon svg {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-icon svg {
                 width: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
             }
         <?php endif; ?>
             
         <?php if ( $iconPadding && isset( $iconPadding['tablet'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-icon {
                 padding: <?php echo esc_attr( $iconPadding['tablet']['top'] . $iconPadding['tablet']['unit'] . ' ' . $iconPadding['tablet']['right'] . $iconPadding['tablet']['unit'] . ' ' . $iconPadding['tablet']['bottom'] . $iconPadding['tablet']['unit'] . ' ' . $iconPadding['tablet']['left'] . $iconPadding['tablet']['unit'] ); ?>;
             }
         <?php endif; ?>
             
         <?php if ( $iconBorderStyle && 'default' !== $iconBorderStyle && 'none' !== $iconBorderStyle && isset( $iconBorderWidth['tablet']) && isset( $iconBorderRadius['tablet'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-icon {
                 border-width: <?php echo esc_attr( $iconBorderWidth['tablet']['top'] . $iconBorderWidth['tablet']['unit'] . ' ' . $iconBorderWidth['tablet']['right'] . $iconBorderWidth['tablet']['unit'] . ' ' . $iconBorderWidth['tablet']['bottom'] . $iconBorderWidth['tablet']['unit'] . ' ' . $iconBorderWidth['tablet']['left'] . $iconBorderWidth['tablet']['unit'] ); ?>;
                 border-radius: <?php echo esc_attr( $iconBorderRadius['tablet']['top'] . $iconBorderRadius['tablet']['unit'] . ' ' . $iconBorderRadius['tablet']['right'] . $iconBorderRadius['tablet']['unit'] . ' ' . $iconBorderRadius['tablet']['bottom'] . $iconBorderRadius['tablet']['unit'] . ' ' . $iconBorderRadius['tablet']['left'] . $iconBorderRadius['tablet']['unit'] ); ?>;
             }
@@ -332,7 +333,7 @@ ob_start();
 
 /* Mobile Styles */
 @media (max-width: 767px) {
-    [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+    .<?php echo esc_attr( $id ); ?> {
         <?php if ( isset( $iconMargin['mobile'] ) ) : ?>
             margin: <?php echo esc_attr( $iconMargin['mobile']['top'] . $iconMargin['mobile']['unit'] . ' ' . $iconMargin['mobile']['right'] . $iconMargin['mobile']['unit'] . ' ' . $iconMargin['mobile']['bottom'] . $iconMargin['mobile']['unit'] . ' ' . $iconMargin['mobile']['left'] . $iconMargin['mobile']['unit'] ); ?>;
         <?php endif; ?>
@@ -345,19 +346,19 @@ ob_start();
     
     <?php if ( $iconValue ) : ?>
         <?php if ( isset( $iconSize['mobile'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon svg {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-icon svg {
                 width: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
             }
         <?php endif; ?>
             
         <?php if ( $iconPadding && isset( $iconPadding['mobile'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-icon {
                 padding: <?php echo esc_attr( $iconPadding['mobile']['top'] . $iconPadding['mobile']['unit'] . ' ' . $iconPadding['mobile']['right'] . $iconPadding['mobile']['unit'] . ' ' . $iconPadding['mobile']['bottom'] . $iconPadding['mobile']['unit'] . ' ' . $iconPadding['mobile']['left'] . $iconPadding['mobile']['unit'] ); ?>;
             }
         <?php endif; ?>
             
         <?php if ( $iconBorderStyle && 'default' !== $iconBorderStyle && 'none' !== $iconBorderStyle && isset( $iconBorderWidth['mobile']) && isset( $iconBorderRadius['mobile'] ) ) : ?>
-            [data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-icon {
+            .<?php echo esc_attr( $id ); ?> .digiblocks-icon {
                 border-width: <?php echo esc_attr( $iconBorderWidth['mobile']['top'] . $iconBorderWidth['mobile']['unit'] . ' ' . $iconBorderWidth['mobile']['right'] . $iconBorderWidth['mobile']['unit'] . ' ' . $iconBorderWidth['mobile']['bottom'] . $iconBorderWidth['mobile']['unit'] . ' ' . $iconBorderWidth['mobile']['left'] . $iconBorderWidth['mobile']['unit'] ); ?>;
                 border-radius: <?php echo esc_attr( $iconBorderRadius['mobile']['top'] . $iconBorderRadius['mobile']['unit'] . ' ' . $iconBorderRadius['mobile']['right'] . $iconBorderRadius['mobile']['unit'] . ' ' . $iconBorderRadius['mobile']['bottom'] . $iconBorderRadius['mobile']['unit'] . ' ' . $iconBorderRadius['mobile']['left'] . $iconBorderRadius['mobile']['unit'] ); ?>;
             }

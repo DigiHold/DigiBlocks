@@ -24,7 +24,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -90,12 +90,14 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
         displayIcon
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
     // State for animation preview
     const [isAnimating, setIsAnimating] = useState(false);
-    const previewTimeoutRef = useRef(null);
     const [counterValue, setCounterValue] = useState(startNumber || 0);
     const [isCounterAnimating, setIsCounterAnimating] = useState(false);
 	const [activeColorTab, setActiveColorTab] = useState("normal");
@@ -115,11 +117,6 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
     
     // Use useEffect to set the ID only once when component mounts and initialize missing attributes
     useEffect(() => {
-        // Check if the ID needs to be regenerated using clientId
-		if (!id || !id.includes(clientId.substr(0, 8))) {
-			setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-		}
-
         // Initialize iconMargin if it's null
         if (!iconMargin) {
             setAttributes({
@@ -130,16 +127,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             });
         }
-    }, [clientId, iconMargin, setAttributes]);
-
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
+    }, [iconMargin, setAttributes]);
 
     // State to track if global components are loaded
     const [componentsLoaded, setComponentsLoaded] = useState(false);
@@ -171,99 +159,24 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
     const setIconValue = (newIcon) => {
         setAttributes({ iconValue: newIcon });
     };
+	
+	// Use ref
+	const previewTimeoutRef = useRef(null);
 
-    // Animation preview function
-    const triggerAnimationPreview = () => {
-        // Only proceed if we have a valid animation
-        if (!animation || animation === 'none') {
-            return;
-        }
-        
-        // Clear any existing timeout
-        if (previewTimeoutRef.current) {
-            clearTimeout(previewTimeoutRef.current);
-        }
-        
-        // Find the block element
-        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-        if (!blockElement) {
-            return;
-        }
-        
-        // Generate a timestamp to ensure unique animation names on each click
-        const timestamp = Date.now();
-        
-        // Apply animation directly
-        if (animations[animation]) {
-            // Extract the original animation name from the keyframes
-            const originalKeyframes = animations[animation].keyframes;
-            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-            
-            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-                console.error('Could not extract animation name from keyframes');
-                return;
-            }
-            
-            const originalAnimName = originalAnimNameMatch[1];
-            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-            
-            // Create a style element with a unique animation name to avoid conflicts
-            const styleElement = document.createElement('style');
-            styleElement.id = `animation-style-${id}_${timestamp}`;
-            
-            // Replace the original animation name with our unique name
-            const updatedKeyframes = originalKeyframes.replace(
-                new RegExp(originalAnimName, 'g'),
-                uniqueAnimName
-            );
-            
-            styleElement.textContent = `
-                ${updatedKeyframes}
-                
-                [data-custom-id="${id}"] {
-                    animation: none; /* Reset first */
-                }
-            `;
-            
-            // Remove any existing animation style for this block
-            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-                el.remove();
-            });
-            
-            // Add the style to the document
-            document.head.appendChild(styleElement);
-            
-            // Force reflow to ensure animation reset
-            blockElement.offsetHeight;
-            
-            // Now apply the animation
-            const animationStyleElement = document.createElement('style');
-            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-            animationStyleElement.textContent = `
-                [data-custom-id="${id}"] {
-                    animation: ${uniqueAnimName} 1.5s forwards !important;
-                }
-            `;
-            document.head.appendChild(animationStyleElement);
-            
-            // Clean up after animation
-            previewTimeoutRef.current = setTimeout(() => {
-                styleElement.remove();
-                animationStyleElement.remove();
-                blockElement.style.animation = '';
-            }, 1500);
-        }
-    };
+	// Effect to trigger animation preview when animation attribute changes
+	useEffect(() => {
+		if (animation && animation !== 'none') {
+			const timeoutId = setTimeout(() => {
+				animationPreview(id, animation, animations, previewTimeoutRef);
+			}, 100);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [animation]);
 
-    // Effect to trigger animation preview when animation attribute changes
-    useEffect(() => {
-        if (animation && animation !== 'none') {
-            const timeoutId = setTimeout(() => {
-                triggerAnimationPreview();
-            }, 100);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [animation]);
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Counter animation preview
     const animateCounter = () => {
@@ -410,7 +323,6 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        const blockId = id;
         
         // Border styles
         let borderCSS = '';
@@ -625,7 +537,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
         // Set base styles for the block
         return `
             /* Main block styles */
-            [data-custom-id="${blockId}"] {
+            .${id} {
                 background-color: ${backgroundColor || 'transparent'};
                 ${boxShadowCSS}
                 ${paddingCSS}
@@ -636,13 +548,13 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Hover effects */
-            [data-custom-id="${blockId}"]:hover {
+            .${id}:hover {
                 ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
                 ${hoverCSS}
             }
             
             /* Layout styles */
-            [data-custom-id="${blockId}"] .digiblocks-counter-inner {
+            .${id} .digiblocks-counter-inner {
                 display: flex;
                 flex-direction: ${layoutStyle === 'inline' ? 'row' : 'column'};
                 align-items: ${layoutStyle === 'inline' ? 'center' : align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center'};
@@ -653,7 +565,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
             
             ${displayIcon && iconValue && iconValue.svg ? `
             /* Icon styles */
-            [data-custom-id="${blockId}"] .digiblocks-counter-icon {
+            .${id} .digiblocks-counter-icon {
                 margin: ${iconMarginCSS};
                 display: inline-flex;
                 align-items: center;
@@ -662,11 +574,11 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                 transition: all 0.3s ease;
             }
 
-            [data-custom-id="${blockId}"] .digiblocks-counter-icon span {
+            .${id} .digiblocks-counter-icon span {
                 display: flex;
             }
 
-            [data-custom-id="${blockId}"] .digiblocks-counter-icon svg {
+            .${id} .digiblocks-counter-icon svg {
                 width: ${iconSize && iconSize[activeDevice] ? iconSize[activeDevice] : 32}px;
                 height: 100%;
                 fill: ${iconColor || 'inherit'};
@@ -674,52 +586,52 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Icon hover styles */
-            [data-custom-id="${blockId}"]:hover .digiblocks-counter-icon {
+            .${id}:hover .digiblocks-counter-icon {
                 ${iconHoverCSS}
             }
             
-            [data-custom-id="${blockId}"]:hover .digiblocks-counter-icon svg {
+            .${id}:hover .digiblocks-counter-icon svg {
                 ${iconHoverColor ? `fill: ${iconHoverColor};` : ''}
             }
             ` : ''}
             
             /* Counter styles */
-            [data-custom-id="${blockId}"] .digiblocks-counter-number-wrapper {
+            .${id} .digiblocks-counter-number-wrapper {
                 display: flex;
                 align-items: center;
                 justify-content: ${align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center'};
                 margin-bottom: 10px;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-counter-prefix {
+            .${id} .digiblocks-counter-prefix {
                 margin-right: ${counterPrefixSpacing || 5}px;
                 color: ${counterColor || '#333333'};
                 ${typographyCSS}
                 transition: color 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-counter-suffix {
+            .${id} .digiblocks-counter-suffix {
                 margin-left: ${counterSuffixSpacing || 5}px;
                 color: ${counterColor || '#333333'};
                 ${typographyCSS}
                 transition: color 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-counter-number {
+            .${id} .digiblocks-counter-number {
                 color: ${counterColor || '#333333'};
                 ${typographyCSS}
                 transition: color 0.3s ease;
             }
             
             /* Counter hover styles */
-            [data-custom-id="${blockId}"]:hover .digiblocks-counter-number,
-            [data-custom-id="${blockId}"]:hover .digiblocks-counter-prefix,
-            [data-custom-id="${blockId}"]:hover .digiblocks-counter-suffix {
+            .${id}:hover .digiblocks-counter-number,
+            .${id}:hover .digiblocks-counter-prefix,
+            .${id}:hover .digiblocks-counter-suffix {
                 ${counterHoverColor ? `color: ${counterHoverColor};` : ''}
             }
             
             /* Title styles */
-            [data-custom-id="${blockId}"] .digiblocks-counter-title {
+            .${id} .digiblocks-counter-title {
                 color: ${titleColor || 'inherit'};
                 margin-bottom: 10px;
                 ${titleTypographyCSS}
@@ -727,19 +639,19 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Title hover styles */
-            [data-custom-id="${blockId}"]:hover .digiblocks-counter-title {
+            .${id}:hover .digiblocks-counter-title {
                 ${titleHoverColor ? `color: ${titleHoverColor};` : ''}
             }
             
             /* Content styles */
-            [data-custom-id="${blockId}"] .digiblocks-counter-description {
+            .${id} .digiblocks-counter-description {
                 color: ${textColor || 'inherit'};
                 ${contentTypographyCSS}
                 transition: color 0.3s ease;
             }
             
             /* Content hover styles */
-            [data-custom-id="${blockId}"]:hover .digiblocks-counter-description {
+            .${id}:hover .digiblocks-counter-description {
                 ${textHoverColor ? `color: ${textHoverColor};` : ''}
             }
         `;
@@ -920,6 +832,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Display Icon", "digiblocks")}
                                 checked={displayIcon}
                                 onChange={(value) => setAttributes({ displayIcon: value })}
+                                __nextHasNoMarginBottom={true}
                             />
                             
                             {displayIcon && (
@@ -1055,6 +968,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Use Thousand Separator", "digiblocks")}
                                 checked={numberWithCommas}
                                 onChange={(value) => setAttributes({ numberWithCommas: value })}
+                                __nextHasNoMarginBottom={true}
                             />
                             
                             {numberWithCommas && (
@@ -1526,7 +1440,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: '100%' }}
                                     >
                                         {__("Preview Animation", "digiblocks")}
@@ -1609,9 +1523,8 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-counter align-${align} ${customClasses || ''}`,
+        className: `digiblocks-counter ${id} align-${align} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     // Format the counter values 

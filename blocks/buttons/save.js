@@ -17,6 +17,7 @@ const ButtonsSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-buttons-block",
+		id,
         animation !== "none" ? `animate-${animation}` : "",
         customClasses || ""
     ]
@@ -26,7 +27,6 @@ const ButtonsSave = ({ attributes }) => {
     const blockProps = useBlockProps.save({
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id
     });
 
     const innerBlocksProps = useInnerBlocksProps.save(blockProps);

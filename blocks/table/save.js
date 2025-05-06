@@ -23,6 +23,7 @@ const TableSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-table-block",
+		id,
         `responsive-${responsiveMode}`,
         animation !== "none" ? `animate-${animation}` : "",
         customClasses || ""
@@ -105,7 +106,6 @@ const TableSave = ({ attributes }) => {
     const commonProps = {
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id
     };
 
     return (

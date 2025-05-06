@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes
+$id                       = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $endDate                  = isset( $attrs['endDate'] ) ? $attrs['endDate'] : '';
 $showDays                 = isset( $attrs['showDays'] ) ? $attrs['showDays'] : true;
 $showHours                = isset( $attrs['showHours'] ) ? $attrs['showHours'] : true;
@@ -230,63 +231,63 @@ switch ( $separatorType ) {
 // CSS Output
 ob_start();
 ?>
-/* Countdown Block - <?php echo esc_attr( $block_id ); ?> */
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+/* Countdown Block - <?php echo esc_attr( $id ); ?> */
+.<?php echo esc_attr( $id ); ?> {
 	margin: <?php echo esc_attr( $boxMargin['desktop']['top'] . $boxMargin['desktop']['unit'] . ' ' . $boxMargin['desktop']['right'] . $boxMargin['desktop']['unit'] . ' ' . $boxMargin['desktop']['bottom'] . $boxMargin['desktop']['unit'] . ' ' . $boxMargin['desktop']['left'] . $boxMargin['desktop']['unit'] ); ?>;
 	text-align: <?php echo esc_attr( $align ); ?>;
 	display: block;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-container {
+.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-container {
 	display: inline-flex;
 	flex-wrap: wrap;
 	justify-content: <?php echo $align === 'center' ? 'center' : ($align === 'right' ? 'flex-end' : 'flex-start'); ?>;
 	gap: <?php echo esc_attr( $itemSpacing['desktop'] ); ?>px;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item {
+.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item {
 	display: flex;
 	align-items: center;
 }
 
 <?php if ( 'top' === $labelPosition ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item {
 		flex-direction: column-reverse;
 	}
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-label {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-label {
 		margin-bottom: <?php echo esc_attr( $labelSpacing['desktop'] ); ?>px;
 		margin-top: 0;
 	}
 <?php elseif ( 'inside' === $labelPosition && 'boxes' === $style ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item {
 		flex-direction: column;
 	}
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-digit {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-digit {
 		margin-bottom: <?php echo esc_attr( $labelSpacing['desktop'] ); ?>px;
 	}
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-label {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-label {
 		margin-top: 0;
 	}
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item-inner {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 	}
 <?php else : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item {
 		flex-direction: column;
 	}
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-label {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-label {
 		margin-top: <?php echo esc_attr( $labelSpacing['desktop'] ); ?>px;
 	}
 <?php endif; ?>
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item-inner {
+.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 	transition: all 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-digit {
+.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-digit {
 	<?php if ( ! empty( $titleTypography['fontFamily'] ) ) : ?>
 		font-family: <?php echo esc_attr( $titleTypography['fontFamily'] ); ?>;
 	<?php endif; ?>
@@ -320,7 +321,7 @@ ob_start();
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-label {
+.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-label {
 	<?php if ( ! empty( $contentTypography['fontFamily'] ) ) : ?>
 		font-family: <?php echo esc_attr( $contentTypography['fontFamily'] ); ?>;
 	<?php endif; ?>
@@ -357,13 +358,13 @@ ob_start();
 	transition: color 0.3s ease;
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-countdown-label {
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-countdown-label {
 	<?php if ( $labelHoverColor ) : ?>
 		color: <?php echo esc_attr( $labelHoverColor ); ?>;
 	<?php endif; ?>
 }
 
-[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-expired {
+.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-expired {
 	<?php if ( ! empty( $titleTypography['fontFamily'] ) ) : ?>
 		font-family: <?php echo esc_attr( $titleTypography['fontFamily'] ); ?>;
 	<?php endif; ?>
@@ -381,28 +382,28 @@ ob_start();
 }
 
 <?php if ( $displaySeparator ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-separator {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-separator {
 		color: <?php echo esc_attr( $separatorColor ); ?>;
 		font-size: <?php echo esc_attr( $titleTypography['fontSize']['desktop'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-separator::before {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-separator::before {
 		content: "<?php echo esc_attr( $separator_char ); ?>";
 	}
 	
 	<?php if ( $separatorHoverColor ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"]:hover .digiblocks-countdown-separator {
+		.<?php echo esc_attr( $id ); ?>:hover .digiblocks-countdown-separator {
 			color: <?php echo esc_attr( $separatorHoverColor ); ?>;
 		}
 	<?php endif; ?>
 <?php endif; ?>
 
 <?php if ( 'boxes' === $style && $boxesEqual ) : ?>
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item {
 		flex: 1 0 0;
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item-inner {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 		width: 100%;
 		text-align: center;
 		box-sizing: border-box;
@@ -411,7 +412,7 @@ ob_start();
 
 <?php if ( 'boxes' === $style ) : ?>
 	<?php if ( 'filled' === $boxStyle ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			background-color: <?php echo esc_attr( $digitBackground ); ?>;
 			color: <?php echo esc_attr( $digitColor ); ?>;
 			border-radius: <?php echo esc_attr( $boxBorderRadius['desktop']['top'] . $boxBorderRadius['desktop']['unit'] . ' ' . $boxBorderRadius['desktop']['right'] . $boxBorderRadius['desktop']['unit'] . ' ' . $boxBorderRadius['desktop']['bottom'] . $boxBorderRadius['desktop']['unit'] . ' ' . $boxBorderRadius['desktop']['left'] . $boxBorderRadius['desktop']['unit'] ); ?>;
@@ -422,7 +423,7 @@ ob_start();
 			<?php endif; ?>
 		}
 		
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
 			<?php if ( $digitHoverBackground ) : ?>
 				background-color: <?php echo esc_attr( $digitHoverBackground ); ?>;
 			<?php endif; ?>
@@ -437,7 +438,7 @@ ob_start();
 			<?php endif; ?>
 		}
 	<?php elseif ( 'outlined' === $boxStyle ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			background-color: transparent;
 			color: <?php echo esc_attr( $digitColor ); ?>;
 			border: <?php echo esc_attr( $boxBorderWidth['desktop']['top'] . $boxBorderWidth['desktop']['unit'] ); ?> solid <?php echo esc_attr( $boxBorderColor ); ?>;
@@ -449,7 +450,7 @@ ob_start();
 			<?php endif; ?>
 		}
 		
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
 			<?php if ( $digitHoverBackground ) : ?>
 				background-color: <?php echo esc_attr( $digitHoverBackground ); ?>;
 			<?php endif; ?>
@@ -464,7 +465,7 @@ ob_start();
 			<?php endif; ?>
 		}
 	<?php elseif ( 'pill' === $boxStyle ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			background-color: <?php echo esc_attr( $digitBackground ); ?>;
 			color: <?php echo esc_attr( $digitColor ); ?>;
 			border-radius: 50px;
@@ -475,7 +476,7 @@ ob_start();
 			<?php endif; ?>
 		}
 		
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
 			<?php if ( $digitHoverBackground ) : ?>
 				background-color: <?php echo esc_attr( $digitHoverBackground ); ?>;
 			<?php endif; ?>
@@ -490,7 +491,7 @@ ob_start();
 			<?php endif; ?>
 		}
 	<?php elseif ( 'rounded' === $boxStyle ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			background-color: <?php echo esc_attr( $digitBackground ); ?>;
 			color: <?php echo esc_attr( $digitColor ); ?>;
 			border-radius: 8px;
@@ -501,7 +502,7 @@ ob_start();
 			<?php endif; ?>
 		}
 		
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
 			<?php if ( $digitHoverBackground ) : ?>
 				background-color: <?php echo esc_attr( $digitHoverBackground ); ?>;
 			<?php endif; ?>
@@ -516,7 +517,7 @@ ob_start();
 			<?php endif; ?>
 		}
 	<?php elseif ( 'circle' === $boxStyle ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			background-color: <?php echo esc_attr( $digitBackground ); ?>;
 			color: <?php echo esc_attr( $digitColor ); ?>;
 			border-radius: 50%;
@@ -531,7 +532,7 @@ ob_start();
 			<?php endif; ?>
 		}
 		
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
 			<?php if ( $digitHoverBackground ) : ?>
 				background-color: <?php echo esc_attr( $digitHoverBackground ); ?>;
 			<?php endif; ?>
@@ -547,7 +548,7 @@ ob_start();
 		}
 	<?php else : ?>
 		/* Default box style */
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			color: <?php echo esc_attr( $digitColor ); ?>;
 			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
@@ -555,7 +556,7 @@ ob_start();
 			<?php endif; ?>
 		}
 		
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
 			<?php if ( $digitHoverColor ) : ?>
 				color: <?php echo esc_attr( $digitHoverColor ); ?>;
 			<?php endif; ?>
@@ -568,10 +569,10 @@ ob_start();
 	<?php endif; ?>
 <?php else : ?>
 	/* Simple style (no boxes) */
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item-inner {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 		color: <?php echo esc_attr( $digitColor ); ?>;
 	}
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
 		<?php if ( $digitHoverColor ) : ?>
 			color: <?php echo esc_attr( $digitHoverColor ); ?>;
 		<?php endif; ?>
@@ -580,29 +581,29 @@ ob_start();
 
 /* Tablet styles */
 @media (max-width: 991px) {
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	.<?php echo esc_attr( $id ); ?> {
 		margin: <?php echo esc_attr( $boxMargin['tablet']['top'] . $boxMargin['tablet']['unit'] . ' ' . $boxMargin['tablet']['right'] . $boxMargin['tablet']['unit'] . ' ' . $boxMargin['tablet']['bottom'] . $boxMargin['tablet']['unit'] . ' ' . $boxMargin['tablet']['left'] . $boxMargin['tablet']['unit'] ); ?>;
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-container {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-container {
 		gap: <?php echo esc_attr( $itemSpacing['tablet'] ); ?>px;
 	}
 	
 	<?php if ( 'top' === $labelPosition ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-label {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-label {
 			margin-bottom: <?php echo esc_attr( $labelSpacing['tablet'] ); ?>px;
 		}
 	<?php elseif ( 'inside' === $labelPosition && 'boxes' === $style ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-digit {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-digit {
 			margin-bottom: <?php echo esc_attr( $labelSpacing['tablet'] ); ?>px;
 		}
 	<?php else : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-label {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-label {
 			margin-top: <?php echo esc_attr( $labelSpacing['tablet'] ); ?>px;
 		}
 	<?php endif; ?>
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-digit {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-digit {
 		<?php if ( ! empty( $titleTypography['fontSize']['tablet'] ) ) : ?>
 			font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 		<?php endif; ?>
@@ -616,7 +617,7 @@ ob_start();
 		<?php endif; ?>
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-label {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-label {
 		<?php if ( ! empty( $contentTypography['fontSize']['tablet'] ) ) : ?>
 			font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 		<?php endif; ?>
@@ -631,7 +632,7 @@ ob_start();
 	}
 	
 	<?php if ( 'boxes' === $style ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			padding: <?php echo esc_attr( $boxPadding['tablet']['top'] . $boxPadding['tablet']['unit'] . ' ' . $boxPadding['tablet']['right'] . $boxPadding['tablet']['unit'] . ' ' . $boxPadding['tablet']['bottom'] . $boxPadding['tablet']['unit'] . ' ' . $boxPadding['tablet']['left'] . $boxPadding['tablet']['unit'] ); ?>;
 			<?php if ( 'outlined' !== $boxStyle && 'default' !== $boxStyle ) : ?>
 				border-radius: <?php echo esc_attr( $boxBorderRadius['tablet']['top'] . $boxBorderRadius['tablet']['unit'] . ' ' . $boxBorderRadius['tablet']['right'] . $boxBorderRadius['tablet']['unit'] . ' ' . $boxBorderRadius['tablet']['bottom'] . $boxBorderRadius['tablet']['unit'] . ' ' . $boxBorderRadius['tablet']['left'] . $boxBorderRadius['tablet']['unit'] ); ?>;
@@ -643,7 +644,7 @@ ob_start();
 	<?php endif; ?>
 	
 	<?php if ( $displaySeparator ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-separator {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-separator {
 			<?php if ( ! empty( $titleTypography['fontSize']['tablet'] ) ) : ?>
 				font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 			<?php endif; ?>
@@ -653,29 +654,29 @@ ob_start();
 
 /* Mobile styles */
 @media (max-width: 767px) {
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] {
+	.<?php echo esc_attr( $id ); ?> {
 		margin: <?php echo esc_attr( $boxMargin['mobile']['top'] . $boxMargin['mobile']['unit'] . ' ' . $boxMargin['mobile']['right'] . $boxMargin['mobile']['unit'] . ' ' . $boxMargin['mobile']['bottom'] . $boxMargin['mobile']['unit'] . ' ' . $boxMargin['mobile']['left'] . $boxMargin['mobile']['unit'] ); ?>;
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-container {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-container {
 		gap: <?php echo esc_attr( $itemSpacing['mobile'] ); ?>px;
 	}
 	
 	<?php if ( 'top' === $labelPosition ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-label {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-label {
 			margin-bottom: <?php echo esc_attr( $labelSpacing['mobile'] ); ?>px;
 		}
 	<?php elseif ( 'inside' === $labelPosition && 'boxes' === $style ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-digit {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-digit {
 			margin-bottom: <?php echo esc_attr( $labelSpacing['mobile'] ); ?>px;
 		}
 	<?php else : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-label {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-label {
 			margin-top: <?php echo esc_attr( $labelSpacing['mobile'] ); ?>px;
 		}
 	<?php endif; ?>
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-digit {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-digit {
 		<?php if ( ! empty( $titleTypography['fontSize']['mobile'] ) ) : ?>
 			font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 		<?php endif; ?>
@@ -689,7 +690,7 @@ ob_start();
 		<?php endif; ?>
 	}
 	
-	[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-label {
+	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-label {
 		<?php if ( ! empty( $contentTypography['fontSize']['mobile'] ) ) : ?>
 			font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 		<?php endif; ?>
@@ -704,7 +705,7 @@ ob_start();
 	}
 	
 	<?php if ( 'boxes' === $style ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-item-inner {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			padding: <?php echo esc_attr( $boxPadding['mobile']['top'] . $boxPadding['mobile']['unit'] . ' ' . $boxPadding['mobile']['right'] . $boxPadding['mobile']['unit'] . ' ' . $boxPadding['mobile']['bottom'] . $boxPadding['mobile']['unit'] . ' ' . $boxPadding['mobile']['left'] . $boxPadding['mobile']['unit'] ); ?>;
 			<?php if ( 'outlined' !== $boxStyle && 'default' !== $boxStyle ) : ?>
 				border-radius: <?php echo esc_attr( $boxBorderRadius['mobile']['top'] . $boxBorderRadius['mobile']['unit'] . ' ' . $boxBorderRadius['mobile']['right'] . $boxBorderRadius['mobile']['unit'] . ' ' . $boxBorderRadius['mobile']['bottom'] . $boxBorderRadius['mobile']['unit'] . ' ' . $boxBorderRadius['mobile']['left'] . $boxBorderRadius['mobile']['unit'] ); ?>;
@@ -716,7 +717,7 @@ ob_start();
 	<?php endif; ?>
 	
 	<?php if ( $displaySeparator ) : ?>
-		[data-custom-id="<?php echo esc_attr( $block_id ); ?>"] .digiblocks-countdown-separator {
+		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-separator {
 			<?php if ( ! empty( $titleTypography['fontSize']['mobile'] ) ) : ?>
 				font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 			<?php endif; ?>

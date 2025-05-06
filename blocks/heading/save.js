@@ -28,6 +28,7 @@ const HeadingSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-heading",
+		id,
         `align-${align}`,
         animation !== "none" ? `animate-${animation}` : "",
         displaySeparator ? `has-separator separator-${separatorStyle}` : "",
@@ -40,7 +41,6 @@ const HeadingSave = ({ attributes }) => {
     const commonProps = {
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id
     };
 
     // Function to render highlighted content

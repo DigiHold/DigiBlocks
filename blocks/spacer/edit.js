@@ -14,6 +14,7 @@ const { useState, useEffect } = wp.element;
 /**
  * Internal dependencies
  */
+const { useBlockId, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, CustomTabPanel } = digi.components;
 
@@ -27,6 +28,9 @@ const SpacerEdit = ({ attributes, setAttributes, clientId }) => {
         customClasses,
         height
     } = attributes;
+
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
 
     // Use global responsive state for local rendering
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
@@ -43,13 +47,6 @@ const SpacerEdit = ({ attributes, setAttributes, clientId }) => {
     
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
-
-    // Add unique data-custom-id
-	useEffect(() => {
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-    }, [clientId]);
 
     // Define the tabs for the custom tab panel
     const tabList = [
@@ -68,7 +65,6 @@ const SpacerEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for all styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        const blockId = id;
         
         // Determine current height
         const currentHeight = height[activeDevice] || (activeDevice === 'tablet' ? 60 : activeDevice === 'mobile' ? 40 : 80);
@@ -76,13 +72,13 @@ const SpacerEdit = ({ attributes, setAttributes, clientId }) => {
         // Assemble the full CSS
         return `
             /* Spacer Block Styles */
-            [data-custom-id="${blockId}"] {
+            .${id} {
                 height: ${currentHeight}px;
                 position: relative;
             }
             
             /* Editor-only styles */
-            .editor-styles-wrapper [data-custom-id="${blockId}"] .digiblocks-spacer-icon-wrapper {
+            .editor-styles-wrapper .${id} .digiblocks-spacer-icon-wrapper {
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -92,7 +88,7 @@ const SpacerEdit = ({ attributes, setAttributes, clientId }) => {
                 pointer-events: none;
             }
             
-            .editor-styles-wrapper [data-custom-id="${blockId}"] .digiblocks-spacer-icon-wrapper svg {
+            .editor-styles-wrapper .${id} .digiblocks-spacer-icon-wrapper svg {
                 width: 1em;
 				min-width: 1.5rem;
                 height: 100%;
@@ -204,9 +200,8 @@ const SpacerEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-spacer ${customClasses || ''}`,
+        className: `digiblocks-spacer ${id} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     return (

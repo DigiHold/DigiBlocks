@@ -6,10 +6,8 @@ const {
     useBlockProps,
     InspectorControls,
     PanelColorSettings,
-    BlockControls,
 } = wp.blockEditor;
 const {
-    PanelBody,
     TextControl,
     TextareaControl,
     RangeControl,
@@ -27,7 +25,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations, debounce } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { 
     ResponsiveControl,
@@ -66,6 +64,9 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
         boxShadowHover
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // Use global responsive state for local rendering
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
@@ -80,9 +81,6 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
     
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
-    
-    // Animation preview timeout ref
-    const previewTimeoutRef = useRef(null);
 
     // Subscribe to global device state changes
     useEffect(() => {
@@ -96,24 +94,11 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Use useEffect to set the ID only once when component mounts
     useEffect(() => {
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-
-		// Ensure markers is initialized as an array if null/undefined
+        // Ensure markers is initialized as an array if null/undefined
 		if (!markers) {
 			setAttributes({ markers: [] });
 		}
-    }, [clientId, id, setAttributes]);
-
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
+    }, [setAttributes]);
 
     // Load Google Maps API script and initialize map
 	useEffect(() => {
@@ -210,10 +195,15 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
 				mapTypeControl: enableMapTypeControl
 			};
 
-			// Only apply map style if no markers or Map ID not needed
+			// Check if we have markers
 			const hasMarkers = markers && markers.length > 0;
 			
-			if (mapStyle && mapStyle !== 'default' && !hasMarkers) {
+			// Apply Map ID only if we have markers
+			if (hasMarkers && digiBlocksData.googleMapsMapId) {
+				mapOptions.mapId = digiBlocksData.googleMapsMapId;
+				// IMPORTANT: Do not set the styles property at all when Map ID is present
+			} else if (mapStyle && mapStyle !== 'default') {
+				// Only apply styles when there's no Map ID
 				if (mapStyle === 'custom' && customMapStyle) {
 					try {
 						const customStyleObj = JSON.parse(customMapStyle);
@@ -224,16 +214,6 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
 				} else if (predefinedMapStyles[mapStyle]) {
 					mapOptions.styles = predefinedMapStyles[mapStyle];
 				}
-			}
-			
-			// Add Map ID only if we have markers
-			const globalMapId = digiBlocksData.googleMapsMapId || '';
-			if (globalMapId && hasMarkers) {
-				mapOptions.mapId = globalMapId;
-				setAttributes({ mapId: globalMapId });
-			} else if (attributes.mapId) {
-				// Make sure to clear mapId if no markers
-				setAttributes({ mapId: '' });
 			}
 			
 			// Create map
@@ -250,12 +230,12 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
 				geocodeAddress(address, map);
 			}
 			
-			// Add markers only if Map ID is set and we have markers
-			if (markers && markers.length > 0 && globalMapId) {
+			// Add markers if we have them
+			if (hasMarkers) {
 				addMarkers(markers, map);
 			}
 		}
-	}, [mapLoaded, mapContainerRef, mapInstance, zoom, mapType, mapStyle, customMapStyle, address, markers, enableZoom, enableScroll, enableFullscreenControl, enableStreetViewControl, enableMapTypeControl, attributes.mapId]);
+	}, [mapLoaded, mapContainerRef, mapInstance, zoom, mapType, mapStyle, customMapStyle, address, markers, enableZoom, enableScroll, enableFullscreenControl, enableStreetViewControl, enableMapTypeControl]);
 
 	// Update map when settings change
 	useEffect(() => {
@@ -365,8 +345,42 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
 		
 		setAttributes({ markers: newMarkers });
 		
-		// Add the new marker to the map
-		if (mapInstance) {
+		// If this is the first marker and we have a Map ID, we need to recreate the map
+		// to properly apply the Map ID
+		if (newMarkers.length === 1 && mapInstance && digiBlocksData.googleMapsMapId) {
+			// Get current center and zoom
+			const currentCenter = mapInstance.getCenter();
+			const currentZoom = mapInstance.getZoom();
+			
+			// Save current map options
+			const mapOptions = {
+				center: currentCenter,
+				zoom: currentZoom,
+				mapTypeId: mapInstance.getMapTypeId(),
+				zoomControl: enableZoom,
+				scrollwheel: enableScroll,
+				fullscreenControl: enableFullscreenControl,
+				streetViewControl: enableStreetViewControl,
+				mapTypeControl: enableMapTypeControl,
+				mapId: digiBlocksData.googleMapsMapId // Add Map ID
+			};
+			
+			// First, clear marker instances
+			if (markerInstances.length > 0) {
+				markerInstances.forEach(marker => marker.map = null);
+				setMarkerInstances([]);
+			}
+			
+			// Create a new map
+			const newMap = new google.maps.Map(mapContainerRef.current, mapOptions);
+			setMapInstance(newMap);
+			
+			// Add the markers to the new map after a short delay to ensure map is fully initialized
+			setTimeout(() => {
+				addMarkers(newMarkers, newMap);
+			}, 100);
+		} else if (mapInstance) {
+			// Just add the new marker to the existing map
 			addMarkers(newMarkers, mapInstance);
 		}
 	};
@@ -395,12 +409,13 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
 		// Update the markers attribute with the new array
 		setAttributes({ markers: updatedMarkers });
 		
-		// If this was the last marker, also clear the mapId attribute
-		if (updatedMarkers.length === 0) {
-			setAttributes({ mapId: '' });
+		// If this was the last marker, we can apply styles
+		if (updatedMarkers.length === 0 && mapInstance) {
+			// Remove mapId
+			mapInstance.mapId = null;
 			
-			// Apply map style if no markers left
-			if (mapInstance && mapStyle && mapStyle !== 'default') {
+			// Re-apply map style if defined
+			if (mapStyle && mapStyle !== 'default') {
 				if (mapStyle === 'custom' && customMapStyle) {
 					try {
 						const customStyleObj = JSON.parse(customMapStyle);
@@ -436,15 +451,8 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
 		}
 	};
 
-    // Add markers to map
-    const addMarkers = async (markers, map) => {
-		// Check for Map ID requirement
-		const hasMapId = !!digiBlocksData.googleMapsMapId;
-		if (!hasMapId) {
-			console.warn('Map ID is required for Advanced Markers');
-			return;
-		}
-		
+	// Add markers to map
+	const addMarkers = async (markers, map) => {
 		// Safely handle empty markers array
 		if (!markers || markers.length === 0) {
 			return;
@@ -453,6 +461,7 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
 		// Clear existing markers
 		if (markerInstances.length > 0) {
 			markerInstances.forEach(marker => marker.map = null);
+			setMarkerInstances([]);
 		}
 		
 		try {
@@ -530,98 +539,23 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
 		}
 	};
 
-    // Animation preview function
-    const triggerAnimationPreview = () => {
-        // Only proceed if we have a valid animation
-        if (!animation || animation === 'none') {
-            return;
-        }
-        
-        // Clear any existing timeout
-        if (previewTimeoutRef.current) {
-            clearTimeout(previewTimeoutRef.current);
-        }
-        
-        // Find the block element
-        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-        if (!blockElement) {
-            return;
-        }
-        
-        // Generate a timestamp to ensure unique animation names on each click
-        const timestamp = Date.now();
-        
-        // Apply animation directly
-        if (animations[animation]) {
-            // Extract the original animation name from the keyframes
-            const originalKeyframes = animations[animation].keyframes;
-            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-            
-            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-                console.error('Could not extract animation name from keyframes');
-                return;
-            }
-            
-            const originalAnimName = originalAnimNameMatch[1];
-            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-            
-            // Create a style element with a unique animation name to avoid conflicts
-            const styleElement = document.createElement('style');
-            styleElement.id = `animation-style-${id}_${timestamp}`;
-            
-            // Replace the original animation name with our unique name
-            const updatedKeyframes = originalKeyframes.replace(
-                new RegExp(originalAnimName, 'g'),
-                uniqueAnimName
-            );
-            
-            styleElement.textContent = `
-                ${updatedKeyframes}
-                
-                [data-custom-id="${id}"] {
-                    animation: none; /* Reset first */
-                }
-            `;
-            
-            // Remove any existing animation style for this block
-            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-                el.remove();
-            });
-            
-            // Add the style to the document
-            document.head.appendChild(styleElement);
-            
-            // Force reflow to ensure animation reset
-            blockElement.offsetHeight;
-            
-            // Now apply the animation
-            const animationStyleElement = document.createElement('style');
-            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-            animationStyleElement.textContent = `
-                [data-custom-id="${id}"] {
-                    animation: ${uniqueAnimName} 1.5s forwards !important;
-                }
-            `;
-            document.head.appendChild(animationStyleElement);
-            
-            // Clean up after animation
-            previewTimeoutRef.current = setTimeout(() => {
-                styleElement.remove();
-                animationStyleElement.remove();
-                blockElement.style.animation = '';
-            }, 1500);
-        }
-    };
+    // Use ref
+	const previewTimeoutRef = useRef(null);
 
-    // Effect to trigger animation preview when animation attribute changes
-    useEffect(() => {
-        if (animation && animation !== 'none') {
-            const timeoutId = setTimeout(() => {
-                triggerAnimationPreview();
-            }, 100);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [animation]);
+	// Effect to trigger animation preview when animation attribute changes
+	useEffect(() => {
+		if (animation && animation !== 'none') {
+			const timeoutId = setTimeout(() => {
+				animationPreview(id, animation, animations, previewTimeoutRef);
+			}, 100);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [animation]);
+
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Border style options
     const borderStyleOptions = [
@@ -810,7 +744,6 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        const blockId = id;
         
         // Set map height based on device
         const currentHeight = mapHeight && mapHeight[activeDevice] 
@@ -857,8 +790,8 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         return `
-            /* Google Map Block - ${blockId} */
-            [data-custom-id="${blockId}"] {
+            /* Google Map Block - ${id} */
+            .${id} {
                 height: ${currentHeight}px;
                 width: 100%;
                 overflow: hidden;
@@ -867,7 +800,7 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
 				transition: all .3s ease;
             }
 
-            [data-custom-id="${blockId}"]:hover {
+            .${id}:hover {
                 ${boxShadowHoverCSS}
             }
             
@@ -876,13 +809,13 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* Responsive styles */
             @media (max-width: 991px) {
-                [data-custom-id="${blockId}"] {
+                .${id} {
                     height: ${mapHeight && mapHeight.tablet ? mapHeight.tablet : 350}px;
                 }
             }
             
             @media (max-width: 767px) {
-                [data-custom-id="${blockId}"] {
+                .${id} {
                     height: ${mapHeight && mapHeight.mobile ? mapHeight.mobile : 300}px;
                 }
             }
@@ -1112,35 +1045,43 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__("Map Controls", "digiblocks")}
                             initialOpen={false}
                         >
-                            <BaseControl id={`${id}-map-controls`}>
+                            <BaseControl
+								id={`${id}-map-controls`}
+								__nextHasNoMarginBottom={true}
+							>
                                 <ToggleControl
                                     label={__("Enable Zoom Control", "digiblocks")}
                                     checked={enableZoom !== false}
                                     onChange={(value) => setAttributes({ enableZoom: value })}
+									__nextHasNoMarginBottom={true}
                                 />
                                 
                                 <ToggleControl
                                     label={__("Enable Mousewheel Zoom", "digiblocks")}
                                     checked={enableScroll !== false}
                                     onChange={(value) => setAttributes({ enableScroll: value })}
+									__nextHasNoMarginBottom={true}
                                 />
                                 
                                 <ToggleControl
                                     label={__("Enable Fullscreen Control", "digiblocks")}
                                     checked={enableFullscreenControl !== false}
                                     onChange={(value) => setAttributes({ enableFullscreenControl: value })}
+									__nextHasNoMarginBottom={true}
                                 />
                                 
                                 <ToggleControl
                                     label={__("Enable Street View Control", "digiblocks")}
                                     checked={enableStreetViewControl !== false}
                                     onChange={(value) => setAttributes({ enableStreetViewControl: value })}
+									__nextHasNoMarginBottom={true}
                                 />
                                 
                                 <ToggleControl
                                     label={__("Enable Map Type Control", "digiblocks")}
                                     checked={enableMapTypeControl !== false}
                                     onChange={(value) => setAttributes({ enableMapTypeControl: value })}
+									__nextHasNoMarginBottom={true}
                                 />
                             </BaseControl>
                         </TabPanelBody>
@@ -1329,7 +1270,7 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: '100%' }}
                                     >
                                         {__("Preview Animation", "digiblocks")}
@@ -1409,9 +1350,8 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props
     const blockProps = useBlockProps({
-        className: `digiblocks-google-map ${animation !== 'none' ? `animate-${animation}` : ''} ${customClasses || ''}`,
+        className: `digiblocks-google-map ${id} ${animation !== 'none' ? `animate-${animation}` : ''} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
     
     // Render placeholder or map

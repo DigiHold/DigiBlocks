@@ -26,6 +26,7 @@ const IconBoxSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
 		"digiblocks-icon-box",
+		id,
 		`align-${align}`,
 		animation !== "none" ? `animate-${animation}` : "",
 		hoverEffect !== "none" ? `has-hover-${hoverEffect}` : "",
@@ -38,7 +39,6 @@ const IconBoxSave = ({ attributes }) => {
     const commonProps = {
         className: blockClasses,
         id: anchor || null,
-        "data-custom-id": id
     };
 
     // Box content structure (always the same regardless of link)

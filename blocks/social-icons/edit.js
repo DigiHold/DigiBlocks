@@ -27,7 +27,7 @@ const { useState, useEffect, useRef, Fragment } = wp.element;
 /**
  * Internal dependencies
  */
-const { animations } = digi.utils;
+const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -84,11 +84,11 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
         textTypography,
     } = attributes;
 
+	// Create unique class
+	useBlockId( id, clientId, setAttributes );
+
     // Use global responsive state for local rendering
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
-    
-    // State for animation preview
-    const previewTimeoutRef = useRef(null);
     
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
@@ -111,11 +111,6 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
     
     // Use useEffect to set the ID only once when component mounts
     useEffect(() => {
-        // Check if the ID needs to be regenerated using clientId
-        if (!id || !id.includes(clientId.substr(0, 8))) {
-            setAttributes({ id: `digi-${clientId.substr(0, 8)}` });
-        }
-        
         // Ensure we have at least one icon if the array is empty
 		if (!icons || icons.length === 0) {
 			setAttributes({
@@ -137,107 +132,23 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
 		}
     }, [clientId, icons, setAttributes, id]);
 
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (previewTimeoutRef.current) {
-                clearTimeout(previewTimeoutRef.current);
-            }
-        };
-    }, []);
+    // Use ref
+	const previewTimeoutRef = useRef(null);
 
-    // Animation preview function
-    const triggerAnimationPreview = () => {
-        // Only proceed if we have a valid animation
-        if (!animation || animation === 'none') {
-            return;
-        }
-        
-        // Clear any existing timeout
-        if (previewTimeoutRef.current) {
-            clearTimeout(previewTimeoutRef.current);
-        }
-        
-        // Find the block element
-        const blockElement = document.querySelector(`[data-custom-id="${id}"]`);
-        if (!blockElement) {
-            return;
-        }
-        
-        // Generate a timestamp to ensure unique animation names on each click
-        const timestamp = Date.now();
-        
-        // Apply animation directly
-        if (animations[animation]) {
-            // Extract the original animation name from the keyframes
-            const originalKeyframes = animations[animation].keyframes;
-            const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-            
-            if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
-                console.error('Could not extract animation name from keyframes');
-                return;
-            }
-            
-            const originalAnimName = originalAnimNameMatch[1];
-            const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-            
-            // Create a style element with a unique animation name to avoid conflicts
-            const styleElement = document.createElement('style');
-            styleElement.id = `animation-style-${id}_${timestamp}`;
-            
-            // Replace the original animation name with our unique name
-            const updatedKeyframes = originalKeyframes.replace(
-                new RegExp(originalAnimName, 'g'),
-                uniqueAnimName
-            );
-            
-            styleElement.textContent = `
-                ${updatedKeyframes}
-                
-                [data-custom-id="${id}"] {
-                    animation: none; /* Reset first */
-                }
-            `;
-            
-            // Remove any existing animation style for this block
-            document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
-                el.remove();
-            });
-            
-            // Add the style to the document
-            document.head.appendChild(styleElement);
-            
-            // Force reflow to ensure animation reset
-            blockElement.offsetHeight;
-            
-            // Now apply the animation
-            const animationStyleElement = document.createElement('style');
-            animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
-            animationStyleElement.textContent = `
-                [data-custom-id="${id}"] {
-                    animation: ${uniqueAnimName} 1.5s forwards !important;
-                }
-            `;
-            document.head.appendChild(animationStyleElement);
-            
-            // Clean up after animation
-            previewTimeoutRef.current = setTimeout(() => {
-                styleElement.remove();
-                animationStyleElement.remove();
-                blockElement.style.animation = '';
-            }, 1500);
-        }
-    };
+	// Effect to trigger animation preview when animation attribute changes
+	useEffect(() => {
+		if (animation && animation !== 'none') {
+			const timeoutId = setTimeout(() => {
+				animationPreview(id, animation, animations, previewTimeoutRef);
+			}, 100);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [animation]);
 
-    // Effect to trigger animation preview when animation attribute changes
-    useEffect(() => {
-        if (animation && animation !== 'none') {
-            const timeoutId = setTimeout(() => {
-                triggerAnimationPreview();
-            }, 100);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [animation]);
+	// Button click handler
+	const handlePreviewClick = () => {
+		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
 
     // Border style options
     const borderStyleOptions = [
@@ -408,7 +319,6 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for styling the Social Icons block
     const generateCSS = () => {
         const activeDevice = localActiveDevice;
-        const blockId = id;
         
         // Icon size
         const currentIconSize = iconSize[activeDevice] || 24;
@@ -491,28 +401,28 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
             switch (labelPosition) {
                 case 'top':
                     labelPositionCSS = `
-                        [data-custom-id="${blockId}"] .digiblocks-social-icon {
+                        .${id} .digiblocks-social-icon {
                             flex-direction: column-reverse;
                         }
                     `;
                     break;
                 case 'right':
                     labelPositionCSS = `
-                        [data-custom-id="${blockId}"] .digiblocks-social-icon {
+                        .${id} .digiblocks-social-icon {
                             flex-direction: row;
                         }
                     `;
                     break;
                 case 'bottom':
                     labelPositionCSS = `
-                        [data-custom-id="${blockId}"] .digiblocks-social-icon {
+                        .${id} .digiblocks-social-icon {
                             flex-direction: column;
                         }
                     `;
                     break;
                 case 'left':
                     labelPositionCSS = `
-                        [data-custom-id="${blockId}"] .digiblocks-social-icon {
+                        .${id} .digiblocks-social-icon {
                             flex-direction: row-reverse;
                         }
                     `;
@@ -521,8 +431,8 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         return `
-            /* Social Icons Block - ${blockId} */
-            [data-custom-id="${blockId}"] {
+            /* Social Icons Block - ${id} */
+            .${id} {
                 display: flex;
                 align-items: center;
                 flex-wrap: wrap;
@@ -530,19 +440,19 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 justify-content: ${align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start'};
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-social-wrapper {
+            .${id} .digiblocks-social-wrapper {
                 position: relative;
 				display: flex;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-social-icon {
+            .${id} .digiblocks-social-icon {
                 display: flex;
                 align-items: center;
                 text-decoration: none;
                 gap: ${currentLabelSpacing}px;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-social-icon-icon {
+            .${id} .digiblocks-social-icon-icon {
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -554,7 +464,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 cursor: pointer;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-social-icon-icon {
+            .${id} .digiblocks-social-icon-icon {
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -566,37 +476,37 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 cursor: pointer;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-social-icon-icon span {
+            .${id} .digiblocks-social-icon-icon span {
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-social-icon-icon svg {
+            .${id} .digiblocks-social-icon-icon svg {
                 width: ${currentIconSize}px;
                 height: ${currentIconSize}px;
                 fill: currentColor;
                 transition: all 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-social-icon:hover .digiblocks-social-icon-icon {
+            .${id} .digiblocks-social-icon:hover .digiblocks-social-icon-icon {
                 background-color: ${iconHoverBackground || iconBackground || 'transparent'};
                 ${iconHoverBorderColor ? `border-color: ${iconHoverBorderColor};` : ''}
                 ${iconHoverColor ? `color: ${iconHoverColor};` : ''}
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-social-icon-label {
+            .${id} .digiblocks-social-icon-label {
                 ${textTypographyCSS}
                 color: ${labelColor || iconColor || '#333333'};
                 transition: color 0.3s ease;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-social-icon:hover .digiblocks-social-icon-label {
+            .${id} .digiblocks-social-icon:hover .digiblocks-social-icon-label {
                 color: ${labelHoverColor || iconHoverColor || labelColor || iconColor || '#333333'};
             }
             
             /* Editor-specific styles */
-            [data-custom-id="${blockId}"] .digiblocks-social-icon-remove {
+            .${id} .digiblocks-social-icon-remove {
                 position: absolute;
                 top: -18px;
                 right: -10px;
@@ -608,11 +518,11 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 z-index: 10;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-social-wrapper:hover .digiblocks-social-icon-remove {
+            .${id} .digiblocks-social-wrapper:hover .digiblocks-social-icon-remove {
                 display: block;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-social-icon.add-social {
+            .${id} .digiblocks-social-icon.add-social {
                 background-color: #f0f0f0;
                 color: #333;
                 border-radius: 50%;
@@ -624,7 +534,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 cursor: pointer;
             }
             
-            [data-custom-id="${blockId}"] .digiblocks-social-icon.add-social svg {
+            .${id} .digiblocks-social-icon.add-social svg {
                 width: .6rem;
                 height: .6rem;
                 fill: currentColor;
@@ -635,52 +545,52 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* Responsive styles */
             @media (max-width: 991px) {
-                [data-custom-id="${blockId}"] {
+                .${id} {
                     gap: ${iconSpacing.tablet || currentIconSpacing}px;
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-social-icon {
+                .${id} .digiblocks-social-icon {
                     gap: ${labelSpacing.tablet || currentLabelSpacing}px;
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-social-icon-icon svg {
+                .${id} .digiblocks-social-icon-icon svg {
                     width: ${iconSize.tablet || currentIconSize}px;
                     height: ${iconSize.tablet || currentIconSize}px;
                 }
                 
                 ${textTypography && textTypography.fontSize && textTypography.fontSize.tablet ? `
-                [data-custom-id="${blockId}"] .digiblocks-social-icon-label {
+                .${id} .digiblocks-social-icon-label {
                     font-size: ${textTypography.fontSize.tablet}${textTypography.fontSizeUnit || 'px'};
                 }
                 ` : ''}
                 
-                [data-custom-id="${blockId}"] .digiblocks-social-icon.add-social {
+                .${id} .digiblocks-social-icon.add-social {
                     width: ${iconSize.tablet || currentIconSize}px;
                     height: ${iconSize.tablet || currentIconSize}px;
                 }
             }
             
             @media (max-width: 767px) {
-                [data-custom-id="${blockId}"] {
+                .${id} {
                     gap: ${iconSpacing.mobile || iconSpacing.tablet || currentIconSpacing}px;
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-social-icon {
+                .${id} .digiblocks-social-icon {
                     gap: ${labelSpacing.mobile || labelSpacing.tablet || currentLabelSpacing}px;
                 }
                 
-                [data-custom-id="${blockId}"] .digiblocks-social-icon-icon svg {
+                .${id} .digiblocks-social-icon-icon svg {
                     width: ${iconSize.mobile || iconSize.tablet || currentIconSize}px;
                     height: ${iconSize.mobile || iconSize.tablet || currentIconSize}px;
                 }
                 
                 ${textTypography && textTypography.fontSize && textTypography.fontSize.mobile ? `
-                [data-custom-id="${blockId}"] .digiblocks-social-icon-label {
+                .${id} .digiblocks-social-icon-label {
                     font-size: ${textTypography.fontSize.mobile}${textTypography.fontSizeUnit || 'px'};
                 }
                 ` : ''}
                 
-                [data-custom-id="${blockId}"] .digiblocks-social-icon.add-social {
+                .${id} .digiblocks-social-icon.add-social {
                     width: ${iconSize.mobile || iconSize.tablet || currentIconSize}px;
                     height: ${iconSize.mobile || iconSize.tablet || currentIconSize}px;
                 }
@@ -885,7 +795,6 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                         label={__('Open in new tab', 'digiblocks')}
                         checked={icon.openInNewTab === undefined ? true : icon.openInNewTab}
                         onChange={(value) => updateSocialIcon(index, 'openInNewTab', value)}
-                        __next40pxDefaultSize={true}
                         __nextHasNoMarginBottom={true}
                     />
                     
@@ -895,8 +804,8 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                         onChange={(value) => updateSocialIcon(index, 'rel', value)}
                         placeholder={__('e.g. nofollow', 'digiblocks')}
                         help={__('Optional. Add rel attributes like "nofollow", "sponsored", etc.', 'digiblocks')}
-                        __next40pxDefaultSize={true}
-                        __nextHasNoMarginBottom={true}
+						__next40pxDefaultSize={true}
+						__nextHasNoMarginBottom={true}
                     />
                     
                     <Button
@@ -922,7 +831,6 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__('Show Labels', 'digiblocks')}
                                 checked={showLabels}
                                 onChange={(value) => setAttributes({ showLabels: value })}
-                                __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
                             />
                             
@@ -932,24 +840,24 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
 									value={labelPosition}
                                     onChange={(value) => setAttributes({ labelPosition: value })}
 									isBlock
-									__nextHasNoMarginBottom={true}
 									__next40pxDefaultSize={true}
+									__nextHasNoMarginBottom={true}
 								>
 									<ToggleGroupControlOption 
 										value="bottom" 
-										label={__("Bottom", "digiblocks")} 
+										label={__("Bottom", "digiblocks")}
 									/>
 									<ToggleGroupControlOption 
 										value="right" 
-										label={__("Right", "digiblocks")} 
+										label={__("Right", "digiblocks")}
 									/>
 									<ToggleGroupControlOption 
 										value="left" 
-										label={__("Left", "digiblocks")} 
+										label={__("Left", "digiblocks")}
 									/>
 									<ToggleGroupControlOption 
 										value="top" 
-										label={__("Top", "digiblocks")} 
+										label={__("Top", "digiblocks")}
 									/>
 								</ToggleGroupControl>
                             )}
@@ -1209,7 +1117,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                                     <Button
                                         variant="secondary"
                                         isSecondary
-                                        onClick={triggerAnimationPreview}
+                                        onClick={handlePreviewClick}
                                         style={{ width: '100%' }}
                                     >
                                         {__("Preview Animation", "digiblocks")}
@@ -1292,9 +1200,8 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props
     const blockProps = useBlockProps({
-        className: `digiblocks-social-icons align-${align} ${customClasses || ''}`,
+        className: `digiblocks-social-icons ${id} align-${align} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
-        "data-custom-id": id, // Always set the block ID as data attribute for CSS targeting
     });
 
     // Render social icons list

@@ -7,7 +7,7 @@ const {
     RichText,
     InspectorControls,
     PanelColorSettings,
-    __experimentalLinkControl: LinkControl,
+    LinkControl,
     BlockControls,
     AlignmentToolbar,
     MediaUpload,

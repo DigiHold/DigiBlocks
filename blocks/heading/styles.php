@@ -309,13 +309,13 @@ switch ( $separatorStyle ) :
 .<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
-    <?php echo $position_css; ?>
-    <?php echo $alignment_css; ?>
+    <?php echo esc_attr( $position_css ); ?>
+    <?php echo esc_attr( $alignment_css ); ?>
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background-color: <?php echo esc_attr( $separatorColor ); ?>;
     border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
-    <?php echo $spacing_margin; ?>
+    <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
 
@@ -323,13 +323,13 @@ switch ( $separatorStyle ) :
 .<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
-    <?php echo $position_css; ?>
-    <?php echo $alignment_css; ?>
+    <?php echo esc_attr( $position_css ); ?>
+    <?php echo esc_attr( $alignment_css ); ?>
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background: linear-gradient(to right, <?php echo esc_attr( $separatorColor ); ?>, <?php echo esc_attr( $separatorSecondaryColor ); ?>, <?php echo esc_attr( $separatorColor ); ?>);
     border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
-    <?php echo $spacing_margin; ?>
+    <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
 
@@ -337,27 +337,27 @@ switch ( $separatorStyle ) :
 .<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
-    <?php echo $position_css; ?>
-    <?php echo $alignment_css; ?>
+    <?php echo esc_attr( $position_css ); ?>
+    <?php echo esc_attr( $alignment_css ); ?>
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background-color: <?php echo esc_attr( $separatorColor ); ?>;
     border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
-    <?php echo $spacing_margin; ?>
+    <?php echo esc_attr( $spacing_margin ); ?>
 }
 
 .<?php echo esc_attr( $id ); ?>::after {
     content: '';
     position: absolute;
-    <?php echo $position_css; ?>
-    <?php echo $alignment_css; ?>
+    <?php echo esc_attr( $position_css ); ?>
+    <?php echo esc_attr( $alignment_css ); ?>
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background-color: <?php echo esc_attr( $separatorSecondaryColor ); ?>;
     border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
     <?php echo $separatorPosition === 'top' 
-        ? "margin-top: " . ($separatorSpacing['desktop'] + $separatorHeight['desktop'] + 3) . "px;" 
-        : "margin-bottom: " . ($separatorSpacing['desktop'] + $separatorHeight['desktop'] + 3) . "px;"; ?>
+        ? "margin-top: " . esc_attr(($separatorSpacing['desktop'] + $separatorHeight['desktop'] + 3)) . "px;" 
+        : "margin-bottom: " . esc_attr(($separatorSpacing['desktop'] + $separatorHeight['desktop'] + 3)) . "px;"; ?>
 }
 <?php break;
 
@@ -365,8 +365,8 @@ switch ( $separatorStyle ) :
 .<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
-    <?php echo $position_css; ?>
-    <?php echo $alignment_css; ?>
+    <?php echo esc_attr( $position_css ); ?>
+    <?php echo esc_attr( $alignment_css ); ?>
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background-image: repeating-linear-gradient(
@@ -377,7 +377,7 @@ switch ( $separatorStyle ) :
         transparent 12px
     );
     border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
-    <?php echo $spacing_margin; ?>
+    <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
 
@@ -385,8 +385,8 @@ switch ( $separatorStyle ) :
 .<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
-    <?php echo $position_css; ?>
-    <?php echo $alignment_css; ?>
+    <?php echo esc_attr( $position_css ); ?>
+    <?php echo esc_attr( $alignment_css ); ?>
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background-image: repeating-linear-gradient(
@@ -397,7 +397,7 @@ switch ( $separatorStyle ) :
         transparent 6px
     );
     border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
-    <?php echo $spacing_margin; ?>
+    <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
 
@@ -405,8 +405,8 @@ switch ( $separatorStyle ) :
 .<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
-    <?php echo $position_css; ?>
-    <?php echo $alignment_css; ?>
+    <?php echo esc_attr( $position_css ); ?>
+    <?php echo esc_attr( $alignment_css ); ?>
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] * 4 ); ?>px;
     background-image: repeating-linear-gradient(
@@ -430,7 +430,7 @@ switch ( $separatorStyle ) :
         black 65%, 
         transparent 65%
     );
-    <?php echo $spacing_margin; ?>
+    <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
 
@@ -438,8 +438,8 @@ switch ( $separatorStyle ) :
 .<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
-    <?php echo $position_css; ?>
-    <?php echo $alignment_css; ?>
+    <?php echo esc_attr( $position_css ); ?>
+    <?php echo esc_attr( $alignment_css ); ?>
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] * 3 ); ?>px;
     background-image: radial-gradient(
@@ -448,7 +448,7 @@ switch ( $separatorStyle ) :
         transparent 25%
     );
     background-size: <?php echo esc_attr( $separatorHeight['desktop'] * 3 ); ?>px <?php echo esc_attr( $separatorHeight['desktop'] * 3 ); ?>px;
-    <?php echo $spacing_margin; ?>
+    <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
 
@@ -456,14 +456,14 @@ switch ( $separatorStyle ) :
 .<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
-    <?php echo $position_css; ?>
-    <?php echo $alignment_css; ?>
+    <?php echo esc_attr( $position_css ); ?>
+    <?php echo esc_attr( $alignment_css ); ?>
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background-color: <?php echo esc_attr( $separatorColor ); ?>;
     box-shadow: 0 0 <?php echo esc_attr( $separatorHeight['desktop'] * 3 ); ?>px <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px <?php echo esc_attr( $separatorColor ); ?>;
     border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
-    <?php echo $spacing_margin; ?>
+    <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
 
@@ -471,13 +471,13 @@ switch ( $separatorStyle ) :
 .<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
-    <?php echo $position_css; ?>
-    <?php echo $alignment_css; ?>
+    <?php echo esc_attr( $position_css ); ?>
+    <?php echo esc_attr( $alignment_css ); ?>
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background: linear-gradient(to right, transparent, <?php echo esc_attr( $separatorColor ); ?>, transparent);
     border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
-    <?php echo $spacing_margin; ?>
+    <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
 
@@ -485,13 +485,13 @@ switch ( $separatorStyle ) :
 .<?php echo esc_attr( $id ); ?>::before {
     content: '';
     position: absolute;
-    <?php echo $position_css; ?>
-    <?php echo $alignment_css; ?>
+    <?php echo esc_attr( $position_css ); ?>
+    <?php echo esc_attr( $alignment_css ); ?>
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background-color: <?php echo esc_attr( $separatorColor ); ?>;
     border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
-    <?php echo $spacing_margin; ?>
+    <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php endswitch; ?>
 
@@ -545,7 +545,7 @@ switch ( $separatorStyle ) :
         width: <?php echo esc_attr( $separatorWidth['tablet'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['tablet'] ); ?>px;
         border-radius: <?php echo esc_attr( $tablet_border_radius ); ?>;
-        <?php echo $tablet_spacing; ?>
+        <?php echo esc_attr($tablet_spacing); ?>
     }
     <?php break;
     
@@ -554,7 +554,7 @@ switch ( $separatorStyle ) :
         width: <?php echo esc_attr( $separatorWidth['tablet'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['tablet'] ); ?>px;
         border-radius: <?php echo esc_attr( $tablet_border_radius ); ?>;
-        <?php echo $tablet_spacing; ?>
+        <?php echo esc_attr($tablet_spacing); ?>
     }
     
     .<?php echo esc_attr( $id ); ?>::after {
@@ -562,8 +562,8 @@ switch ( $separatorStyle ) :
         height: <?php echo esc_attr( $separatorHeight['tablet'] ); ?>px;
         border-radius: <?php echo esc_attr( $tablet_border_radius ); ?>;
         <?php echo $separatorPosition === 'top' 
-            ? "margin-top: " . ($separatorSpacing['tablet'] + $separatorHeight['tablet'] + 3) . "px;" 
-            : "margin-bottom: " . ($separatorSpacing['tablet'] + $separatorHeight['tablet'] + 3) . "px;"; ?>
+            ? "margin-top: " . esc_attr(($separatorSpacing['tablet'] + $separatorHeight['tablet'] + 3)) . "px;" 
+            : "margin-bottom: " . esc_attr(($separatorSpacing['tablet'] + $separatorHeight['tablet'] + 3)) . "px;"; ?>
     }
     <?php break;
     
@@ -572,7 +572,7 @@ switch ( $separatorStyle ) :
         width: <?php echo esc_attr( $separatorWidth['tablet'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['tablet'] * 4 ); ?>px;
         background-size: <?php echo esc_attr( $separatorHeight['tablet'] * 2 ); ?>px <?php echo esc_attr( $separatorHeight['tablet'] * 2 ); ?>px;
-        <?php echo $tablet_spacing; ?>
+        <?php echo esc_attr($tablet_spacing); ?>
     }
     <?php break;
     
@@ -581,7 +581,7 @@ switch ( $separatorStyle ) :
         width: <?php echo esc_attr( $separatorWidth['tablet'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['tablet'] * 3 ); ?>px;
         background-size: <?php echo esc_attr( $separatorHeight['tablet'] * 3 ); ?>px <?php echo esc_attr( $separatorHeight['tablet'] * 3 ); ?>px;
-        <?php echo $tablet_spacing; ?>
+        <?php echo esc_attr($tablet_spacing); ?>
     }
     <?php break;
     
@@ -637,7 +637,7 @@ switch ( $separatorStyle ) :
         width: <?php echo esc_attr( $separatorWidth['mobile'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['mobile'] ); ?>px;
         border-radius: <?php echo esc_attr( $mobile_border_radius ); ?>;
-        <?php echo $mobile_spacing; ?>
+        <?php echo esc_attr($mobile_spacing); ?>
     }
     <?php break;
     
@@ -646,7 +646,7 @@ switch ( $separatorStyle ) :
         width: <?php echo esc_attr( $separatorWidth['mobile'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['mobile'] ); ?>px;
         border-radius: <?php echo esc_attr( $mobile_border_radius ); ?>;
-        <?php echo $mobile_spacing; ?>
+        <?php echo esc_attr($mobile_spacing); ?>
     }
     
     .<?php echo esc_attr( $id ); ?>::after {
@@ -654,8 +654,8 @@ switch ( $separatorStyle ) :
         height: <?php echo esc_attr( $separatorHeight['mobile'] ); ?>px;
         border-radius: <?php echo esc_attr( $mobile_border_radius ); ?>;
         <?php echo $separatorPosition === 'top' 
-            ? "margin-top: " . ($separatorSpacing['mobile'] + $separatorHeight['mobile'] + 3) . "px;" 
-            : "margin-bottom: " . ($separatorSpacing['mobile'] + $separatorHeight['mobile'] + 3) . "px;"; ?>
+            ? "margin-top: " . esc_attr(($separatorSpacing['mobile'] + $separatorHeight['mobile'] + 3)) . "px;" 
+            : "margin-bottom: " . esc_attr(($separatorSpacing['mobile'] + $separatorHeight['mobile'] + 3)) . "px;"; ?>
     }
     <?php break;
     
@@ -664,7 +664,7 @@ switch ( $separatorStyle ) :
         width: <?php echo esc_attr( $separatorWidth['mobile'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['mobile'] * 4 ); ?>px;
         background-size: <?php echo esc_attr( $separatorHeight['mobile'] * 2 ); ?>px <?php echo esc_attr( $separatorHeight['mobile'] * 2 ); ?>px;
-        <?php echo $mobile_spacing; ?>
+        <?php echo esc_attr($mobile_spacing); ?>
     }
     <?php break;
     
@@ -673,7 +673,7 @@ switch ( $separatorStyle ) :
         width: <?php echo esc_attr( $separatorWidth['mobile'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['mobile'] * 3 ); ?>px;
         background-size: <?php echo esc_attr( $separatorHeight['mobile'] * 3 ); ?>px <?php echo esc_attr( $separatorHeight['mobile'] * 3 ); ?>px;
-        <?php echo $mobile_spacing; ?>
+        <?php echo esc_attr($mobile_spacing); ?>
     }
     <?php break;
     

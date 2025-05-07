@@ -78,6 +78,32 @@ const LogoEdit = ({ attributes, setAttributes, clientId }) => {
     
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
+	
+	// State to track if global components are loaded
+    const [componentsLoaded, setComponentsLoaded] = useState(false);
+
+    // Check if the global components are loaded
+    useEffect(() => {
+        // Function to check if digi components are available
+        const checkComponents = () => {
+            if (window.digi && window.digi.components && window.digi.components.FontAwesomeControl) {
+                setComponentsLoaded(true);
+                return true;
+            }
+            return false;
+        };
+        
+        // If components aren't immediately available, set up a small delay to check again
+        if (!checkComponents()) {
+            const timeout = setTimeout(() => {
+                if (checkComponents()) {
+                    clearTimeout(timeout);
+                }
+            }, 500);
+            
+            return () => clearTimeout(timeout);
+        }
+    }, []);
     
     // State for FontAwesome modal
     const [iconModalOpen, setIconModalOpen] = useState(false);
@@ -182,6 +208,9 @@ const LogoEdit = ({ attributes, setAttributes, clientId }) => {
             className: 'digiblocks-tab-2 hover'
         }
     ];
+
+    // Get FontAwesomeControl from the global object
+    const FontAwesomeControl = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
 
     // Generate CSS for block styling
     const generateCSS = () => {
@@ -474,13 +503,20 @@ const LogoEdit = ({ attributes, setAttributes, clientId }) => {
                             ) : (
                                 <div>
                                     <div style={{ marginTop: '16px' }}>
-										<FontAwesomeControl
-											value={textIcon}
-											onChange={(value) => {
-												setAttributes({ textIcon: value });
-												setIconModalOpen(false);
-											}}
-										/>
+										{!componentsLoaded ? (
+											<div style={{ textAlign: 'center', padding: '20px 0' }}>
+												<div className="components-spinner"></div>
+												<p>{__('Loading icon selector...', 'digiblocks')}</p>
+											</div>
+										) : (
+											<FontAwesomeControl
+												value={textIcon}
+												onChange={(value) => {
+													setAttributes({ textIcon: value });
+													setIconModalOpen(false);
+												}}
+											/>
+										)}
                                         
 										<ToggleGroupControl
 											label={__("Icon Position", "digiblocks")}

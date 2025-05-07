@@ -84,6 +84,32 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
     // State for WordPres menu items
     const [menuItems, setMenuItems] = useState([]);
     const [isLoadingMenu, setIsLoadingMenu] = useState(false);
+	
+	// State to track if global components are loaded
+    const [componentsLoaded, setComponentsLoaded] = useState(false);
+
+    // Check if the global components are loaded
+    useEffect(() => {
+        // Function to check if digi components are available
+        const checkComponents = () => {
+            if (window.digi && window.digi.components && window.digi.components.FontAwesomeControl) {
+                setComponentsLoaded(true);
+                return true;
+            }
+            return false;
+        };
+        
+        // If components aren't immediately available, set up a small delay to check again
+        if (!checkComponents()) {
+            const timeout = setTimeout(() => {
+                if (checkComponents()) {
+                    clearTimeout(timeout);
+                }
+            }, 500);
+            
+            return () => clearTimeout(timeout);
+        }
+    }, []);
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -247,6 +273,9 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
             className: 'digiblocks-tab-2 hover'
         }
     ];
+
+    // Get FontAwesomeControl from the global object
+    const FontAwesomeControl = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
 
     // Generate CSS for block styling
     const generateCSS = () => {
@@ -923,11 +952,20 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
                                     />
                                     
                                     {toggleIcon === 'custom' && (
-                                        <FontAwesomeControl
-                                            label={__('Custom Toggle Icon', 'digiblocks')}
-                                            value={customToggleIcon}
-                                            onChange={(value) => setAttributes({ customToggleIcon: value })}
-                                        />
+										<>
+											{!componentsLoaded ? (
+												<div style={{ textAlign: 'center', padding: '20px 0' }}>
+													<div className="components-spinner"></div>
+													<p>{__('Loading icon selector...', 'digiblocks')}</p>
+												</div>
+											) : (
+												<FontAwesomeControl
+													label={__('Custom Toggle Icon', 'digiblocks')}
+													value={customToggleIcon}
+													onChange={(value) => setAttributes({ customToggleIcon: value })}
+												/>
+											)}
+										</>
                                     )}
                                 </>
                             )}
@@ -1284,13 +1322,20 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
                     onRequestClose={() => setIconModalOpen(false)}
                     className="digiblocks-icon-modal"
                 >
-                    <FontAwesomeControl
-                        value={customItems[currentEditingItem].icon}
-                        onChange={(newIcon) => {
-                            updateCustomItem(currentEditingItem, 'icon', newIcon);
-                            setIconModalOpen(false);
-                        }}
-                    />
+                    {!componentsLoaded ? (
+						<div style={{ textAlign: 'center', padding: '20px 0' }}>
+							<div className="components-spinner"></div>
+							<p>{__('Loading icon selector...', 'digiblocks')}</p>
+						</div>
+					) : (
+						<FontAwesomeControl
+							value={customItems[currentEditingItem].icon}
+							onChange={(newIcon) => {
+								updateCustomItem(currentEditingItem, 'icon', newIcon);
+								setIconModalOpen(false);
+							}}
+						/>
+					)}
 
 					{/* Add icon position control */}
 					<div style={{ marginTop: '20px' }}>

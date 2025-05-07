@@ -53,6 +53,8 @@ import LogoEdit from '../../../blocks/logo/edit';
 import LogoSave from '../../../blocks/logo/save';
 import NavigationEdit from '../../../blocks/navigation/edit';
 import NavigationSave from '../../../blocks/navigation/save';
+import LoginLinkEdit from '../../../blocks/login-link/edit';
+import LoginLinkSave from '../../../blocks/login-link/save';
 
 /**
  * Register blocks based on their status
@@ -2921,7 +2923,6 @@ registerBlockType('digiblocks/icon-list', {
                         style: 'solid',
                         categories: ['design']
                     },
-                    linkEnabled: false,
                     linkUrl: '',
                     linkOpenInNewTab: false,
                     linkRel: ''
@@ -2936,7 +2937,6 @@ registerBlockType('digiblocks/icon-list', {
                         style: 'solid',
                         categories: ['design']
                     },
-                    linkEnabled: false,
                     linkUrl: '',
                     linkOpenInNewTab: false,
                     linkRel: ''
@@ -3173,7 +3173,7 @@ registerBlockType('digiblocks/pricing-table', {
     keywords: [__('pricing', 'digiblocks'), __('price', 'digiblocks'), __('table', 'digiblocks'), __('plan', 'digiblocks'), __('subscription', 'digiblocks')],
     // Disable all default controls and settings panels
     supports: {
-        inserter: getBlockActiveStatus('icon-list') ? true : false, // Remove the block if disabled
+        inserter: getBlockActiveStatus('pricing-table') ? true : false, // Remove the block if disabled
         html: false,
         className: false,
         customClassName: false,
@@ -3189,100 +3189,61 @@ registerBlockType('digiblocks/pricing-table', {
         customClasses: {
             type: 'string',
         },
-        columns: {
+        tables: {
             type: 'array',
             default: [],
         },
-        columnGap: {
+        columns: {
             type: 'number',
-            default: 30,
+            default: 2,
         },
-        headerBackgroundColor: {
+        tableStyle: {
             type: 'string',
-            default: '#f8f9fa',
+            default: 'style1',
         },
-        headerTextColor: {
+        align: {
             type: 'string',
-            default: '#333333',
+            default: 'center',
         },
-        bodyBackgroundColor: {
+        animation: {
             type: 'string',
-            default: '#ffffff',
+            default: 'none',
         },
-        bodyTextColor: {
-            type: 'string',
-            default: '#666666',
+        titleTypography: {
+            type: 'object',
+            default: {},
         },
-        featuredColumnHighlightColor: {
-            type: 'string',
-            default: '#4a6cf7',
+        headingTypography: {
+            type: 'object',
+            default: {},
         },
-        buttonBackgroundColor: {
-            type: 'string',
-            default: '#4a6cf7',
+        textTypography: {
+            type: 'object',
+            default: {},
         },
-        buttonBackgroundHoverColor: {
-            type: 'string',
-            default: '#3151d3',
+        contentTypography: {
+            type: 'object',
+            default: {},
         },
-        buttonTextColor: {
-            type: 'string',
-            default: '#ffffff',
-        },
-        buttonTextHoverColor: {
-            type: 'string',
+        buttonTypography: {
+            type: 'object',
+            default: {},
         },
         padding: {
             type: 'object',
             default: {
-                desktop: { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' },
-                tablet: { top: 25, right: 25, bottom: 25, left: 25, unit: 'px' },
-                mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' }
-            }
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            },
         },
         margin: {
             type: 'object',
             default: {
                 desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' }
-            }
-        },
-        titleTypography: {
-            type: 'object',
-        },
-        headingTypography: {
-            type: 'object',
-        },
-        textTypography: {
-            type: 'object',
-        },
-        buttonTypography: {
-            type: 'object',
-        },
-        boxShadow: {
-            type: 'object',
-            default: {
-                enable: false,
-                color: 'rgba(0, 0, 0, 0.1)',
-                horizontal: 0,
-                vertical: 0,
-                blur: 0,
-                spread: 0,
-                position: 'outset'
-            }
-        },
-        boxShadowHover: {
-            type: 'object',
-            default: {
-                enable: false,
-                color: 'rgba(0, 0, 0, 0.2)',
-                horizontal: 0,
-                vertical: 0,
-                blur: 0,
-                spread: 0,
-                position: 'outset'
-            }
+                tablet: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 15, left: 0, unit: 'px' }
+            },
         },
         borderRadius: {
             type: 'object',
@@ -3290,7 +3251,7 @@ registerBlockType('digiblocks/pricing-table', {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
                 tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
                 mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
-            }
+            },
         },
         borderStyle: {
             type: 'string',
@@ -3302,103 +3263,154 @@ registerBlockType('digiblocks/pricing-table', {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
                 tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
                 mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
-            }
+            },
         },
         borderColor: {
             type: 'string',
-            default: '#e0e0e0',
+            default: '#e6e6e6',
         },
-        align: {
-            type: 'string',
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            },
         },
-        textAlign: {
-            type: 'string',
-            default: 'center',
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.15)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            },
         },
-        animation: {
+        buttonRadius: {
+            type: 'number',
+            default: 4,
+        },
+        buttonPadding: {
+            type: 'object',
+            default: {
+                desktop: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px' },
+                tablet: { top: 8, right: 16, bottom: 8, left: 16, unit: 'px' },
+                mobile: { top: 6, right: 12, bottom: 6, left: 12, unit: 'px' }
+            },
+        },
+        buttonBorderStyle: {
             type: 'string',
             default: 'none',
+        },
+        buttonBorderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+            },
+        },
+        buttonBorderColor: {
+            type: 'string',
+            default: '',
+        },
+        buttonBorderHoverColor: {
+            type: 'string',
+            default: '',
+        },
+        showRibbon: {
+            type: 'boolean',
+            default: true,
         },
         ribbonStyle: {
             type: 'string',
             default: 'corner',
         },
-        ribbonColor: {
+        ribbonPosition: {
+            type: 'string',
+            default: 'right',
+        },
+        tableTextColor: {
+            type: 'string',
+            default: '#333333',
+        },
+        tableBackgroundColor: {
+            type: 'string',
+            default: '#ffffff',
+        },
+        headerBackgroundColor: {
+            type: 'string',
+            default: '#f8f9fa',
+        },
+        buttonTextColor: {
+            type: 'string',
+            default: '#ffffff',
+        },
+        buttonBackgroundColor: {
             type: 'string',
             default: '#4a6cf7',
+        },
+        buttonTextHoverColor: {
+            type: 'string',
+            default: '#ffffff',
+        },
+        buttonBackgroundHoverColor: {
+            type: 'string',
+            default: '#3151e1',
         },
         ribbonTextColor: {
             type: 'string',
             default: '#ffffff',
         },
-        iconIncludedColor: {
+        ribbonBackgroundColor: {
             type: 'string',
-            default: '#28a745',
-        },
-        iconExcludedColor: {
-            type: 'string',
-            default: '#dc3545',
+            default: '#4a6cf7',
         },
     },
     example: {
         attributes: {
-            columns: [
+            tables: [
                 {
-                    id: 'example-column-1',
-                    title: 'Basic',
-                    subtitle: 'For small businesses',
-                    currency: '$',
-                    price: '9.99',
+                    id: 'table-1-example',
+                    title: 'Basic Plan',
+                    price: '$19',
                     period: '/month',
+                    description: 'Great for starters',
                     features: [
-                        {
-                            text: '1 Website',
-                            included: true
-                        },
-                        {
-                            text: '5GB Storage',
-                            included: true
-                        },
-                        {
-                            text: 'Live Chat Support',
-                            included: false
-                        }
+                        { text: '1 Website', enabled: true },
+                        { text: '5GB Storage', enabled: true },
+                        { text: 'Premium Support', enabled: false }
                     ],
                     buttonText: 'Get Started',
-                    buttonUrl: '',
-                    featured: false
+                    isHighlighted: false,
+                    ribbonText: 'Popular',
                 },
                 {
-                    id: 'example-column-2',
-                    title: 'Pro',
-                    subtitle: 'For growing businesses',
-                    currency: '$',
-                    price: '19.99',
+                    id: 'table-2-example',
+                    title: 'Pro Plan',
+                    price: '$49',
                     period: '/month',
+                    description: 'For growing businesses',
                     features: [
-                        {
-                            text: '5 Websites',
-                            included: true
-                        },
-                        {
-                            text: '20GB Storage',
-                            included: true
-                        },
-                        {
-                            text: 'Live Chat Support',
-                            included: true
-                        }
+                        { text: '5 Websites', enabled: true },
+                        { text: '20GB Storage', enabled: true },
+                        { text: 'Premium Support', enabled: true }
                     ],
                     buttonText: 'Get Started',
-                    buttonUrl: '',
-                    featured: true
+                    isHighlighted: true,
+                    ribbonText: 'Popular',
                 }
             ],
-            headerBackgroundColor: '#f8f9fa',
-            bodyBackgroundColor: '#ffffff',
-            buttonBackgroundColor: '#4a6cf7',
-            iconIncludedColor: '#28a745',
-            iconExcludedColor: '#dc3545'
+            columns: 2,
+            tableStyle: 'style2',
+            showRibbon: true
         }
     },
     edit: PricingTableEdit,
@@ -5104,6 +5116,7 @@ registerBlockType('digiblocks/navigation', {
     description: digiBlocksData.blocks['navigation'].description,
     keywords: [__('navigation', 'digiblocks'), __('menu', 'digiblocks'), __('header', 'digiblocks')],
     supports: {
+		inserter: getBlockActiveStatus('navigation') ? true : false,
         html: false,
         className: false,
         customClassName: false,
@@ -5277,4 +5290,126 @@ registerBlockType('digiblocks/navigation', {
     },
     edit: NavigationEdit,
     save: NavigationSave,
+});
+
+/**
+ * Register Login Link block
+ */
+registerBlockType('digiblocks/login-link', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['login-link'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['login-link'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['login-link'].description,
+    keywords: [__('login', 'digiblocks'), __('account', 'digiblocks'), __('user', 'digiblocks'), __('link', 'digiblocks')],
+    // Disable all default controls and settings panels
+    supports: {
+		inserter: getBlockActiveStatus('login-link') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+        },
+        customClasses: {
+            type: 'string',
+        },
+        loginText: {
+            type: 'string',
+            default: __('Log In', 'digiblocks'),
+        },
+        loginIconValue: {
+            type: 'object',
+            default: null,
+        },
+        loginIconPosition: {
+            type: 'string',
+            default: 'left',
+        },
+        loginUrl: {
+            type: 'string',
+            default: '',
+        },
+        loginOpenInNewTab: {
+            type: 'boolean',
+            default: false,
+        },
+        loginRel: {
+            type: 'string',
+            default: '',
+        },
+        loggedInText: {
+            type: 'string',
+            default: __('My Account', 'digiblocks'),
+        },
+        loggedInIconValue: {
+            type: 'object',
+            default: null,
+        },
+        loggedInIconPosition: {
+            type: 'string',
+            default: 'left',
+        },
+        loggedInUrl: {
+            type: 'string',
+            default: '',
+        },
+        loggedInOpenInNewTab: {
+            type: 'boolean',
+            default: false,
+        },
+        loggedInRel: {
+            type: 'string',
+            default: '',
+        },
+        textColor: {
+            type: 'string',
+        },
+        textHoverColor: {
+            type: 'string',
+        },
+        typography: {
+            type: 'object',
+            default: {},
+        },
+		iconSize: {
+			type: 'object',
+			default: {
+				desktop: 16,
+				tablet: 15,
+				mobile: 14
+			}
+		},
+    },
+	example: {
+        attributes: {
+            loginText: __('Log In', 'digiblocks'),
+            loggedInText: __('My Account', 'digiblocks'),
+            loginIconPosition: 'left',
+            textColor: '#3a86ff',
+            textHoverColor: '#023e8a',
+            typography: {
+                fontSize: {
+                    desktop: 16,
+                    tablet: 15,
+                    mobile: 14
+                },
+                fontWeight: '500'
+            }
+        }
+    },
+    edit: LoginLinkEdit,
+    save: LoginLinkSave,
 });

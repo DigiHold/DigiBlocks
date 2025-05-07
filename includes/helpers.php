@@ -134,27 +134,27 @@ if ( ! function_exists( 'digiblocks_allow_svg_in_kses' ) ) {
  * Get menu items via AJAX fallback for the navigation block in the editor
  */
 function digiblocks_ajax_get_menu_items() {
-    // Check nonce
-    if (!isset($_POST['navigation_nonce']) || !wp_verify_nonce($_POST['navigation_nonce'], 'digiblocks_nav_nonce')) {
-        wp_send_json_error('Invalid nonce');
-        return;
-    }
-    
-    // Check for menu ID
-    if (!isset($_POST['menu_id']) || empty($_POST['menu_id'])) {
-        wp_send_json_error('No menu ID provided');
-        return;
-    }
-    
-    $menu_id = intval($_POST['menu_id']);
-    $menu_items = wp_get_nav_menu_items($menu_id);
-    
-    if (!$menu_items || !is_array($menu_items)) {
-        wp_send_json_error('No menu items found');
-        return;
-    }
-    
-    // Return the full array of menu items directly
-    wp_send_json_success($menu_items);
+	// Check nonce
+	if ( ! isset( $_POST['navigation_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['navigation_nonce'] ) ), 'digiblocks_nav_nonce' ) ) {
+		wp_send_json_error( 'Invalid nonce' );
+		return;
+	}
+
+	// Check for menu ID
+	if ( ! isset( $_POST['menu_id'] ) || empty( $_POST['menu_id'] ) ) {
+		wp_send_json_error( 'No menu ID provided' );
+		return;
+	}
+
+	$menu_id    = intval( sanitize_text_field( wp_unslash( $_POST['menu_id'] ) ) );
+	$menu_items = wp_get_nav_menu_items( $menu_id );
+
+	if ( ! $menu_items || ! is_array( $menu_items ) ) {
+		wp_send_json_error( 'No menu items found' );
+		return;
+	}
+
+	// Return the full array of menu items directly
+	wp_send_json_success( $menu_items );
 }
-add_action('wp_ajax_digiblocks_get_menu_items', 'digiblocks_ajax_get_menu_items');
+add_action( 'wp_ajax_digiblocks_get_menu_items', 'digiblocks_ajax_get_menu_items' );

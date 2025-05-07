@@ -231,7 +231,7 @@ class DigiBlocks_Fonts {
 					
 					// Delete if not used
 					if (!isset($used_font_files[$filename])) {
-						@unlink($file);
+						wp_delete_file( $file );
 					}
 				}
 			}
@@ -730,7 +730,12 @@ class DigiBlocks_Fonts {
         // Save the file directly for speed
         $result = file_put_contents($file_path, $font_data);
         if ($result !== false) {
-            chmod($file_path, 0644);
+			global $wp_filesystem;
+			if ( ! function_exists( 'WP_Filesystem' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+			}
+			WP_Filesystem();
+			$wp_filesystem->chmod( $file_path, FS_CHMOD_FILE );
             return true;
         }
         
@@ -758,7 +763,12 @@ class DigiBlocks_Fonts {
         // Save the CSS file directly for speed
         $result = file_put_contents($css_file, $css);
         if ($result !== false) {
-            chmod($css_file, 0644);
+			global $wp_filesystem;
+			if ( ! function_exists( 'WP_Filesystem' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+			}
+			WP_Filesystem();
+			$wp_filesystem->chmod( $css_file, FS_CHMOD_FILE );
             return true;
         }
         
@@ -818,7 +828,7 @@ class DigiBlocks_Fonts {
         // Delete the CSS file
         $css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-fonts-' . $post_id . '.css';
         if (file_exists($css_file)) {
-            @unlink($css_file);
+            wp_delete_file( $css_file );
         }
     }
 }

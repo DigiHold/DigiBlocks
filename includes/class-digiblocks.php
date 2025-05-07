@@ -79,8 +79,8 @@ class DigiBlocks {
 		// Initialize fonts manager
 		$this->init_fonts_manager();
 
-		// Register navigation block with server-side rendering
-		add_action( 'init', array( $this, 'register_navigation_block' ) );
+		// Register blocks with server-side rendering
+		add_action( 'init', array( $this, 'register_blocks' ) );
 	}
 
 	/**
@@ -366,6 +366,14 @@ class DigiBlocks {
 			/**
 			 * Digiblocks Theme
 			 */
+			'login-link' => array(
+				'title'       => __( 'Login Link', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '512 512',
+					'path'    => 'M347.3 267.3c6.2-6.2 6.2-16.4 0-22.6l-128-128c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6L297.4 240 16 240c-8.8 0-16 7.2-16 16s7.2 16 16 16l281.4 0L196.7 372.7c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0l128-128zM336 448c-8.8 0-16 7.2-16 16s7.2 16 16 16l96 0c44.2 0 80-35.8 80-80l0-288c0-44.2-35.8-80-80-80l-96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l96 0c26.5 0 48 21.5 48 48l0 288c0 26.5-21.5 48-48 48l-96 0z',
+				),
+				'description' => __( 'Add a customizable login/account link for your header.', 'digiblocks' ),
+			),
 			'logo' => array(
 				'title'       => __( 'Logo', 'digiblocks' ),
 				'icon'        => array(
@@ -608,10 +616,14 @@ class DigiBlocks {
 		}
 
 		// Direct file system access backup in case WP_Filesystem fails
-		if (!$wp_filesystem || !is_object($wp_filesystem)) {
-			$write_result = file_put_contents($css_file, $css);
-			// Set appropriate permissions
-			chmod($css_file, 0644);
+		if ( ! $wp_filesystem || ! is_object( $wp_filesystem ) ) {
+			// Try to initialize a direct file system instance as fallback
+			if ( ! class_exists( 'WP_Filesystem_Direct' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+				require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+			}
+			$wp_filesystem_direct = new WP_Filesystem_Direct( null );
+			$write_result = $wp_filesystem_direct->put_contents( $css_file, $css, FS_CHMOD_FILE );
 			return;
 		}
 
@@ -652,10 +664,14 @@ class DigiBlocks {
 		}
 
 		// Direct file system access backup in case WP_Filesystem fails
-		if (!$wp_filesystem || !is_object($wp_filesystem)) {
-			$write_result = file_put_contents($js_file, $js);
-			// Set appropriate permissions
-			chmod($js_file, 0644);
+		if ( ! $wp_filesystem || ! is_object( $wp_filesystem ) ) {
+			// Try to initialize a direct file system instance as fallback
+			if ( ! class_exists( 'WP_Filesystem_Direct' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+				require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+			}
+			$wp_filesystem_direct = new WP_Filesystem_Direct( null );
+			$write_result = $wp_filesystem_direct->put_contents( $js_file, $js, FS_CHMOD_FILE );
 			return;
 		}
 
@@ -821,13 +837,13 @@ class DigiBlocks {
 		// Get API key from settings
 		$settings = get_option('digiblocks_settings', array());
 		$api_key = isset($settings['google_maps_api_key']) ? $settings['google_maps_api_key'] : '';
-		
+
 		if (!empty($api_key)) {
 			wp_enqueue_script(
 				'google-maps-api',
 				'https://maps.googleapis.com/maps/api/js?key=' . esc_attr($api_key) . '&callback=digiblocksGoogleMapsCallback&loading=async',
 				array(),
-				null,
+				null, // phpcs:ignore
 				true
 			);
 		}
@@ -1139,19 +1155,25 @@ class DigiBlocks {
 	}
 
 	/**
-	 * Register navigation block with render callback
+	 * Register block with render callback
 	 */
-	public function register_navigation_block() {
-		// Only register if block is active
+	public function register_blocks() {
+		// Get active blocks
 		$active_blocks = get_option('digiblocks_active_blocks', array());
-		if (!isset($active_blocks['navigation']) || !$active_blocks['navigation']) {
-			return;
-		}
 		
-		// Register block type with render callback
-		register_block_type('digiblocks/navigation', array(
-			'render_callback' => array($this, 'render_navigation_block'),
-		));
+		// Register navigation block if active
+		if (isset($active_blocks['navigation']) && $active_blocks['navigation']) {
+			register_block_type('digiblocks/navigation', array(
+				'render_callback' => array($this, 'render_navigation_block'),
+			));
+		}
+
+		// Register login link block if active
+		if (isset($active_blocks['login-link']) && $active_blocks['login-link']) {
+			register_block_type('digiblocks/login-link', array(
+				'render_callback' => array($this, 'render_login_link_block'),
+			));
+		}
 	}
 
 	/**
@@ -1255,5 +1277,83 @@ class DigiBlocks {
 		<?php
 		
 		return ob_get_clean();
+	}
+
+	/**
+	 * Render callback for login link block
+	 */
+	public function render_login_link_block( $attributes, $content, $block ) {
+		// Get block attributes
+		$id = $attributes['id'] ?? '';
+		$anchor = $attributes['anchor'] ?? '';
+		$custom_classes = $attributes['customClasses'] ?? '';
+		
+		// Check if user is logged in
+		$is_logged_in = is_user_logged_in();
+		
+		if ($is_logged_in) {
+			// Use logged in attributes
+			$text = $attributes['loggedInText'] ?? __('My Account', 'digiblocks');
+			$icon_value = $attributes['loggedInIconValue'] ?? null;
+			$icon_position = $attributes['loggedInIconPosition'] ?? 'left';
+			$url = $attributes['loggedInUrl'] ?? '';
+			$new_tab = $attributes['loggedInOpenInNewTab'] ?? false;
+			$rel = $attributes['loggedInRel'] ?? '';
+			
+			// Default to account page if no URL is provided
+			if (empty($url)) {
+				$url = get_edit_profile_url();
+			}
+		} else {
+			// Use login attributes
+			$text = $attributes['loginText'] ?? __('Log In', 'digiblocks');
+			$icon_value = $attributes['loginIconValue'] ?? null;
+			$icon_position = $attributes['loginIconPosition'] ?? 'left';
+			$url = $attributes['loginUrl'] ?? '';
+			$new_tab = $attributes['loginOpenInNewTab'] ?? false;
+			$rel = $attributes['loginRel'] ?? '';
+			
+			// Default to login page if no URL is provided
+			if (empty($url)) {
+				$url = wp_login_url(home_url($_SERVER['REQUEST_URI']));
+			}
+		}
+		
+		// Build class names
+		$classes = "digiblocks-login-link $id $custom_classes";
+		
+		// Build the link
+		$link = '<a href="' . esc_url($url) . '" class="' . esc_attr($classes) . '"';
+		if (!empty($anchor)) {
+			$link .= ' id="' . esc_attr($anchor) . '"';
+		}
+		if ($new_tab) {
+			$link .= ' target="_blank"';
+			$rel = !empty($rel) ? $rel . ' noopener noreferrer' : 'noopener noreferrer';
+		}
+		if (!empty($rel)) {
+			$link .= ' rel="' . esc_attr($rel) . '"';
+		}
+		$link .= '>';
+		
+		// Add content based on icon position
+		$icon_html = '';
+		if ($icon_value && isset($icon_value['svg'])) {
+			$icon_html = '<span class="digiblocks-login-link-icon">' . $icon_value['svg'] . '</span>';
+		}
+		
+		if ($icon_position === 'left') {
+			$link .= $icon_html;
+		}
+		
+		$link .= '<span class="digiblocks-login-link-text">' . esc_html($text) . '</span>';
+		
+		if ($icon_position === 'right') {
+			$link .= $icon_html;
+		}
+		
+		$link .= '</a>';
+		
+		return $link;
 	}
 }

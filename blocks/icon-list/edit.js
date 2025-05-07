@@ -99,6 +99,32 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 
     // State for active tab
     const [activeTab, setActiveTab] = useState("options");
+	
+	// State to track if global components are loaded
+    const [componentsLoaded, setComponentsLoaded] = useState(false);
+
+    // Check if the global components are loaded
+    useEffect(() => {
+        // Function to check if digi components are available
+        const checkComponents = () => {
+            if (window.digi && window.digi.components && window.digi.components.FontAwesomeControl) {
+                setComponentsLoaded(true);
+                return true;
+            }
+            return false;
+        };
+        
+        // If components aren't immediately available, set up a small delay to check again
+        if (!checkComponents()) {
+            const timeout = setTimeout(() => {
+                if (checkComponents()) {
+                    clearTimeout(timeout);
+                }
+            }, 500);
+            
+            return () => clearTimeout(timeout);
+        }
+    }, []);
 
     // Use ref
 	const previewTimeoutRef = useRef(null);
@@ -191,7 +217,6 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
             id: `item-${Date.now()}`,
             content: __("New list item", "digiblocks"),
             icon: { ...defaultIcon },
-            linkEnabled: false,
             linkUrl: "",
             linkOpenInNewTab: false,
             linkRel: "",
@@ -249,6 +274,9 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
         newItems[index].icon = icon;
         setAttributes({ items: newItems });
     };
+
+    // Get FontAwesomeControl from the global object
+    const FontAwesomeControl = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
 
     // Generate CSS for block styling
     const generateCSS = () => {
@@ -488,13 +516,18 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__("List Items", "digiblocks")}
                             initialOpen={true}
                         >
-							<FontAwesomeControl
-								label={__("Set Default Icon", "digiblocks")}
-								value={defaultIcon}
-								onChange={(value) =>
-									setAttributes({ defaultIcon: value })
-								}
-							/>
+							{!componentsLoaded ? (
+								<div style={{ textAlign: 'center', padding: '20px 0' }}>
+									<div className="components-spinner"></div>
+									<p>{__('Loading icon selector...', 'digiblocks')}</p>
+								</div>
+							) : (
+								<FontAwesomeControl
+									label={__('Select Icon', 'digiblocks')}
+									value={defaultIcon}
+									onChange={(value) => setAttributes({ defaultIcon: value })}
+								/>
+							)}
 
 							<ToggleGroupControl
 								label={__("List Layout", "digiblocks")}
@@ -1154,7 +1187,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                     className="digiblocks-icon-list-item"
                     style={isLast ? { marginBottom: 0 } : {}}
                 >
-                    {item.linkEnabled && item.linkUrl ? (
+                    {item.linkUrl ? (
                         <a href="#" className="digiblocks-icon-list-child">{itemContent}</a>
                     ) : (
                         <div className="digiblocks-icon-list-child">{itemContent}</div>
@@ -1181,7 +1214,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                                 }}
                                 isSmall
                                 variant={
-                                    item.linkEnabled ? "primary" : "secondary"
+                                    item.linkUrl ? "primary" : "secondary"
                                 }
                             />
                         </Tooltip>
@@ -1253,13 +1286,20 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                         onRequestClose={() => setIconModalOpen(false)}
                         className="digiblocks-icon-modal"
                     >
-                        <FontAwesomeControl
-                            value={items[currentEditingItem].icon}
-                            onChange={(newIcon) => {
-                                setItemIcon(currentEditingItem, newIcon);
-                                setIconModalOpen(false);
-                            }}
-                        />
+                        {!componentsLoaded ? (
+							<div style={{ textAlign: 'center', padding: '20px 0' }}>
+								<div className="components-spinner"></div>
+								<p>{__('Loading icon selector...', 'digiblocks')}</p>
+							</div>
+						) : (
+							<FontAwesomeControl
+								value={items[currentEditingItem].icon}
+								onChange={(newIcon) => {
+									setItemIcon(currentEditingItem, newIcon);
+									setIconModalOpen(false);
+								}}
+							/>
+						)}
                     </Modal>
                 )}
 
@@ -1291,7 +1331,6 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 							]}
 							onChange={(newLink) => {
 								if (newLink && newLink.url) {
-									updateListItem(currentEditingItem, "linkEnabled", true);
 									updateListItem(currentEditingItem, "linkUrl", newLink.url);
 									updateListItem(currentEditingItem, "linkOpenInNewTab", !!newLink.opensInNewTab);
 									updateListItem(currentEditingItem, "linkRel", newLink.rel || "");
@@ -1299,7 +1338,6 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 								}
 							}}
 							onRemove={() => {
-								updateListItem(currentEditingItem, "linkEnabled", false);
 								updateListItem(currentEditingItem, "linkUrl", "");
 								updateListItem(currentEditingItem, "linkOpenInNewTab", false);
 								updateListItem(currentEditingItem, "linkRel", "");

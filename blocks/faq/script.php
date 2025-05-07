@@ -166,8 +166,8 @@ if ( $schemaEnabled && ! empty( $items ) ) :
         );
         
         foreach ( $items as $item ) {
-            $question = strip_tags( $item['title'] );
-            $answer = strip_tags( $item['content'] );
+            $question = wp_strip_all_tags( $item['title'] );
+			$answer   = wp_strip_all_tags( $item['content'] );
             
             if ( empty( $question ) || empty( $answer ) ) {
                 continue;
@@ -188,16 +188,16 @@ if ( $schemaEnabled && ! empty( $items ) ) :
             '@type' => 'QAPage',
             'mainEntity' => array(
                 '@type' => 'Question',
-                'name' => !empty($schemaName) ? $schemaName : strip_tags($items[0]['title']),
-                'text' => strip_tags($items[0]['title']),
+                'name' => !empty($schemaName) ? $schemaName : wp_strip_all_tags($items[0]['title']),
+				'text' => wp_strip_all_tags($items[0]['title']),
                 'answerCount' => count($items),
                 'suggestedAnswer' => array()
             )
         );
         
         foreach ( $items as $item ) {
-            $question = strip_tags( $item['title'] );
-            $answer = strip_tags( $item['content'] );
+            $question = wp_strip_all_tags( $item['title'] );
+			$answer = wp_strip_all_tags( $item['content'] );
             
             if ( empty( $question ) || empty( $answer ) ) {
                 continue;

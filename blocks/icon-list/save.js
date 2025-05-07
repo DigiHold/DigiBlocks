@@ -52,23 +52,36 @@ const IconListSave = ({ attributes }) => {
             );
 
             // Wrap content in link if enabled
-            if (item.linkEnabled && item.linkUrl) {
-                const relProps = {};
+			if (item.linkUrl) {
+                // Handle rel attribute properly
+                let relValue = item.linkRel || '';
+                
+                // Add noopener noreferrer when opening in new tab
                 if (item.linkOpenInNewTab) {
-                    relProps.rel = 'noopener noreferrer';
+                    const relParts = relValue.split(' ').filter(Boolean);
+                    
+                    if (!relParts.includes('noopener')) {
+                        relParts.push('noopener');
+                    }
+                    
+                    if (!relParts.includes('noreferrer')) {
+                        relParts.push('noreferrer');
+                    }
+                    
+                    relValue = relParts.join(' ');
                 }
                 
                 return (
                     <li key={item.id} className="digiblocks-icon-list-item">
-                        <a
-							className="digiblocks-icon-list-child"
-                            href={item.linkUrl}
-                            target={item.linkOpenInNewTab ? "_blank" : "_self"}
-                            {...relProps}
-                        >
-                            {itemContent}
-                        </a>
-                    </li>
+						<a
+                            className="digiblocks-icon-list-child" 
+                            href={item.linkUrl} 
+                            target={item.linkOpenInNewTab ? "_blank" : "_self"} 
+                            rel={relValue || undefined}
+                        > 
+                            {itemContent} 
+                        </a> 
+                    </li> 
                 );
             }
 

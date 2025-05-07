@@ -266,7 +266,7 @@ ob_start();
     .<?php echo esc_attr( $id ); ?> .digiblocks-icon span {
         display: flex;
         <?php if ( $transformCSS ) : ?>
-            <?php echo $transformCSS; ?>
+			<?php echo esc_attr( $transformCSS ); ?>
         <?php endif; ?>
     }
 

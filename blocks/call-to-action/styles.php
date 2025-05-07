@@ -317,7 +317,7 @@ ob_start();
     <?php endif; ?>
 
     /* Box Shadow */
-    box-shadow: <?php echo digiblocks_get_box_shadow_css( $boxShadow ); ?>;
+    box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadow ) ); ?>;
 
     <?php if ( $style !== 'split' ) : ?>
         padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
@@ -835,7 +835,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
-        box-shadow: <?php echo digiblocks_get_box_shadow_css( $boxShadowHover ); ?>;
+        box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadowHover ) ); ?>;
     <?php endif; ?>
 }
 

@@ -905,6 +905,48 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
             .${id} .digiblocks-team-member-social-icon-wrapper:hover .digiblocks-team-member-social-icon-controls {
                 display: block;
             }
+
+			.${id} .digiblocks-image-upload-container {
+				position: relative;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+			
+			.${id} .digiblocks-image-upload-container img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				display: block;
+				cursor: pointer;
+				transition: transform 0.3s ease;
+			}
+			
+			.${id} .digiblocks-image-upload-container:hover img {
+				transform: scale(1.05);
+			}
+			
+			.${id} .digiblocks-change-image-button {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				background-color: rgba(0, 0, 0, 0.5);
+				color: white;
+				padding: 8px 0;
+				text-align: center;
+				font-size: 12px;
+				cursor: pointer;
+				opacity: 0;
+				transition: opacity 0.3s ease;
+				border: none;
+				width: 100%;
+			}
+			
+			.${id} .digiblocks-image-upload-container:hover .digiblocks-change-image-button {
+				opacity: 1;
+			}
         `;
     };
 
@@ -954,30 +996,39 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                     
                     {/* Member Image */}
                     {showName && (
-                        <div className="digiblocks-team-member-image">
-                            <MediaUploadCheck>
+						<div className="digiblocks-team-member-image">
+							<MediaUploadCheck>
 								<MediaUpload
 									onSelect={(media) => updateTeamMemberImage(index, media)}
 									allowedTypes={['image']}
 									value={member.image && member.image.id ? member.image.id : ''}
 									render={({ open }) => (
-										member.image && member.image.url ? (
-											<img
-												src={member.image.url}
-												alt={member.image.alt || member.name}
-												onClick={open}
-												style={{ cursor: 'pointer' }}
-											/>
-										) : (
-											<div className="digiblocks-team-member-placeholder" onClick={open}>
-												{__('Choose Image', 'digiblocks')}
-											</div>
-										)
+										<div className="digiblocks-image-upload-container">
+											{member.image && member.image.url ? (
+												<>
+													<img
+														src={member.image.url}
+														alt={member.image.alt || member.name}
+														onClick={open}
+													/>
+													<button 
+														className="digiblocks-change-image-button" 
+														onClick={open}
+													>
+														{__('Change Image', 'digiblocks')}
+													</button>
+												</>
+											) : (
+												<div className="digiblocks-team-member-placeholder" onClick={open}>
+													{__('Choose Image', 'digiblocks')}
+												</div>
+											)}
+										</div>
 									)}
 								/>
 							</MediaUploadCheck>
-                        </div>
-                    )}
+						</div>
+					)}
                     
                     {/* Member Content */}
                     <div className="digiblocks-team-member-content">

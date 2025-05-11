@@ -55,7 +55,7 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
     }, []);
     
     // Create unique class
-	useBlockId( id, clientId, setAttributes, true );
+	useBlockId( id, clientId, setAttributes );
 
     // Animation options
     const animationOptions = [

@@ -11,8 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes
-$id             = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
-$openSubmenusOn = isset( $attrs['openSubmenusOn'] ) ? $attrs['openSubmenusOn'] : 'hover';
+$id = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 
 // JavaScript output
 ob_start();
@@ -31,76 +30,63 @@ ob_start();
         
         // Mobile menu toggle functionality
         const toggleButton = navBlock.querySelector('.digiblocks-mobile-toggle');
-        if (toggleButton) {
-            toggleButton.addEventListener('click', function() {
-                const menu = navBlock.querySelector('.digiblocks-navigation-menu');
-                if (menu) {
-                    menu.classList.toggle('is-open');
+        const menu = navBlock.querySelector('.digiblocks-navigation-menu');
+        
+        // Get all submenu toggles
+        const submenuToggles = navBlock.querySelectorAll('.digiblocks-submenu-toggle');
+        
+        // Add click handler to each submenu toggle
+        submenuToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Find parent menu item and its submenu
+                const menuItem = this.closest('.digiblocks-navigation-menu-item');
+                const submenu = menuItem ? menuItem.querySelector('.digiblocks-navigation-submenu') : null;
+                
+                if (menuItem && submenu) {
+                    // Toggle classes
+                    menuItem.classList.toggle('submenu-open');
+                    toggle.classList.toggle('is-open');
+                    submenu.classList.toggle('is-open');
                     
-                    // Toggle aria attributes for accessibility
-                    const isExpanded = menu.classList.contains('is-open');
-                    this.setAttribute('aria-expanded', isExpanded);
+                    // Toggle aria attribute
+                    toggle.setAttribute('aria-expanded', toggle.classList.contains('is-open'));
+                }
+            });
+        });
+        
+        // Main mobile toggle
+        if (toggleButton && menu) {
+            toggleButton.addEventListener('click', function() {
+                menu.classList.toggle('is-open');
+                
+                // Toggle aria attribute
+                this.setAttribute('aria-expanded', menu.classList.contains('is-open'));
+                
+                // When closing the main menu, close all submenus too
+                if (!menu.classList.contains('is-open')) {
+                    const openToggles = navBlock.querySelectorAll('.digiblocks-submenu-toggle.is-open');
+                    openToggles.forEach(toggle => {
+                        toggle.classList.remove('is-open');
+                        toggle.setAttribute('aria-expanded', 'false');
+                        
+                        const menuItem = toggle.closest('.digiblocks-navigation-menu-item');
+                        if (menuItem) {
+                            menuItem.classList.remove('submenu-open');
+                            const submenu = menuItem.querySelector('.digiblocks-navigation-submenu');
+                            if (submenu) {
+                                submenu.classList.remove('is-open');
+                            }
+                        }
+                    });
                 }
             });
             
             // Initialize aria-expanded attribute
             toggleButton.setAttribute('aria-expanded', 'false');
         }
-        
-        <?php if ( $openSubmenusOn === 'click' ) : ?>
-        // Handle submenu click toggling
-        const menuItems = navBlock.querySelectorAll('.digiblocks-navigation-menu-item');
-        
-        menuItems.forEach(function(item) {
-            const link = item.querySelector('.digiblocks-navigation-link');
-            const submenu = item.querySelector('.digiblocks-navigation-submenu');
-            
-            if (link && submenu) {
-                link.addEventListener('click', function(e) {
-                    // Find submenu link click handler
-                    if (e.target.closest('.digiblocks-navigation-submenu')) {
-                        return;
-                    }
-                    
-                    // Check if clicking on a parent link
-                    const parentLink = e.target.closest('.digiblocks-navigation-link');
-                    const parentItem = parentLink ? parentLink.closest('.digiblocks-navigation-menu-item') : null;
-                    
-                    if (parentItem && parentItem.querySelector('.digiblocks-navigation-submenu')) {
-                        e.preventDefault();
-                        
-                        // Close other submenus
-                        menuItems.forEach(function(otherItem) {
-                            if (otherItem !== parentItem) {
-                                const otherSubmenu = otherItem.querySelector('.digiblocks-navigation-submenu');
-                                if (otherSubmenu) {
-                                    otherSubmenu.style.display = 'none';
-                                }
-                            }
-                        });
-                        
-                        // Toggle current submenu
-                        const currentSubmenu = parentItem.querySelector('.digiblocks-navigation-submenu');
-                        if (currentSubmenu) {
-                            currentSubmenu.style.display = currentSubmenu.style.display === 'block' ? 'none' : 'block';
-                        }
-                    }
-                });
-            }
-        });
-        
-        // Close submenu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!navBlock.contains(e.target)) {
-                menuItems.forEach(function(item) {
-                    const submenu = item.querySelector('.digiblocks-navigation-submenu');
-                    if (submenu) {
-                        submenu.style.display = 'none';
-                    }
-                });
-            }
-        });
-        <?php endif; ?>
     }
 })();
 <?php

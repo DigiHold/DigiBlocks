@@ -20,10 +20,11 @@ const CustomTabPanel = ({
     tabs, 
     activeTab, 
     onSelect,
+	customClass,
     children
 }) => {
     return (
-        <div className="digiblocks-tab-panel">
+        <div className={`digiblocks-tab-panel ${customClass || ''}`}>
             <div className="digiblocks-tabs-wrapper">
                 {tabs.map(tab => (
                     <button

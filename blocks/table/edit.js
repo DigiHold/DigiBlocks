@@ -14,8 +14,6 @@ const {
     RangeControl,
     ToggleControl,
     Button,
-    ButtonGroup,
-    Dropdown,
     ToolbarGroup,
     ToolbarButton,
     BaseControl,
@@ -1017,20 +1015,23 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                         >
                             <div className="digiblocks-rating-selector">
                                 <h3>{__("Select Rating", "digiblocks")}</h3>
-                                <ButtonGroup>
-                                    {[1, 2, 3, 4, 5].map((num) => (
-                                        <Button
-                                            key={`star-${num}`}
-                                            isSecondary
-                                            onClick={() => {
-                                                setCellControl(selectedCell.row, selectedCell.col, 'stars', num.toString());
-                                                setIsRatingPopoverOpen(false);
-                                            }}
-                                        >
-                                            {num}
-                                        </Button>
-                                    ))}
-                                </ButtonGroup>
+                                <ToggleGroupControl
+									isBlock
+									onChange={(value) => {
+										setCellControl(selectedCell.row, selectedCell.col, 'stars', value.toString());
+										setIsRatingPopoverOpen(false);
+									}}
+									__next40pxDefaultSize={true}
+									__nextHasNoMarginBottom={true}
+								>
+									{[1, 2, 3, 4, 5].map((num) => (
+										<ToggleGroupControlOption 
+											key={`star-${num}`}
+											value={num} 
+											label={num.toString()} 
+										/>
+									))}
+								</ToggleGroupControl>
                             </div>
                         </Popover>
                     )}

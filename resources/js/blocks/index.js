@@ -15,12 +15,20 @@ import ButtonEdit from '../../../blocks/button/edit';
 import ButtonSave from '../../../blocks/button/save';
 import CallToActionEdit from '../../../blocks/call-to-action/edit';
 import CallToActionSave from '../../../blocks/call-to-action/save';
+import ColumnEdit from '../../../blocks/column/edit';
+import ColumnSave from '../../../blocks/column/save';
+import ContainerEdit from '../../../blocks/container/edit';
+import ContainerSave from '../../../blocks/container/save';
 import CountdownEdit from '../../../blocks/countdown/edit';
 import CountdownSave from '../../../blocks/countdown/save';
 import CounterEdit from '../../../blocks/counter/edit';
 import CounterSave from '../../../blocks/counter/save';
+import DigiProductsEdit from '../../../blocks/digi-products/edit';
+import DigiProductsSave from '../../../blocks/digi-products/save';
 import FAQEdit from '../../../blocks/faq/edit';
 import FAQSave from '../../../blocks/faq/save';
+import FormsEdit from '../../../blocks/forms/edit';
+import FormsSave from '../../../blocks/forms/save';
 import GoogleMapEdit from '../../../blocks/google-map/edit';
 import GoogleMapSave from '../../../blocks/google-map/save';
 import HeadingEdit from '../../../blocks/heading/edit';
@@ -31,6 +39,12 @@ import IconBoxEdit from '../../../blocks/icon-box/edit';
 import IconBoxSave from '../../../blocks/icon-box/save';
 import IconListEdit from '../../../blocks/icon-list/edit';
 import IconListSave from '../../../blocks/icon-list/save';
+import ImageEdit from '../../../blocks/image/edit';
+import ImageSave from '../../../blocks/image/save';
+import LottieEdit from '../../../blocks/lottie/edit';
+import LottieSave from '../../../blocks/lottie/save';
+import PostsEdit from '../../../blocks/posts/edit';
+import PostsSave from '../../../blocks/posts/save';
 import PricingTableEdit from '../../../blocks/pricing-table/edit';
 import PricingTableSave from '../../../blocks/pricing-table/save';
 import SeparatorEdit from '../../../blocks/separator/edit';
@@ -45,6 +59,8 @@ import TeamEdit from '../../../blocks/team/edit';
 import TeamSave from '../../../blocks/team/save';
 import TestimonialsEdit from '../../../blocks/testimonials/edit';
 import TestimonialsSave from '../../../blocks/testimonials/save';
+import WooProductsEdit from '../../../blocks/woo-products/edit';
+import WooProductsSave from '../../../blocks/woo-products/save';
 
 /**
  * DigiBlocks Theme
@@ -66,6 +82,21 @@ const getBlockActiveStatus = (blockName) => {
     }
     // Default to active if not specified
     return true;
+};
+
+/**
+ * Check if DigiCommerce is active
+ */
+const isDigiActive = () => {
+    return window.digiBlocksData && window.digiBlocksData.isDigiActive;
+};
+
+/**
+ * Check if WooCommerce is active
+ */
+const isWooActive = () => {
+    // Check if the woocommerce global object exists
+    return typeof window.wc !== 'undefined' || (window.digiBlocksData && window.digiBlocksData.isWooActive);
 };
 
 /**
@@ -411,7 +442,6 @@ registerBlockType('digiblocks/button', {
         )
     },
     description: __('A single button within the buttons block', 'digiblocks'),
-    keywords: [__('button', 'digiblocks'), __('link', 'digiblocks'), __('call to action', 'digiblocks')],
     supports: {
         inserter: false, // Can only be inserted within buttons block
         html: false,
@@ -834,6 +864,415 @@ registerBlockType('digiblocks/call-to-action', {
     },
     edit: CallToActionEdit,
     save: CallToActionSave,
+});
+
+/**
+ * Register Column block
+ */
+registerBlockType('digiblocks/column', {
+	apiVersion: 2,
+	title: __('Column', 'digiblocks'),
+    parent: ['digiblocks/container'],
+    icon: {
+        src: () => (
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="24" height="24"><path d="M448 64l0 384 128 0c17.7 0 32-14.3 32-32l0-320c0-17.7-14.3-32-32-32L448 64zm-32 0L224 64l0 384 192 0 0-384zM192 448l0-384L64 64C46.3 64 32 78.3 32 96l0 320c0 17.7 14.3 32 32 32l128 0zM0 96C0 60.7 28.7 32 64 32l512 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96z"/></svg>
+        )
+    },
+    description: __('Flexible column component to use within Container blocks', 'digiblocks'),
+    supports: {
+        inserter: false, // Can only be inserted within container block
+        reusable: false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        width: {
+            type: 'object',
+            default: {
+                desktop: 100,
+                tablet: 100,
+                mobile: 100
+            }
+        },
+        order: {
+            type: 'object',
+            default: {
+                desktop: 0,
+                tablet: 0,
+                mobile: 0
+            }
+        },
+        backgroundColor: {
+            type: 'string',
+            default: ''
+        },
+        backgroundImage: {
+            type: 'object',
+            default: {
+                url: '',
+                id: 0,
+                alt: '',
+                size: ''
+            }
+        },
+        backgroundPosition: {
+            type: 'string',
+            default: 'center center'
+        },
+        backgroundRepeat: {
+            type: 'string',
+            default: 'no-repeat'
+        },
+        backgroundSize: {
+            type: 'string',
+            default: 'cover'
+        },
+        backgroundOverlay: {
+            type: 'string',
+            default: ''
+        },
+        backgroundOverlayOpacity: {
+            type: 'number',
+            default: 0.7
+        },
+        backgroundOverlayBlendMode: {
+            type: 'string',
+            default: 'normal'
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+		boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+    },
+    edit: ColumnEdit,
+    save: ColumnSave,
+});
+
+/**
+ * Register Container block
+ */
+registerBlockType('digiblocks/container', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['container'].title,
+    category: 'digiblocks',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['container'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['container'].description,
+    keywords: [__('container', 'digiblocks'), __('section', 'digiblocks'), __('row', 'digiblocks'), __('layout', 'digiblocks'), __('columns', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('container') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        layout: {
+            type: 'string',
+            default: ''
+        },
+        contentLayout: {
+            type: 'string',
+            default: 'boxed'
+        },
+		contentWidth: {
+			type: 'object',
+			default: {
+				desktop: 1200,
+				tablet: '',
+				mobile: ''
+			}
+		},
+		contentMaxWidth: {
+			type: 'object',
+			default: {
+				desktop: 90,
+				tablet: '',
+				mobile: ''
+			}
+		},
+        horizontalAlign: {
+            type: 'string',
+            default: 'center'
+        },
+        verticalAlign: {
+            type: 'string',
+            default: 'center'
+        },
+        heightType: {
+            type: 'string',
+            default: 'auto'
+        },
+        minHeight: {
+            type: 'object',
+            default: {
+                desktop: 0,
+                tablet: 0,
+                mobile: 0
+            }
+        },
+        columnGap: {
+            type: 'object',
+            default: {
+                desktop: 20,
+                tablet: 15,
+                mobile: 10
+            }
+        },
+        rowGap: {
+            type: 'object',
+            default: {
+                desktop: 20,
+                tablet: 15,
+                mobile: 10
+            }
+        },
+        reverseColumnsMobile: {
+            type: 'boolean',
+            default: false
+        },
+        stackOnTablet: {
+            type: 'boolean',
+            default: false
+        },
+        stackOnMobile: {
+            type: 'boolean',
+            default: true
+        },
+        overflowHidden: {
+            type: 'boolean',
+            default: false
+        },
+        zIndex: {
+            type: 'number',
+            default: 0
+        },
+        backgroundColor: {
+            type: 'string',
+            default: ''
+        },
+        backgroundImage: {
+            type: 'object',
+            default: {
+                url: '',
+                id: 0,
+                alt: '',
+                size: ''
+            }
+        },
+        backgroundPosition: {
+            type: 'string',
+            default: 'center center'
+        },
+        backgroundRepeat: {
+            type: 'string',
+            default: 'no-repeat'
+        },
+        backgroundSize: {
+            type: 'string',
+            default: 'cover'
+        },
+        backgroundVideo: {
+            type: 'object',
+            default: {
+                url: '',
+                id: 0,
+                alt: '',
+                size: ''
+            }
+        },
+        backgroundVideoFallbackImage: {
+            type: 'object',
+            default: {
+                url: '',
+                id: 0,
+                alt: '',
+                size: ''
+            }
+        },
+        backgroundOverlay: {
+            type: 'string',
+            default: ''
+        },
+        backgroundOverlayOpacity: {
+            type: 'number',
+            default: 0.7
+        },
+        backgroundOverlayBlendMode: {
+            type: 'string',
+            default: 'normal'
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+		boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+    },
+	example: {
+		attributes: {
+			layout: '',
+			backgroundColor: '#f8f9fa',
+			padding: {
+				desktop: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' },
+				tablet: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' },
+				mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' }
+			}
+		},
+		// No inner blocks to ensure layout selector appears
+		innerBlocks: [],
+		viewportWidth: 500
+	},
+    edit: ContainerEdit,
+    save: ContainerSave,
 });
 
 /**
@@ -1550,6 +1989,430 @@ registerBlockType('digiblocks/counter', {
 });
 
 /**
+ * Register Digi Products block
+ */
+if ( isDigiActive() ) {
+    registerBlockType('digiblocks/digi-products', {
+        apiVersion: 2,
+        title: digiBlocksData.blocks['digi-products'].title,
+        category: 'digiblocks',
+        icon: {
+            src: () => {
+                const { viewbox, path } = digiBlocksData.blocks['digi-products'].icon;
+                return (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                        <path d={path} />
+                    </svg>
+                );
+            }
+        },
+        description: digiBlocksData.blocks['digi-products'].description,
+        keywords: [__('products', 'digiblocks'), __('digicommerce', 'digiblocks'), __('ecommerce', 'digiblocks'), __('store', 'digiblocks')],
+        supports: {
+            inserter: getBlockActiveStatus('digi-products') ? true : false,
+            html: false,
+            className: false,
+            customClassName: false,
+            anchor: false,
+        },
+        attributes: {
+            id: {
+                type: 'string',
+                default: '',
+            },
+            anchor: {
+                type: 'string',
+                default: ''
+            },
+            customClasses: {
+                type: 'string',
+                default: ''
+            },
+            productsToShow: {
+                type: 'number',
+                default: 3
+            },
+            columns: {
+                type: 'object',
+                default: {
+                    desktop: 3,
+                    tablet: 2,
+                    mobile: 1
+                }
+            },
+            productStyle: {
+                type: 'string',
+                default: 'grid'
+            },
+            displayFeaturedImage: {
+                type: 'boolean',
+                default: true
+            },
+            displayTitle: {
+                type: 'boolean',
+                default: true
+            },
+            displayPrice: {
+                type: 'boolean',
+                default: true
+            },
+            displayRating: {
+                type: 'boolean',
+                default: true
+            },
+            displaySalePrice: {
+                type: 'boolean',
+                default: true
+            },
+            displayCategories: {
+                type: 'boolean',
+                default: true
+            },
+            displayExcerpt: {
+                type: 'boolean',
+                default: true
+            },
+            displayViewProductButton: {
+                type: 'boolean',
+                default: true
+            },
+            enablePagination: {
+                type: 'boolean',
+                default: false
+            },
+            paginationAlign: {
+                type: 'string',
+                default: 'center'
+            },
+            excerptLength: {
+                type: 'number',
+                default: 25
+            },
+            viewProductText: {
+                type: 'string',
+                default: __('View Product', 'digiblocks')
+            },
+            order: {
+                type: 'string',
+                default: 'desc'
+            },
+            orderBy: {
+                type: 'string',
+                default: 'date'
+            },
+            categories: {
+                type: 'array',
+                default: []
+            },
+            paginationBackgroundColor: {
+                type: 'string',
+                default: '#f8f9fa'
+            },
+            paginationTextColor: {
+                type: 'string',
+                default: '#333333'
+            },
+            paginationActiveBackgroundColor: {
+                type: 'string',
+                default: '#4a6cf7'
+            },
+            paginationActiveTextColor: {
+                type: 'string',
+                default: '#ffffff'
+            },
+            titleColor: {
+                type: 'string',
+                default: '#333333'
+            },
+            titleHoverColor: {
+                type: 'string',
+                default: ''
+            },
+            excerptColor: {
+                type: 'string',
+                default: '#666666'
+            },
+            priceColor: {
+                type: 'string',
+                default: '#4a6cf7'
+            },
+            salePriceColor: {
+                type: 'string',
+                default: '#e53935'
+            },
+            catBackgroundColor: {
+                type: 'string',
+                default: '#52576b'
+            },
+            catColor: {
+                type: 'string',
+                default: '#fff'
+            },
+            catHoverBackgroundColor: {
+                type: 'string',
+                default: '#3f4a73'
+            },
+            catHoverColor: {
+                type: 'string',
+                default: '#fff'
+            },
+            buttonBackgroundColor: {
+                type: 'string',
+                default: '#4a6cf7'
+            },
+            buttonTextColor: {
+                type: 'string',
+                default: '#ffffff'
+            },
+            buttonBackgroundHoverColor: {
+                type: 'string',
+                default: '#3a5ce5'
+            },
+            buttonTextHoverColor: {
+                type: 'string',
+                default: '#ffffff'
+            },
+            imageMargin: {
+                type: 'object',
+                default: {
+                    desktop: 15,
+                    tablet: 15,
+                    mobile: 15
+                }
+            },
+            contentMargin: {
+                type: 'object',
+                default: {
+                    desktop: 18,
+                    tablet: 15,
+                    mobile: 15
+                }
+            },
+            padding: {
+                type: 'object',
+                default: {
+                    desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                    tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                    mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                }
+            },
+            margin: {
+                type: 'object',
+                default: {
+                    desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
+                    tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
+                    mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+                }
+            },
+            itemSpacing: {
+                type: 'object',
+                default: {
+                    desktop: 20,
+                    tablet: 15,
+                    mobile: 10
+                }
+            },
+            titleTypography: {
+                type: 'object',
+                default: {
+                    fontFamily: '',
+                    fontSize: { desktop: 20, tablet: 18, mobile: 16 },
+                    fontSizeUnit: 'px',
+                    fontWeight: '600',
+                    fontStyle: 'normal',
+                    textTransform: 'none',
+                    textDecoration: 'none',
+                    lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                    lineHeightUnit: 'em',
+                    letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                    letterSpacingUnit: 'px'
+                }
+            },
+			headingTypography: {
+				type: 'object',
+				default: {
+					fontFamily: '',
+					fontSize: { desktop: 18, tablet: 16, mobile: 15 },
+					fontSizeUnit: 'px',
+					fontWeight: '700',
+					fontStyle: 'normal',
+					textTransform: 'none',
+					textDecoration: 'none',
+					lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+					lineHeightUnit: 'em',
+					letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+					letterSpacingUnit: 'px'
+				}
+			},
+            textTypography: {
+                type: 'object',
+                default: {
+                    fontFamily: '',
+                    fontSize: { desktop: 13, tablet: 12, mobile: 11 },
+                    fontSizeUnit: 'px',
+                    fontWeight: 'normal',
+                    fontStyle: 'normal',
+                    textTransform: 'none',
+                    textDecoration: 'none',
+                    lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                    lineHeightUnit: 'em',
+                    letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                    letterSpacingUnit: 'px'
+                }
+            },
+            contentTypography: {
+                type: 'object',
+                default: {
+                    fontFamily: '',
+                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                    fontSizeUnit: 'px',
+                    fontWeight: 'normal',
+                    fontStyle: 'normal',
+                    textTransform: 'none',
+                    textDecoration: 'none',
+                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                    lineHeightUnit: 'em',
+                    letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                    letterSpacingUnit: 'px'
+                }
+            },
+            buttonTypography: {
+                type: 'object',
+                default: {
+                    fontFamily: '',
+                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                    fontSizeUnit: 'px',
+                    fontWeight: '500',
+                    fontStyle: 'normal',
+                    textTransform: 'none',
+                    textDecoration: 'none',
+                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                    lineHeightUnit: 'em',
+                    letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                    letterSpacingUnit: 'px'
+                }
+            },
+            buttonPadding: {
+                type: 'object',
+                default: {
+                    desktop: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px' },
+                    tablet: { top: 8, right: 16, bottom: 8, left: 16, unit: 'px' },
+                    mobile: { top: 6, right: 12, bottom: 6, left: 12, unit: 'px' }
+                }
+            },
+            buttonBorderRadius: {
+                type: 'object',
+                default: {
+                    desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                    tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                    mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+                }
+            },
+            imageSize: {
+                type: 'string',
+                default: 'medium'
+            },
+            imageBorderRadius: {
+                type: 'object',
+                default: {
+                    desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                    tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                    mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                }
+            },
+            cardStyle: {
+                type: 'boolean',
+                default: false
+            },
+            cardBackgroundColor: {
+                type: 'string',
+                default: '#ffffff'
+            },
+            cardPadding: {
+                type: 'object',
+                default: {
+                    desktop: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' },
+                    tablet: { top: 15, right: 15, bottom: 15, left: 15, unit: 'px' },
+                    mobile: { top: 10, right: 10, bottom: 10, left: 10, unit: 'px' }
+                }
+            },
+            cardBorderRadius: {
+                type: 'object',
+                default: {
+                    desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                    tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                    mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                }
+            },
+            cardBorderStyle: {
+                type: 'string',
+                default: 'solid'
+            },
+            cardBorderWidth: {
+                type: 'object',
+                default: {
+                    desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                    tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                    mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                }
+            },
+            cardBorderColor: {
+                type: 'string',
+                default: '#e0e0e0'
+            },
+            cardShadow: {
+                type: 'object',
+                default: {
+                    enable: false,
+                    color: 'rgba(0, 0, 0, 0.1)',
+                    horizontal: 0,
+                    vertical: 0,
+                    blur: 0,
+                    spread: 0,
+                    position: 'outset'
+                }
+            },
+            cardShadowHover: {
+                type: 'object',
+                default: {
+                    enable: false,
+                    color: 'rgba(0, 0, 0, 0.2)',
+                    horizontal: 0,
+                    vertical: 0,
+                    blur: 0,
+                    spread: 0,
+                    position: 'outset'
+                }
+            },
+            animation: {
+                type: 'string',
+                default: 'none'
+            },
+        },
+        example: {
+            attributes: {
+                productStyle: 'grid',
+                productsToShow: 2,
+                columns: {
+                    desktop: 2,
+                    tablet: 2,
+                    mobile: 1
+                },
+                displayFeaturedImage: true,
+                displayTitle: true,
+                displayPrice: true,
+                displayExcerpt: true,
+                excerptLength: 15,
+                cardStyle: true
+            },
+            viewportWidth: 800
+        },
+        edit: DigiProductsEdit,
+        save: DigiProductsSave,
+    });
+}
+
+/**
  * Register FAQ block
  */
 registerBlockType('digiblocks/faq', {
@@ -1843,6 +2706,333 @@ registerBlockType('digiblocks/faq', {
     },
     edit: FAQEdit,
     save: FAQSave,
+});
+
+/**
+ * Register Forms block
+ */
+registerBlockType('digiblocks/forms', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['forms'].title,
+    category: 'digiblocks',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['forms'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['forms'].description,
+    keywords: [__('form', 'digiblocks'), __('contact', 'digiblocks'), __('input', 'digiblocks'), __('email', 'digiblocks'), __('field', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('forms') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+			type: 'string',
+			default: '',
+		},
+        anchor: {
+			type: 'string'
+		},
+        customClasses: {
+			type: 'string'
+		},
+        formName: {
+			type: 'string',
+			default: __('Contact Form', 'digiblocks')
+		},
+        recipientEmail: {
+			type: 'string',
+			default: ''
+		},
+        emailSubject: {
+			type: 'string',
+			default: __('New form submission', 'digiblocks')
+		},
+        successMessage: {
+			type: 'string',
+			default: __('Thank you for your submission!', 'digiblocks')
+		},
+        errorMessage: {
+			type: 'string',
+			default: __('There was an error submitting the form. Please try again.', 'digiblocks')
+		},
+        enableRecaptcha: {
+			type: 'boolean',
+			default: false
+		},
+		useSiteLogo: {
+			type: 'boolean',
+			default: true
+		},
+		customLogo: {
+			type: 'string',
+			default: ''
+		},
+		emailHeader: {
+			type: 'string',
+			default: ''
+		},
+		emailFooter: {
+			type: 'string',
+			default: ''
+		},
+		businessName: {
+			type: 'string',
+			default: ''
+		},
+		businessAddress: {
+			type: 'string',
+			default: ''
+		},
+        submitButtonText: {
+			type: 'string',
+			default: __('Submit', 'digiblocks')
+		},
+        buttonAlign: {
+			type: 'string',
+			default: 'left'
+		},
+        backgroundColor: {
+			type: 'string',
+			default: '#ffffff'
+		},
+        textColor: {
+			type: 'string',
+			default: '#333333'
+		},
+        labelColor: {
+			type: 'string',
+			default: '#333333'
+		},
+        buttonBackgroundColor: { 
+			type: 'string',
+			default: '#4a6cf7'
+		},
+        buttonTextColor: {
+			type: 'string',
+			default: '#ffffff'
+		},
+        buttonBackgroundHoverColor: {
+			type: 'string',
+			default: '#3a5ce5'
+		},
+        buttonTextHoverColor: {
+			type: 'string',
+			default: '#ffffff'
+		},
+        borderStyle: {
+			type: 'string',
+			default: 'solid'
+		},
+        borderColor: {
+			type: 'string',
+			default: '#e0e0e0'
+		},
+        borderWidth: {
+			type: 'number',
+			default: 1
+		},
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' },
+                tablet: { top: 25, right: 25, bottom: 25, left: 25, unit: 'px' },
+                mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+            }
+        },
+        typography: {
+			type: 'object',
+			default: {}
+		},
+        textTypography: {
+			type: 'object',
+			default: {}
+		},
+        buttonTypography: {
+			type: 'object',
+			default: {}
+		},
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        inputBorderStyle: {
+			type: 'string',
+			default: 'solid'
+		},
+        inputBorderColor: {
+			type: 'string',
+			default: '#e0e0e0'
+		},
+        inputBorderWidth: {
+			type: 'number',
+			default: 1
+		},
+        inputBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+            }
+        },
+        inputPadding: {
+            type: 'object',
+            default: {
+                desktop: { top: 12, right: 15, bottom: 12, left: 15, unit: 'px' },
+                tablet: { top: 10, right: 12, bottom: 10, left: 12, unit: 'px' },
+                mobile: { top: 8, right: 10, bottom: 8, left: 10, unit: 'px' }
+            }
+        },
+        inputBackgroundColor: {
+			type: 'string',
+			default: '#ffffff'
+		},
+        inputTextColor: {
+			type: 'string',
+			default: '#333333'
+		},
+        inputFocusBorderColor: {
+			type: 'string',
+			default: '#4a6cf7'
+		},
+        animation: {
+			type: 'string',
+			default: 'none'
+		},
+        fieldGap: {
+            type: 'object',
+            default: {
+                desktop: 20,
+                tablet: 15,
+                mobile: 12
+            }
+        },
+        labelMargin: {
+            type: 'object',
+            default: {
+                desktop: 8,
+                tablet: 6,
+                mobile: 5
+            }
+        },
+        fields: {
+            type: 'array',
+            default: [
+                {
+                    id: 'name',
+                    type: 'text',
+                    label: __('Name', 'digiblocks'),
+                    placeholder: __('Enter your name', 'digiblocks'),
+                    required: true,
+                    width: 100
+                },
+                {
+                    id: 'email',
+                    type: 'email',
+                    label: __('Email', 'digiblocks'),
+                    placeholder: __('Enter your email', 'digiblocks'),
+                    required: true,
+                    width: 100
+                },
+                {
+                    id: 'message',
+                    type: 'textarea',
+                    label: __('Message', 'digiblocks'),
+                    placeholder: __('Enter your message', 'digiblocks'),
+                    required: true,
+                    width: 100
+                }
+            ]
+        }
+    },
+	example: {
+		attributes: {
+			fields: [
+				{
+					id: 'name',
+					type: 'text',
+					label: __('Name', 'digiblocks'),
+					placeholder: __('Enter your name', 'digiblocks'),
+					required: true,
+					width: 100
+				},
+				{
+					id: 'email',
+					type: 'email',
+					label: __('Email', 'digiblocks'),
+					placeholder: __('Enter your email', 'digiblocks'),
+					required: true,
+					width: 100
+				},
+				{
+					id: 'message',
+					type: 'textarea',
+					label: __('Message', 'digiblocks'),
+					placeholder: __('Enter your message', 'digiblocks'),
+					required: true,
+					width: 100
+				}
+			],
+			formName: __('Contact Form', 'digiblocks'),
+			backgroundColor: '#ffffff',
+			textColor: '#333333',
+			labelColor: '#333333',
+			borderStyle: 'solid',
+			borderColor: '#e0e0e0',
+			buttonBackgroundColor: '#4a6cf7',
+			buttonTextColor: '#ffffff',
+			submitButtonText: __('Submit', 'digiblocks'),
+			viewportWidth: 450
+		}
+	},
+    edit: FormsEdit,
+    save: FormsSave
 });
 
 /**
@@ -2486,9 +3676,13 @@ registerBlockType('digiblocks/icon', {
             },
             iconColor: '#1e73be',
             backgroundColor: 'transparent',
-            iconSize: { desktop: 20 }
+            iconSize: { desktop: 80 },
+			iconPadding: {
+				desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+				tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+				mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+			},
         },
-        viewportWidth: 100
     },
     edit: IconEdit,
     save: IconSave,
@@ -3153,6 +4347,818 @@ registerBlockType('digiblocks/icon-list', {
 });
 
 /**
+ * Register Image block
+ */
+registerBlockType('digiblocks/image', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['image'].title,
+    category: 'digiblocks',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['image'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['image'].description,
+    keywords: [__('image', 'digiblocks'), __('picture', 'digiblocks'), __('photo', 'digiblocks'), __('media', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('image') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        imageId: {
+            type: 'number',
+        },
+        imageUrl: {
+            type: 'string',
+            source: 'attribute',
+            selector: 'img',
+            attribute: 'src',
+        },
+        altText: {
+            type: 'string',
+            source: 'attribute',
+            selector: 'img',
+            attribute: 'alt',
+            default: '',
+        },
+        title: {
+            type: 'string',
+            source: 'attribute',
+            selector: 'img',
+            attribute: 'title',
+            default: '',
+        },
+        caption: {
+            type: 'string',
+            source: 'html',
+            selector: 'figcaption',
+            default: '',
+        },
+        width: {
+            type: 'object',
+            default: {
+                desktop: 100,
+                tablet: 100,
+                mobile: 100
+            }
+        },
+        widthUnit: {
+            type: 'string',
+            default: '%'
+        },
+        height: {
+            type: 'object',
+            default: {
+                desktop: 'auto',
+                tablet: 'auto',
+                mobile: 'auto'
+            }
+        },
+        heightUnit: {
+            type: 'string',
+            default: 'px'
+        },
+        sizeSlug: {
+            type: 'string',
+            default: 'large',
+        },
+        align: {
+            type: 'string',
+            default: 'center',
+        },
+        alignTablet: {
+            type: 'string',
+            default: 'center',
+        },
+        alignMobile: {
+            type: 'string',
+            default: 'center',
+        },
+        objectFit: {
+            type: 'string',
+            default: 'cover',
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'none',
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0',
+        },
+        borderHoverColor: {
+            type: 'string',
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset',
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset',
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        url: {
+            type: 'string',
+            default: ''
+        },
+        opensInNewTab: {
+            type: 'boolean',
+            default: false
+        },
+        rel: {
+            type: 'string',
+            default: ''
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+        hoverEffect: {
+            type: 'string',
+            default: 'none'
+        },
+        overlayEnable: {
+            type: 'boolean',
+            default: false,
+        },
+        overlayColor: {
+            type: 'string',
+            default: 'rgba(0,0,0,0.5)',
+        },
+        overlayHoverOnly: {
+            type: 'boolean',
+            default: true,
+        },
+    },
+    example: {
+        attributes: {
+            imageUrl: 'https://s.w.org/images/core/5.3/MtBlanc1.jpg',
+            sizeSlug: 'large',
+            width: {
+                desktop: 100,
+                tablet: 100,
+                mobile: 100
+            },
+            widthUnit: '%'
+        },
+    },
+    edit: ImageEdit,
+    save: ImageSave,
+});
+
+/**
+ * Register Lottie Animation block
+ */
+registerBlockType('digiblocks/lottie', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['lottie'].title,
+    category: 'digiblocks',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['lottie'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['lottie'].description,
+    keywords: [__('lottie', 'digiblocks'), __('animation', 'digiblocks'), __('dotlottie', 'digiblocks'), __('motion', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('lottie') ? true : false, // Remove the block if disabled
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        lottieSource: {
+            type: 'string',
+            default: ''
+        },
+        sourceType: {
+            type: 'string',
+            default: 'file'
+        },
+        lottieFile: {
+            type: 'object',
+            default: null
+        },
+        autoplay: {
+            type: 'boolean',
+            default: true
+        },
+        loop: {
+            type: 'boolean',
+            default: true
+        },
+        speed: {
+            type: 'number',
+            default: 1
+        },
+        width: {
+            type: 'object',
+            default: {
+                desktop: 300,
+                tablet: 300,
+                mobile: 300
+            }
+        },
+        widthUnit: {
+            type: 'string',
+            default: 'px'
+        },
+        height: {
+            type: 'object',
+            default: {
+                desktop: 300,
+                tablet: 300,
+                mobile: 300
+            }
+        },
+        heightUnit: {
+            type: 'string',
+            default: 'px'
+        },
+        alignment: {
+            type: 'string',
+            default: 'center'
+        },
+        backgroundColor: {
+            type: 'string',
+            default: ''
+        },
+        showControls: {
+            type: 'boolean',
+            default: false
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        shadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        }
+    },
+    example: {
+        attributes: {
+            lottieSource: 'https://lottie.host/74c2e0cc-daa3-4269-b9a8-3205d6cd70d6/V7KchLpRt2.lottie',
+            autoplay: true,
+            loop: true,
+            width: {
+                desktop: 300,
+                tablet: 300,
+                mobile: 300
+            },
+            height: {
+                desktop: 300,
+                tablet: 300,
+                mobile: 300
+            }
+        },
+    },
+    edit: LottieEdit,
+    save: LottieSave,
+});
+
+/**
+ * Register Posts block
+ */
+registerBlockType('digiblocks/posts', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['posts'].title,
+    category: 'digiblocks',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['posts'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['posts'].description,
+    keywords: [__('post', 'digiblocks'), __('blog', 'digiblocks'), __('article', 'digiblocks'), __('grid', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('posts') ? true : false, // Remove the block if disabled
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        postsToShow: {
+            type: 'number',
+            default: 3
+        },
+        columns: {
+            type: 'object',
+            default: {
+                desktop: 3,
+                tablet: 2,
+                mobile: 1
+            }
+        },
+        postStyle: {
+            type: 'string',
+            default: 'grid'
+        },
+        displayFeaturedImage: {
+            type: 'boolean',
+            default: true
+        },
+        displayTitle: {
+            type: 'boolean',
+            default: true
+        },
+        displayMeta: {
+            type: 'boolean',
+            default: true
+        },
+        displayExcerpt: {
+            type: 'boolean',
+            default: true
+        },
+        displayReadMoreButton: {
+            type: 'boolean',
+            default: true
+        },
+        metaSettings: {
+            type: 'object',
+            default: {
+                displayAuthor: true,
+                displayDate: true,
+                displayCategories: true,
+                displayComments: true
+            }
+        },
+        excerptLength: {
+            type: 'number',
+            default: 25
+        },
+        readMoreText: {
+            type: 'string',
+            default: __('Read More', 'digiblocks')
+        },
+        order: {
+            type: 'string',
+            default: 'desc'
+        },
+        orderBy: {
+            type: 'string',
+            default: 'date'
+        },
+        categories: {
+            type: 'array',
+            default: []
+        },
+		enablePagination: {
+			type: 'boolean',
+			default: false
+		},
+		paginationAlign: {
+			type: 'string',
+			default: 'center'
+		},
+		paginationBackgroundColor: {
+			type: 'string',
+			default: '#f8f9fa'
+		},
+		paginationTextColor: {
+			type: 'string',
+			default: '#333333'
+		},
+		paginationActiveBackgroundColor: {
+			type: 'string',
+			default: '#4a6cf7'
+		},
+		paginationActiveTextColor: {
+			type: 'string',
+			default: '#ffffff'
+		},
+        titleColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        titleHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        excerptColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        catBackgroundColor: {
+            type: 'string',
+            default: '#52576b'
+        },
+        catColor: {
+            type: 'string',
+            default: '#fff'
+        },
+        catHoverBackgroundColor: {
+            type: 'string',
+            default: '#3f4a73'
+        },
+        catHoverColor: {
+            type: 'string',
+            default: '#fff'
+        },
+        metaColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        metaHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        buttonBackgroundColor: {
+            type: 'string',
+            default: '#4a6cf7'
+        },
+        buttonTextColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        buttonBackgroundHoverColor: {
+            type: 'string',
+            default: '#3a5ce5'
+        },
+        buttonTextHoverColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        imageMargin: {
+            type: 'object',
+            default: {
+                desktop: 15,
+                tablet: 15,
+                mobile: 15
+            }
+        },
+        contentMargin: {
+            type: 'object',
+            default: {
+                desktop: 18,
+                tablet: 15,
+                mobile: 15
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+            }
+        },
+        itemSpacing: {
+            type: 'object',
+            default: {
+                desktop: 20,
+                tablet: 15,
+                mobile: 10
+            }
+        },
+        titleTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 20, tablet: 18, mobile: 16 },
+                fontSizeUnit: 'px',
+                fontWeight: '600',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        textTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 13, tablet: 12, mobile: 11 },
+                fontSizeUnit: 'px',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        contentTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        buttonTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: '500',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        buttonPadding: {
+            type: 'object',
+            default: {
+                desktop: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px' },
+                tablet: { top: 8, right: 16, bottom: 8, left: 16, unit: 'px' },
+                mobile: { top: 6, right: 12, bottom: 6, left: 12, unit: 'px' }
+            }
+        },
+        buttonBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+            }
+        },
+        imageSize: {
+            type: 'string',
+            default: 'medium'
+        },
+        imageBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+            }
+        },
+        cardStyle: {
+            type: 'boolean',
+            default: false
+        },
+        cardBackgroundColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        cardPadding: {
+            type: 'object',
+            default: {
+                desktop: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' },
+                tablet: { top: 15, right: 15, bottom: 15, left: 15, unit: 'px' },
+                mobile: { top: 10, right: 10, bottom: 10, left: 10, unit: 'px' }
+            }
+        },
+        cardBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+            }
+        },
+        cardBorderStyle: {
+            type: 'string',
+            default: 'solid'
+        },
+        cardBorderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+            }
+        },
+        cardBorderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        cardShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        cardShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+    },
+	example: {
+		attributes: {
+			postStyle: 'grid',
+			postsToShow: 1,
+			columns: 1,
+			displayFeaturedImage: true,
+			displayTitle: true,
+			displayExcerpt: true,
+			excerptLength: 15,
+			displayMeta: true,
+			titleColor: '#333333',
+			excerptColor: '#666666',
+			metaColor: '#666666',
+			buttonBackgroundColor: '#4a6cf7',
+			buttonTextColor: '#ffffff',
+			itemSpacing: {
+				desktop: 20,
+				tablet: 15,
+				mobile: 10
+			}
+		},
+		viewportWidth: 600
+	},
+    edit: PostsEdit,
+    save: PostsSave,
+});
+
+/**
  * Register Pricing Table block
  */
 registerBlockType('digiblocks/pricing-table', {
@@ -3179,7 +5185,7 @@ registerBlockType('digiblocks/pricing-table', {
         customClassName: false,
         anchor: false,
     },
-    attributes: {
+	attributes: {
         id: {
             type: 'string',
         },
@@ -3391,25 +5397,10 @@ registerBlockType('digiblocks/pricing-table', {
                     buttonText: 'Get Started',
                     isHighlighted: false,
                     ribbonText: 'Popular',
-                },
-                {
-                    id: 'table-2-example',
-                    title: 'Pro Plan',
-                    price: '$49',
-                    period: '/month',
-                    description: 'For growing businesses',
-                    features: [
-                        { text: '5 Websites', enabled: true },
-                        { text: '20GB Storage', enabled: true },
-                        { text: 'Premium Support', enabled: true }
-                    ],
-                    buttonText: 'Get Started',
-                    isHighlighted: true,
-                    ribbonText: 'Popular',
                 }
             ],
-            columns: 2,
-            tableStyle: 'style2',
+            columns: 1,
+            tableStyle: 'style1',
             showRibbon: true
         }
     },
@@ -4853,6 +6844,16 @@ registerBlockType('digiblocks/testimonials', {
                     imageUrl: '',
                     imageId: '',
                     rating: 5
+                },
+                {
+                    id: 'testimonial-2',
+                    name: __('Charlotte Lebon', 'digiblocks'),
+					position: __('Marketing', 'digiblocks'),
+					company: __('Creative Solutions', 'digiblocks'),
+					content: __('We\'ve seen a 40% increase in customer engagement since implementing this solution. Highly recommended for any business.', 'digiblocks'),
+                    imageUrl: '',
+                    imageId: '',
+                    rating: 5
                 }
             ],
             layout: 'card',
@@ -4863,6 +6864,445 @@ registerBlockType('digiblocks/testimonials', {
     edit: TestimonialsEdit,
     save: TestimonialsSave,
 });
+
+if ( isWooActive() ) {
+	/**
+	 * Register Woo Products block
+	 */
+	registerBlockType('digiblocks/woo-products', {
+		apiVersion: 2,
+		title: digiBlocksData.blocks['woo-products'].title,
+		category: 'digiblocks',
+		icon: {
+			src: () => {
+				const { viewbox, path } = digiBlocksData.blocks['woo-products'].icon;
+				return (
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+						<path d={path} />
+					</svg>
+				);
+			}
+		},
+		description: digiBlocksData.blocks['woo-products'].description,
+		keywords: [__('woocommerce', 'digiblocks'), __('products', 'digiblocks'), __('shop', 'digiblocks'), __('store', 'digiblocks'), __('ecommerce', 'digiblocks')],
+		supports: {
+			inserter: getBlockActiveStatus('woo-products') ? true : false,
+			html: false,
+			className: false,
+			customClassName: false,
+			anchor: false,
+		},
+		attributes: {
+			id: {
+				type: 'string',
+				default: '',
+			},
+			anchor: {
+				type: 'string',
+				default: ''
+			},
+			customClasses: {
+				type: 'string',
+				default: ''
+			},
+			productsToShow: {
+				type: 'number',
+				default: 4
+			},
+			columns: {
+				type: 'object',
+				default: {
+					desktop: 4,
+					tablet: 2,
+					mobile: 1
+				}
+			},
+			displayFeaturedImage: {
+				type: 'boolean',
+				default: true
+			},
+			displayTitle: {
+				type: 'boolean',
+				default: true
+			},
+			displayPrice: {
+				type: 'boolean',
+				default: true
+			},
+			displayRating: {
+				type: 'boolean',
+				default: true
+			},
+			displaySaleBadge: {
+				type: 'boolean',
+				default: true
+			},
+			displayCategories: {
+				type: 'boolean',
+				default: true
+			},
+			displayShortDescription: {
+				type: 'boolean',
+				default: true
+			},
+			displayAddToCart: {
+				type: 'boolean',
+				default: true
+			},
+			shortDescriptionLength: {
+				type: 'number',
+				default: 25
+			},
+			order: {
+				type: 'string',
+				default: 'desc'
+			},
+			orderBy: {
+				type: 'string',
+				default: 'date'
+			},
+			categories: {
+				type: 'array',
+				default: []
+			},
+			onSale: {
+				type: 'boolean',
+				default: false
+			},
+			featured: {
+				type: 'boolean',
+				default: false
+			},
+			enablePagination: {
+				type: 'boolean',
+				default: false
+			},
+			paginationAlign: {
+				type: 'string',
+				default: 'center'
+			},
+			paginationBackgroundColor: {
+				type: 'string',
+				default: '#f8f9fa'
+			},
+			paginationTextColor: {
+				type: 'string',
+				default: '#333333'
+			},
+			paginationActiveBackgroundColor: {
+				type: 'string',
+				default: '#4a6cf7'
+			},
+			paginationActiveTextColor: {
+				type: 'string',
+				default: '#ffffff'
+			},
+			titleColor: {
+				type: 'string',
+				default: '#333333'
+			},
+			titleHoverColor: {
+				type: 'string',
+				default: ''
+			},
+			priceColor: {
+				type: 'string',
+				default: '#4a6cf7'
+			},
+			saleColor: {
+				type: 'string',
+				default: '#ff5252'
+			},
+			regularPriceColor: {
+				type: 'string',
+				default: '#999999'
+			},
+			ratingColor: {
+				type: 'string',
+				default: '#ffc107'
+			},
+			catBackgroundColor: {
+				type: 'string',
+				default: '#52576b'
+			},
+			catColor: {
+				type: 'string',
+				default: '#fff'
+			},
+			catHoverBackgroundColor: {
+				type: 'string',
+				default: '#3f4a73'
+			},
+			catHoverColor: {
+				type: 'string',
+				default: '#fff'
+			},
+			saleBadgeBackgroundColor: {
+				type: 'string',
+				default: '#ff5252'
+			},
+			saleBadgeColor: {
+				type: 'string',
+				default: '#ffffff'
+			},
+			descriptionColor: {
+				type: 'string',
+				default: '#666666'
+			},
+			buttonBackgroundColor: {
+				type: 'string',
+				default: '#4a6cf7'
+			},
+			buttonTextColor: {
+				type: 'string',
+				default: '#ffffff'
+			},
+			buttonBackgroundHoverColor: {
+				type: 'string',
+				default: '#3a5ce5'
+			},
+			buttonTextHoverColor: {
+				type: 'string',
+				default: '#ffffff'
+			},
+			imageMargin: {
+				type: 'object',
+				default: {
+					desktop: 15,
+					tablet: 15,
+					mobile: 15
+				}
+			},
+			contentMargin: {
+				type: 'object',
+				default: {
+					desktop: 14,
+					tablet: 12,
+					mobile: 12
+				}
+			},
+			padding: {
+				type: 'object',
+				default: {
+					desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+					tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+					mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+				}
+			},
+			margin: {
+				type: 'object',
+				default: {
+					desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
+					tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
+					mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+				}
+			},
+			itemSpacing: {
+				type: 'object',
+				default: {
+					desktop: 20,
+					tablet: 15,
+					mobile: 10
+				}
+			},
+			titleTypography: {
+				type: 'object',
+				default: {
+					fontFamily: '',
+					fontSize: { desktop: 20, tablet: 18, mobile: 16 },
+					fontSizeUnit: 'px',
+					fontWeight: '600',
+					fontStyle: 'normal',
+					textTransform: 'none',
+					textDecoration: 'none',
+					lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+					lineHeightUnit: 'em',
+					letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+					letterSpacingUnit: 'px'
+				}
+			},
+			headingTypography: {
+				type: 'object',
+				default: {
+					fontFamily: '',
+					fontSize: { desktop: 18, tablet: 16, mobile: 15 },
+					fontSizeUnit: 'px',
+					fontWeight: '700',
+					fontStyle: 'normal',
+					textTransform: 'none',
+					textDecoration: 'none',
+					lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+					lineHeightUnit: 'em',
+					letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+					letterSpacingUnit: 'px'
+				}
+			},
+			textTypography: {
+				type: 'object',
+				default: {
+					fontFamily: '',
+					fontSize: { desktop: 13, tablet: 12, mobile: 11 },
+					fontSizeUnit: 'px',
+					fontWeight: 'normal',
+					fontStyle: 'normal',
+					textTransform: 'none',
+					textDecoration: 'none',
+					lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+					lineHeightUnit: 'em',
+					letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+					letterSpacingUnit: 'px'
+				}
+			},
+			contentTypography: {
+				type: 'object',
+				default: {
+					fontFamily: '',
+					fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+					fontSizeUnit: 'px',
+					fontWeight: 'normal',
+					fontStyle: 'normal',
+					textTransform: 'none',
+					textDecoration: 'none',
+					lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+					lineHeightUnit: 'em',
+					letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+					letterSpacingUnit: 'px'
+				}
+			},
+			buttonTypography: {
+				type: 'object',
+				default: {
+					fontFamily: '',
+					fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+					fontSizeUnit: 'px',
+					fontWeight: '500',
+					fontStyle: 'normal',
+					textTransform: 'none',
+					textDecoration: 'none',
+					lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+					lineHeightUnit: 'em',
+					letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+					letterSpacingUnit: 'px'
+				}
+			},
+			buttonPadding: {
+				type: 'object',
+				default: {
+					desktop: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px' },
+					tablet: { top: 8, right: 16, bottom: 8, left: 16, unit: 'px' },
+					mobile: { top: 6, right: 12, bottom: 6, left: 12, unit: 'px' }
+				}
+			},
+			buttonBorderRadius: {
+				type: 'object',
+				default: {
+					desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+					tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+					mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+				}
+			},
+			imageSize: {
+				type: 'string',
+				default: 'woocommerce_thumbnail'
+			},
+			imageBorderRadius: {
+				type: 'object',
+				default: {
+					desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+					tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+					mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+				}
+			},
+			cardStyle: {
+				type: 'boolean',
+				default: false
+			},
+			cardBackgroundColor: {
+				type: 'string',
+				default: '#ffffff'
+			},
+			cardPadding: {
+				type: 'object',
+				default: {
+					desktop: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' },
+					tablet: { top: 15, right: 15, bottom: 15, left: 15, unit: 'px' },
+					mobile: { top: 10, right: 10, bottom: 10, left: 10, unit: 'px' }
+				}
+			},
+			cardBorderRadius: {
+				type: 'object',
+				default: {
+					desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+					tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+					mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+				}
+			},
+			cardBorderStyle: {
+				type: 'string',
+				default: 'solid'
+			},
+			cardBorderWidth: {
+				type: 'object',
+				default: {
+					desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+					tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+					mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+				}
+			},
+			cardBorderColor: {
+				type: 'string',
+				default: '#e0e0e0'
+			},
+			cardShadow: {
+				type: 'object',
+				default: {
+					enable: false,
+					color: 'rgba(0, 0, 0, 0.1)',
+					horizontal: 0,
+					vertical: 0,
+					blur: 0,
+					spread: 0,
+					position: 'outset'
+				}
+			},
+			cardShadowHover: {
+				type: 'object',
+				default: {
+					enable: false,
+					color: 'rgba(0, 0, 0, 0.2)',
+					horizontal: 0,
+					vertical: 0,
+					blur: 0,
+					spread: 0,
+					position: 'outset'
+				}
+			},
+			animation: {
+				type: 'string',
+				default: 'none'
+			},
+		},
+		example: {
+			attributes: {
+				productsToShow: 2,
+				columns: {
+					desktop: 2,
+					tablet: 2,
+					mobile: 1
+				},
+				displayFeaturedImage: true,
+				displayTitle: true,
+				displayPrice: true,
+				displayRating: true,
+				displayAddToCart: true,
+				cardStyle: true
+			},
+			viewportWidth: 800
+		},
+		edit: WooProductsEdit,
+		save: WooProductsSave,
+	});
+}
 
 /**
  * Register Logo block
@@ -5193,7 +7633,7 @@ registerBlockType('digiblocks/navigation', {
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 3 },
                 lineHeightUnit: 'em',
                 letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
                 letterSpacingUnit: 'px'
@@ -5223,6 +7663,22 @@ registerBlockType('digiblocks/navigation', {
             type: 'string',
             default: '#e0e0e0'
         },
+		submenuMobileBackgroundColor: {
+			type: 'string',
+			default: 'rgba(0, 0, 0, 0.02)'
+		},
+		submenuMobileLinkColor: {
+			type: 'string',
+			default: ''
+		},
+		submenuMobileLinkHoverColor: {
+			type: 'string',
+			default: ''
+		},
+		submenuMobileLinkHoverBackgroundColor: {
+			type: 'string',
+			default: ''
+		},
         itemSpacing: {
             type: 'object',
             default: {
@@ -5236,7 +7692,7 @@ registerBlockType('digiblocks/navigation', {
             default: {
                 desktop: { top: 8, right: 10, bottom: 8, left: 10, unit: 'px' },
                 tablet: { top: 6, right: 8, bottom: 6, left: 8, unit: 'px' },
-                mobile: { top: 5, right: 5, bottom: 5, left: 5, unit: 'px' }
+                mobile: { top: 0, right: 20, bottom: 0, left: 20, unit: 'px' }
             }
         },
         borderRadius: {
@@ -5244,16 +7700,12 @@ registerBlockType('digiblocks/navigation', {
             default: {
                 desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
                 tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
             }
         },
         animation: {
             type: 'string',
             default: 'none'
-        },
-        openSubmenusOn: {
-            type: 'string',
-            default: 'hover'
         },
         mobileFullWidth: {
             type: 'boolean',

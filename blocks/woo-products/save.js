@@ -1,10 +1,10 @@
 /**
- * Save function for the Navigation block
+ * Save function for the Woo Products block
  */
-const NavigationSave = () => {
+const WooProductsSave = () => {
     // Since we're using server-side rendering,
     // we don't need to render anything here
     return null;
 };
 
-export default NavigationSave;
+export default WooProductsSave;

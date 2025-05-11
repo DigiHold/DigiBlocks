@@ -1126,7 +1126,7 @@ const LogoEdit = ({ attributes, setAttributes, clientId }) => {
 	
 		// In the editor, use # for links to prevent navigation
 		return linkEnabled ? (
-			<a href="#" className="digiblocks-logo-link">
+			<a href="#" onClick={(e) => e.preventDefault()} className="digiblocks-logo-link">
 				{containerContent}
 			</a>
 		) : (

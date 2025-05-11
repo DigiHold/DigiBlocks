@@ -1188,7 +1188,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                     style={isLast ? { marginBottom: 0 } : {}}
                 >
                     {item.linkUrl ? (
-                        <a href="#" className="digiblocks-icon-list-child">{itemContent}</a>
+                        <a href="#" onClick={(e) => e.preventDefault()} className="digiblocks-icon-list-child">{itemContent}</a>
                     ) : (
                         <div className="digiblocks-icon-list-child">{itemContent}</div>
                     )}

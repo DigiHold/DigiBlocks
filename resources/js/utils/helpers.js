@@ -13,90 +13,169 @@
  * @param {boolean} isParent Whether this block is a parent container with inner blocks
  * @return {string} The current block ID
  */
-export const useBlockId = (id, clientId, setAttributes, isParent = false) => {
-    const { useEffect, useRef } = wp.element;
-    const { getBlock, getBlocks } = wp.data.select('core/block-editor');
+export const useBlockId = (id, clientId, setAttributes) => {
+    const { useEffect } = wp.element;
+    const { subscribe } = wp.data;
+    const { getBlock } = wp.data.select('core/block-editor');
     const { updateBlockAttributes } = wp.data.dispatch('core/block-editor');
     
-    // Track if this is an initial render
-    const isInitialRender = useRef(true);
+    // Generate a random ID with your preferred format
+    const generateUniqueId = () => {
+        return 'digi-' + Math.random().toString(36).substring(2, 11);
+    };
     
-    // First generate or verify own ID
+    // Initialize ID if not set
     useEffect(() => {
-        // Generate a new ID if none exists
         if (!id || id === '') {
-            const randomStr = Math.random().toString(36).substr(2, 9);
-            setAttributes({ id: `digi-${randomStr}` });
+            const newId = generateUniqueId();
+            setAttributes({ id: newId });
+            
+            // Add ID to global registry to track used IDs
+            if (!window.digiBlocksUsedIds) {
+                window.digiBlocksUsedIds = new Set();
+            }
+            window.digiBlocksUsedIds.add(newId);
         }
     }, []);
     
-    // Helper function to find all blocks recursively, including nested blocks
-    const getAllBlocksRecursively = (blocks = []) => {
-        let allBlocks = [];
-        
-        blocks.forEach(block => {
-            allBlocks.push(block);
-            
-            if (block.innerBlocks && block.innerBlocks.length > 0) {
-                allBlocks = allBlocks.concat(getAllBlocksRecursively(block.innerBlocks));
-            }
-        });
-        
-        return allBlocks;
-    };
-    
+    // Set up a global duplicate detection system if not already present
     useEffect(() => {
-        // Skip this effect on initial render
-        if (isInitialRender.current) {
-            isInitialRender.current = false;
-            return;
-        }
-        
-        // Check if this is a duplicate block
-        const block = getBlock(clientId);
-        
-        if (block && id && id !== '') {
-            setTimeout(() => {
-                // Get all blocks including nested ones
-                const rootBlocks = getBlocks();
-                const allBlocks = getAllBlocksRecursively(rootBlocks);
+        // Only set up once per editor instance
+        if (!window.digiBlocksDuplicationHandler) {
+            // Global registry of used IDs
+            if (!window.digiBlocksUsedIds) {
+                window.digiBlocksUsedIds = new Set();
+            }
+            
+            // Global tracking of last known blocks
+            if (!window.digiBlocksLastKnownBlocks) {
+                window.digiBlocksLastKnownBlocks = new Set();
+            }
+            
+            // Function to process a block and its inner blocks recursively
+            const processBlock = (block) => {
+                // Skip if already processed
+                if (window.digiBlocksLastKnownBlocks.has(block.clientId)) {
+                    return;
+                }
                 
-                // Check if multiple blocks have the same ID
-                const duplicates = allBlocks.filter(b => 
-                    b.attributes && b.attributes.id === id && b.clientId !== clientId
-                );
-                
-                if (duplicates.length > 0) {
-                    // This is a duplicate, generate a new ID
-                    const randomStr = Math.random().toString(36).substr(2, 9);
-                    const newId = `digi-${randomStr}`;
-                    setAttributes({ id: newId });
+                // Check if this block has an ID attribute that's already used elsewhere
+                if (block.attributes && block.attributes.id) {
+                    const blockId = block.attributes.id;
                     
-                    // If this is a parent block, we need to update IDs of inner blocks too
-                    if (isParent && block.innerBlocks && block.innerBlocks.length > 0) {
-                        block.innerBlocks.forEach(innerBlock => {
-                            // Generate a new unique ID for each inner block
-                            const innerRandomStr = Math.random().toString(36).substr(2, 9);
-                            updateBlockAttributes(innerBlock.clientId, { 
-                                id: `digi-${innerRandomStr}` 
-                            });
-                            
-                            // Recursively handle nested inner blocks if needed
-                            const nestedBlock = getBlock(innerBlock.clientId);
-                            if (nestedBlock && nestedBlock.innerBlocks && nestedBlock.innerBlocks.length > 0) {
-                                nestedBlock.innerBlocks.forEach(nestedInnerBlock => {
-                                    const nestedRandomStr = Math.random().toString(36).substr(2, 9);
-                                    updateBlockAttributes(nestedInnerBlock.clientId, { 
-                                        id: `digi-${nestedRandomStr}` 
-                                    });
-                                });
-                            }
-                        });
+                    // If ID is already in the registry but for a different block,
+                    // this is likely a duplicate - force a new ID
+                    if (window.digiBlocksUsedIds.has(blockId) && 
+                        !window.digiBlocksLastKnownBlocks.has(block.clientId)) {
+                        
+                        // Generate new unique ID
+                        const newId = generateUniqueId();
+                        
+                        // Update the block with new ID
+                        updateBlockAttributes(block.clientId, { id: newId });
+                        
+                        // Add new ID to registry
+                        window.digiBlocksUsedIds.add(newId);
+                    } else {
+                        // Register this ID as used
+                        window.digiBlocksUsedIds.add(blockId);
                     }
                 }
-            }, 10); // Slight delay to ensure the DOM has updated
+                
+                // Add to known blocks
+                window.digiBlocksLastKnownBlocks.add(block.clientId);
+                
+                // Process inner blocks recursively
+                if (block.innerBlocks && block.innerBlocks.length > 0) {
+                    block.innerBlocks.forEach(innerBlock => {
+                        processBlock(innerBlock);
+                    });
+                }
+            };
+            
+            // Subscribe to block editor changes
+            const unsubscribe = subscribe(() => {
+                // Get current blocks from editor
+                const currentBlocks = wp.data.select('core/block-editor').getBlocks();
+                
+                // Process all blocks
+                currentBlocks.forEach(block => {
+                    processBlock(block);
+                });
+            });
+            
+            // Store the unsubscribe function
+            window.digiBlocksDuplicationHandler = unsubscribe;
         }
-    }, [clientId, id]);
+        
+        // Clean up subscription when component unmounts
+        return () => {
+            // Only clean up when the last block is being removed
+            const remainingBlocks = wp.data.select('core/block-editor').getBlockCount();
+            if (remainingBlocks <= 1) {
+                if (window.digiBlocksDuplicationHandler) {
+                    window.digiBlocksDuplicationHandler();
+                    window.digiBlocksDuplicationHandler = null;
+                    window.digiBlocksUsedIds = new Set();
+                    window.digiBlocksLastKnownBlocks = new Set();
+                }
+            }
+        };
+    }, []);
+    
+    // Add direct duplication listener for this specific block
+    useEffect(() => {
+        if (id) {
+            const checkAndFixDuplication = () => {
+                // Get the actual block from the editor
+                const block = getBlock(clientId);
+                
+                if (block && block.attributes && block.attributes.id === id) {
+                    // Verify this ID isn't duplicated elsewhere
+                    const allBlocks = wp.data.select('core/block-editor').getBlocks();
+                    
+                    // Flatten all blocks including nested ones
+                    const flattenBlocks = (blocks) => {
+                        let result = [];
+                        blocks.forEach(block => {
+                            result.push(block);
+                            if (block.innerBlocks && block.innerBlocks.length) {
+                                result = result.concat(flattenBlocks(block.innerBlocks));
+                            }
+                        });
+                        return result;
+                    };
+                    
+                    const flatBlocks = flattenBlocks(allBlocks);
+                    
+                    // Check for duplicates
+                    const duplicates = flatBlocks.filter(b => 
+                        b.attributes && 
+                        b.attributes.id === id && 
+                        b.clientId !== clientId
+                    );
+                    
+                    if (duplicates.length > 0) {
+                        // Found duplicates! Generate a new ID
+                        const newId = generateUniqueId();
+                        setAttributes({ id: newId });
+                        
+                        // Register the new ID
+                        if (window.digiBlocksUsedIds) {
+                            window.digiBlocksUsedIds.add(newId);
+                        }
+                    }
+                }
+            };
+            
+            // Run the check immediately and then on a short delay
+            checkAndFixDuplication();
+            
+            // Also set a timeout to catch any delayed duplications
+            const timeoutId = setTimeout(checkAndFixDuplication, 100);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [id, clientId]);
     
     return id;
 };

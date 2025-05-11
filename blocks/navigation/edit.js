@@ -59,11 +59,14 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
         linkHoverBackgroundColor,
         submenuBackgroundColor,
         submenuBorderColor,
+        submenuMobileBackgroundColor,
+        submenuMobileLinkColor,
+        submenuMobileLinkHoverColor,
+        submenuMobileLinkHoverBackgroundColor,
         itemSpacing,
         padding,
         borderRadius,
         animation,
-        openSubmenusOn,
         mobileFullWidth,
     } = attributes;
 
@@ -444,6 +447,46 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
 			.${id} .digiblocks-mobile-toggle:hover {
 				color: ${toggleIconHoverColor};
 			}
+
+			/* Submenu toggle button styles */
+			.${id} .digiblocks-navigation-link-sub {
+				display: flex;
+				align-items: stretch;
+				justify-content: space-between;
+			}
+			
+			.${id} .digiblocks-navigation-link-sub .digiblocks-navigation-link {
+				flex: 1;
+			}
+
+			.${id} .digiblocks-submenu-toggle {
+				display: none;
+				cursor: pointer;
+				padding: 0 .907em;
+				font-weight: 400;
+				background: none;
+				border: none;
+				color: inherit;
+			}
+			
+			.${id} .digiblocks-submenu-toggle svg {
+				width: 1em;
+				height: 100%;
+				fill: currentColor;
+				display: block;
+			}
+			
+			.${id} .digiblocks-submenu-toggle .icon-minus {
+				display: none;
+			}
+			
+			.${id} .digiblocks-submenu-toggle.is-open .icon-plus {
+				display: none;
+			}
+			
+			.${id} .digiblocks-submenu-toggle.is-open .icon-minus {
+				display: block;
+			}
 			
 			/* Editor specific styles */
 			.${id} .digiblocks-navigation-item-controls {
@@ -528,7 +571,7 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
 					transform: rotate(360deg);
 				}
 			}
-			
+
 			/* Mobile Styles */
 			@media (max-width: ${mobileBreakpoint}px) {
 				.${id} .digiblocks-mobile-toggle {
@@ -542,9 +585,9 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
 					top: 100%;
 					left: 0;
 					right: 0;
-					background-color: rgba(255, 255, 255, 0.95);
-					padding: 10px;
+					background-color: ${submenuBackgroundColor};
 					border-top: 1px solid ${submenuBorderColor};
+					gap: 0;
 					z-index: 1000;
 				}
 				
@@ -552,22 +595,9 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
 					display: flex;
 				}
 				
-				/* Handle all levels of submenus in mobile view */
-				.${id} .digiblocks-navigation-submenu {
-					position: static;
-					box-shadow: none;
-					border: none;
-					background-color: transparent;
-					padding-left: 15px;
-					border-left: 1px solid ${submenuBorderColor};
-					margin-top: 5px;
-					margin-bottom: 5px;
-					width: 100%;
-				}
-				
-				/* Reset transforms for all submenu icons in mobile view */
-				.${id} .digiblocks-navigation-submenu-icon svg {
-					transform: none;
+				/* Override hover behavior in mobile */
+				.${id} .digiblocks-navigation-menu-item:hover > .digiblocks-navigation-submenu {
+					display: none;
 				}
 			}
 		`;
@@ -656,10 +686,27 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
 		
 		return (
 			<li key={item.ID} className={`digiblocks-navigation-menu-item${additionalClasses}`}>
-				<div className="digiblocks-navigation-link wordpress-menu-item">
-					<span>{item.title}</span>
-					{icon}
-				</div>
+				{hasChildren ? (
+					<span className="digiblocks-navigation-link-sub">
+						<div className="digiblocks-navigation-link wordpress-menu-item">
+							<span>{item.title}</span>
+							{icon}
+						</div>
+						<button className="digiblocks-submenu-toggle">
+							<svg className="icon-plus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em">
+								<path d="M248 72c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 160L40 232c-13.3 0-24 10.7-24 24s10.7 24 24 24l160 0 0 160c0 13.3 10.7 24 24 24s24-10.7 24-24l0-160 160 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-160 0 0-160z"/>
+							</svg>
+							<svg className="icon-minus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em">
+								<path d="M432 256c0 13.3-10.7 24-24 24L40 280c-13.3 0-24-10.7-24-24s10.7-24 24-24l368 0c13.3 0 24 10.7 24 24z"/>
+							</svg>
+						</button>
+					</span>
+				) : (
+					<div className="digiblocks-navigation-link wordpress-menu-item">
+						<span>{item.title}</span>
+						{icon}
+					</div>
+				)}
 				
 				{hasChildren && (
 					<ul className={`digiblocks-navigation-submenu depth-${getItemDepth(item) + 1}`}>
@@ -679,6 +726,9 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Render custom menu item
     const renderCustomItem = (item, index) => {
+		// Determine if the item has children/submenu
+        const hasChildren = item.submenu && item.submenu.length > 0;
+        
 		const iconElement = item.icon && item.icon.svg ? (
 			<span 
 				className="digiblocks-navigation-icon"
@@ -687,18 +737,42 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
 		) : null;
 
         return (
-            <li key={item.id} className="digiblocks-navigation-menu-item">
-                <div className="digiblocks-navigation-link">
-					{(item.iconPosition === 'before' || !item.iconPosition) && iconElement}
-                    <RichText
-                        value={item.text}
-                        onChange={(value) => updateCustomItem(index, 'text', value)}
-                        placeholder={__('Menu Item', 'digiblocks')}
-                        allowedFormats={[]}
-                        tagName="span"
-                    />
-					{item.iconPosition === 'after' && iconElement}
-                </div>
+            <li key={item.id} className={`digiblocks-navigation-menu-item ${hasChildren ? 'has-submenu menu-item-has-children' : ''}`}>
+                {hasChildren ? (
+                    <span className="digiblocks-navigation-link-sub">
+                        <div className="digiblocks-navigation-link">
+                            {(item.iconPosition === 'before' || !item.iconPosition) && iconElement}
+                            <RichText
+                                value={item.text}
+                                onChange={(value) => updateCustomItem(index, 'text', value)}
+                                placeholder={__('Menu Item', 'digiblocks')}
+                                allowedFormats={[]}
+                                tagName="span"
+                            />
+                            {item.iconPosition === 'after' && iconElement}
+                        </div>
+                        <button className="digiblocks-submenu-toggle">
+                            <svg className="icon-plus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em">
+                                <path d="M248 72c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 160L40 232c-13.3 0-24 10.7-24 24s10.7 24 24 24l160 0 0 160c0 13.3 10.7 24 24 24s24-10.7 24-24l0-160 160 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-160 0 0-160z"/>
+                            </svg>
+                            <svg className="icon-minus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em">
+                                <path d="M432 256c0 13.3-10.7 24-24 24L40 280c-13.3 0-24-10.7-24-24s10.7-24 24-24l368 0c13.3 0 24 10.7 24 24z"/>
+                            </svg>
+                        </button>
+                    </span>
+                ) : (
+                    <div className="digiblocks-navigation-link">
+                        {(item.iconPosition === 'before' || !item.iconPosition) && iconElement}
+                        <RichText
+                            value={item.text}
+                            onChange={(value) => updateCustomItem(index, 'text', value)}
+                            placeholder={__('Menu Item', 'digiblocks')}
+                            allowedFormats={[]}
+                            tagName="span"
+                        />
+                        {item.iconPosition === 'after' && iconElement}
+                    </div>
+                )}
                 
                 <div className="digiblocks-navigation-item-controls">
                     <Tooltip text={__('Edit Icon', 'digiblocks')}>
@@ -755,6 +829,18 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
                         />
                     </Tooltip>
                 </div>
+
+                {hasChildren && item.submenu && (
+                    <ul className="digiblocks-navigation-submenu">
+                        {item.submenu.map((subItem, subIndex) => (
+                            <li key={subItem.id} className="digiblocks-navigation-menu-item">
+                                <div className="digiblocks-navigation-link">
+                                    <span>{subItem.text}</span>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </li>
         );
     };
@@ -1008,7 +1094,7 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
                                 defaults={{
                                     fontSize: { desktop: 16, tablet: 15, mobile: 14 },
                                     fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 3 },
                                     lineHeightUnit: 'em',
                                 }}
                             />
@@ -1099,6 +1185,44 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
                                     },
                                 ]}
                             />
+							
+							{showMobileToggle && (
+								<TabPanel
+									className="digiblocks-control-tabs"
+									activeClass="active-tab"
+									tabs={stateTabList}
+								>
+									{(tab) => (
+										<PanelColorSettings
+											title={tab.name === 'normal' ? __("Mobile Submenu Colors", "digiblocks") : __("Mobile Submenu Hover Colors", "digiblocks")}
+											initialOpen={true}
+											enableAlpha={true}
+											colorSettings={[
+												{
+													value: tab.name === 'normal' ? submenuMobileLinkColor : submenuMobileLinkHoverColor,
+													onChange: (value) =>
+														setAttributes(
+															tab.name === 'normal'
+																? { submenuMobileLinkColor: value }
+																: { submenuMobileLinkHoverColor: value }
+														),
+													label: __("Link Color", "digiblocks"),
+												},
+												{
+													value: tab.name === 'normal' ? submenuMobileBackgroundColor : submenuMobileLinkHoverBackgroundColor,
+													onChange: (value) =>
+														setAttributes(
+															tab.name === 'normal'
+																? { submenuMobileBackgroundColor: value }
+																: { submenuMobileLinkHoverBackgroundColor: value }
+														),
+													label: __("Background Color", "digiblocks"),
+												},
+											]}
+										/>
+									)}
+								</TabPanel>
+							)}
                         </TabPanelBody>
                         
                         <TabPanelBody
@@ -1175,31 +1299,6 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
                                     </Button>
                                 </div>
                             )}
-                        </TabPanelBody>
-                        
-                        <TabPanelBody
-                            tab="advanced"
-                            name="behavior"
-                            title={__("Behavior", "digiblocks")}
-                            initialOpen={false}
-                        >
-                            <ToggleGroupControl
-                                label={__("Open Submenus On", "digiblocks")}
-                                value={openSubmenusOn}
-                                onChange={(value) => setAttributes({ openSubmenusOn: value })}
-                                isBlock
-                                __next40pxDefaultSize={true}
-                                __nextHasNoMarginBottom={true}
-                            >
-                                <ToggleGroupControlOption 
-                                    value="hover" 
-                                    label={__("Hover", "digiblocks")}
-                                />
-                                <ToggleGroupControlOption 
-                                    value="click" 
-                                    label={__("Click", "digiblocks")}
-                                />
-                            </ToggleGroupControl>
                         </TabPanelBody>
                         
                         <TabPanelBody

@@ -1,0 +1,278 @@
+/**
+ * Editor styles for Container and Column blocks
+ */
+
+/* Container block */
+.block-editor-block-list__block[data-type="digiblocks/container"] {
+    position: relative;
+    min-height: 100px;
+    display: flex;
+    border: 1px dashed #ddd;
+    justify-content: center;
+    max-width: none !important;
+}
+
+.block-editor-block-list__block[data-type="digiblocks/container"].is-selected::before,
+.block-editor-block-list__block[data-type="digiblocks/container"].has-child-selected::before {
+    border: 1px dashed #ddd;
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Container inner blocks wrapper */
+.digiblocks-container-inner {
+    position: relative;
+    width: 100%;
+}
+
+/* Column block in editor */
+.block-editor-block-list__block[data-type="digiblocks/column"] {
+    position: relative;
+    min-height: 50px;
+    border: 1px dashed #ddd;
+}
+
+.block-editor-block-list__block[data-type="digiblocks/column"].is-selected::before {
+    border: 1px dashed #1e1e1e;
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Layout selector */
+.digiblocks-layout-selector {
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    grid-column: span 12;
+}
+
+.digiblocks-layout-selector h2 {
+    font-size: 18px;
+    color: #666;
+    font-weight: 500;
+    text-align: center;
+    text-transform: uppercase;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.digiblocks-layout-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 650px;
+    padding: 0;
+    margin: auto;
+}
+
+.digiblocks-layout-option {
+    width: 20%;
+    padding: 5px 10px;
+    list-style: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.digiblocks-layout-option:hover {
+    transform: scale(1.05);
+}
+
+.digiblocks-layout-icon {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.digiblocks-layout-icon svg {
+    width: 100%;
+    fill: #d4dce6;
+    transition: all 0.3s ease;
+}
+
+.digiblocks-layout-option:hover .digiblocks-layout-icon svg {
+    fill: #007cba;
+}
+
+.digiblocks-layout-label {
+    font-size: 12px;
+    color: #555;
+}
+
+/* Hide visual labels but keep them accessible for screen readers */
+.digiblocks-layout-option .screen-reader-text {
+    border: 0;
+    clip: rect(1px, 1px, 1px, 1px);
+    clip-path: inset(50%);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+    word-wrap: normal !important;
+}
+
+/* Change layout button */
+.digiblocks-change-layout-button {
+    width: 100%;
+    margin-bottom: 10px !important;
+}
+
+/* Media controls */
+.digiblocks-media-control {
+    margin-bottom: 24px;
+}
+
+.digiblocks-media-upload-wrapper {
+    margin-top: 8px;
+}
+
+.digiblocks-media-preview {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #f0f0f0;
+}
+
+.digiblocks-media-preview img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+}
+
+.digiblocks-media-preview video {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: contain;
+    background-color: #000;
+}
+
+.digiblocks-media-controls {
+    display: flex;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    gap: 8px;
+}
+
+.digiblocks-media-controls.digiblocks-media-controls .components-button {
+    justify-content: center;
+    margin: 0;
+    height: 28px;
+    width: 28px;
+    padding: 0;
+    border-radius: 50%;
+    outline: none;
+}
+
+.digiblocks-media-controls
+    .components-button.is-destructive:not(.is-primary):not(.is-secondary):not(
+        .is-tertiary
+    ):not(.is-link),
+.digiblocks-media-controls
+    .components-button.is-destructive:not(.is-primary):not(.is-secondary):not(
+        .is-tertiary
+    ):not(.is-link):active:not(:disabled, [aria-disabled="true"]) {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.digiblocks-media-controls
+    .components-button.is-destructive:not(.is-primary):not(.is-secondary):not(
+        .is-tertiary
+    ):not(.is-link):hover:not(:disabled, [aria-disabled="true"]) {
+    background-color: #a32531;
+    color: #fff;
+}
+
+.digiblocks-media-controls .components-button.is-primary:focus:not(:disabled),
+.digiblocks-media-controls
+    .components-button.is-destructive:not(.is-primary):not(.is-secondary):not(
+        .is-tertiary
+    ):not(.is-link):focus {
+    box-shadow: none;
+}
+
+.digiblocks-media-upload-button {
+    width: 100%;
+    justify-content: center;
+}
+
+/* Responsive indicator styles in editor */
+.digiblocks-responsive-indicator {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #757575;
+}
+
+.digiblocks-responsive-indicator-icon {
+    margin-right: 5px;
+}
+
+/* Desktop preview */
+.edit-post-visual-editor__content-area:not(.is-tablet-preview):not(
+        .is-mobile-preview
+    )
+    .digiblocks-responsive-desktop {
+    display: block;
+}
+
+.edit-post-visual-editor__content-area:not(.is-tablet-preview):not(
+        .is-mobile-preview
+    )
+    .digiblocks-responsive-tablet,
+.edit-post-visual-editor__content-area:not(.is-tablet-preview):not(
+        .is-mobile-preview
+    )
+    .digiblocks-responsive-mobile {
+    display: none;
+}
+
+/* Tablet preview */
+.edit-post-visual-editor__content-area.is-tablet-preview
+    .digiblocks-responsive-tablet {
+    display: block;
+}
+
+.edit-post-visual-editor__content-area.is-tablet-preview
+    .digiblocks-responsive-desktop,
+.edit-post-visual-editor__content-area.is-tablet-preview
+    .digiblocks-responsive-mobile {
+    display: none;
+}
+
+/* Mobile preview */
+.edit-post-visual-editor__content-area.is-mobile-preview
+    .digiblocks-responsive-mobile {
+    display: block;
+}
+
+.edit-post-visual-editor__content-area.is-mobile-preview
+    .digiblocks-responsive-desktop,
+.edit-post-visual-editor__content-area.is-mobile-preview
+    .digiblocks-responsive-tablet {
+    display: none;
+}

@@ -52,9 +52,6 @@ class DigiBlocks {
 		// Initialize actions and filters.
 		$this->init_hooks();
 
-		// Load the plugin text domain.
-		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
-
 		// Register block category.
 		add_filter( 'block_categories_all', array( $this, 'register_block_category' ), 9999999, 2 );
 
@@ -81,6 +78,9 @@ class DigiBlocks {
 
 		// Register blocks with server-side rendering
 		add_action( 'init', array( $this, 'register_blocks' ) );
+
+		// Initialize forms handler if needed
+		add_action( 'init', array( $this, 'init_forms_handler' ) );
 	}
 
 	/**
@@ -92,13 +92,6 @@ class DigiBlocks {
 
 		// Deactivation hook.
 		register_deactivation_hook( DIGIBLOCKS_PLUGIN_FILE, array( $this, 'plugin_deactivation' ) );
-	}
-
-	/**
-	 * Load plugin text domain.
-	 */
-	public function load_textdomain() {
-		load_plugin_textdomain( 'digiblocks', false, dirname( DIGIBLOCKS_PLUGIN_BASE ) . '/languages' );
 	}
 
 	/**
@@ -243,6 +236,14 @@ class DigiBlocks {
 				),
 				'description' => __( 'Add a beautiful call to action block.', 'digiblocks' ),
 			),
+			'container' => array(
+				'title'       => __( 'Container', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '640 512',
+					'path'    => 'M448 64l0 384 128 0c17.7 0 32-14.3 32-32l0-320c0-17.7-14.3-32-32-32L448 64zm-32 0L224 64l0 384 192 0 0-384zM192 448l0-384L64 64C46.3 64 32 78.3 32 96l0 320c0 17.7 14.3 32 32 32l128 0zM0 96C0 60.7 28.7 32 64 32l512 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96z',
+				),
+				'description' => __( 'Create beautiful layouts with flexible containers and columns.', 'digiblocks' ),
+			),
 			'countdown' => array(
 				'title'       => __( 'Countdown', 'digiblocks' ),
 				'icon'        => array(
@@ -266,6 +267,14 @@ class DigiBlocks {
 					'path'    => 'M202.7 288L352 288c17.7 0 32-14.3 32-32l0-192c0-17.7-14.3-32-32-32L64 32C46.3 32 32 46.3 32 64l0 192c0 17.7 14.3 32 32 32l32 0c17.7 0 32 14.3 32 32l0 16 55.5-41.6c5.5-4.2 12.3-6.4 19.2-6.4zM352 320l-149.3 0-81.1 60.8c-4.8 3.6-11.3 4.2-16.8 1.5s-8.8-8.2-8.8-14.3l0-16 0-32-32 0c-35.3 0-64-28.7-64-64L0 64C0 28.7 28.7 0 64 0L352 0c35.3 0 64 28.7 64 64l0 192c0 35.3-28.7 64-64 64zM320 448c-35.3 0-64-28.7-64-64l0-32 32 0 0 32c0 17.7 14.3 32 32 32l117.3 0c6.9 0 13.7 2.2 19.2 6.4L512 464l0-16c0-17.7 14.3-32 32-32l32 0c17.7 0 32-14.3 32-32l0-192c0-17.7-14.3-32-32-32l-128 0 0-32 128 0c35.3 0 64 28.7 64 64l0 192c0 35.3-28.7 64-64 64l-32 0 0 32 0 16c0 6.1-3.4 11.6-8.8 14.3s-11.9 2.1-16.8-1.5L437.3 448 320 448zM184.3 70.3c-16.4 0-31 10.3-36.4 25.7l-.3 .9c-3 8.3 1.4 17.5 9.7 20.4s17.5-1.4 20.4-9.7l.3-.9c.9-2.7 3.5-4.4 6.3-4.4l41.3 0c6.5 0 11.7 5.3 11.7 11.7c0 4.2-2.2 8.1-5.9 10.2l-31.4 18c-5 2.9-8 8.1-8 13.9l0 9.5c0 8.8 7.2 16 16 16s16-7.2 16-16l0-.3L247.4 152c13.6-7.8 22-22.3 22-37.9c0-24.2-19.6-43.7-43.7-43.7l-41.3 0zM208 250.7a22.7 22.7 0 1 0 0-45.3 22.7 22.7 0 1 0 0 45.3z',
 				),
 				'description' => __( 'Create beautiful FAQ block with schema markup for SEO.', 'digiblocks' ),
+			),
+			'forms' => array(
+				'title'       => __( 'Forms', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '512 512',
+					'path'    => 'M511.6 36.9c1.9-12.1-3.4-24.3-13.5-31.2s-23.3-7.5-34-1.4l-448 256C5.5 266.3-.7 277.8 .1 290s8.4 22.9 19.6 27.6L160 376l0 93c0 23.8 19.3 43 43 43c13.1 0 25.4-5.9 33.6-16.1l52.8-66 .1 0 114.2 47.6c9.1 3.8 19.4 3.2 28-1.6s14.5-13.3 16-23l64-416zm-253 380.2l-47 58.8c-2.1 2.6-5.3 4.1-8.6 4.1c-6.1 0-11-4.9-11-11l0-79.7 66.6 27.8zm43.1-16.7l-96.6-40.3L474.1 70.5 416 448 301.8 400.4zM450.5 48.8L173.6 347 32 288 450.5 48.8z',
+				),
+				'description' => __( 'Create custom forms easily with a few clicks.', 'digiblocks' ),
 			),
 			'google-map' => array(
 				'title'       => __( 'Google Map', 'digiblocks' ),
@@ -306,6 +315,30 @@ class DigiBlocks {
 					'path'    => 'M48 112l0-32 32 0 0 32-32 0zM16 72l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24L40 48C26.7 48 16 58.7 16 72zm160 8c-8.8 0-16 7.2-16 16s7.2 16 16 16l320 0c8.8 0 16-7.2 16-16s-7.2-16-16-16L176 80zm0 160c-8.8 0-16 7.2-16 16s7.2 16 16 16l320 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-320 0zm0 160c-8.8 0-16 7.2-16 16s7.2 16 16 16l320 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-320 0zM48 240l32 0 0 32-32 0 0-32zm-8-32c-13.3 0-24 10.7-24 24l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-48 0zm8 224l0-32 32 0 0 32-32 0zM16 392l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-48 0c-13.3 0-24 10.7-24 24z',
 				),
 				'description' => __( 'Display a list of items with custom icons.', 'digiblocks' ),
+			),
+			'image' => array(
+				'title'       => __( 'Image', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '512 512',
+					'path'    => 'M64 64C46.3 64 32 78.3 32 96l0 233.4 67.7-67.7c15.6-15.6 40.9-15.6 56.6 0L224 329.4 355.7 197.7c15.6-15.6 40.9-15.6 56.6 0L480 265.4 480 96c0-17.7-14.3-32-32-32L64 64zM32 374.6L32 416c0 17.7 14.3 32 32 32l41.4 0 96-96-67.7-67.7c-3.1-3.1-8.2-3.1-11.3 0L32 374.6zM389.7 220.3c-3.1-3.1-8.2-3.1-11.3 0L150.6 448 448 448c17.7 0 32-14.3 32-32l0-105.4-90.3-90.3zM0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zm160 48a16 16 0 1 0 -32 0 16 16 0 1 0 32 0zm-64 0a48 48 0 1 1 96 0 48 48 0 1 1 -96 0z',
+				),
+				'description' => __( 'Add responsive images with extensive styling options.', 'digiblocks' ),
+			),
+			'lottie' => array(
+				'title'       => __( 'Lottie Animation', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '512 512',
+					'path'    => 'M386.6624,0l12.8438,1.2874c55.1695,7.1603,100.6999,50.5056,110.7258,105.1334l1.7679,12.7729v273.6128l-1.3479,10.7353c-9.1948,55.0578-53.8233,99.0128-109.1071,107.1617l-10.377,1.2966H121.6512l-13.183-1.7674C49.715,499.884,6.029,451.5781.8231,392.1881c-.1712-1.953.5269-4.2986-.8231-5.9353V126.1568c1.3884-1.7501.6379-4.262.8233-6.3447C6.6279,54.5972,59.4634,2.93,125.1657.4265l.9911-.4265h260.5056ZM122.3859,25.9251c-50.0778,3.1809-93.1008,46.2036-96.191,96.321l.0026,268.3244c3.7841,51.0997,47.2896,93.5872,98.5299,96.0301h263.3644c53.0086-2.4162,97.6399-47.8651,98.9184-100.9664V126.7754c-1.0198-52.4937-45.6513-98.4885-98.0755-100.9901l-266.5488.1399ZM218.3877,280.0325c-16.8532,29.5562-34.8947,53.998-71.5496,57.4744-7.9794.7568-14.4657-.6898-21.7745,3.6207-12.0478,7.1054-14.5991,23.747-5.4711,34.2815,7.7087,8.8964,18.0707,8.4068,28.8833,7.5628,83.1748-6.493,106.6089-76.9458,140.8978-139.6782,17.8327-32.6253,35.5831-64.117,76.6071-68.3913,8.4121-.8765,15.1545.8325,22.8535-3.7705,14.1851-8.4808,14.4963-29.6045.5017-38.4326-6.5701-4.1445-12.4475-3.8956-19.961-3.5547-90.5816,4.1094-113.3086,84.8091-150.9872,150.888Z',
+				),
+				'description' => __( 'Add beautiful Lottie animations to your content.', 'digiblocks' ),
+			),
+			'posts' => array(
+				'title'       => __( 'Posts', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '512 512',
+					'path'    => 'M80 64c-8.8 0-16 7.2-16 16l0 96c0 8.8 7.2 16 16 16l96 0c8.8 0 16-7.2 16-16l0-96c0-8.8-7.2-16-16-16L80 64zM32 80c0-26.5 21.5-48 48-48l96 0c26.5 0 48 21.5 48 48l0 96c0 26.5-21.5 48-48 48l-96 0c-26.5 0-48-21.5-48-48l0-96zM80 320c-8.8 0-16 7.2-16 16l0 96c0 8.8 7.2 16 16 16l96 0c8.8 0 16-7.2 16-16l0-96c0-8.8-7.2-16-16-16l-96 0zM32 336c0-26.5 21.5-48 48-48l96 0c26.5 0 48 21.5 48 48l0 96c0 26.5-21.5 48-48 48l-96 0c-26.5 0-48-21.5-48-48l0-96zM432 64l-96 0c-8.8 0-16 7.2-16 16l0 96c0 8.8 7.2 16 16 16l96 0c8.8 0 16-7.2 16-16l0-96c0-8.8-7.2-16-16-16zM336 32l96 0c26.5 0 48 21.5 48 48l0 96c0 26.5-21.5 48-48 48l-96 0c-26.5 0-48-21.5-48-48l0-96c0-26.5 21.5-48 48-48zm0 288c-8.8 0-16 7.2-16 16l0 96c0 8.8 7.2 16 16 16l96 0c8.8 0 16-7.2 16-16l0-96c0-8.8-7.2-16-16-16l-96 0zm-48 16c0-26.5 21.5-48 48-48l96 0c26.5 0 48 21.5 48 48l0 96c0 26.5-21.5 48-48 48l-96 0c-26.5 0-48-21.5-48-48l0-96z',
+				),
+				'description' => __( 'Display your WordPress posts in beautiful grid and list layouts.', 'digiblocks' ),
 			),
 			'pricing-table' => array(
 				'title'       => __( 'Pricing Table', 'digiblocks' ),
@@ -366,14 +399,6 @@ class DigiBlocks {
 			/**
 			 * Digiblocks Theme
 			 */
-			'login-link' => array(
-				'title'       => __( 'Login Link', 'digiblocks' ),
-				'icon'        => array(
-					'viewbox' => '512 512',
-					'path'    => 'M347.3 267.3c6.2-6.2 6.2-16.4 0-22.6l-128-128c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6L297.4 240 16 240c-8.8 0-16 7.2-16 16s7.2 16 16 16l281.4 0L196.7 372.7c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0l128-128zM336 448c-8.8 0-16 7.2-16 16s7.2 16 16 16l96 0c44.2 0 80-35.8 80-80l0-288c0-44.2-35.8-80-80-80l-96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l96 0c26.5 0 48 21.5 48 48l0 288c0 26.5-21.5 48-48 48l-96 0z',
-				),
-				'description' => __( 'Add a customizable login/account link for your header.', 'digiblocks' ),
-			),
 			'logo' => array(
 				'title'       => __( 'Logo', 'digiblocks' ),
 				'icon'        => array(
@@ -390,7 +415,39 @@ class DigiBlocks {
 				),
 				'description' => __( 'Add a responsive navigation menu with custom or WordPress menus.', 'digiblocks' ),
 			),
+			'login-link' => array(
+				'title'       => __( 'Login Link', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '512 512',
+					'path'    => 'M347.3 267.3c6.2-6.2 6.2-16.4 0-22.6l-128-128c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6L297.4 240 16 240c-8.8 0-16 7.2-16 16s7.2 16 16 16l281.4 0L196.7 372.7c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0l128-128zM336 448c-8.8 0-16 7.2-16 16s7.2 16 16 16l96 0c44.2 0 80-35.8 80-80l0-288c0-44.2-35.8-80-80-80l-96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l96 0c26.5 0 48 21.5 48 48l0 288c0 26.5-21.5 48-48 48l-96 0z',
+				),
+				'description' => __( 'Add a customizable login/account link for your header.', 'digiblocks' ),
+			),
 		);
+
+		// Conditionally add DigiCommerce blocks if DigiCommerce is active
+		if ( class_exists( 'DigiCommerce' ) ) {
+			$blocks_data['digi-products'] = array(
+				'title'       => __('Digi Products', 'digiblocks'),
+				'icon'        => array(
+					'viewbox' => '640 512',
+					'path'    => 'M64 16C64 7.2 71.2 0 80 0l37.9 0c20.6 0 38.6 13 45.3 32l440.4 0c20.8 0 36.1 19.6 31 39.8L592.6 239.5C585.5 268 559.9 288 530.5 288L216 288l7.9 38.4c3 14.9 16.1 25.6 31.4 25.6L560 352c8.8 0 16 7.2 16 16s-7.2 16-16 16l-304.8 0c-30.4 0-56.6-21.4-62.7-51.2l-58.9-288C132 37.3 125.5 32 117.9 32L80 32c-8.8 0-16-7.2-16-16zM530.5 256c14.7 0 27.5-10 31-24.2L603.5 64 170.1 64l39.3 192 321.1 0zM256 480a24 24 0 1 0 0-48 24 24 0 1 0 0 48zm0-80a56 56 0 1 1 0 112 56 56 0 1 1 0-112zm280 56a24 24 0 1 0 -48 0 24 24 0 1 0 48 0zm-80 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zM16 128l96 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-96 0c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64l112 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L16 224c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64l128 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L16 288c-8.8 0-16-7.2-16-16s7.2-16 16-16z',
+				),
+				'description' => __('Display your DigiCommerce products in a beautiful way.', 'digiblocks'),
+			);
+		}
+
+		// Conditionally add WooCommerce products block if WooCommerce is active
+		if ( class_exists( 'WooCommerce' ) ) {
+			$blocks_data['woo-products'] = array(
+				'title'       => __('Woo Products', 'digiblocks'),
+				'icon'        => array(
+					'viewbox' => '576 512',
+					'path'    => 'M16 0C7.2 0 0 7.2 0 16s7.2 16 16 16l37.9 0c7.6 0 14.2 5.3 15.7 12.8l58.9 288c6.1 29.8 32.3 51.2 62.7 51.2L496 384c8.8 0 16-7.2 16-16s-7.2-16-16-16l-304.8 0c-15.2 0-28.3-10.7-31.4-25.6L152 288l314.6 0c29.4 0 55-20 62.1-48.5L570.6 71.8c5-20.2-10.2-39.8-31-39.8L99.1 32C92.5 13 74.4 0 53.9 0L16 0zm90.1 64l433.4 0L497.6 231.8C494 246 481.2 256 466.5 256l-321.1 0L106.1 64zM168 456a24 24 0 1 1 48 0 24 24 0 1 1 -48 0zm80 0a56 56 0 1 0 -112 0 56 56 0 1 0 112 0zm200-24a24 24 0 1 1 0 48 24 24 0 1 1 0-48zm0 80a56 56 0 1 0 0-112 56 56 0 1 0 0 112z',
+				),
+				'description' => __('Display your WooCommerce products in a beautiful grid layout.', 'digiblocks'),
+			);
+		}
 
 		// If block name is specified, return data for that block
 		if ( ! empty( $block_name ) ) {
@@ -773,11 +830,44 @@ class DigiBlocks {
 						filemtime( $js_file ),
 						true
 					);
+
+					// Forms necessary data
+					if ( $this->has_forms_block( $blocks ) ) {
+						$settings             = get_option( 'digiblocks_settings', array() );
+						$recaptcha_site_key   = isset( $settings['recaptcha_site_key'] ) ? $settings['recaptcha_site_key'] : '';
+						$recaptcha_secret_key = isset( $settings['recaptcha_secret_key'] ) ? $settings['recaptcha_secret_key'] : '';
+
+						wp_localize_script(
+							'digiblocks-' . $post_id,
+							'digiBlocksFormData',
+							array(
+								'ajax_url'           => admin_url( 'admin-ajax.php' ),
+								'form_nonce'         => wp_create_nonce( 'digiblocks_form_nonce' ),
+								'recaptcha_site_key' => $recaptcha_site_key,
+							)
+						);
+
+						// Enqueue Google reCAPTCHA if needed.
+						if ( ! empty( $recaptcha_site_key ) && ! empty( $recaptcha_secret_key ) ) {
+							wp_enqueue_script(
+								'google-recaptcha',
+								'https://www.google.com/recaptcha/api.js?render=' . $recaptcha_site_key,
+								array(),
+								null,
+								true
+							);
+						}
+					}
 				}
 
-				// Check for Google Map blocks and enqueue the Google Maps API if needed
-				if ($this->has_google_map_blocks($blocks)) {
+				// Check for Google Map block and enqueue the Google Maps API if needed
+				if ( $this->has_google_map_blocks( $blocks ) ) {
 					$this->enqueue_google_maps_api();
+				}
+
+				// Check for Lottie block and enqueue
+				if ( $this->has_lottie_blocks( $blocks ) ) {
+					$this->enqueue_lottie_if_needed( $post_id, $blocks );
 				}
 
 				// Check for blocks with animations and enqueue if needed
@@ -1010,12 +1100,18 @@ class DigiBlocks {
 			'digiblocks-globals',
 			'digiBlocksData',
 			array(
-				'fontAwesomeIcons' => $this->get_fa_icons(),
-				'blocks'           => $this->get_block_data(),
-				'activeBlocks'     => get_option( 'digiblocks_active_blocks', array() ),
-				'googleMapsApiKey' => $google_maps_api_key,
-				'googleMapsMapId'  => $google_maps_map_id,
-				'navigation_nonce' => wp_create_nonce('digiblocks_nav_nonce'),
+				'fontAwesomeIcons'     => $this->get_fa_icons(),
+				'blocks'               => $this->get_block_data(),
+				'activeBlocks'         => get_option( 'digiblocks_active_blocks', array() ),
+				'googleMapsApiKey'     => $google_maps_api_key,
+				'googleMapsMapId'      => $google_maps_map_id,
+				'navigation_nonce'     => wp_create_nonce( 'digiblocks_nav_nonce' ),
+				'isDigiActive'         => class_exists( 'DigiCommerce' ),
+				'isDigiProActive'      => class_exists( 'DigiCommerce_Pro' ),
+				'digiCurrency'         => (class_exists( 'DigiCommerce' ) && class_exists( 'DigiCommerce_Product' )) ? DigiCommerce_Product::instance()->get_currency_symbol( DigiCommerce()->get_option( 'currency', 'USD' ) ) : '$',
+        		'digiCurrencyPosition' => class_exists( 'DigiCommerce' ) ? DigiCommerce()->get_option( 'currency_position', 'left' ) : 'left',
+				'isWooActive'          => class_exists( 'WooCommerce' ),
+				'lottie'               => DIGIBLOCKS_PLUGIN_URL . 'assets/js/lottie.js',
 			)
 		);
 	}
@@ -1066,6 +1162,56 @@ class DigiBlocks {
 					'apiUrl'   => rest_url( 'digiblocks/v1/' ),
 				)
 			);
+		}
+	}
+
+	/**
+	 * Check if blocks array contains any Lottie blocks.
+	 *
+	 * @param array $blocks Array of parsed blocks.
+	 * @return bool True if Lottie blocks are found.
+	 */
+	private function has_lottie_blocks($blocks) {
+		foreach ($blocks as $block) {
+			if (isset($block['blockName']) && $block['blockName'] === 'digiblocks/lottie') {
+				return true;
+			}
+			
+			if (!empty($block['innerBlocks'])) {
+				if ($this->has_lottie_blocks($block['innerBlocks'])) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Enqueue lottie script if needed
+	 * 
+	 * @param int $post_id Post ID.
+	 * @param array $blocks Parsed blocks from content.
+	 */
+	private function enqueue_lottie_if_needed($post_id, $blocks) {
+		static $lottie_enqueued = false;
+		
+		// Check if lottie js is already enqueued
+		if ($lottie_enqueued) {
+			return;
+		}
+		
+		// Check if any block has lottie
+		if ($this->has_lottie_blocks($blocks)) {
+			wp_enqueue_script(
+				'digiblocks-lottie-player',
+				DIGIBLOCKS_PLUGIN_URL . 'assets/js/lottie.js',
+				array(),
+				DIGIBLOCKS_VERSION,
+				true
+			);
+			
+			$lottie_enqueued = true;
 		}
 	}
 
@@ -1155,11 +1301,102 @@ class DigiBlocks {
 	}
 
 	/**
+	 * Check if blocks array contains any Forms blocks.
+	 *
+	 * @param array $blocks Array of parsed blocks.
+	 * @return bool True if Forms blocks are found.
+	 */
+	private function has_forms_block( $blocks ) {
+		foreach ( $blocks as $block ) {
+			if ( isset( $block['blockName'] ) && $block['blockName'] === 'digiblocks/forms' ) {
+				return true;
+			}
+			
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				if ( $this->has_forms_block( $block['innerBlocks'] ) ) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Initialize forms handler if needed.
+	 */
+	public function init_forms_handler() {
+		// First, check if the forms block is even active in settings
+		$active_blocks = get_option( 'digiblocks_active_blocks', array() );
+		if ( ! isset( $active_blocks['forms'] ) || ! $active_blocks['forms'] ) {
+			return;
+		}
+
+		// Check if it's an AJAX form submission
+		$is_form_submission = defined('DOING_AJAX') && DOING_AJAX && 
+							isset($_POST['action']) && $_POST['action'] === 'digiblocks_submit_form';
+		
+
+		// Case 1: AJAX form submission - load the handler directly
+		if ( $is_form_submission ) {
+			$this->load_forms_handler();
+			return;
+		}
+
+		// Case 2: Check if current page contains forms block
+		global $post;
+		if ( $post && has_blocks( $post->post_content ) ) {
+			$blocks = parse_blocks( $post->post_content );
+			if ( $this->has_forms_block( $blocks ) ) {
+				$this->load_forms_handler();
+			}
+		}
+	}
+
+	/**
+	 * Load the forms handler file if it hasn't been loaded yet.
+	 */
+	private function load_forms_handler() {
+		static $handler_loaded = false;
+
+		// Only load the handler once
+		if ( ! $handler_loaded ) {
+			$handler_file = DIGIBLOCKS_PLUGIN_DIR . 'includes/class-digiblocks-forms-handler.php';
+
+			if ( file_exists( $handler_file ) ) {
+				require_once $handler_file;
+				$handler_loaded = true;
+			}
+		}
+	}
+
+	/**
 	 * Register block with render callback
 	 */
 	public function register_blocks() {
 		// Get active blocks
 		$active_blocks = get_option('digiblocks_active_blocks', array());
+
+		// Register posts block if active
+		if (isset($active_blocks['posts']) && $active_blocks['posts']) {
+			register_block_type('digiblocks/posts', array(
+				'render_callback' => array($this, 'render_posts_block'),
+			));
+		}
+
+		// Register DigiCommerce products block if active
+		if (isset($active_blocks['digi-products']) && $active_blocks['digi-products'] && class_exists('DigiCommerce')) {
+			register_block_type('digiblocks/digi-products', array(
+				'render_callback' => array($this, 'render_digi_products_block'),
+			));
+		}
+
+		// Register WooCommerce products block if active
+		if ( isset($active_blocks['woo-products']) && $active_blocks['woo-products'] && class_exists( 'WooCommerce' ) ) {
+			register_block_type('digiblocks/woo-products', array(
+				'render_callback' => array($this, 'render_woo_products_block'),
+			));
+		}
 		
 		// Register navigation block if active
 		if (isset($active_blocks['navigation']) && $active_blocks['navigation']) {
@@ -1177,7 +1414,755 @@ class DigiBlocks {
 	}
 
 	/**
+	 * Render callback for posts block
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
+	 */
+	public function render_posts_block( $attributes, $content, $block ) {
+		// Extract block attributes
+		$id                       = isset( $attributes['id'] ) ? $attributes['id'] : 'digi-posts-' . uniqid();
+		$anchor                   = isset( $attributes['anchor'] ) ? $attributes['anchor'] : '';
+		$custom_classes           = isset( $attributes['customClasses'] ) ? $attributes['customClasses'] : '';
+		$posts_to_show            = isset( $attributes['postsToShow'] ) ? $attributes['postsToShow'] : 3;
+		$post_style               = isset( $attributes['postStyle'] ) ? $attributes['postStyle'] : 'grid';
+		$display_featured_image   = isset( $attributes['displayFeaturedImage'] ) ? $attributes['displayFeaturedImage'] : true;
+		$display_title            = isset( $attributes['displayTitle'] ) ? $attributes['displayTitle'] : true;
+		$display_meta             = isset( $attributes['displayMeta'] ) ? $attributes['displayMeta'] : true;
+		$display_excerpt          = isset( $attributes['displayExcerpt'] ) ? $attributes['displayExcerpt'] : true;
+		$display_read_more_button = isset( $attributes['displayReadMoreButton'] ) ? $attributes['displayReadMoreButton'] : true;
+		$meta_settings            = isset( $attributes['metaSettings'] ) ? $attributes['metaSettings'] : [
+			'displayAuthor'     => true,
+			'displayDate'       => true,
+			'displayCategories' => true,
+			'displayComments'   => true,
+		];
+		$excerpt_length           = isset( $attributes['excerptLength'] ) ? $attributes['excerptLength'] : 25;
+		$read_more_text           = isset( $attributes['readMoreText'] ) ? $attributes['readMoreText'] : __( 'Read More', 'digiblocks' );
+		$order                    = isset( $attributes['order'] ) ? $attributes['order'] : 'desc';
+		$order_by                 = isset( $attributes['orderBy'] ) ? $attributes['orderBy'] : 'date';
+		$categories               = isset( $attributes['categories'] ) ? $attributes['categories'] : [];
+		$animation                = isset( $attributes['animation'] ) ? $attributes['animation'] : 'none';
+		$image_size               = isset( $attributes['imageSize'] ) ? $attributes['imageSize'] : 'medium';
+
+		// Pagination attributes
+		$enable_pagination        = isset( $attributes['enablePagination'] ) ? $attributes['enablePagination'] : false;
+			
+		// Get the current responsive state
+		$animation_class = ( 'none' !== $animation ) ? ' animate-' . $animation : '';
+	
+		// Build the block class
+		$block_class = "digiblocks-posts $id style-$post_style $custom_classes $animation_class";
+		
+		// Format the ID attribute
+		$id_attr = $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+
+		// Get current page
+		$paged = get_query_var('paged') ? get_query_var('paged') : 1;
+	
+		// Set up the query arguments
+		$args = array(
+			'posts_per_page'      => $posts_to_show,
+			'post_status'         => 'publish',
+			'order'               => $order,
+			'orderby'             => $order_by,
+			'ignore_sticky_posts' => true,
+			'paged'               => $paged,
+		);
+	
+		// Add categories if specified
+		if ( ! empty( $categories ) && ! in_array( 0, $categories, true ) ) {
+			$args['category__in'] = $categories;
+		}
+	
+		// Get posts
+		$query = new WP_Query( $args );
+	
+		// Start output buffer
+		ob_start();
+	
+		if ( $query->have_posts() ) :
+			?>
+			<div class="<?php echo esc_attr( $block_class ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+				<div class="digiblocks-posts-container <?php echo 'layout-' . esc_attr( $post_style ); ?>">
+					<?php while ( $query->have_posts() ) : ?>
+						<?php 
+						$query->the_post(); 
+						$post_id = get_the_ID();
+						?>
+						<div class="digiblocks-post-item">
+							<?php if ( $display_featured_image && has_post_thumbnail() ) : ?>
+								<div class="digiblocks-post-image">
+									<a href="<?php the_permalink(); ?>">
+										<?php the_post_thumbnail( $image_size ); ?>
+									</a>
+								</div>
+							<?php endif; ?>
+	
+							<div class="digiblocks-post-content">
+								<?php if ( $display_title ) : ?>
+									<h3 class="digiblocks-post-title">
+										<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+									</h3>
+								<?php endif; ?>
+	
+								<?php if ( $display_excerpt ) : ?>
+									<div class="digiblocks-post-excerpt">
+										<?php 
+										// Get the excerpt
+										$excerpt = get_the_excerpt();
+										
+										// Limit by word count
+										$words = explode(' ', $excerpt);
+										if (count($words) > $excerpt_length) {
+											$excerpt = implode(' ', array_slice($words, 0, $excerpt_length)) . '...';
+										}
+										
+										echo wp_kses_post( $excerpt );
+										?>
+									</div>
+								<?php endif; ?>
+
+								<?php if ( $display_meta ): ?>
+									<?php if ( isset( $meta_settings['displayCategories'] ) && $meta_settings['displayCategories'] ) : ?>
+										<?php $categories = get_the_category(); ?>
+										<?php if ( ! empty( $categories ) ) : ?>
+											<div class="digiblocks-post-categories">
+												<?php
+												$cat_links = array();
+												foreach ($categories as $category) {
+													$cat_links[] = '<a href="' . esc_url(get_category_link($category->term_id)) . '">' . esc_html($category->name) . '</a>';
+												}
+												echo wp_kses_post( implode(' ', $cat_links) );
+												?>
+											</div>
+										<?php endif; ?>
+									<?php endif; ?>
+
+									<div class="digiblocks-post-footer-meta">
+										<?php if ( isset( $meta_settings['displayAuthor'] ) && $meta_settings['displayAuthor'] ): ?>
+											<div class="digiblocks-author-avatar">
+												<a href="<?php echo esc_url(get_author_posts_url(get_the_author_meta('ID'))); ?>">
+													<?php echo get_avatar(get_the_author_meta('ID'), 96); ?>
+												</a>
+											</div>
+										<?php endif; ?>
+										
+										<div class="digiblocks-footer-meta-items">
+											<?php if ( isset( $meta_settings['displayAuthor'] ) && $meta_settings['displayAuthor'] ): ?>
+												<span class="digiblocks-posted-by">
+													<span class="digiblocks-meta-prefix"><?php esc_html_e('by', 'digiblocks'); ?></span>
+													<a href="<?php echo esc_url(get_author_posts_url(get_the_author_meta('ID'))); ?>" title="<?php echo esc_attr(get_the_author()); ?>" rel="author">
+														<?php the_author(); ?>
+													</a>
+												</span>
+											<?php endif; ?>
+											
+											<?php if ( isset( $meta_settings['displayDate'] ) && $meta_settings['displayDate'] ): ?>
+												<span class="digiblocks-posted-on">
+													<span class="digiblocks-meta-prefix"><?php esc_html_e('on', 'digiblocks'); ?></span>
+													<time datetime="<?php echo esc_attr(get_the_date('c')); ?>">
+														<?php echo get_the_date(); ?>
+													</time>
+												</span>
+											<?php endif; ?>
+										</div>
+									</div>
+								<?php endif; ?>
+	
+								<?php 
+								if ( $display_read_more_button || ( $display_meta && isset( $meta_settings['displayComments'] ) && $meta_settings['displayComments'] ) ): ?>
+									<div class="digiblocks-post-footer-actions">
+										<?php if ( $display_read_more_button ): ?>
+											<a href="<?php echo esc_url( get_permalink() ); ?>" class="digiblocks-post-read-more">
+												<?php echo esc_html( $read_more_text ); ?>
+											</a>
+										<?php endif; ?>
+										
+										<?php if ( $display_meta && isset( $meta_settings['displayComments'] ) && $meta_settings['displayComments'] ): 
+											$comment_count = get_comments_number();
+											$comment_link = get_comments_link();
+											?>
+											<a href="<?php echo esc_url( $comment_link ); ?>" class="digiblocks-post-comments-count">
+												<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M256 64C125.8 64 32 148.6 32 240c0 37.1 15.5 70.6 40 100c5.2 6.3 8.4 14.8 7.4 23.9c-3.1 27-11.4 52.5-25.7 76.3c-.5 .9-1.1 1.8-1.6 2.6c11.1-2.9 22.2-7 32.7-11.5L91.2 446l-6.4-14.7c17-7.4 33-16.7 48.4-27.4c8.5-5.9 19.4-7.5 29.2-4.2C193 410.1 224.1 416 256 416c130.2 0 224-84.6 224-176s-93.8-176-224-176zM0 240C0 125.2 114.5 32 256 32s256 93.2 256 208s-114.5 208-256 208c-36 0-70.5-6.7-103.8-17.9c-.2-.1-.5 0-.7 .1c-16.9 11.7-34.7 22.1-53.9 30.5C73.6 471.1 44.7 480 16 480c-6.5 0-12.3-3.9-14.8-9.8s-1.1-12.8 3.4-17.4c8.1-8.2 15.2-18.2 21.7-29c11.7-19.6 18.7-40.6 21.3-63.1c0 0-.1-.1-.1-.2C19.6 327.1 0 286.6 0 240z"/></svg>
+												<?php 
+												if ( $comment_count == 0 ) {
+													esc_html_e( 'Leave a Comment', 'digiblocks' );
+												} elseif ( $comment_count == 1 ) {
+													esc_html_e( '1 Comment', 'digiblocks' );
+												} else {
+													echo esc_html( sprintf( __( '%d Comments', 'digiblocks' ), $comment_count ) );
+												}
+												?>
+											</a>
+										<?php endif; ?>
+									</div>
+								<?php endif; ?>
+							</div>
+						</div>
+					<?php endwhile; ?>
+				</div>
+				<?php if ($enable_pagination) {
+					$total_pages = $query->max_num_pages;
+					
+					if ($total_pages > 1) {
+						$current_page = max(1, get_query_var('paged'));
+						
+						echo '<div class="digiblocks-pagination">';
+						
+						$pagination_args = array(
+							'base'         => str_replace(999999999, '%#%', esc_url(get_pagenum_link(999999999))),
+							'total'        => $total_pages,
+							'current'      => $current_page,
+							'format'       => '?paged=%#%',
+							'show_all'     => false,
+							'type'         => 'plain',
+							'end_size'     => 2,
+							'mid_size'     => 1,
+							'prev_next'    => true,
+							'prev_text'    => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="1em" height="1em"><path d="M47 239c-9.4 9.4-9.4 24.6 0 33.9L207 433c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9L97.9 256 241 113c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L47 239z"/></svg>',
+							'next_text'    => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="1em" height="1em"><path d="M273 239c9.4 9.4 9.4 24.6 0 33.9L113 433c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l143-143L79 113c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0L273 239z"/></svg>',
+							'add_args'     => false,
+							'add_fragment' => '',
+						);
+						
+						echo paginate_links($pagination_args);
+						echo '</div>';
+					}
+				}
+				?>
+			</div>
+			<?php
+		else:
+			?>
+			<div class="<?php echo esc_attr( $block_class ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+				<p class="digiblocks-posts-no-results"><?php _e( 'No posts found.', 'digiblocks' ); ?></p>
+			</div>
+			<?php
+		endif;
+	
+		// Reset post data
+		wp_reset_postdata();
+	
+		// Get the output buffer
+		$output = ob_get_clean();
+	
+		return $output;
+	}
+
+	/**
+	 * Render callback for digi products block
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
+	 */
+	public function render_digi_products_block( $attributes, $content, $block ) {
+		// Check if DigiCommerce exists
+		if ( ! class_exists( 'DigiCommerce' ) ) {
+			return '<p>' . __( 'DigiCommerce plugin is required to use this block.', 'digiblocks' ) . '</p>';
+		}
+
+		// Extract block attributes
+		$id                       = isset( $attributes['id'] ) ? $attributes['id'] : 'digi-products-' . uniqid();
+		$anchor                   = isset( $attributes['anchor'] ) ? $attributes['anchor'] : '';
+		$custom_classes           = isset( $attributes['customClasses'] ) ? $attributes['customClasses'] : '';
+		$products_to_show         = isset( $attributes['productsToShow'] ) ? $attributes['productsToShow'] : 3;
+		$product_style            = isset( $attributes['productStyle'] ) ? $attributes['productStyle'] : 'grid';
+		$display_featured_image   = isset( $attributes['displayFeaturedImage'] ) ? $attributes['displayFeaturedImage'] : true;
+		$display_title            = isset( $attributes['displayTitle'] ) ? $attributes['displayTitle'] : true;
+		$display_price            = isset( $attributes['displayPrice'] ) ? $attributes['displayPrice'] : true;
+		$display_rating           = isset( $attributes['displayRating'] ) ? $attributes['displayRating'] : true;
+		$display_categories       = isset( $attributes['displayCategories'] ) ? $attributes['displayCategories'] : true;
+		$display_excerpt          = isset( $attributes['displayExcerpt'] ) ? $attributes['displayExcerpt'] : true;
+		$display_view_product     = isset( $attributes['displayViewProductButton'] ) ? $attributes['displayViewProductButton'] : true;
+		$excerpt_length           = isset( $attributes['excerptLength'] ) ? $attributes['excerptLength'] : 25;
+		$view_product_text        = isset( $attributes['viewProductText'] ) ? $attributes['viewProductText'] : __( 'View Product', 'digiblocks' );
+		$order                    = isset( $attributes['order'] ) ? $attributes['order'] : 'desc';
+		$order_by                 = isset( $attributes['orderBy'] ) ? $attributes['orderBy'] : 'date';
+		$categories               = isset( $attributes['categories'] ) ? $attributes['categories'] : [];
+		$animation                = isset( $attributes['animation'] ) ? $attributes['animation'] : 'none';
+		$image_size               = isset( $attributes['imageSize'] ) ? $attributes['imageSize'] : 'medium';
+		$enable_pagination        = isset( $attributes['enablePagination'] ) ? $attributes['enablePagination'] : false;
+		
+		// Get the current responsive state
+		$animation_class = ( 'none' !== $animation ) ? ' animate-' . $animation : '';
+		
+		// Build the block class
+		$block_class = "digiblocks-products $id style-$product_style $custom_classes $animation_class";
+		
+		// Format the ID attribute
+		$id_attr = $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+
+		// Get current page
+		$paged = get_query_var('paged') ? get_query_var('paged') : 1;
+		
+		// Set up the query arguments
+		$args = array(
+			'post_type'           => 'digi_product',
+			'posts_per_page'      => $products_to_show,
+			'post_status'         => 'publish',
+			'order'               => $order,
+			'orderby'             => $order_by,
+			'ignore_sticky_posts' => true,
+			'paged'               => $paged,
+		);
+		
+		// Add categories if specified
+		if ( ! empty( $categories ) && ! in_array( 0, $categories, true ) ) {
+			$args['tax_query'] = array(
+				array(
+					'taxonomy' => 'digi_product_cat',
+					'field'    => 'term_id',
+					'terms'    => $categories,
+				),
+			);
+		}
+		
+		// For meta_value_num orderby, add meta_key for price
+		if ( $order_by === 'meta_value_num' ) {
+			$args['meta_key'] = 'digi_price';
+		}
+		
+		// Get products
+		$query = new WP_Query( $args );
+		
+		// Check for DigiCommerce_Pro and if reviews are enabled
+		$reviews_enabled = class_exists( 'DigiCommerce_Pro' ) && 
+						class_exists( 'DigiCommerce_Pro_Reviews' ) && 
+						DigiCommerce()->get_option( 'enable_reviews', false );
+		
+		// Start output buffer
+		ob_start();
+		
+		if ( $query->have_posts() ) :
+			?>
+			<div class="<?php echo esc_attr( $block_class ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+				<div class="digiblocks-products-container <?php echo 'layout-' . esc_attr( $product_style ); ?>">
+					<?php while ( $query->have_posts() ) : ?>
+						<?php 
+						$query->the_post(); 
+						$product_id = get_the_ID();
+						
+						// Get product meta
+						$price = get_post_meta( $product_id, 'digi_price', true );
+						$sale_price = get_post_meta( $product_id, 'digi_sale_price', true );
+						?>
+						<div class="digiblocks-product-item">
+							<?php if ( $display_featured_image && has_post_thumbnail() ) : ?>
+								<div class="digiblocks-product-image">
+									<a href="<?php the_permalink(); ?>">
+										<?php the_post_thumbnail( $image_size ); ?>
+									</a>
+								</div>
+							<?php endif; ?>
+		
+							<div class="digiblocks-product-content">
+								<?php if ( $display_categories ): ?>
+									<?php $categories = get_the_terms( $product_id, 'digi_product_cat' ); ?>
+									<?php if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) : ?>
+										<div class="digiblocks-product-categories">
+											<?php
+											$cat_links = array();
+											foreach ($categories as $category) {
+												$cat_links[] = '<a href="' . esc_url(get_term_link($category->term_id)) . '">' . esc_html($category->name) . '</a>';
+											}
+											echo wp_kses_post( implode(' ', $cat_links) );
+											?>
+										</div>
+									<?php endif; ?>
+								<?php endif; ?>
+								
+								<?php if ( $display_title ) : ?>
+									<h3 class="digiblocks-product-title">
+										<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+									</h3>
+								<?php endif; ?>
+								
+								<?php if ( $display_rating && $reviews_enabled ) : 
+									// Get rating data if DigiCommerce Pro Reviews is active
+									$rating_data = DigiCommerce_Pro_Reviews::instance()->get_product_rating( $product_id );
+									if ( $rating_data['count'] > 0 ) :
+									?>
+									<div class="digiblocks-product-rating">
+										<div class="star-rating">
+											<?php 
+											$rating = $rating_data['average'];
+											$full_stars = floor( $rating );
+											$half_star = ( $rating - $full_stars ) >= 0.5;
+											
+											// Output full stars
+											for ( $i = 0; $i < $full_stars; $i++ ) {
+												echo '<span class="star full">★</span>';
+											}
+											
+											// Output half star if needed
+											if ( $half_star ) {
+												echo '<span class="star half">★</span>';
+												$i++;
+											}
+											
+											// Output empty stars
+											for ( ; $i < 5; $i++ ) {
+												echo '<span class="star empty">☆</span>';
+											}
+											?>
+										</div>
+										<span class="rating-count">(<?php echo esc_html( $rating_data['count'] ); ?>)</span>
+									</div>
+									<?php endif; ?>
+								<?php endif; ?>
+								
+								<?php if ( $display_price && ( !empty( $price ) || !empty( $sale_price ) ) ) : ?>
+									<div class="digiblocks-product-price">
+										<?php if ( !empty( $sale_price ) && $sale_price < $price ) : ?>
+											<span class="regular-price del"><?php echo DigiCommerce_Product::instance()->format_price( $price, '', true ); ?></span>
+											<span class="sale-price"><?php echo DigiCommerce_Product::instance()->format_price( $sale_price, '', true ); ?></span>
+										<?php else : ?>
+											<span class="regular-price"><?php echo DigiCommerce_Product::instance()->format_price( $price, '', true ); ?></span>
+										<?php endif; ?>
+									</div>
+								<?php endif; ?>
+		
+								<?php if ( $display_excerpt ) : ?>
+									<div class="digiblocks-product-excerpt">
+										<?php 
+										// Get the excerpt
+										$excerpt = get_the_excerpt();
+										
+										// Limit by word count
+										$words = explode(' ', $excerpt);
+										if (count($words) > $excerpt_length) {
+											$excerpt = implode(' ', array_slice($words, 0, $excerpt_length)) . '...';
+										}
+										
+										echo wp_kses_post( $excerpt );
+										?>
+									</div>
+								<?php endif; ?>
+								
+								<?php if ( $display_view_product ) : ?>
+									<div class="digiblocks-product-view-wrapper">
+										<a href="<?php the_permalink(); ?>" class="digiblocks-product-view">
+											<?php echo esc_html( $view_product_text ); ?>
+										</a>
+									</div>
+								<?php endif; ?>
+							</div>
+						</div>
+					<?php endwhile; ?>
+				</div>
+				
+				<?php if ( $enable_pagination ) {
+					$total_pages = $query->max_num_pages;
+					
+					if ( $total_pages > 1 ) {
+						echo '<div class="digiblocks-pagination">';
+						
+						$pagination_args = array(
+							'base'         => str_replace(999999999, '%#%', esc_url(get_pagenum_link(999999999))),
+							'total'        => $total_pages,
+							'current'      => $paged,
+							'format'       => '?paged=%#%',
+							'show_all'     => false,
+							'type'         => 'plain',
+							'end_size'     => 2,
+							'mid_size'     => 1,
+							'prev_next'    => true,
+							'prev_text'    => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="1em" height="1em"><path d="M47 239c-9.4 9.4-9.4 24.6 0 33.9L207 433c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9L97.9 256 241 113c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L47 239z"/></svg>',
+							'next_text'    => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="1em" height="1em"><path d="M273 239c9.4 9.4 9.4 24.6 0 33.9L113 433c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l143-143L79 113c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0L273 239z"/></svg>',
+							'add_args'     => false,
+							'add_fragment' => '',
+						);
+						
+						echo paginate_links( $pagination_args );
+						echo '</div>';
+					}
+				}
+				?>
+			</div>
+			<?php
+		else:
+			?>
+			<div class="<?php echo esc_attr( $block_class ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+				<p class="digiblocks-products-no-results"><?php _e( 'No products found.', 'digiblocks' ); ?></p>
+			</div>
+			<?php
+		endif;
+		
+		// Reset post data
+		wp_reset_postdata();
+		
+		// Get the output buffer
+		$output = ob_get_clean();
+		
+		return $output;
+	}
+
+	/**
+	 * Render callback for WooCommerce Products block
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
+	 * @return string Rendered block output.
+	 */
+	public function render_woo_products_block( $attributes, $content, $block ) {
+		// Check if WooCommerce is active
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return '<p>' . __( 'WooCommerce is not active. Please install and activate WooCommerce to use this block.', 'digiblocks' ) . '</p>';
+		}
+	
+		// Extract block attributes
+		$id                        = isset( $attributes['id'] ) ? $attributes['id'] : 'digi-woo-products-' . uniqid();
+		$anchor                    = isset( $attributes['anchor'] ) ? $attributes['anchor'] : '';
+		$custom_classes            = isset( $attributes['customClasses'] ) ? $attributes['customClasses'] : '';
+		$products_to_show          = isset( $attributes['productsToShow'] ) ? intval( $attributes['productsToShow'] ) : 4;
+		$display_featured_image    = isset( $attributes['displayFeaturedImage'] ) ? $attributes['displayFeaturedImage'] : true;
+		$display_title             = isset( $attributes['displayTitle'] ) ? $attributes['displayTitle'] : true;
+		$display_price             = isset( $attributes['displayPrice'] ) ? $attributes['displayPrice'] : true;
+		$display_rating            = isset( $attributes['displayRating'] ) ? $attributes['displayRating'] : true;
+		$display_sale_badge        = isset( $attributes['displaySaleBadge'] ) ? $attributes['displaySaleBadge'] : true;
+		$display_categories        = isset( $attributes['displayCategories'] ) ? $attributes['displayCategories'] : true;
+		$display_short_description = isset( $attributes['displayShortDescription'] ) ? $attributes['displayShortDescription'] : true;
+		$display_add_to_cart       = isset( $attributes['displayAddToCart'] ) ? $attributes['displayAddToCart'] : true;
+		$short_description_length  = isset( $attributes['shortDescriptionLength'] ) ? intval( $attributes['shortDescriptionLength'] ) : 25;
+		$order                     = isset( $attributes['order'] ) ? $attributes['order'] : 'desc';
+		$order_by                  = isset( $attributes['orderBy'] ) ? $attributes['orderBy'] : 'date';
+		$categories                = isset( $attributes['categories'] ) ? $attributes['categories'] : [];
+		$on_sale                   = isset( $attributes['onSale'] ) ? $attributes['onSale'] : false;
+		$featured                  = isset( $attributes['featured'] ) ? $attributes['featured'] : false;
+		$enable_pagination         = isset( $attributes['enablePagination'] ) ? $attributes['enablePagination'] : false;
+		$image_size                = isset( $attributes['imageSize'] ) ? $attributes['imageSize'] : 'woocommerce_thumbnail';
+		$animation                 = isset( $attributes['animation'] ) ? $attributes['animation'] : 'none';
+	
+		// Get current page
+		$paged = get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1;
+	
+		// Set up the WP_Query arguments
+		$query_args = array(
+			'post_type'           => 'product',
+			'post_status'         => 'publish',
+			'ignore_sticky_posts' => true,
+			'posts_per_page'      => $products_to_show,
+			'paged'               => $paged,
+			'orderby'             => $order_by,
+			'order'               => $order,
+		);
+	
+		// Add categories if specified - use tax_query for proper category filtering
+		if ( ! empty( $categories ) && ! in_array( 0, $categories, true ) ) {
+			$query_args['tax_query'][] = array(
+				'taxonomy' => 'product_cat',
+				'field'    => 'term_id',
+				'terms'    => $categories,
+				'operator' => 'IN',
+			);
+		}
+	
+		// Add featured filter if specified
+		if ( $featured ) {
+			$query_args['tax_query'][] = array(
+				'taxonomy' => 'product_visibility',
+				'field'    => 'name',
+				'terms'    => 'featured',
+				'operator' => 'IN',
+			);
+		}
+	
+		// Add on sale filter if specified
+		if ( $on_sale ) {
+			$on_sale_ids = wc_get_product_ids_on_sale();
+			
+			if ( ! empty( $on_sale_ids ) ) {
+				$query_args['post__in'] = $on_sale_ids;
+			} else {
+				$query_args['post__in'] = array(0); // No products on sale, show no results
+			}
+		}
+	
+		// Set up tax_query relation if multiple conditions exist
+		if ( isset( $query_args['tax_query'] ) && count( $query_args['tax_query'] ) > 1 ) {
+			$query_args['tax_query']['relation'] = 'AND';
+		}
+	
+		// Make sure hide_out_of_stock is respected
+		$stock_option = get_option( 'woocommerce_hide_out_of_stock_items', 'no' );
+		if ( 'yes' === $stock_option ) {
+			$query_args['meta_query'][] = array(
+				'key'     => '_stock_status',
+				'value'   => 'instock',
+				'compare' => '=',
+			);
+		}
+	
+		// Create new query
+		$products_query = new WP_Query( $query_args );
+	
+		// Get animation class if any
+		$animation_class = ( 'none' !== $animation ) ? ' animate-' . $animation : '';
+	
+		// Build class names
+		$class_names = "digiblocks-woo-products $id $custom_classes $animation_class";
+		
+		// Format the ID attribute
+		$id_attr = $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+	
+		// Start output buffer
+		ob_start();
+	
+		if ( $products_query->have_posts() ) {
+			?>
+			<div class="<?php echo esc_attr( $class_names ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+				<div class="digiblocks-products-container">
+					<?php 
+					while ( $products_query->have_posts() ) : 
+						$products_query->the_post();
+						global $product;
+						
+						// Ensure $product is a WC_Product
+						if ( ! is_a( $product, 'WC_Product' ) ) {
+							$product = wc_get_product( get_the_ID() );
+						}
+						
+						if ( ! $product ) {
+							continue;
+						}
+					?>
+						<div class="digiblocks-product-item">
+							<?php if ( $display_sale_badge && $product->is_on_sale() ) : ?>
+								<div class="digiblocks-product-sale-badge">
+									<?php echo esc_html__( 'Sale!', 'digiblocks' ); ?>
+								</div>
+							<?php endif; ?>
+	
+							<?php if ( $display_featured_image ) : ?>
+								<div class="digiblocks-product-image">
+									<a href="<?php the_permalink(); ?>">
+										<?php 
+										if ( has_post_thumbnail() ) {
+											the_post_thumbnail( $image_size );
+										} else {
+											echo wc_placeholder_img( $image_size );
+										}
+										?>
+									</a>
+								</div>
+							<?php endif; ?>
+	
+							<div class="digiblocks-product-content">
+								<?php if ( $display_categories ) : 
+									$product_categories = wc_get_product_category_list( get_the_ID(), '', '<div class="digiblocks-product-categories">', '</div>' );
+									if ( $product_categories ) {
+										echo wp_kses_post( $product_categories );
+									}
+								endif; ?>
+	
+								<?php if ( $display_title ) : ?>
+									<h3 class="digiblocks-product-title">
+										<a href="<?php the_permalink(); ?>">
+											<?php the_title(); ?>
+										</a>
+									</h3>
+								<?php endif; ?>
+	
+								<?php if ( $display_price ) : ?>
+									<div class="digiblocks-product-price">
+										<?php echo wp_kses_post( $product->get_price_html() ); ?>
+									</div>
+								<?php endif; ?>
+	
+								<?php if ( $display_rating && wc_review_ratings_enabled() ) : ?>
+									<div class="digiblocks-product-rating">
+										<?php
+										$rating = $product->get_average_rating();
+										$count = $product->get_review_count();
+										
+										if ( $rating > 0 ) {
+											// Use WooCommerce's rating HTML
+											echo wc_get_rating_html( $rating );
+											// Display count
+											if ( $count > 0 ) {
+												echo '<span class="count">(' . esc_html( $count ) . ')</span>';
+											}
+										} else {
+											// Display empty stars if no ratings yet
+											echo '<div class="star-rating">';
+											for ( $i = 0; $i < 5; $i++ ) {
+												echo '<span class="star empty"></span>';
+											}
+											echo '</div>';
+											echo '<span class="count">(0)</span>';
+										}
+										?>
+									</div>
+								<?php endif; ?>
+	
+								<?php if ( $display_short_description ) : 
+									$short_description = $product->get_short_description();
+									if ( ! empty( $short_description ) ) {
+										// Trim description to specified word count
+										$description = wp_strip_all_tags( $short_description );
+										$words = explode( ' ', $description, $short_description_length + 1 );
+										if ( count( $words ) > $short_description_length ) {
+											array_pop( $words );
+											$description = implode( ' ', $words ) . '...';
+										}
+										?>
+										<div class="digiblocks-product-excerpt">
+											<?php echo esc_html( $description ); ?>
+										</div>
+									<?php 
+									}
+								endif; ?>
+	
+								<?php if ( $display_add_to_cart ) : ?>
+									<div class="digiblocks-product-add-to-cart">
+										<?php woocommerce_template_loop_add_to_cart(); ?>
+									</div>
+								<?php endif; ?>
+							</div>
+						</div>
+					<?php endwhile; ?>
+				</div>
+	
+				<?php if ( $enable_pagination && $products_query->max_num_pages > 1 ) : ?>
+					<div class="digiblocks-pagination">
+						<?php
+						echo paginate_links( array(
+							'base'      => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
+							'format'    => '?paged=%#%',
+							'current'   => max( 1, get_query_var( 'paged' ) ),
+							'total'     => $products_query->max_num_pages,
+							'prev_text' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="1em" height="1em"><path d="M47 239c-9.4 9.4-9.4 24.6 0 33.9L207 433c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9L97.9 256 241 113c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L47 239z"/></svg>',
+							'next_text' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="1em" height="1em"><path d="M273 239c9.4 9.4 9.4 24.6 0 33.9L113 433c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l143-143L79 113c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0L273 239z"/></svg>',
+						) );
+						?>
+					</div>
+				<?php endif; ?>
+			</div>
+			<?php
+			wp_reset_postdata();
+		} else {
+			?>
+			<div class="<?php echo esc_attr( $class_names ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+				<p class="digiblocks-products-no-results">
+					<?php echo esc_html__( 'No products found.', 'digiblocks' ); ?>
+				</p>
+			</div>
+			<?php
+		}
+	
+		return ob_get_clean();
+	}
+
+	/**
 	 * Render callback for navigation block
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
 	 */
 	public function render_navigation_block( $attributes, $content, $block ) {
 		// Get block attributes
@@ -1281,6 +2266,10 @@ class DigiBlocks {
 
 	/**
 	 * Render callback for login link block
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
 	 */
 	public function render_login_link_block( $attributes, $content, $block ) {
 		// Get block attributes

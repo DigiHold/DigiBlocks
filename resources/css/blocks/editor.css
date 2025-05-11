@@ -5,6 +5,7 @@
 @import "_dimension.css";
 
 /* Blocks */
+@import "_container.css";
 @import "_icon-box.css";
 @import "_social-icons.css";
 

@@ -24,7 +24,7 @@ const { apiFetch } = wp;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -115,7 +115,14 @@ const WooProductsEdit = ({ attributes, setAttributes, clientId }) => {
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -309,8 +316,8 @@ const WooProductsEdit = ({ attributes, setAttributes, clientId }) => {
         return `
             /* WooCommerce Products Block - ${id} */
             .${id} {
-                margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};
-                padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};
+				${getDimensionCSS(padding, 'padding', activeDevice)}
+				${getDimensionCSS(margin, 'margin', activeDevice)}
                 width: 100%;
             }
             
@@ -328,15 +335,15 @@ const WooProductsEdit = ({ attributes, setAttributes, clientId }) => {
                 gap: ${imageMargin[activeDevice]}px;
                 position: relative;
                 ${cardStyle ? `
-                background-color: ${cardBackgroundColor};
-                padding: ${cardPadding[activeDevice].top}${cardPadding[activeDevice].unit} ${cardPadding[activeDevice].right}${cardPadding[activeDevice].unit} ${cardPadding[activeDevice].bottom}${cardPadding[activeDevice].unit} ${cardPadding[activeDevice].left}${cardPadding[activeDevice].unit};
-                border-radius: ${cardBorderRadius[activeDevice].top}${cardBorderRadius[activeDevice].unit} ${cardBorderRadius[activeDevice].right}${cardBorderRadius[activeDevice].unit} ${cardBorderRadius[activeDevice].bottom}${cardBorderRadius[activeDevice].unit} ${cardBorderRadius[activeDevice].left}${cardBorderRadius[activeDevice].unit};
+					background-color: ${cardBackgroundColor};
+					${getDimensionCSS(cardPadding, 'padding', activeDevice)}
+					${getDimensionCSS(cardBorderRadius, 'border-radius', activeDevice)}
                 ` : ''}
                 
                 ${cardStyle && cardBorderStyle !== 'none' ? `
-                border-style: ${cardBorderStyle};
-                border-color: ${cardBorderColor};
-                border-width: ${cardBorderWidth[activeDevice].top}${cardBorderWidth[activeDevice].unit} ${cardBorderWidth[activeDevice].right}${cardBorderWidth[activeDevice].unit} ${cardBorderWidth[activeDevice].bottom}${cardBorderWidth[activeDevice].unit} ${cardBorderWidth[activeDevice].left}${cardBorderWidth[activeDevice].unit};
+					border-style: ${cardBorderStyle};
+					border-color: ${cardBorderColor};
+					${getDimensionCSS(cardBorderWidth, 'border-width', activeDevice)}
                 ` : ''}
                 
                 ${cardStyle && cardShadow?.enable ? `box-shadow: ${cardShadow.horizontal}px ${cardShadow.vertical}px ${cardShadow.blur}px ${cardShadow.spread}px ${cardShadow.color};` : ''}
@@ -367,7 +374,7 @@ const WooProductsEdit = ({ attributes, setAttributes, clientId }) => {
             .${id} .digiblocks-product-image {
                 width: 100%;
                 overflow: hidden;
-                border-radius: ${imageBorderRadius[activeDevice].top}${imageBorderRadius[activeDevice].unit} ${imageBorderRadius[activeDevice].right}${imageBorderRadius[activeDevice].unit} ${imageBorderRadius[activeDevice].bottom}${imageBorderRadius[activeDevice].unit} ${imageBorderRadius[activeDevice].left}${imageBorderRadius[activeDevice].unit};
+				${getDimensionCSS(imageBorderRadius, 'border-radius', activeDevice)}
                 position: relative;
             }
             
@@ -529,7 +536,8 @@ const WooProductsEdit = ({ attributes, setAttributes, clientId }) => {
                 ${buttonTypography.textDecoration ? `text-decoration: ${buttonTypography.textDecoration};` : ''}
                 ${buttonTypography.lineHeight?.[activeDevice] ? `line-height: ${buttonTypography.lineHeight[activeDevice]}${buttonTypography.lineHeightUnit || 'em'};` : ''}
                 ${buttonTypography.letterSpacing?.[activeDevice] ? `letter-spacing: ${buttonTypography.letterSpacing[activeDevice]}${buttonTypography.letterSpacingUnit || 'px'};` : ''}
-                padding: ${buttonPadding[activeDevice].top}${buttonPadding[activeDevice].unit} ${buttonPadding[activeDevice].right}${buttonPadding[activeDevice].unit} ${buttonPadding[activeDevice].bottom}${buttonPadding[activeDevice].unit} ${buttonPadding[activeDevice].left}${buttonPadding[activeDevice].unit};
+				${getDimensionCSS(buttonPadding, 'padding', activeDevice)}
+				${getDimensionCSS(buttonBorderRadius, 'border-radius', activeDevice)}
                 border-radius: ${buttonBorderRadius[activeDevice].top}${buttonBorderRadius[activeDevice].unit} ${buttonBorderRadius[activeDevice].right}${buttonBorderRadius[activeDevice].unit} ${buttonBorderRadius[activeDevice].bottom}${buttonBorderRadius[activeDevice].unit} ${buttonBorderRadius[activeDevice].left}${buttonBorderRadius[activeDevice].unit};
                 transition: all 0.3s ease;
                 border: none;
@@ -585,8 +593,8 @@ const WooProductsEdit = ({ attributes, setAttributes, clientId }) => {
             /* Tablet styles */
             @media (max-width: 991px) {
                 .${id} {
-                    margin: ${margin['tablet'].top}${margin['tablet'].unit} ${margin['tablet'].right}${margin['tablet'].unit} ${margin['tablet'].bottom}${margin['tablet'].unit} ${margin['tablet'].left}${margin['tablet'].unit};
-                    padding: ${padding['tablet'].top}${padding['tablet'].unit} ${padding['tablet'].right}${padding['tablet'].unit} ${padding['tablet'].bottom}${padding['tablet'].unit} ${padding['tablet'].left}${padding['tablet'].unit};
+					${getDimensionCSS(padding, 'padding', 'tablet')}
+					${getDimensionCSS(margin, 'margin', 'tablet')}
                 }
                 
                 .${id} .digiblocks-products-container {
@@ -600,8 +608,8 @@ const WooProductsEdit = ({ attributes, setAttributes, clientId }) => {
             /* Mobile styles */
             @media (max-width: 767px) {
                 .${id} {
-                    margin: ${margin['mobile'].top}${margin['mobile'].unit} ${margin['mobile'].right}${margin['mobile'].unit} ${margin['mobile'].bottom}${margin['mobile'].unit} ${margin['mobile'].left}${margin['mobile'].unit};
-                    padding: ${padding['mobile'].top}${padding['mobile'].unit} ${padding['mobile'].right}${padding['mobile'].unit} ${padding['mobile'].bottom}${padding['mobile'].unit} ${padding['mobile'].left}${padding['mobile'].unit};
+					${getDimensionCSS(padding, 'padding', 'mobile')}
+					${getDimensionCSS(margin, 'margin', 'mobile')}
                 }
                 
                 .${id} .digiblocks-products-container {

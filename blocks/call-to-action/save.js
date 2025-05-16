@@ -54,7 +54,7 @@ const CallToActionSave = ({ attributes }) => {
                     ].filter(Boolean).join(' ');
                     
                     const target = button.openInNewTab ? '_blank' : undefined;
-                    const rel = button.openInNewTab ? 'noopener noreferrer' : button.rel || undefined;
+                    const rel = button.rel || undefined;
                     
                     return (
                         <a 

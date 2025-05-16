@@ -26,7 +26,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -72,7 +72,14 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
 	useBlockId( id, clientId, setAttributes );
 
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
 
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
@@ -334,14 +341,11 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
         // Border styles
         let borderCSS = '';
         if (borderStyle && borderStyle !== 'default' && borderStyle !== 'none') {
-            const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-            const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 12, right: 12, bottom: 12, left: 12, unit: 'px' };
-            
             borderCSS = `
                 border-style: ${borderStyle};
                 border-color: ${borderColor || '#e0e0e0'};
-                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+				${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
             `;
         } else {
             borderCSS = 'border: none;';
@@ -355,8 +359,8 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         // Padding and margin
-        const paddingCSS = `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};`;
-        const marginCSS = `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};`;
+        const paddingCSS = `${getDimensionCSS(padding, 'padding', activeDevice)}`;
+        const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice)}`;
         
         // Content typography CSS
         let contentTypographyCSS = '';
@@ -948,8 +952,8 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                                             setAttributes({
                                                 borderWidth: {
                                                     desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                                                    tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                                                    mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                                                    tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                                                    mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                                                 }
                                             });
                                         }
@@ -959,8 +963,8 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                                             setAttributes({
                                                 borderRadius: {
                                                     desktop: { top: 12, right: 12, bottom: 12, left: 12, unit: 'px' },
-                                                    tablet: { top: 12, right: 12, bottom: 12, left: 12, unit: 'px' },
-                                                    mobile: { top: 12, right: 12, bottom: 12, left: 12, unit: 'px' }
+                                                    tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                                                    mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                                                 }
                                             });
                                         }
@@ -998,13 +1002,7 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                                         label={__("Border Width", "digiblocks")}
                                     >
                                         <DimensionControl
-                                            values={borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : {
-                                                top: 1,
-                                                right: 1,
-                                                bottom: 1,
-                                                left: 1,
-                                                unit: 'px'
-                                            }}
+                                            values={borderWidth[localActiveDevice]}
                                             onChange={(value) =>
                                                 setAttributes({
                                                     borderWidth: {
@@ -1021,13 +1019,7 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                                         label={__("Border Radius", "digiblocks")}
                                     >
                                         <DimensionControl
-                                            values={borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
-                                                top: 12,
-                                                right: 12,
-                                                bottom: 12,
-                                                left: 12,
-                                                unit: 'px'
-                                            }}
+                                            values={borderRadius[localActiveDevice]}
                                             onChange={(value) =>
                                                 setAttributes({
                                                     borderRadius: {

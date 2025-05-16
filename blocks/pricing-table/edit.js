@@ -23,7 +23,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, FontAwesomeControl } = digi.components;
 
@@ -83,7 +83,14 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
     const [isAnimating, setIsAnimating] = useState(false);
     
     // State for active tab in inspector controls
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
     
     // State for active table when editing
     const [activeTable, setActiveTable] = useState(0);
@@ -465,14 +472,14 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                     borderStyle: 'solid',
 					borderWidth: {
                         desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                        tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                        mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     },
                     borderColor: '#e6e6e6',
                     borderRadius: {
                         desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                        tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                        mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     },
                     boxShadow: {
                         enable: false,
@@ -499,15 +506,15 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                     ribbonTextColor: '#ffffff',
                     borderStyle: 'none',
 					borderWidth: {
-                        desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                        tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                        mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                        desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     },
                     borderColor: '#e6e6e6',
                     borderRadius: {
                         desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                        tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                        mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     },
                     boxShadow: {
                         enable: true,
@@ -535,14 +542,14 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                     borderStyle: 'solid',
 					borderWidth: {
                         desktop: { top: 3, right: 3, bottom: 3, left: 3, unit: 'px' },
-                        tablet: { top: 3, right: 3, bottom: 3, left: 3, unit: 'px' },
-                        mobile: { top: 3, right: 3, bottom: 3, left: 3, unit: 'px' }
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     },
                     borderColor: '#4a6cf7',
                     borderRadius: {
-                        desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                        tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                        mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                        desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     },
                     boxShadow: {
                         enable: false,
@@ -569,15 +576,15 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                     ribbonTextColor: '#ffffff',
                     borderStyle: 'none',
 					borderWidth: {
-                        desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                        tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                        mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                        desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     },
                     borderColor: '#e6e6e6',
                     borderRadius: {
                         desktop: { top: 16, right: 16, bottom: 16, left: 16, unit: 'px' },
-                        tablet: { top: 16, right: 16, bottom: 16, left: 16, unit: 'px' },
-                        mobile: { top: 16, right: 16, bottom: 16, left: 16, unit: 'px' }
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     },
                     boxShadow: {
                         enable: true,
@@ -605,14 +612,14 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                     borderStyle: 'solid',
 					borderWidth: {
                         desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                        tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                        mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     },
                     borderColor: '#e6e6e6',
                     borderRadius: {
-                        desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                        tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                        mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                        desktop: { top: '', right: '', bottom: 0, left: 0, unit: 'px' },
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     },
                     boxShadow: {
                         enable: false,
@@ -643,16 +650,11 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 		// Border styles
 		let borderCSS = '';
 		if (borderStyle && borderStyle !== 'none') {
-			const currentBorderWidth = borderWidth && borderWidth[activeDevice] 
-				? borderWidth[activeDevice] 
-				: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-			const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' };
-			
 			borderCSS = `
 				border-style: ${borderStyle};
 				border-color: ${borderColor || '#e6e6e6'};
-				border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-				border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+				${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
 			`;
 		} else {
 			borderCSS = 'border: none;';
@@ -673,16 +675,10 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 		}
 		
 		// Padding
-		const currentPadding = padding && padding[activeDevice] ? padding[activeDevice] : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' };
-		const paddingCSS = `
-			padding: ${currentPadding.top}${currentPadding.unit} ${currentPadding.right}${currentPadding.unit} ${currentPadding.bottom}${currentPadding.unit} ${currentPadding.left}${currentPadding.unit};
-		`;
+		const paddingCSS = `${getDimensionCSS(padding, 'padding', activeDevice)}`;
 		
 		// Margin
-		const currentMargin = margin && margin[activeDevice] ? margin[activeDevice] : { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' };
-		const marginCSS = `
-			margin: ${currentMargin.top}${currentMargin.unit} ${currentMargin.right}${currentMargin.unit} ${currentMargin.bottom}${currentMargin.unit} ${currentMargin.left}${currentMargin.unit};
-		`;
+		const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice)}`;
 		
 		// Default typography values
 		const defaultTitleTypography = {
@@ -960,20 +956,16 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 		// Button styles for different design/shape options
 		const buttonRadiusValue = buttonRadius || 4;
 		const buttonPaddingValue = buttonPadding && buttonPadding[activeDevice] 
-			? `${buttonPadding[activeDevice].top}${buttonPadding[activeDevice].unit} ${buttonPadding[activeDevice].right}${buttonPadding[activeDevice].unit} ${buttonPadding[activeDevice].bottom}${buttonPadding[activeDevice].unit} ${buttonPadding[activeDevice].left}${buttonPadding[activeDevice].unit}`
-			: '10px 20px';
+			? `${getDimensionCSS(buttonPadding, 'padding', activeDevice)}`
+			: 'padding: 10px 20px';
 		
 		// Button border styles
 		let buttonBorderCSS = '';
 		if (buttonBorderStyle && buttonBorderStyle !== 'none') {
-			const currentButtonBorderWidth = buttonBorderWidth && buttonBorderWidth[activeDevice] 
-				? buttonBorderWidth[activeDevice] 
-				: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-			
 			buttonBorderCSS = `
 				border-style: ${buttonBorderStyle};
 				border-color: ${buttonBorderColor || buttonBackgroundColor || '#4a6cf7'};
-				border-width: ${currentButtonBorderWidth.top}${currentButtonBorderWidth.unit} ${currentButtonBorderWidth.right}${currentButtonBorderWidth.unit} ${currentButtonBorderWidth.bottom}${currentButtonBorderWidth.unit} ${currentButtonBorderWidth.left}${currentButtonBorderWidth.unit};
+				${getDimensionCSS(buttonBorderWidth, 'border-width', activeDevice)}
 			`;
 		} else {
 			buttonBorderCSS = 'border: none;';
@@ -1373,7 +1365,7 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			.${id} .digiblocks-pricing-table-button {
 				background-color: ${buttonBackgroundColor || '#4a6cf7'};
 				color: ${buttonTextColor || '#ffffff'};
-				padding: ${buttonPaddingValue};
+				${buttonPaddingValue}
 				border-radius: ${buttonRadiusValue}px;
 				cursor: pointer;
 				display: inline-block;

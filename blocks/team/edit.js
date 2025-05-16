@@ -29,7 +29,7 @@ const { useState, useEffect, useRef, Fragment } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -108,7 +108,14 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 	useBlockId( id, clientId, setAttributes );
 
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
 
 	// Add social media link with network selection popover
 	const [socialSelectPopover, setSocialSelectPopover] = useState(null);
@@ -657,49 +664,40 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
         // Get the appropriate border radius based on image style
         let imageBorderRadiusValue;
         if (imageStyle === 'circle') {
-            imageBorderRadiusValue = '50%';
+            imageBorderRadiusValue = 'border-radius: 50%;';
         } else if (imageStyle === 'square') {
-            imageBorderRadiusValue = '0';
+            imageBorderRadiusValue = 'border-radius: 0;';
         } else if (imageStyle === 'rounded') {
-            imageBorderRadiusValue = '8px';
+            imageBorderRadiusValue = 'border-radius: 8px;';
         } else {
-            // Default or custom
-            const imageRadius = imageBorderRadius && imageBorderRadius[activeDevice] ? imageBorderRadius[activeDevice] : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' };
-            imageBorderRadiusValue = `${imageRadius.top}${imageRadius.unit} ${imageRadius.right}${imageRadius.unit} ${imageRadius.bottom}${imageRadius.unit} ${imageRadius.left}${imageRadius.unit}`;
+            imageBorderRadiusValue = `${getDimensionCSS(imageBorderRadius, 'border-radius', activeDevice)}`;
         }
         
         // Process box border radius
-        const boxRadius = boxBorderRadius && boxBorderRadius[activeDevice] ? boxBorderRadius[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' };
-        const boxBorderRadiusValue = `${boxRadius.top}${boxRadius.unit} ${boxRadius.right}${boxRadius.unit} ${boxRadius.bottom}${boxRadius.unit} ${boxRadius.left}${boxRadius.unit}`;
+        const boxBorderRadiusValue = `${getDimensionCSS(boxBorderRadius, 'border-radius', activeDevice)}`;
         
         // Process box border width
-        const boxWidth = boxBorderWidth && boxBorderWidth[activeDevice] ? boxBorderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-        const boxBorderWidthValue = `${boxWidth.top}${boxWidth.unit} ${boxWidth.right}${boxWidth.unit} ${boxWidth.bottom}${boxWidth.unit} ${boxWidth.left}${boxWidth.unit}`;
+        const boxBorderWidthValue = `${getDimensionCSS(boxBorderWidth, 'border-width', activeDevice)}`;
         
         // Process box padding
-        const boxPad = boxPadding && boxPadding[activeDevice] ? boxPadding[activeDevice] : { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' };
-        const boxPaddingValue = `${boxPad.top}${boxPad.unit} ${boxPad.right}${boxPad.unit} ${boxPad.bottom}${boxPad.unit} ${boxPad.left}${boxPad.unit}`;
-        
+        const boxPaddingValue = `${getDimensionCSS(boxPadding, 'padding', activeDevice)}`;
+
         // Process box margin
-        const boxMarg = boxMargin && boxMargin[activeDevice] ? boxMargin[activeDevice] : { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' };
-        const boxMarginValue = `${boxMarg.top}${boxMarg.unit} ${boxMarg.right}${boxMarg.unit} ${boxMarg.bottom}${boxMarg.unit} ${boxMarg.left}${boxMarg.unit}`;
+        const boxMarginValue = `${getDimensionCSS(boxMargin, 'margin', activeDevice)}`;
         
         // Process image border width
-        const imageWidth = imageBorderWidth && imageBorderWidth[activeDevice] ? imageBorderWidth[activeDevice] : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' };
-        const imageBorderWidthValue = `${imageWidth.top}${imageWidth.unit} ${imageWidth.right}${imageWidth.unit} ${imageWidth.bottom}${imageWidth.unit} ${imageWidth.left}${imageWidth.unit}`;
+        const imageBorderWidthValue = `${getDimensionCSS(imageBorderWidth, 'border-width', activeDevice)}`;
         
         // Process icon border radius
-        const iconRadius = iconBorderRadius && iconBorderRadius[activeDevice] ? iconBorderRadius[activeDevice] : { top: 50, right: 50, bottom: 50, left: 50, unit: '%' };
-        const iconBorderRadiusValue = `${iconRadius.top}${iconRadius.unit} ${iconRadius.right}${iconRadius.unit} ${iconRadius.bottom}${iconRadius.unit} ${iconRadius.left}${iconRadius.unit}`;
+        const iconBorderRadiusValue = `${getDimensionCSS(iconBorderRadius, 'border-radius', activeDevice)}`;
         
         // Process icon padding
-        const iconPad = iconPadding && iconPadding[activeDevice] ? iconPadding[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' };
-        const iconPaddingValue = `${iconPad.top}${iconPad.unit} ${iconPad.right}${iconPad.unit} ${iconPad.bottom}${iconPad.unit} ${iconPad.left}${iconPad.unit}`;
+        const iconPaddingValue = `${getDimensionCSS(iconPadding, 'border-width', activeDevice)}`;
         
         return `
             /* Team Block - ${id} */
             .${id} {
-                margin: ${boxMarginValue};
+                ${boxMarginValue}
             }
             
             /* Grid Layout */
@@ -748,11 +746,11 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 				${boxBorderStyle !== 'none' ? `
 					border-style: ${boxBorderStyle};
 					border-color: ${boxBorderColor || '#e0e0e0'};
-					border-width: ${boxBorderWidthValue};
-					border-radius: ${boxBorderRadiusValue};
+					${boxBorderWidthValue}
 				` : ''}
+				${boxBorderRadiusValue}
 				${boxShadowCSS}
-				padding: ${boxPaddingValue};
+				${boxPaddingValue}
 				transition: all 0.3s ease;
             }
             
@@ -768,11 +766,11 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                 width: ${imageSize[activeDevice]}px;
                 height: ${imageSize[activeDevice]}px;
 				max-width: 100%;
-                border-radius: ${imageBorderRadiusValue};
+                ${imageBorderRadiusValue}
                 overflow: hidden;
                 display: flex;
                 ${imageBorderStyle !== 'none' ? `
-					border-width: ${imageBorderWidthValue};
+					${imageBorderWidthValue}
 					border-style: ${imageBorderStyle};
 					border-color: ${imageBorderColor};
                 ` : ''}
@@ -821,9 +819,9 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				border-radius: ${iconBorderRadiusValue};
+				${iconBorderRadiusValue}
 				background-color: ${iconBackgroundColor};
-				padding: ${iconPaddingValue};
+				${iconPaddingValue}
 				transition: all 0.3s ease;
 				cursor: pointer;
 				position: relative;

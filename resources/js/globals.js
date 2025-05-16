@@ -29,47 +29,218 @@ window.digi.icons.deviceIcons = {
     )
 };
 
-// Define responsive state manager BEFORE imports
-window.digi.responsiveState = {
-    activeDevice: 'desktop',
-    listeners: [],
+// UI State manager for preserving inspector panel states across device changes
+window.digi.uiState = {
+    // Current active tab and panel states
+    activeTab: 'options', // Default tab
+    activePanels: {},
+    blockTabs: {}, // Store tab state per block ID
     
-    // Set active device and notify all listeners
-    setActiveDevice(device) {
-        this.activeDevice = device;
-        this.notifyListeners();
+    // Set the active inspector tab
+    setActiveTab(tab, blockId = null) {
+        if (blockId) {
+            this.blockTabs[blockId] = tab;
+        } else {
+            this.activeTab = tab;
+        }
+    },
+    
+    // Get the active tab for a block
+    getActiveTab(blockId = null) {
+        if (blockId && this.blockTabs[blockId]) {
+            return this.blockTabs[blockId];
+        }
+        return this.activeTab;
+    },
+    
+    // Set a panel's open state
+    setPanelState(tabName, panelName, isOpen) {
+        if (!this.activePanels[tabName]) {
+            this.activePanels[tabName] = {};
+        }
+        this.activePanels[tabName][panelName] = isOpen;
+    },
+    
+    // Get a panel's open state
+    getPanelState(tabName, panelName) {
+        return this.activePanels[tabName]?.[panelName];
+    }
+};
+
+// Replace responsive state with an adapter to Gutenberg's system
+window.digi.responsiveState = {
+    // Property to get current device - will use the latest Gutenberg API
+    get activeDevice() {
+        try {
+            const wp = window.wp;
+            // Try the newer non-experimental API first
+            if (wp?.data?.select('core/editor')?.getDeviceType) {
+                const device = wp.data.select('core/editor').getDeviceType();
+                return this._convertFromGutenberg(device);
+            }
+            // Try experimental edit-post API
+            if (wp?.data?.select('core/edit-post')?.__experimentalGetPreviewDeviceType) {
+                const device = wp.data.select('core/edit-post').__experimentalGetPreviewDeviceType();
+                return this._convertFromGutenberg(device);
+            }
+            // Try experimental edit-site API as fallback
+            if (wp?.data?.select('core/edit-site')?.__experimentalGetPreviewDeviceType) {
+                const device = wp.data.select('core/edit-site').__experimentalGetPreviewDeviceType();
+                return this._convertFromGutenberg(device);
+            }
+        } catch (e) {
+            console.warn('DigiBlocks: Could not get Gutenberg device type', e);
+        }
+        return 'desktop'; // Default fallback
+    },
+    
+    // Convert from Gutenberg device names to our device names
+    _convertFromGutenberg(device) {
+        if (device === 'Desktop') return 'desktop';
+        if (device === 'Tablet') return 'tablet';
+        if (device === 'Mobile') return 'mobile';
+        return 'desktop'; // Fallback
+    },
+    
+    // Convert to Gutenberg device names from our device names
+    _convertToGutenberg(device) {
+        if (device === 'desktop') return 'Desktop';
+        if (device === 'tablet') return 'Tablet';
+        if (device === 'mobile') return 'Mobile';
+        return 'Desktop'; // Fallback
     },
     
     // Toggle to next device in sequence
     toggleDevice() {
-        if (this.activeDevice === "desktop") this.setActiveDevice("tablet");
-        else if (this.activeDevice === "tablet") this.setActiveDevice("mobile");
-        else this.setActiveDevice("desktop");
+        try {
+            const wp = window.wp;
+            const currentDevice = this.activeDevice;
+            const nextDevice = 
+                currentDevice === 'desktop' ? 'Tablet' : 
+                currentDevice === 'tablet' ? 'Mobile' : 'Desktop';
+            
+            // Try the newer non-experimental API first
+            if (wp?.data?.dispatch('core/editor')?.setDeviceType) {
+                wp.data.dispatch('core/editor').setDeviceType(nextDevice);
+                return;
+            }
+            
+            // Try experimental edit-post API
+            if (wp?.data?.dispatch('core/edit-post')?.__experimentalSetPreviewDeviceType) {
+                wp.data.dispatch('core/edit-post').__experimentalSetPreviewDeviceType(nextDevice);
+                return;
+            }
+            
+            // Try experimental edit-site API as fallback
+            if (wp?.data?.dispatch('core/edit-site')?.__experimentalSetPreviewDeviceType) {
+                wp.data.dispatch('core/edit-site').__experimentalSetPreviewDeviceType(nextDevice);
+                return;
+            }
+        } catch (e) {
+            console.warn('DigiBlocks: Could not set Gutenberg device type', e);
+        }
     },
     
-    // Subscribe a component to device changes
+    listeners: [],
+    
+    // Subscribe to Gutenberg's device changes
     subscribe(callback) {
-        this.listeners.push(callback);
-        // Return unsubscribe function
+        const wp = window.wp;
+        if (!wp?.data?.subscribe) return () => {};
+        
+        let lastDevice = this.activeDevice;
+        
+        // Subscribe to data store changes
+        const unsubscribe = wp.data.subscribe(() => {
+            const currentDevice = this.activeDevice;
+            if (currentDevice !== lastDevice) {
+                lastDevice = currentDevice;
+                
+                // Update body attribute for CSS
+                document.body.setAttribute('data-digiblocks-device', currentDevice);
+                
+                // Call the callback
+                callback(currentDevice);
+                
+                // After a small delay, try to restore UI state
+                setTimeout(() => {
+                    try {
+                        // Get the selected block's client ID
+                        const selectedBlockClientId = wp.data.select('core/block-editor')?.getSelectedBlockClientId();
+                        if (!selectedBlockClientId) return;
+                        
+                        // Find the active tab for this block
+                        const activeTab = window.digi.uiState.getActiveTab(selectedBlockClientId);
+                        if (!activeTab) return;
+                        
+                        // Find and click the tab button
+                        const tabButtons = document.querySelectorAll('.digiblocks-tab-button');
+                        tabButtons.forEach(button => {
+                            if (button.getAttribute('data-tab') === activeTab) {
+                                button.click();
+                            }
+                        });
+                    } catch (e) {
+                        // Silent fail
+                    }
+                }, 100);
+            }
+        });
+        
+        // Add to listeners array for tracking
+        this.listeners.push({ callback, unsubscribe });
+        
+        // Return the unsubscribe function
         return () => {
-            this.listeners = this.listeners.filter(cb => cb !== callback);
+            this.listeners = this.listeners.filter(listener => listener.unsubscribe !== unsubscribe);
+            unsubscribe();
         };
     },
     
-    // Notify all listeners of device change
+    // For backward compatibility
+    setActiveDevice(device) {
+        try {
+            const wp = window.wp;
+            const gutenbergDevice = this._convertToGutenberg(device);
+            
+            // Try the newer non-experimental API first
+            if (wp?.data?.dispatch('core/editor')?.setDeviceType) {
+                wp.data.dispatch('core/editor').setDeviceType(gutenbergDevice);
+                return;
+            }
+            
+            // Try experimental edit-post API
+            if (wp?.data?.dispatch('core/edit-post')?.__experimentalSetPreviewDeviceType) {
+                wp.data.dispatch('core/edit-post').__experimentalSetPreviewDeviceType(gutenbergDevice);
+                return;
+            }
+            
+            // Try experimental edit-site API as fallback
+            if (wp?.data?.dispatch('core/edit-site')?.__experimentalSetPreviewDeviceType) {
+                wp.data.dispatch('core/edit-site').__experimentalSetPreviewDeviceType(gutenbergDevice);
+                return;
+            }
+        } catch (e) {
+            console.warn('DigiBlocks: Could not set Gutenberg device type', e);
+        }
+    },
+    
+    // Notify all listeners of device change (for backward compatibility)
     notifyListeners() {
-        this.listeners.forEach(callback => callback(this.activeDevice));
+        const device = this.activeDevice;
+        this.listeners.forEach(listener => listener.callback(device));
     },
     
     // Get next device in sequence (for aria labels)
     getNextDevice() {
-        if (this.activeDevice === "desktop") return "tablet";
-        if (this.activeDevice === "tablet") return "mobile";
-        return "desktop";
+        const current = this.activeDevice;
+        if (current === 'desktop') return 'tablet';
+        if (current === 'tablet') return 'mobile';
+        return 'desktop';
     }
 };
 
-// Helper to create device toggle button
+// Helper to create device toggle button 
 window.digi.createDeviceToggleButton = (Button, className = '') => {
     const { __ } = wp.i18n;
     return (
@@ -91,7 +262,8 @@ import animations from './utils/animations';
 import getGoogleFonts from './utils/google-fonts';
 import { 
     useBlockId,
-	animationPreview,
+    getDimensionCSS,
+    animationPreview,
     prepareFontForUrl,
     loadGoogleFont,
     initializeGoogleFonts,
@@ -104,6 +276,7 @@ import ResponsiveControl from './components/responsive-control';
 import DimensionControl from './components/dimension-control';
 import TypographyControl from './components/typography-control';
 import ResponsiveRangeControl from './components/range-control';
+import ResponsiveButtonGroup from './components/button-group-control';
 import BoxShadowControl from './components/box-shadow-control';
 import CustomTabPanel from './components/tab-panel';
 import FontAwesomeControl from './components/font-awesome-control';
@@ -120,6 +293,7 @@ const tabIcons = {
 // Assign the utilities to the digi.utils object
 window.digi.utils.animations = animations;
 window.digi.utils.useBlockId = useBlockId;
+window.digi.utils.getDimensionCSS = getDimensionCSS;
 window.digi.utils.animationPreview = animationPreview;
 window.digi.utils.prepareFontForUrl = prepareFontForUrl;
 window.digi.utils.loadGoogleFont = loadGoogleFont;
@@ -151,19 +325,37 @@ window.digi.components.TabPanelBody = ({ tab, name, title, children, initialOpen
         window.digi.panelStates[stateKey] = initialOpen;
     }
     
+    // Check for UI state first, then fall back to panel states
+    const getSavedState = () => {
+        // Try UI state first
+        const uiState = window.digi.uiState?.getPanelState(tab, name);
+        if (uiState !== undefined) {
+            return uiState;
+        }
+        
+        // Fall back to panel state
+        return window.digi.panelStates[stateKey];
+    };
+    
     // Track open state locally but initialize from the global store
-    const [isOpen, setIsOpen] = useState(window.digi.panelStates[stateKey]);
+    const [isOpen, setIsOpen] = useState(getSavedState());
     
     // When open state changes, update the global store
     const handleToggle = (open) => {
         setIsOpen(open);
         window.digi.panelStates[stateKey] = open;
+        
+        // Also update UI state if available
+        if (window.digi.uiState) {
+            window.digi.uiState.setPanelState(tab, name, open);
+        }
     };
     
     // Update local state if global state changes
     useEffect(() => {
-        if (window.digi.panelStates[stateKey] !== isOpen) {
-            setIsOpen(window.digi.panelStates[stateKey]);
+        const savedState = getSavedState();
+        if (savedState !== isOpen) {
+            setIsOpen(savedState);
         }
     }, [window.digi.panelStates[stateKey]]);
     
@@ -184,6 +376,7 @@ window.digi.components.ResponsiveControl = ResponsiveControl;
 window.digi.components.DimensionControl = DimensionControl;
 window.digi.components.TypographyControl = TypographyControl;
 window.digi.components.ResponsiveRangeControl = ResponsiveRangeControl;
+window.digi.components.ResponsiveButtonGroup = ResponsiveButtonGroup;
 window.digi.components.BoxShadowControl = BoxShadowControl;
 window.digi.components.CustomTabPanel = CustomTabPanel;
 window.digi.components.FontAwesomeControl = FontAwesomeControl;

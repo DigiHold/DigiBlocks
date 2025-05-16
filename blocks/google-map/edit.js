@@ -25,7 +25,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { 
     ResponsiveControl,
@@ -80,7 +80,14 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
     const geocoder = useRef(null);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
 
     // Subscribe to global device state changes
     useEffect(() => {
@@ -753,19 +760,11 @@ const GoogleMapEdit = ({ attributes, setAttributes, clientId }) => {
         // Border styles
         let borderCSS = '';
         if (borderStyle && borderStyle !== 'none') {
-            const currentBorderWidth = borderWidth && borderWidth[activeDevice] 
-                ? borderWidth[activeDevice] 
-                : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-            
-            const currentBorderRadius = borderRadius && borderRadius[activeDevice] 
-                ? borderRadius[activeDevice] 
-                : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' };
-                
             borderCSS = `
                 border-style: ${borderStyle};
                 border-color: ${borderColor || '#e0e0e0'};
-                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+				${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
             `;
         }
         

@@ -10,37 +10,61 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// Get plugin settings for defaults
+$plugin_settings = get_option('digiblocks_settings', array(
+    'content_width'     => '1200',
+    'content_max_width' => '90',
+));
+
 // Get block attributes.
 $id                       = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-container-' . uniqid();
+$isNested                 = isset( $attrs['isNested'] ) ? $attrs['isNested'] : false;
 $contentLayout            = isset( $attrs['contentLayout'] ) ? $attrs['contentLayout'] : 'boxed';
 $contentWidth             = isset( $attrs['contentWidth'] ) ? $attrs['contentWidth'] : [
-    'desktop' => 1200,
+    'desktop' => isset($plugin_settings['content_width']) && !empty($plugin_settings['content_width']) ? intval($plugin_settings['content_width']) : 1200,
     'tablet'  => '',
     'mobile'  => '',
 ];
 $contentMaxWidth          = isset( $attrs['contentMaxWidth'] ) ? $attrs['contentMaxWidth'] : [
-    'desktop' => 90,
+    'desktop' => isset($plugin_settings['content_max_width']) && !empty($plugin_settings['content_max_width']) ? intval($plugin_settings['content_max_width']) : 90,
     'tablet'  => '',
     'mobile'  => '',
 ];
-$horizontalAlign          = isset( $attrs['horizontalAlign'] ) ? $attrs['horizontalAlign'] : 'center';
-$verticalAlign            = isset( $attrs['verticalAlign'] ) ? $attrs['verticalAlign'] : 'center';
-$heightType               = isset( $attrs['heightType'] ) ? $attrs['heightType'] : 'auto';
+$flexWrap                 = isset( $attrs['flexWrap'] ) ? $attrs['flexWrap'] : [
+    'desktop' => 'nowrap',
+    'tablet'  => 'nowrap',
+    'mobile'  => 'nowrap',
+];
+$heightType = isset( $attrs['heightType'] ) ? $attrs['heightType'] : [
+    'desktop' => 'auto',
+    'tablet'  => 'auto',
+    'mobile'  => 'auto',
+];
+$horizontalAlign = isset( $attrs['horizontalAlign'] ) ? $attrs['horizontalAlign'] : [
+    'desktop' => 'center',
+    'tablet'  => 'center',
+    'mobile'  => 'center',
+];
+$verticalAlign = isset( $attrs['verticalAlign'] ) ? $attrs['verticalAlign'] : [
+    'desktop' => 'center',
+    'tablet'  => 'center',
+    'mobile'  => 'center',
+];
 $minHeight                = isset( $attrs['minHeight'] ) ? $attrs['minHeight'] : [
     'desktop' => 0,
     'tablet'  => 0,
     'mobile'  => 0,
 ];
-$columnGap                = isset( $attrs['columnGap'] ) ? $attrs['columnGap'] : [
-    'desktop' => 20,
-    'tablet'  => 15,
-    'mobile'  => 10,
-];
-$rowGap                   = isset( $attrs['rowGap'] ) ? $attrs['rowGap'] : [
-    'desktop' => 20,
-    'tablet'  => 15,
-    'mobile'  => 10,
-];
+$columnGap = isset( $attrs['columnGap'] ) ? $attrs['columnGap'] : array(
+	'desktop' => array( 'value' => 20, 'unit' => 'px' ),
+	'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'value' => '', 'unit' => 'px' ),
+);
+$rowGap = isset( $attrs['rowGap'] ) ? $attrs['rowGap'] : array(
+	'desktop' => array( 'value' => 20, 'unit' => 'px' ),
+	'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'value' => '', 'unit' => 'px' ),
+);
 $reverseColumnsMobile     = isset( $attrs['reverseColumnsMobile'] ) ? $attrs['reverseColumnsMobile'] : false;
 $stackOnTablet            = isset( $attrs['stackOnTablet'] ) ? $attrs['stackOnTablet'] : false;
 $stackOnMobile            = isset( $attrs['stackOnMobile'] ) ? $attrs['stackOnMobile'] : true;
@@ -54,28 +78,12 @@ $backgroundSize           = isset( $attrs['backgroundSize'] ) ? $attrs['backgrou
 $backgroundOverlay        = isset( $attrs['backgroundOverlay'] ) ? $attrs['backgroundOverlay'] : '';
 $backgroundOverlayOpacity = isset( $attrs['backgroundOverlayOpacity'] ) ? $attrs['backgroundOverlayOpacity'] : 0.7;
 $backgroundOverlayBlendMode = isset( $attrs['backgroundOverlayBlendMode'] ) ? $attrs['backgroundOverlayBlendMode'] : 'normal';
-$padding                  = isset( $attrs['padding'] ) ? $attrs['padding'] : [
-    'desktop' => ['top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px'],
-    'tablet'  => ['top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px'],
-    'mobile'  => ['top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px'],
-];
-$margin                   = isset( $attrs['margin'] ) ? $attrs['margin'] : [
-    'desktop' => ['top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px'],
-    'tablet'  => ['top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px'],
-    'mobile'  => ['top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px'],
-];
+$padding                  = isset( $attrs['padding'] ) ? $attrs['padding'] : digiblocks_get_default_dimensions('px');
+$margin                   = isset( $attrs['margin'] ) ? $attrs['margin'] : digiblocks_get_default_dimensions('px');
 $borderStyle              = isset( $attrs['borderStyle'] ) ? $attrs['borderStyle'] : 'none';
-$borderWidth              = isset( $attrs['borderWidth'] ) ? $attrs['borderWidth'] : [
-    'desktop' => ['top' => 1, 'right' => 1, 'bottom' => 1, 'left' => 1, 'unit' => 'px'],
-    'tablet'  => ['top' => 1, 'right' => 1, 'bottom' => 1, 'left' => 1, 'unit' => 'px'],
-    'mobile'  => ['top' => 1, 'right' => 1, 'bottom' => 1, 'left' => 1, 'unit' => 'px'],
-];
+$borderWidth              = isset( $attrs['borderWidth'] ) ? $attrs['borderWidth'] : digiblocks_get_default_dimensions('px');
 $borderColor              = isset( $attrs['borderColor'] ) ? $attrs['borderColor'] : '#e0e0e0';
-$borderRadius             = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : [
-    'desktop' => ['top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px'],
-    'tablet'  => ['top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px'],
-    'mobile'  => ['top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px'],
-];
+$borderRadius             = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : digiblocks_get_default_dimensions('px');
 // Box shadow
 $boxShadow = isset( $attrs['boxShadow'] ) ? $attrs['boxShadow'] : array(
     'enable'     => false,
@@ -99,10 +107,29 @@ $boxShadowHover = isset( $attrs['boxShadowHover'] ) ? $attrs['boxShadowHover'] :
 
 // Height CSS
 $heightCSS = '';
-if ( $heightType === 'full' ) {
+if ( $heightType['desktop'] === 'full' ) {
     $heightCSS = 'height: 100vh;';
-} elseif ( $heightType === 'custom' ) {
+} elseif ( $heightType['desktop'] === 'custom' ) {
     $heightCSS = "min-height: {$minHeight['desktop']}px;";
+}
+
+// Responsive Height CSS
+$heightTabletCSS = '';
+if ( $heightType['tablet'] === 'auto' ) {
+    $heightTabletCSS = 'height: auto;';
+} elseif ( $heightType['tablet'] === 'full' ) {
+    $heightTabletCSS = 'height: 100vh;';
+} elseif ( $heightType['tablet'] === 'custom' ) {
+    $heightTabletCSS = "min-height: {$minHeight['tablet']}px;";
+}
+
+$heightMobileCSS = '';
+if ( $heightType['mobile'] === 'auto' ) {
+    $heightMobileCSS = 'height: auto;';
+} elseif ( $heightType['mobile'] === 'full' ) {
+    $heightMobileCSS = 'height: 100vh;';
+} elseif ( $heightType['mobile'] === 'custom' ) {
+    $heightMobileCSS = "min-height: {$minHeight['mobile']}px;";
 }
 
 // Content width CSS
@@ -139,22 +166,22 @@ ob_start();
 .<?php echo esc_attr( $id ); ?> {
     position: relative;
     display: flex;
-    padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
-    margin: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['right'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['bottom'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['left'] . $margin['desktop']['unit'] ); ?>;
+    <?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
+    <?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
     width: 100%;
     <?php echo esc_attr( $heightCSS ); ?>
     <?php if ( $backgroundColor ) : ?>
     background-color: <?php echo esc_attr( $backgroundColor ); ?>;
     <?php endif; ?>
-    <?php echo $backgroundImageCSS; ?>
+    <?php echo esc_attr( $backgroundImageCSS ); ?>
     <?php if ( $borderStyle !== 'none' ) : ?>
     border-style: <?php echo esc_attr( $borderStyle ); ?>;
-    border-width: <?php echo esc_attr( $borderWidth['desktop']['top'] . $borderWidth['desktop']['unit'] . ' ' . $borderWidth['desktop']['right'] . $borderWidth['desktop']['unit'] . ' ' . $borderWidth['desktop']['bottom'] . $borderWidth['desktop']['unit'] . ' ' . $borderWidth['desktop']['left'] . $borderWidth['desktop']['unit'] ); ?>;
+    <?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'desktop' ) ); ?>
     border-color: <?php echo esc_attr( $borderColor ); ?>;
     <?php endif; ?>
-    border-radius: <?php echo esc_attr( $borderRadius['desktop']['top'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['right'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['bottom'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['left'] . $borderRadius['desktop']['unit'] ); ?>;
+    <?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
-        box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadow ) ); ?>;
+    box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadow ) ); ?>;
     <?php endif; ?>
     <?php if ( $overflowHidden ) : ?>
     overflow: hidden;
@@ -167,20 +194,24 @@ ob_start();
 
 .<?php echo esc_attr( $id ); ?>:hover {
     <?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
-        box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadowHover ) ); ?>;
+    box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadowHover ) ); ?>;
     <?php endif; ?>
 }
 
-.<?php echo esc_attr( $id ); ?> .digiblocks-container-inner {
+.<?php echo esc_attr( $id ); ?> > .digiblocks-container-inner {
 	display: flex;
-	flex-wrap: nowrap;
-    gap: <?php echo esc_attr( $rowGap['desktop'] ); ?>px <?php echo esc_attr( $columnGap['desktop'] ); ?>px;
-	width: 100%;
+	<?php echo esc_attr( digiblocks_get_css( 'flex-wrap', $flexWrap, 'desktop' ) ); ?>
+    <?php echo esc_attr( digiblocks_get_css( 'align-items', $verticalAlign, 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_css( 'justify-content', $horizontalAlign, 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_gap_css( $rowGap, $columnGap, 'desktop' ) ); ?>
+}
+
+<?php if (!$isNested) : ?>
+.<?php echo esc_attr( $id ); ?>.alignfull > .digiblocks-container-inner {
     <?php echo esc_attr( $contentWidthCSS ); ?>
     <?php echo esc_attr( $contentMaxWidthCSS ); ?>
-    align-items: <?php echo esc_attr( $verticalAlign ); ?>;
-    justify-content: <?php echo esc_attr( $horizontalAlign ); ?>;
 }
+<?php endif; ?>
 
 <?php if ( $backgroundOverlay ) : ?>
 .<?php echo esc_attr( $id ); ?>:before {
@@ -204,7 +235,7 @@ ob_start();
 <?php endif; ?>
 
 /* Background video */
-.<?php echo esc_attr( $id ); ?> .digiblocks-bg-video-container {
+.<?php echo esc_attr( $id ); ?> > .digiblocks-bg-video-container {
     position: absolute;
     top: 0;
     left: 0;
@@ -216,7 +247,7 @@ ob_start();
     border-radius: inherit;
 }
 
-.<?php echo esc_attr( $id ); ?> .digiblocks-bg-video {
+.<?php echo esc_attr( $id ); ?> > .digiblocks-bg-video {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -231,19 +262,27 @@ ob_start();
 /* Tablet styles */
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
-        padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
-        margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
-        <?php if ( $heightType === 'custom' ) : ?>
-        min-height: <?php echo esc_attr( $minHeight['tablet'] ); ?>px;
-        <?php endif; ?>
-        border-radius: <?php echo esc_attr( $borderRadius['tablet']['top'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['right'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['bottom'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['left'] . $borderRadius['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
+        <?php echo esc_attr( $heightTabletCSS ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?>
         <?php if ( $borderStyle !== 'none' ) : ?>
-        border-width: <?php echo esc_attr( $borderWidth['tablet']['top'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['right'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['bottom'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['left'] . $borderWidth['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'tablet' ) ); ?>
         <?php endif; ?>
     }
 
-	.<?php echo esc_attr( $id ); ?> .digiblocks-container-inner {
-        gap: <?php echo esc_attr( $rowGap['tablet'] ); ?>px <?php echo esc_attr( $columnGap['tablet'] ); ?>px;
+	.<?php echo esc_attr( $id ); ?> > .digiblocks-container-inner {
+		<?php echo esc_attr( digiblocks_get_css( 'flex-wrap', $flexWrap, 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_css( 'align-items', $verticalAlign, 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_css( 'justify-content', $horizontalAlign, 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_gap_css( $rowGap, $columnGap, 'tablet' ) ); ?>
+        <?php if ( $stackOnTablet ) : ?>
+		flex-direction: column;
+        <?php endif; ?>
+	}
+
+	<?php if (!$isNested) : ?>
+	.<?php echo esc_attr( $id ); ?>.alignfull > .digiblocks-container-inner {
 		<?php if ($contentLayout !== 'full' && !empty($contentWidth['tablet'])) {
 			?>
 			width: <?php echo esc_attr( $contentWidth['tablet'] ); ?>px;
@@ -262,13 +301,11 @@ ob_start();
 			max-width: 90%;
 			<?php
 		} ?>
-        <?php if ( $stackOnTablet ) : ?>
-		flex-direction: column;
-        <?php endif; ?>
 	}
+	<?php endif; ?>
 
 	<?php if ( $stackOnTablet ) : ?>
-		.<?php echo esc_attr( $id ); ?> .digiblocks-container-inner .digiblocks-column {
+		.<?php echo esc_attr( $id ); ?> > .digiblocks-container-inner .digiblocks-column {
 			width: 100%;
 		}
 	<?php endif; ?>
@@ -277,20 +314,31 @@ ob_start();
 /* Mobile styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
-        padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
-        margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
-        <?php if ( $heightType === 'custom' ) : ?>
-        min-height: <?php echo esc_attr( $minHeight['mobile'] ); ?>px;
-        <?php endif; ?>
-        border-radius: <?php echo esc_attr( $borderRadius['mobile']['top'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['right'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['bottom'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['left'] . $borderRadius['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?>
+		<?php echo esc_attr( $heightMobileCSS ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'mobile' ) ); ?>
         <?php if ( $borderStyle !== 'none' ) : ?>
-        border-width: <?php echo esc_attr( $borderWidth['mobile']['top'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['right'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['bottom'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['left'] . $borderWidth['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'mobile' ) ); ?>
         <?php endif; ?>
     }
 
-	.<?php echo esc_attr( $id ); ?> .digiblocks-container-inner {
-		gap: <?php echo esc_attr( $rowGap['mobile'] ); ?>px <?php echo esc_attr( $columnGap['mobile'] ); ?>px;
-		<?php if ($contentLayout !== 'full' && !empty($contentWidth['mobile'])) {
+	.<?php echo esc_attr( $id ); ?> > .digiblocks-container-inner {
+		<?php echo esc_attr( digiblocks_get_css( 'flex-wrap', $flexWrap, 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_css( 'align-items', $verticalAlign, 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_css( 'justify-content', $horizontalAlign, 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_gap_css( $rowGap, $columnGap, 'mobile' ) ); ?>
+        <?php if ( $stackOnMobile ) : ?>
+		flex-direction: column;
+        <?php endif; ?>
+        <?php if ( $reverseColumnsMobile ) : ?>
+        flex-direction: column-reverse;
+        <?php endif; ?>
+	}
+
+	<?php if (!$isNested) : ?>
+	.<?php echo esc_attr( $id ); ?>.alignfull > .digiblocks-container-inner {
+		<?php if ( $contentLayout !== 'full' && ! empty( $contentWidth['mobile'] ) ) {
 			?>
 			width: <?php echo esc_attr( $contentWidth['mobile'] ); ?>px;
 			<?php
@@ -308,16 +356,11 @@ ob_start();
 			max-width: 90%;
 			<?php
 		} ?>
-        <?php if ( $stackOnMobile ) : ?>
-		flex-direction: column;
-        <?php endif; ?>
-        <?php if ( $reverseColumnsMobile ) : ?>
-        flex-direction: column-reverse;
-        <?php endif; ?>
 	}
+	<?php endif; ?>
 
 	<?php if ( $stackOnMobile ) : ?>
-		.<?php echo esc_attr( $id ); ?> .digiblocks-container-inner .digiblocks-column {
+		.<?php echo esc_attr( $id ); ?> > .digiblocks-container-inner .digiblocks-column {
 			width: 100%;
 		}
 	<?php endif; ?>

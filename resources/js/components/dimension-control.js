@@ -20,7 +20,7 @@ const { useState, useEffect } = wp.element;
  */
 const DimensionControl = ({
     label,
-    values = { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+    values = { top: '', right: '', bottom: '', left: '', unit: 'px' },
     onChange,
     allowNegative = false,
     isResponsive = false,
@@ -30,22 +30,13 @@ const DimensionControl = ({
     min = 0,
     max = 100,
     step = 1,
-}) => {
-    const units = [
+    units = [
         { value: "px", label: "px" },
         { value: "rem", label: "rem" },
         { value: "em", label: "em" },
         { value: "%", label: "%" },
-    ];
-
-    const defaultValues = {
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        unit: "px",
-    };
-
+    ]
+}) => {
     // Linked state
     const [isLinked, setIsLinked] = useState(true);
     
@@ -67,14 +58,13 @@ const DimensionControl = ({
         }
     }, [isResponsive]);
     
-    // Check if values are at default
+    // Check if values are at default (all empty)
     useEffect(() => {
         const isAtDefault = 
-            values.top === defaultValues.top &&
-            values.right === defaultValues.right &&
-            values.bottom === defaultValues.bottom &&
-            values.left === defaultValues.left &&
-            values.unit === defaultValues.unit;
+            values.top === '' &&
+            values.right === '' &&
+            values.bottom === '' &&
+            values.left === '';
         
         setIsDefault(isAtDefault);
     }, [values]);
@@ -82,7 +72,7 @@ const DimensionControl = ({
     // Handle value change
     const handleValueChange = (key, value) => {
         let newValues = { ...values };
-
+        
         if (isLinked) {
             // When linked, update all values
             newValues = {
@@ -95,6 +85,19 @@ const DimensionControl = ({
         } else {
             // When unlinked, update only the specific value
             newValues[key] = value;
+        }
+        
+        // If at least one value is not empty, ensure all empty values are 0
+        const hasAnyValue = ['top', 'right', 'bottom', 'left'].some(
+            side => newValues[side] !== '' && newValues[side] !== undefined
+        );
+        
+        if (hasAnyValue) {
+            ['top', 'right', 'bottom', 'left'].forEach(side => {
+                if (newValues[side] === '' || newValues[side] === undefined) {
+                    newValues[side] = 0;
+                }
+            });
         }
 
         onChange(newValues);
@@ -140,14 +143,14 @@ const DimensionControl = ({
         }
     };
 
-    // Reset values to default
+    // Reset values to empty
     const resetValues = () => {
         onChange({
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            unit: "px",
+            top: '',
+            right: '',
+            bottom: '',
+            left: '',
+            unit: values.unit,
         });
     };
 
@@ -165,6 +168,23 @@ const DimensionControl = ({
             toggleDevice();
         } else {
             window.digi.responsiveState.toggleDevice();
+        }
+    };
+
+    // Handle input change - special logic to handle both numbers and empty strings
+    const handleInputChange = (key, e) => {
+        // Get value from input
+        const inputValue = e.target.value;
+        
+        // If input is empty or just a minus sign (for negative values), set as empty string
+        if (inputValue === '' || inputValue === '-') {
+            handleValueChange(key, '');
+        } else {
+            // Parse as number otherwise
+            const numValue = parseFloat(inputValue);
+            if (!isNaN(numValue)) {
+                handleValueChange(key, numValue);
+            }
         }
     };
 
@@ -187,7 +207,7 @@ const DimensionControl = ({
                     <div>
                         <Button
                             isSmall
-                            className={`digiblocks-reset ${isDefault ? '' : ''}`}
+                            className="digiblocks-reset"
                             icon="image-rotate"
                             onClick={resetValues}
                             disabled={isDefault}
@@ -199,9 +219,9 @@ const DimensionControl = ({
                         onChange={handleUnitChange}
                         isSmall
                         isBlock
-						hideLabelFromVision
+                        hideLabelFromVision
                         aria-label={__("Select Units", "digiblocks")}
-						__next40pxDefaultSize={true}
+                        __next40pxDefaultSize={true}
                         __nextHasNoMarginBottom={true}
                     >
                         {units.map((unit) => (
@@ -219,8 +239,8 @@ const DimensionControl = ({
                 <input
                     className="digiblocks-spacing-input"
                     type="number"
-                    value={values.top}
-                    onChange={(e) => handleValueChange("top", parseFloat(e.target.value) || 0)}
+                    value={values.top === '' ? '' : values.top}
+                    onChange={(e) => handleInputChange("top", e)}
                     min={allowNegative ? -getMaxValue(values.unit) : 0}
                     max={getMaxValue(values.unit)}
                     step={getStepValue(values.unit)}
@@ -229,8 +249,8 @@ const DimensionControl = ({
                 <input
                     className="digiblocks-spacing-input"
                     type="number"
-                    value={values.right}
-                    onChange={(e) => handleValueChange("right", parseFloat(e.target.value) || 0)}
+                    value={values.right === '' ? '' : values.right}
+                    onChange={(e) => handleInputChange("right", e)}
                     min={allowNegative ? -getMaxValue(values.unit) : 0}
                     max={getMaxValue(values.unit)}
                     step={getStepValue(values.unit)}
@@ -239,8 +259,8 @@ const DimensionControl = ({
                 <input
                     className="digiblocks-spacing-input"
                     type="number"
-                    value={values.bottom}
-                    onChange={(e) => handleValueChange("bottom", parseFloat(e.target.value) || 0)}
+                    value={values.bottom === '' ? '' : values.bottom}
+                    onChange={(e) => handleInputChange("bottom", e)}
                     min={allowNegative ? -getMaxValue(values.unit) : 0}
                     max={getMaxValue(values.unit)}
                     step={getStepValue(values.unit)}
@@ -249,8 +269,8 @@ const DimensionControl = ({
                 <input
                     className="digiblocks-spacing-input"
                     type="number"
-                    value={values.left}
-                    onChange={(e) => handleValueChange("left", parseFloat(e.target.value) || 0)}
+                    value={values.left === '' ? '' : values.left}
+                    onChange={(e) => handleInputChange("left", e)}
                     min={allowNegative ? -getMaxValue(values.unit) : 0}
                     max={getMaxValue(values.unit)}
                     step={getStepValue(values.unit)}

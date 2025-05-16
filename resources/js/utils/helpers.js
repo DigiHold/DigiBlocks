@@ -181,6 +181,72 @@ export const useBlockId = (id, clientId, setAttributes) => {
 };
 
 /**
+ * Generate CSS for dimension properties with responsive fallbacks
+ * 
+ * @param {Object} dimensions Responsive dimensions object (desktop, tablet, mobile)
+ * @param {string} property CSS property name (padding, margin, etc.)
+ * @param {string} device Current device (desktop, tablet, mobile)
+ * @param {boolean} important Whether to add !important flag
+ * @return {string} CSS with property and values or empty string
+ */
+export const getDimensionCSS = (dimensions, property, device = 'desktop', important = false) => {
+    // Check if dimensions object exists
+    if (!dimensions) {
+        return '';
+    }
+    
+    // Helper to check if dimension object has any values
+    const hasDimensionValues = (dim) => {
+        return dim && (
+            (dim.top !== undefined && dim.top !== '') ||
+            (dim.right !== undefined && dim.right !== '') ||
+            (dim.bottom !== undefined && dim.bottom !== '') ||
+            (dim.left !== undefined && dim.left !== '')
+        );
+    };
+    
+    // Get dimension values with fallback support
+    let values;
+    
+    // First try the current device
+    if (dimensions[device] && hasDimensionValues(dimensions[device])) {
+        values = dimensions[device];
+    } 
+    // Fallback from tablet to desktop
+    else if (device === 'tablet' && dimensions.desktop && hasDimensionValues(dimensions.desktop)) {
+        values = dimensions.desktop;
+    } 
+    // Fallback from mobile to tablet or desktop
+    else if (device === 'mobile') {
+        if (dimensions.tablet && hasDimensionValues(dimensions.tablet)) {
+            values = dimensions.tablet;
+        } else if (dimensions.desktop && hasDimensionValues(dimensions.desktop)) {
+            values = dimensions.desktop;
+        }
+    }
+    
+    // If no values found, return empty string
+    if (!values) {
+        return '';
+    }
+    
+    // Get unit or default to px
+    const unit = values.unit || 'px';
+    
+    // Normalize values (empty string becomes 0)
+    const top = values.top !== '' ? values.top : '0';
+    const right = values.right !== '' ? values.right : '0';
+    const bottom = values.bottom !== '' ? values.bottom : '0';
+    const left = values.left !== '' ? values.left : '0';
+    
+    // Add !important flag if needed
+    const importantFlag = important ? ' !important' : '';
+    
+    // Return formatted CSS
+    return `${property}: ${top}${unit} ${right}${unit} ${bottom}${unit} ${left}${unit}${importantFlag};`;
+};
+
+/**
  * Trigger animation preview for a block
  * 
  * @param {string} id - The block's unique ID

@@ -1,5 +1,5 @@
 === DigiBlocks ===
-Contributors: digicommercewp
+Contributors: digicommercewp, digihold
 Tags: blocks, gutenberg, editor, page builder, gutenberg blocks
 Requires at least: 5.8
 Tested up to: 6.8
@@ -78,7 +78,7 @@ Connect with fellow DigiBlocks users and stay updated:
 
 * [Documentation](https://docs.digiblocks.com) - Comprehensive guides and tutorials
 * [Support Forum](https://wordpress.org/support/plugin/digiblocks/) - Get help from our team and community
-* [GitHub Repository](https://github.com/DigiCommerceWP/DigiBlocks) - Access source code and contribute
+* [GitHub Repository](https://github.com/DigiHold/DigiBlocks) - Access source code and contribute
 
 = 🚀 Ready to Transform Your WordPress Site? =
 
@@ -139,6 +139,18 @@ DigiBlocks is specifically designed for the WordPress block editor (Gutenberg). 
 = Do I need coding knowledge to use DigiBlocks? =
 
 No coding knowledge is required! DigiBlocks is designed to be user-friendly with intuitive controls.
+
+== External services ==
+
+= Google Maps API =
+
+This plugin uses Google Maps API for the Google Map Block feature. 
+
+* **Service purpose**: The Google Maps API is used to display interactive maps in the Google Map Block.
+* **Data sent**: When a page with the Google Map Block loads, the plugin sends location data (latitude and longitude) to Google's servers to render the map. User IP addresses may also be collected by Google as part of standard API usage.
+* **When data is sent**: Data is only sent when a page containing the Google Map Block is viewed.
+* **Terms of Service**: https://cloud.google.com/maps-platform/terms/
+* **Privacy Policy**: https://policies.google.com/privacy
 
 == Screenshots ==
 

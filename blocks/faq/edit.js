@@ -24,7 +24,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -80,7 +80,14 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 	useBlockId( id, clientId, setAttributes );
 
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
 
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
@@ -416,23 +423,17 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 	const generateCSS = () => {
 		const activeDevice = window.digi.responsiveState.activeDevice;
 		
-		// Base styles
-		let baseStyles = '';
-		const marginValue = margin[activeDevice] || { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' };
 		// Properly handle 0 values with explicit undefined check
 		const itemSpacing = itemsSpacing[activeDevice] !== undefined ? itemsSpacing[activeDevice] : 16;
 		
 		// Border styles
 		let borderCSS = '';
 		if (borderStyle && borderStyle !== 'default' && borderStyle !== 'none') {
-			const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-			const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' };
-			
 			borderCSS = `
 				border-style: ${borderStyle};
 				border-color: ${borderColor || '#e0e0e0'};
-				border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-				border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+				${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
 			`;
 		} else {
 			borderCSS = 'border: none;';
@@ -446,7 +447,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 		}
 		
 		// Padding
-		const paddingCSS = `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};`;
+		const paddingCSS = `${getDimensionCSS(padding, 'padding', activeDevice)}`;
 		
 		// Title typography CSS
 		let titleTypographyCSS = '';
@@ -531,7 +532,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 		const baseCSS = `
 			/* FAQ Block - ${id} */
 			.${id} {
-				margin: ${marginValue.top}${marginValue.unit} ${marginValue.right}${marginValue.unit} ${marginValue.bottom}${marginValue.unit} ${marginValue.left}${marginValue.unit};
+				${getDimensionCSS(margin, 'margin', activeDevice)}
 				width: 100%;
 			}
 			
@@ -694,7 +695,8 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 					}
 					
 					.${id} .digiblocks-faq-answer {
-						padding: 0 ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};
+						${getDimensionCSS(padding, 'padding', activeDevice)}
+						padding-top: 0;
 					}
 				`;
 				break;
@@ -728,8 +730,10 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 					.${id} .digiblocks-faq-answer {
 						${paddingCSS}
 						${contentBackgroundColor ? `background-color: ${contentBackgroundColor};` : ''}
-						border: 1px solid ${borderColor || '#e0e0e0'};
+						${borderCSS}
 						border-top: none;
+						border-top-left-radius: 0;
+						border-top-right-radius: 0;
 						border-bottom-left-radius: ${borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice].left + borderRadius[activeDevice].unit : '8px'};
 						border-bottom-right-radius: ${borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice].right + borderRadius[activeDevice].unit : '8px'};
 						margin-top: -1px;
@@ -761,7 +765,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 					}
 					
 					.${id} .digiblocks-faq-answer {
-						padding: ${padding[activeDevice].top}${padding[activeDevice].unit} 0 ${padding[activeDevice].bottom}${padding[activeDevice].unit} 0;
+						${getDimensionCSS(padding, 'padding', activeDevice)}
 					}
 				`;
 				break;
@@ -865,7 +869,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 		const tabletStyles = `
 			@media (max-width: 991px) {
 				.${id} {
-					${margin.tablet ? `margin: ${margin.tablet.top}${margin.tablet.unit} ${margin.tablet.right}${margin.tablet.unit} ${margin.tablet.bottom}${margin.tablet.unit} ${margin.tablet.left}${margin.tablet.unit};` : ''}
+					${margin.tablet ? `${getDimensionCSS(margin, 'margin', 'tablet')}` : ''}
 				}
 				
 				.${id} .digiblocks-faq-item {
@@ -874,12 +878,14 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 				
 				.${id} .digiblocks-faq-question,
 				.${id} .digiblocks-faq-answer {
-					${padding.tablet ? `padding: ${padding.tablet.top}${padding.tablet.unit} ${padding.tablet.right}${padding.tablet.unit} ${padding.tablet.bottom}${padding.tablet.unit} ${padding.tablet.left}${padding.tablet.unit};` : ''}
+					${padding.tablet ? `${getDimensionCSS(padding, 'padding', 'tablet')}` : ''}
 				}
 				
 				${layout === 'minimalist' ? `
 				.${id} .digiblocks-faq-answer {
-					padding: ${padding.tablet?.top || padding[activeDevice].top}${padding.tablet?.unit || padding[activeDevice].unit} 0 ${padding.tablet?.bottom || padding[activeDevice].bottom}${padding.tablet?.unit || padding[activeDevice].unit} 0;
+					${getDimensionCSS(padding, 'padding', 'tablet')}
+					padding-left: 0;
+					padding-right: 0;
 				}
 				` : ''}
 				
@@ -913,7 +919,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 		const mobileStyles = `
 			@media (max-width: 767px) {
 				.${id} {
-					${margin.mobile ? `margin: ${margin.mobile.top}${margin.mobile.unit} ${margin.mobile.right}${margin.mobile.unit} ${margin.mobile.bottom}${margin.mobile.unit} ${margin.mobile.left}${margin.mobile.unit};` : ''}
+					${margin.mobile ? `${getDimensionCSS(margin, 'margin', 'mobile')}` : ''}
 				}
 				
 				.${id} .digiblocks-faq-item {
@@ -922,12 +928,14 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 				
 				.${id} .digiblocks-faq-question,
 				.${id} .digiblocks-faq-answer {
-					${padding.mobile ? `padding: ${padding.mobile.top}${padding.mobile.unit} ${padding.mobile.right}${padding.mobile.unit} ${padding.mobile.bottom}${padding.mobile.unit} ${padding.mobile.left}${padding.mobile.unit};` : ''}
+					${padding.mobile ? `${getDimensionCSS(padding, 'padding', 'mobile')}` : ''}
 				}
 				
 				${layout === 'minimalist' ? `
 				.${id} .digiblocks-faq-answer {
-					padding: ${padding.mobile?.top || padding[activeDevice].top}${padding.mobile?.unit || padding[activeDevice].unit} 0 ${padding.mobile?.bottom || padding[activeDevice].bottom}${padding.mobile?.unit || padding[activeDevice].unit} 0;
+					${getDimensionCSS(padding, 'padding', 'mobile')}
+					padding-left: 0;
+					padding-right: 0;
 				}
 				` : ''}
 				

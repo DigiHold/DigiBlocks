@@ -20,9 +20,23 @@ const CustomTabPanel = ({
     tabs, 
     activeTab, 
     onSelect,
-	customClass,
+    customClass,
     children
 }) => {
+    // Try to get the selected block ID
+    const selectedBlockId = wp.data.select('core/block-editor')?.getSelectedBlockClientId();
+    
+    // When a tab is selected, also update UI state
+    const handleTabSelect = (tabName) => {
+        // Save tab state if possible
+        if (window.digi.uiState && selectedBlockId) {
+            window.digi.uiState.setActiveTab(tabName, selectedBlockId);
+        }
+        
+        // Call the original handler
+        onSelect(tabName);
+    };
+    
     return (
         <div className={`digiblocks-tab-panel ${customClass || ''}`}>
             <div className="digiblocks-tabs-wrapper">
@@ -30,9 +44,10 @@ const CustomTabPanel = ({
                     <button
                         key={tab.name}
                         className={`digiblocks-tab-button ${activeTab === tab.name ? 'is-active' : ''}`}
-                        onClick={() => onSelect(tab.name)}
+                        onClick={() => handleTabSelect(tab.name)}
                         aria-selected={activeTab === tab.name}
                         role="tab"
+                        data-tab={tab.name} // Add data attribute for finding the tab
                     >
                         <span 
                             className="digiblocks-tab-icon"

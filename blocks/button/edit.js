@@ -21,7 +21,7 @@ const { useState, useEffect } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, BoxShadowControl, TypographyControl, CustomTabPanel, TabPanelBody, FontAwesomeControl } = digi.components;
 
@@ -68,7 +68,14 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
     const [isEditingURL, setIsEditingURL] = useState(false);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
 	
 	// State to track if global components are loaded
     const [componentsLoaded, setComponentsLoaded] = useState(false);
@@ -171,8 +178,7 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         // Size-based padding
         let sizeCSS = '';
         if (size === 'custom') {
-            const currentPadding = padding[activeDevice];
-            sizeCSS = `padding: ${currentPadding.top}${currentPadding.unit} ${currentPadding.right}${currentPadding.unit} ${currentPadding.bottom}${currentPadding.unit} ${currentPadding.left}${currentPadding.unit};`;
+            sizeCSS = getDimensionCSS(padding, 'padding', activeDevice);
         } else if (size === 'small') {
             sizeCSS = 'padding: 8px 16px;';
         } else if (size === 'large') {
@@ -184,18 +190,23 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         // Border styles
         let borderCSS = '';
         if (borderStyle && borderStyle !== 'default' && borderStyle !== 'none') {
-            const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-            const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' };
+			const borderWidthCSS = getDimensionCSS(borderWidth, 'border-width', activeDevice);
+			
+			// If border width CSS was generated, use it, otherwise use default 1px all around
+			const borderWidthStyle = borderWidthCSS || 'border-width: 1px 1px 1px 1px;';
             
             borderCSS = `
                 border-style: ${borderStyle};
                 border-color: ${borderColor || '#333333'};
-                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+                ${borderWidthStyle}
             `;
         } else {
             borderCSS = 'border: none;';
         }
+
+		// Border radius
+        let borderRadiusCSS = '';
+		borderRadiusCSS = getDimensionCSS(borderRadius, 'border-radius', activeDevice);
         
         // Box shadow
         let boxShadowCSS = 'box-shadow: none;';
@@ -205,7 +216,7 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         }
         
         // Margin
-        const marginCSS = `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};`;
+        const marginCSS = getDimensionCSS(margin, 'margin', activeDevice);
         
         // Hover effects
         let hoverCSS = '';
@@ -261,6 +272,7 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                 transition: all 0.3s ease;
                 ${sizeCSS}
                 ${borderCSS}
+                ${borderRadiusCSS}
                 ${boxShadowCSS}
                 ${marginCSS}
                 ${fill ? 'width: 100%;' : ''}
@@ -563,7 +575,7 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                 value={borderStyle || 'default'}
                                 options={borderStyleOptions}
                                 onChange={(value) => {
-                                    // Initialize border width and radius with defaults when a style is first selected
+                                    // Initialize border width with defaults when a style is first selected
                                     if ((value !== 'default' && value !== 'none') && 
                                         (borderStyle === 'default' || borderStyle === 'none' || !borderStyle)) {
                                         // Set initial border width if not already set
@@ -571,19 +583,8 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                             setAttributes({
                                                 borderWidth: {
                                                     desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                                                    tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                                                    mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
-                                                }
-                                            });
-                                        }
-                                        
-                                        // Set initial border radius if not already set
-                                        if (!borderRadius || Object.keys(borderRadius).length === 0) {
-                                            setAttributes({
-                                                borderRadius: {
-                                                    desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                                                    tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                                                    mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+                                                    tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                                                    mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                                                 }
                                             });
                                         }
@@ -640,29 +641,29 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                             }
                                         />
                                     </ResponsiveControl>
-                                    
-                                    {/* Border Radius */}
-                                    <ResponsiveControl
-                                        label={__("Border Radius", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={borderRadius[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    borderRadius: {
-                                                        ...borderRadius,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                            units={[
-                                                { label: 'px', value: 'px' },
-                                                { label: '%', value: '%' }
-                                            ]}
-                                        />
-                                    </ResponsiveControl>
                                 </>
                             )}
+                                    
+							{/* Border Radius */}
+							<ResponsiveControl
+								label={__("Border Radius", "digiblocks")}
+							>
+								<DimensionControl
+									values={borderRadius[localActiveDevice]}
+									onChange={(value) =>
+										setAttributes({
+											borderRadius: {
+												...borderRadius,
+												[localActiveDevice]: value,
+											},
+										})
+									}
+									units={[
+										{ label: 'px', value: 'px' },
+										{ label: '%', value: '%' }
+									]}
+								/>
+							</ResponsiveControl>
                         </TabPanelBody>
                         <TabPanelBody
                             tab="style"

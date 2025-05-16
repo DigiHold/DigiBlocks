@@ -11,31 +11,222 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get block attributes.
-$id                       = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
-$iconValue                = isset( $attrs['iconValue'] ) ? $attrs['iconValue'] : null;
-$iconColor                = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : null;
-$iconBackgroundColor      = isset( $attrs['iconBackgroundColor'] ) ? $attrs['iconBackgroundColor'] : null;
-$iconBorderStyle          = isset( $attrs['iconBorderStyle'] ) ? $attrs['iconBorderStyle'] : 'default';
-$iconBorderWidth          = isset( $attrs['iconBorderWidth'] ) ? $attrs['iconBorderWidth'] : null;
-$iconBorderRadius         = isset( $attrs['iconBorderRadius'] ) ? $attrs['iconBorderRadius'] : null;
-$iconBorderColor          = isset( $attrs['iconBorderColor'] ) ? $attrs['iconBorderColor'] : null;
-$iconPadding              = isset( $attrs['iconPadding'] ) ? $attrs['iconPadding'] : null;
-$iconMargin               = isset( $attrs['iconMargin'] ) ? $attrs['iconMargin'] : null;
-$iconHoverColor           = isset( $attrs['iconHoverColor'] ) ? $attrs['iconHoverColor'] : null;
-$iconHoverBackgroundColor = isset( $attrs['iconHoverBackgroundColor'] ) ? $attrs['iconHoverBackgroundColor'] : null;
-$iconHoverBorderColor     = isset( $attrs['iconHoverBorderColor'] ) ? $attrs['iconHoverBorderColor'] : null;
-$titleColor               = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '#333333';
-$titleHoverColor          = isset( $attrs['titleHoverColor'] ) ? $attrs['titleHoverColor'] : '';
-$textColor                = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#666666';
-$textHoverColor           = isset( $attrs['textHoverColor'] ) ? $attrs['textHoverColor'] : '';
-$backgroundColor          = isset( $attrs['backgroundColor'] ) ? $attrs['backgroundColor'] : '#ffffff';
-$backgroundHoverColor     = isset( $attrs['backgroundHoverColor'] ) ? $attrs['backgroundHoverColor'] : '';
-$align                    = isset( $attrs['align'] ) ? $attrs['align'] : 'center';
-$animation                = isset( $attrs['animation'] ) ? $attrs['animation'] : 'none';
-$hoverEffect              = isset( $attrs['hoverEffect'] ) ? $attrs['hoverEffect'] : 'none';
-$borderStyle              = isset( $attrs['borderStyle'] ) ? $attrs['borderStyle'] : 'default';
-$borderColor              = isset( $attrs['borderColor'] ) ? $attrs['borderColor'] : '#e0e0e0';
-$linkEnabled              = isset( $attrs['linkEnabled'] ) ? $attrs['linkEnabled'] : false;
+$id                           = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
+$iconColor                    = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : null;
+$iconBackgroundColor          = isset( $attrs['iconBackgroundColor'] ) ? $attrs['iconBackgroundColor'] : null;
+$iconBorderStyle              = isset( $attrs['iconBorderStyle'] ) ? $attrs['iconBorderStyle'] : 'default';
+$iconBorderWidth              = isset( $attrs['iconBorderWidth'] ) ? $attrs['iconBorderWidth'] : array(
+	'desktop' => array(
+		'top'    => 1,
+		'right'  => 1,
+		'bottom' => 1,
+		'left'   => 1,
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+);
+$iconBorderRadius             = isset( $attrs['iconBorderRadius'] ) ? $attrs['iconBorderRadius'] : digiblocks_get_default_dimensions('px');
+$iconBorderColor              = isset( $attrs['iconBorderColor'] ) ? $attrs['iconBorderColor'] : null;
+$iconPadding                  = isset( $attrs['iconPadding'] ) ? $attrs['iconPadding'] : digiblocks_get_default_dimensions('px');
+$iconMargin                   = isset( $attrs['iconMargin'] ) ? $attrs['iconMargin'] : array(
+	'desktop' => array(
+		'top'    => 0,
+		'right'  => 0,
+		'bottom' => 20,
+		'left'   => 0,
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => 0,
+		'right'  => 0,
+		'bottom' => 15,
+		'left'   => 0,
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => 0,
+		'right'  => 0,
+		'bottom' => 10,
+		'left'   => 0,
+		'unit'   => 'px',
+	),
+);
+$iconHoverColor               = isset( $attrs['iconHoverColor'] ) ? $attrs['iconHoverColor'] : null;
+$iconHoverBackgroundColor     = isset( $attrs['iconHoverBackgroundColor'] ) ? $attrs['iconHoverBackgroundColor'] : null;
+$iconHoverBorderColor         = isset( $attrs['iconHoverBorderColor'] ) ? $attrs['iconHoverBorderColor'] : null;
+$showTitle                    = isset( $attrs['showTitle'] ) ? $attrs['showTitle'] : true;
+$showContent                  = isset( $attrs['showContent'] ) ? $attrs['showContent'] : true;
+$titleColor                   = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '#333333';
+$titleHoverColor              = isset( $attrs['titleHoverColor'] ) ? $attrs['titleHoverColor'] : '';
+$textColor                    = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#666666';
+$textHoverColor               = isset( $attrs['textHoverColor'] ) ? $attrs['textHoverColor'] : '';
+$backgroundColor              = isset( $attrs['backgroundColor'] ) ? $attrs['backgroundColor'] : '#ffffff';
+$backgroundHoverColor         = isset( $attrs['backgroundHoverColor'] ) ? $attrs['backgroundHoverColor'] : '';
+$align                        = isset( $attrs['align'] ) ? $attrs['align'] : 'center';
+$animation                    = isset( $attrs['animation'] ) ? $attrs['animation'] : 'none';
+$hoverEffect                  = isset( $attrs['hoverEffect'] ) ? $attrs['hoverEffect'] : 'none';
+$borderStyle                  = isset( $attrs['borderStyle'] ) ? $attrs['borderStyle'] : 'default';
+$borderColor                  = isset( $attrs['borderColor'] ) ? $attrs['borderColor'] : '#e0e0e0';
+$linkEnabled                  = isset( $attrs['linkEnabled'] ) ? $attrs['linkEnabled'] : false;
+$linkType                     = isset( $attrs['linkType'] ) ? $attrs['linkType'] : 'box';
+
+// Button specific attributes
+$buttonText                   = isset( $attrs['buttonText'] ) ? $attrs['buttonText'] : __('Learn More', 'digiblocks');
+$buttonBackgroundColor        = isset( $attrs['buttonBackgroundColor'] ) ? $attrs['buttonBackgroundColor'] : '#1e73be';
+$buttonBackgroundHoverColor   = isset( $attrs['buttonBackgroundHoverColor'] ) ? $attrs['buttonBackgroundHoverColor'] : '#135e9e';
+$buttonTextColor              = isset( $attrs['buttonTextColor'] ) ? $attrs['buttonTextColor'] : '#ffffff';
+$buttonTextHoverColor         = isset( $attrs['buttonTextHoverColor'] ) ? $attrs['buttonTextHoverColor'] : '#ffffff';
+$buttonBorderStyle            = isset( $attrs['buttonBorderStyle'] ) ? $attrs['buttonBorderStyle'] : 'default';
+$buttonBorderWidth            = isset( $attrs['buttonBorderWidth'] ) ? $attrs['buttonBorderWidth'] : array(
+	'desktop' => array(
+		'top'    => 1,
+		'right'  => 1,
+		'bottom' => 1,
+		'left'   => 1,
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+);
+$buttonBorderRadius           = isset( $attrs['buttonBorderRadius'] ) ? $attrs['buttonBorderRadius'] : array(
+	'desktop' => array(
+		'top'    => 4,
+		'right'  => 4,
+		'bottom' => 4,
+		'left'   => 4,
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+);
+$buttonBorderColor            = isset( $attrs['buttonBorderColor'] ) ? $attrs['buttonBorderColor'] : '';
+$buttonBorderHoverColor       = isset( $attrs['buttonBorderHoverColor'] ) ? $attrs['buttonBorderHoverColor'] : '';
+$buttonBoxShadow              = isset( $attrs['buttonBoxShadow'] ) ? $attrs['buttonBoxShadow'] : array(
+	'enable'     => false,
+	'color'      => 'rgba(0, 0, 0, 0.2)',
+	'horizontal' => 0,
+	'vertical'   => 0,
+	'blur'       => 0,
+	'spread'     => 0,
+	'position'   => 'outset',
+);
+$buttonBoxShadowHover         = isset( $attrs['buttonBoxShadowHover'] ) ? $attrs['buttonBoxShadowHover'] : array(
+	'enable'     => false,
+	'color'      => 'rgba(0, 0, 0, 0.2)',
+	'horizontal' => 0,
+	'vertical'   => 0,
+	'blur'       => 0,
+	'spread'     => 0,
+	'position'   => 'outset',
+);
+$buttonPadding                = isset( $attrs['buttonPadding'] ) ? $attrs['buttonPadding'] : array(
+	'desktop' => array(
+		'top'    => 10,
+		'right'  => 20,
+		'bottom' => 10,
+		'left'   => 20,
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => 8, 
+		'right'  => 16,
+		'bottom' => 8,
+		'left'   => 16,
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => 6,
+		'right'  => 12,
+		'bottom' => 6,
+		'left'   => 12,
+		'unit'   => 'px',
+	),
+);
+$buttonMargin                 = isset( $attrs['buttonMargin'] ) ? $attrs['buttonMargin'] : array(
+	'desktop' => array(
+		'top'    => 15,
+		'right'  => 0,
+		'bottom' => 0,
+		'left'   => 0,
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => 10,
+		'right'  => 0,
+		'bottom' => 0,
+		'left'   => 0,
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => 8,
+		'right'  => 0,
+		'bottom' => 0,
+		'left'   => 0,
+		'unit'   => 'px',
+	),
+);
+$buttonTypography             = isset( $attrs['buttonTypography'] ) ? $attrs['buttonTypography'] : array(
+	'fontFamily'        => '',
+	'fontSize'          => array(
+		'desktop' => 16,
+		'tablet'  => 15,
+		'mobile'  => 14,
+	),
+	'fontSizeUnit'      => 'px',
+	'fontWeight'        => '500',
+	'fontStyle'         => 'normal',
+	'textTransform'     => '',
+	'textDecoration'    => '',
+	'lineHeight'        => array(
+		'desktop' => 1.5,
+		'tablet'  => 1.4,
+		'mobile'  => 1.3,
+	),
+	'lineHeightUnit'    => 'em',
+	'letterSpacing'     => array(
+		'desktop' => 0,
+		'tablet'  => 0,
+		'mobile'  => 0,
+	),
+	'letterSpacingUnit' => 'px',
+);
 
 $boxShadow = isset( $attrs['boxShadow'] ) ? $attrs['boxShadow'] : array(
 	'enable'     => false,
@@ -151,17 +342,17 @@ $borderWidth = isset( $attrs['borderWidth'] ) ? $attrs['borderWidth'] : array(
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 1,
-		'right'  => 1,
-		'bottom' => 1,
-		'left'   => 1,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 1,
-		'right'  => 1,
-		'bottom' => 1,
-		'left'   => 1,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -176,17 +367,17 @@ $borderRadius = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : array
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 8,
-		'right'  => 8,
-		'bottom' => 8,
-		'left'   => 8,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 8,
-		'right'  => 8,
-		'bottom' => 8,
-		'left'   => 8,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -255,11 +446,13 @@ ob_start();
 	<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle ) : ?>
 		border-style: <?php echo esc_attr( $borderStyle ); ?>;
 		border-color: <?php echo esc_attr( $borderColor ); ?>;
-		border-width: <?php echo esc_attr( $borderWidth['desktop']['top'] . $borderWidth['desktop']['unit'] . ' ' . $borderWidth['desktop']['right'] . $borderWidth['desktop']['unit'] . ' ' . $borderWidth['desktop']['bottom'] . $borderWidth['desktop']['unit'] . ' ' . $borderWidth['desktop']['left'] . $borderWidth['desktop']['unit'] ); ?>;
-		border-radius: <?php echo esc_attr( $borderRadius['desktop']['top'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['right'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['bottom'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['left'] . $borderRadius['desktop']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'desktop' ) ); ?>
 	<?php else : ?>
 		border-style: none;
 	<?php endif; ?>
+	
+	/* Always apply border radius even if no border */
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
 
 	/* Box Shadow */
 	<?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
@@ -268,11 +461,11 @@ ob_start();
 		box-shadow: none;
 	<?php endif; ?>
 
-	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
-	margin: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['right'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['bottom'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['left'] . $margin['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
 	text-align: <?php echo esc_attr( $align ); ?>;
 	transition: all 0.3s ease;
-	<?php if ( $linkEnabled ) : ?>
+	<?php if ( $linkEnabled && 'box' === $linkType ) : ?>
 		cursor: pointer;
 		text-decoration: none;
 	<?php endif; ?>
@@ -297,65 +490,64 @@ ob_start();
 	<?php endif; ?>
 }
 
-<?php if ( $iconValue ) : ?>
-	/* Icon styles */
-	.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
-		<?php if ( $iconMargin && isset( $iconMargin['desktop'] ) ) : ?>
-			margin: <?php echo esc_attr( $iconMargin['desktop']['top'] . $iconMargin['desktop']['unit'] . ' ' . $iconMargin['desktop']['right'] . $iconMargin['desktop']['unit'] . ' ' . $iconMargin['desktop']['bottom'] . $iconMargin['desktop']['unit'] . ' ' . $iconMargin['desktop']['left'] . $iconMargin['desktop']['unit'] ); ?>;
-		<?php endif; ?>
+/* Icon styles */
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
+	<?php if ( $iconMargin && isset( $iconMargin['desktop'] ) ) : ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $iconMargin, 'margin', 'desktop' ) ); ?>
+	<?php endif; ?>
 
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 
-		<?php if ( $iconBackgroundColor ) : ?>
-			background-color: <?php echo esc_attr( $iconBackgroundColor ); ?>;
-		<?php endif; ?>
-			
-		<?php if ( $iconBorderStyle && 'default' !== $iconBorderStyle && 'none' !== $iconBorderStyle && $iconBorderWidth && $iconBorderRadius ) : ?>
-			border-style: <?php echo esc_attr( $iconBorderStyle ); ?>;
-			border-color: <?php echo esc_attr( $iconBorderColor ); ?>;
-			border-width: <?php echo esc_attr( $iconBorderWidth['desktop']['top'] . $iconBorderWidth['desktop']['unit'] . ' ' . $iconBorderWidth['desktop']['right'] . $iconBorderWidth['desktop']['unit'] . ' ' . $iconBorderWidth['desktop']['bottom'] . $iconBorderWidth['desktop']['unit'] . ' ' . $iconBorderWidth['desktop']['left'] . $iconBorderWidth['desktop']['unit'] ); ?>;
-			border-radius: <?php echo esc_attr( $iconBorderRadius['desktop']['top'] . $iconBorderRadius['desktop']['unit'] . ' ' . $iconBorderRadius['desktop']['right'] . $iconBorderRadius['desktop']['unit'] . ' ' . $iconBorderRadius['desktop']['bottom'] . $iconBorderRadius['desktop']['unit'] . ' ' . $iconBorderRadius['desktop']['left'] . $iconBorderRadius['desktop']['unit'] ); ?>;
-		<?php endif; ?>
-			
-		<?php if ( $iconPadding ) : ?>
-			padding: <?php echo esc_attr( $iconPadding['desktop']['top'] . $iconPadding['desktop']['unit'] . ' ' . $iconPadding['desktop']['right'] . $iconPadding['desktop']['unit'] . ' ' . $iconPadding['desktop']['bottom'] . $iconPadding['desktop']['unit'] . ' ' . $iconPadding['desktop']['left'] . $iconPadding['desktop']['unit'] ); ?>;
-		<?php endif; ?>
+	<?php if ( $iconBackgroundColor ) : ?>
+		background-color: <?php echo esc_attr( $iconBackgroundColor ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( $iconBorderStyle && 'default' !== $iconBorderStyle && 'none' !== $iconBorderStyle && $iconBorderWidth && $iconBorderRadius ) : ?>
+		border-style: <?php echo esc_attr( $iconBorderStyle ); ?>;
+		border-color: <?php echo esc_attr( $iconBorderColor ); ?>;
+		border-width: <?php echo esc_attr( $iconBorderWidth['desktop']['top'] . $iconBorderWidth['desktop']['unit'] . ' ' . $iconBorderWidth['desktop']['right'] . $iconBorderWidth['desktop']['unit'] . ' ' . $iconBorderWidth['desktop']['bottom'] . $iconBorderWidth['desktop']['unit'] . ' ' . $iconBorderWidth['desktop']['left'] . $iconBorderWidth['desktop']['unit'] ); ?>;
+		border-radius: <?php echo esc_attr( $iconBorderRadius['desktop']['top'] . $iconBorderRadius['desktop']['unit'] . ' ' . $iconBorderRadius['desktop']['right'] . $iconBorderRadius['desktop']['unit'] . ' ' . $iconBorderRadius['desktop']['bottom'] . $iconBorderRadius['desktop']['unit'] . ' ' . $iconBorderRadius['desktop']['left'] . $iconBorderRadius['desktop']['unit'] ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( $iconPadding ) : ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $iconPadding, 'padding', 'desktop' ) ); ?>
+	<?php endif; ?>
 
-		transition: all 0.3s ease;
-	}
+	transition: all 0.3s ease;
+}
 
-	.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon span {
-		display: flex;
-	}
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon span {
+	display: flex;
+}
 
-	.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon svg {
-		width: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
-		height: 100%;
-		fill: <?php echo esc_attr( $iconColor ); ?>;
-		transition: all 0.3s ease;
-	}
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon svg {
+	width: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
+	height: 100%;
+	fill: <?php echo esc_attr( $iconColor ); ?>;
+	transition: all 0.3s ease;
+}
 
-	/* Icon hover styles */
-	.<?php echo esc_attr( $id ); ?>:hover .digiblocks-icon-box-icon {
-		<?php if ( $iconHoverBackgroundColor ) : ?>
-			background-color: <?php echo esc_attr( $iconHoverBackgroundColor ); ?>;
-		<?php endif; ?>
-			
-		<?php if ( $iconHoverBorderColor ) : ?>
-			border-color: <?php echo esc_attr( $iconHoverBorderColor ); ?>;
-		<?php endif; ?>
-	}
+/* Icon hover styles */
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-icon-box-icon {
+	<?php if ( $iconHoverBackgroundColor ) : ?>
+		background-color: <?php echo esc_attr( $iconHoverBackgroundColor ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( $iconHoverBorderColor ) : ?>
+		border-color: <?php echo esc_attr( $iconHoverBorderColor ); ?>;
+	<?php endif; ?>
+}
 
-	.<?php echo esc_attr( $id ); ?>:hover .digiblocks-icon-box-icon svg {
-		<?php if ( $iconHoverColor ) : ?>
-			fill: <?php echo esc_attr( $iconHoverColor ); ?> !important; 
-			color: <?php echo esc_attr( $iconHoverColor ); ?> !important;
-		<?php endif; ?>
-	}
-<?php endif; ?>
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-icon-box-icon svg {
+	<?php if ( $iconHoverColor ) : ?>
+		fill: <?php echo esc_attr( $iconHoverColor ); ?> !important; 
+		color: <?php echo esc_attr( $iconHoverColor ); ?> !important;
+	<?php endif; ?>
+}
 
+<?php if ( $showTitle ) : ?>
 /* Title styles */
 .<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-title {
 	color: <?php echo esc_attr( $titleColor ); ?>;
@@ -402,7 +594,9 @@ ob_start();
 		color: <?php echo esc_attr( $titleHoverColor ); ?>;
 	}
 <?php endif; ?>
+<?php endif; ?>
 
+<?php if ( $showContent ) : ?>
 /* Content styles */
 .<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-text {
 	color: <?php echo esc_attr( $textColor ); ?>;
@@ -448,74 +642,199 @@ ob_start();
 		color: <?php echo esc_attr( $textHoverColor ); ?>;
 	}
 <?php endif; ?>
+<?php endif; ?>
+
+<?php if ( $linkEnabled && 'button' === $linkType ) : ?>
+/* Button styles */
+.<?php echo esc_attr( $id ); ?> .digiblocks-button-wrapper {
+	display: flex;
+	justify-content: <?php echo esc_attr( $align === 'center' ? 'center' : ( $align === 'right' ? 'flex-end' : 'flex-start' ) ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $buttonMargin, 'margin', 'desktop' ) ); ?>
+}
+
+.<?php echo esc_attr( $id ); ?> .digiblocks-button {
+	display: inline-block;
+	background-color: <?php echo esc_attr( $buttonBackgroundColor ); ?>;
+	color: <?php echo esc_attr( $buttonTextColor ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $buttonPadding, 'padding', 'desktop' ) ); ?>
+	
+	<?php if ( $buttonBorderStyle && 'default' !== $buttonBorderStyle && 'none' !== $buttonBorderStyle ) : ?>
+		border-style: <?php echo esc_attr( $buttonBorderStyle ); ?>;
+		border-color: <?php echo esc_attr( $buttonBorderColor ? $buttonBorderColor : $buttonBackgroundColor ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $buttonBorderWidth, 'border-width', 'desktop' ) ); ?>
+	<?php else : ?>
+		border-style: none;
+	<?php endif; ?>
+	
+	<?php echo esc_attr( digiblocks_get_dimensions( $buttonBorderRadius, 'border-radius', 'desktop' ) ); ?>
+	
+	<?php if ( isset( $buttonBoxShadow['enable'] ) && $buttonBoxShadow['enable'] ) : ?>
+		box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $buttonBoxShadow ) ); ?>;
+	<?php else : ?>
+		box-shadow: none;
+	<?php endif; ?>
+	
+	<?php if ( ! empty( $buttonTypography['fontFamily'] ) ) : ?>
+		font-family: <?php echo esc_attr( $buttonTypography['fontFamily'] ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( ! empty( $buttonTypography['fontSize']['desktop'] ) ) : ?>
+		font-size: <?php echo esc_attr( $buttonTypography['fontSize']['desktop'] . ( $buttonTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( ! empty( $buttonTypography['fontWeight'] ) ) : ?>
+		font-weight: <?php echo esc_attr( $buttonTypography['fontWeight'] ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( ! empty( $buttonTypography['fontStyle'] ) ) : ?>
+		font-style: <?php echo esc_attr( $buttonTypography['fontStyle'] ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( ! empty( $buttonTypography['textTransform'] ) ) : ?>
+		text-transform: <?php echo esc_attr( $buttonTypography['textTransform'] ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( ! empty( $buttonTypography['textDecoration'] ) ) : ?>
+		text-decoration: <?php echo esc_attr( $buttonTypography['textDecoration'] ); ?>;
+	<?php endif; ?>
+
+	<?php if ( ! empty( $buttonTypography['lineHeight']['desktop'] ) ) : ?>
+		line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['desktop'] . ( $buttonTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( ! empty( $buttonTypography['letterSpacing']['desktop'] ) ) : ?>
+		letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['desktop'] . ( $buttonTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+	<?php endif; ?>
+	
+	text-decoration: none;
+	transition: all 0.3s ease;
+}
+
+.<?php echo esc_attr( $id ); ?> .digiblocks-button:hover {
+	<?php if ( $buttonBackgroundHoverColor ) : ?>
+		background-color: <?php echo esc_attr( $buttonBackgroundHoverColor ); ?>;
+	<?php endif; ?>
+	
+	<?php if ( $buttonTextHoverColor ) : ?>
+		color: <?php echo esc_attr( $buttonTextHoverColor ); ?>;
+	<?php endif; ?>
+	
+	<?php if ( $buttonBorderHoverColor ) : ?>
+		border-color: <?php echo esc_attr( $buttonBorderHoverColor ); ?>;
+	<?php endif; ?>
+	
+	<?php if ( isset( $buttonBoxShadowHover['enable'] ) && $buttonBoxShadowHover['enable'] ) : ?>
+		box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $buttonBoxShadowHover ) ); ?>;
+	<?php endif; ?>
+}
+<?php endif; ?>
 
 /* Tablet Styles */
 @media (max-width: 991px) {
 	.<?php echo esc_attr( $id ); ?> {
 		<?php if ( $padding && isset( $padding['tablet'] ) ) : ?>
-			padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
 		<?php endif; ?>
 		<?php if ( $margin && isset( $margin['tablet'] ) ) : ?>
-			margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
 		<?php endif; ?>
 				
-		<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle && isset( $borderWidth['tablet']) && isset( $borderRadius['tablet'] ) ) : ?>
-			border-width: <?php echo esc_attr( $borderWidth['tablet']['top'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['right'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['bottom'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['left'] . $borderWidth['tablet']['unit'] ); ?>;
-			border-radius: <?php echo esc_attr( $borderRadius['tablet']['top'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['right'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['bottom'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['left'] . $borderRadius['tablet']['unit'] ); ?>;
+		<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle && isset( $borderWidth['tablet']) ) : ?>
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'tablet' ) ); ?>
+		<?php endif; ?>
+		
+		<?php if ( isset( $borderRadius['tablet'] ) ) : ?>
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?>
 		<?php endif; ?>
 	}
 
-	<?php if ( $iconValue ) : ?>
-		<?php if ( isset( $iconSize['tablet'] ) ) : ?>
-			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon svg {
-				width: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
-			}
-		<?php endif; ?>
-			
-		<?php if ( $iconMargin && isset( $iconMargin['tablet'] ) ) : ?>
-			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
-				margin: <?php echo esc_attr( $iconMargin['tablet']['top'] . $iconMargin['tablet']['unit'] . ' ' . $iconMargin['tablet']['right'] . $iconMargin['tablet']['unit'] . ' ' . $iconMargin['tablet']['bottom'] . $iconMargin['tablet']['unit'] . ' ' . $iconMargin['tablet']['left'] . $iconMargin['tablet']['unit'] ); ?>;
-			}
-		<?php endif; ?>
-			
-		<?php if ( $iconPadding && isset( $iconPadding['tablet'] ) ) : ?>
-			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
-				padding: <?php echo esc_attr( $iconPadding['tablet']['top'] . $iconPadding['tablet']['unit'] . ' ' . $iconPadding['tablet']['right'] . $iconPadding['tablet']['unit'] . ' ' . $iconPadding['tablet']['bottom'] . $iconPadding['tablet']['unit'] . ' ' . $iconPadding['tablet']['left'] . $iconPadding['tablet']['unit'] ); ?>;
-			}
-		<?php endif; ?>
-			
-		<?php if ( $iconBorderStyle && 'default' !== $iconBorderStyle && 'none' !== $iconBorderStyle && isset( $iconBorderWidth['tablet']) && isset( $iconBorderRadius['tablet'] ) ) : ?>
-			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
-				border-width: <?php echo esc_attr( $iconBorderWidth['tablet']['top'] . $iconBorderWidth['tablet']['unit'] . ' ' . $iconBorderWidth['tablet']['right'] . $iconBorderWidth['tablet']['unit'] . ' ' . $iconBorderWidth['tablet']['bottom'] . $iconBorderWidth['tablet']['unit'] . ' ' . $iconBorderWidth['tablet']['left'] . $iconBorderWidth['tablet']['unit'] ); ?>;
-				border-radius: <?php echo esc_attr( $iconBorderRadius['tablet']['top'] . $iconBorderRadius['tablet']['unit'] . ' ' . $iconBorderRadius['tablet']['right'] . $iconBorderRadius['tablet']['unit'] . ' ' . $iconBorderRadius['tablet']['bottom'] . $iconBorderRadius['tablet']['unit'] . ' ' . $iconBorderRadius['tablet']['left'] . $iconBorderRadius['tablet']['unit'] ); ?>;
-			}
-		<?php endif; ?>
+	<?php if ( isset( $iconSize['tablet'] ) ) : ?>
+		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon svg {
+			width: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
+		}
 	<?php endif; ?>
-
-	<?php if ( isset( $titleTypography['fontSize']['tablet']) || isset( $titleTypography['lineHeight']['tablet']) || isset( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
-		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-title {
-			<?php if ( isset( $titleTypography['fontSize']['tablet'] ) ) : ?>
-				font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
-			<?php endif; ?>
-			<?php if ( isset( $titleTypography['lineHeight']['tablet'] ) ) : ?>
-				line-height: <?php echo esc_attr( $titleTypography['lineHeight']['tablet'] . ( $titleTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
-			<?php endif; ?>
-			<?php if ( isset( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
-				letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['tablet'] . ( $titleTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
-			<?php endif; ?>
+		
+	<?php if ( $iconMargin && isset( $iconMargin['tablet'] ) ) : ?>
+		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
+			<?php echo esc_attr( digiblocks_get_dimensions( $iconMargin, 'margin', 'tablet' ) ); ?>
+		}
+	<?php endif; ?>
+		
+	<?php if ( $iconPadding && isset( $iconPadding['tablet'] ) ) : ?>
+		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
+			<?php echo esc_attr( digiblocks_get_dimensions( $iconPadding, 'padding', 'tablet' ) ); ?>
+		}
+	<?php endif; ?>
+		
+	<?php if ( $iconBorderStyle && 'default' !== $iconBorderStyle && 'none' !== $iconBorderStyle && isset( $iconBorderWidth['tablet']) && isset( $iconBorderRadius['tablet'] ) ) : ?>
+		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
+			<?php echo esc_attr( digiblocks_get_dimensions( $iconBorderWidth, 'border-width', 'tablet' ) ); ?>
+			<?php echo esc_attr( digiblocks_get_dimensions( $iconBorderRadius, 'border-radius', 'tablet' ) ); ?>
 		}
 	<?php endif; ?>
 
-	<?php if ( isset( $contentTypography['fontSize']['tablet']) || isset( $contentTypography['lineHeight']['tablet']) || isset( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
-		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-text {
-			<?php if ( isset( $contentTypography['fontSize']['tablet'] ) ) : ?>
-				font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+	<?php if ( $showTitle ) : ?>
+		<?php if ( isset( $titleTypography['fontSize']['tablet']) || isset( $titleTypography['lineHeight']['tablet']) || isset( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
+			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-title {
+				<?php if ( isset( $titleTypography['fontSize']['tablet'] ) ) : ?>
+					font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $titleTypography['lineHeight']['tablet'] ) ) : ?>
+					line-height: <?php echo esc_attr( $titleTypography['lineHeight']['tablet'] . ( $titleTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
+					letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['tablet'] . ( $titleTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+				<?php endif; ?>
+			}
+		<?php endif; ?>
+	<?php endif; ?>
+
+	<?php if ( $showContent ) : ?>
+		<?php if ( isset( $contentTypography['fontSize']['tablet']) || isset( $contentTypography['lineHeight']['tablet']) || isset( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
+			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-text {
+				<?php if ( isset( $contentTypography['fontSize']['tablet'] ) ) : ?>
+					font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $contentTypography['lineHeight']['tablet'] ) ) : ?>
+					line-height: <?php echo esc_attr( $contentTypography['lineHeight']['tablet'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
+					letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['tablet'] . ( $contentTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+				<?php endif; ?>
+			}
+		<?php endif; ?>
+	<?php endif; ?>
+	
+	<?php if ( $linkEnabled && 'button' === $linkType ) : ?>
+		.<?php echo esc_attr( $id ); ?> .digiblocks-button-wrapper {
+			<?php if ( isset( $buttonMargin['tablet'] ) ) : ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $buttonMargin, 'margin', 'tablet' ) ); ?>
 			<?php endif; ?>
-			<?php if ( isset( $contentTypography['lineHeight']['tablet'] ) ) : ?>
-				line-height: <?php echo esc_attr( $contentTypography['lineHeight']['tablet'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+		}
+		
+		.<?php echo esc_attr( $id ); ?> .digiblocks-button {
+			<?php if ( isset( $buttonPadding['tablet'] ) ) : ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $buttonPadding, 'padding', 'tablet' ) ); ?>
 			<?php endif; ?>
-			<?php if ( isset( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
-				letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['tablet'] . ( $contentTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+			
+			<?php if ( $buttonBorderStyle && 'default' !== $buttonBorderStyle && 'none' !== $buttonBorderStyle && isset( $buttonBorderWidth['tablet'] ) ) : ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $buttonBorderWidth, 'border-width', 'tablet' ) ); ?>
+			<?php endif; ?>
+			
+			<?php if ( isset( $buttonBorderRadius['tablet'] ) ) : ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $buttonBorderRadius, 'border-radius', 'tablet' ) ); ?>
+			<?php endif; ?>
+			
+			<?php if ( isset( $buttonTypography['fontSize']['tablet'] ) || isset( $buttonTypography['lineHeight']['tablet'] ) || isset( $buttonTypography['letterSpacing']['tablet'] ) ) : ?>
+				<?php if ( isset( $buttonTypography['fontSize']['tablet'] ) ) : ?>
+					font-size: <?php echo esc_attr( $buttonTypography['fontSize']['tablet'] . ( $buttonTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $buttonTypography['lineHeight']['tablet'] ) ) : ?>
+					line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['tablet'] . ( $buttonTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $buttonTypography['letterSpacing']['tablet'] ) ) : ?>
+					letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['tablet'] . ( $buttonTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+				<?php endif; ?>
 			<?php endif; ?>
 		}
 	<?php endif; ?>
@@ -525,69 +844,108 @@ ob_start();
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
 		<?php if ( $padding && isset( $padding['mobile'] ) ) : ?>
-			padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
 		<?php endif; ?>
 		<?php if ( $margin && isset( $margin['mobile'] ) ) : ?>
-			margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?>
 		<?php endif; ?>
 				
-		<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle && isset( $borderWidth['mobile']) && isset( $borderRadius['mobile'] ) ) : ?>
-			border-width: <?php echo esc_attr( $borderWidth['mobile']['top'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['right'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['bottom'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['left'] . $borderWidth['mobile']['unit'] ); ?>;
-			border-radius: <?php echo esc_attr( $borderRadius['mobile']['top'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['right'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['bottom'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['left'] . $borderRadius['mobile']['unit'] ); ?>;
+		<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle && isset( $borderWidth['mobile'] ) ) : ?>
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'mobile' ) ); ?>
+		<?php endif; ?>
+		
+		<?php if ( isset( $borderRadius['mobile'] ) ) : ?>
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'mobile' ) ); ?>
 		<?php endif; ?>
     }
     
-	<?php if ( $iconValue ) : ?>
-		<?php if ( isset( $iconSize['mobile'] ) ) : ?>
-			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon svg {
-				width: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
-			}
-		<?php endif; ?>
-			
-		<?php if ( $iconMargin && isset( $iconMargin['mobile'] ) ) : ?>
-			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
-				margin: <?php echo esc_attr( $iconMargin['mobile']['top'] . $iconMargin['mobile']['unit'] . ' ' . $iconMargin['mobile']['right'] . $iconMargin['mobile']['unit'] . ' ' . $iconMargin['mobile']['bottom'] . $iconMargin['mobile']['unit'] . ' ' . $iconMargin['mobile']['left'] . $iconMargin['mobile']['unit'] ); ?>;
-			}
-		<?php endif; ?>
-			
-		<?php if ( $iconPadding && isset( $iconPadding['mobile'] ) ) : ?>
-			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
-				padding: <?php echo esc_attr( $iconPadding['mobile']['top'] . $iconPadding['mobile']['unit'] . ' ' . $iconPadding['mobile']['right'] . $iconPadding['mobile']['unit'] . ' ' . $iconPadding['mobile']['bottom'] . $iconPadding['mobile']['unit'] . ' ' . $iconPadding['mobile']['left'] . $iconPadding['mobile']['unit'] ); ?>;
-			}
-		<?php endif; ?>
-			
-		<?php if ( $iconBorderStyle && 'default' !== $iconBorderStyle && 'none' !== $iconBorderStyle && isset( $iconBorderWidth['mobile']) && isset( $iconBorderRadius['mobile'] ) ) : ?>
-			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
-				border-width: <?php echo esc_attr( $iconBorderWidth['mobile']['top'] . $iconBorderWidth['mobile']['unit'] . ' ' . $iconBorderWidth['mobile']['right'] . $iconBorderWidth['mobile']['unit'] . ' ' . $iconBorderWidth['mobile']['bottom'] . $iconBorderWidth['mobile']['unit'] . ' ' . $iconBorderWidth['mobile']['left'] . $iconBorderWidth['mobile']['unit'] ); ?>;
-				border-radius: <?php echo esc_attr( $iconBorderRadius['mobile']['top'] . $iconBorderRadius['mobile']['unit'] . ' ' . $iconBorderRadius['mobile']['right'] . $iconBorderRadius['mobile']['unit'] . ' ' . $iconBorderRadius['mobile']['bottom'] . $iconBorderRadius['mobile']['unit'] . ' ' . $iconBorderRadius['mobile']['left'] . $iconBorderRadius['mobile']['unit'] ); ?>;
-			}
-		<?php endif; ?>
-	<?php endif; ?>
-    
-	<?php if ( isset( $titleTypography['fontSize']['mobile']) || isset( $titleTypography['lineHeight']['mobile']) || isset( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
-		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-title {
-			<?php if ( isset( $titleTypography['fontSize']['mobile'] ) ) : ?>
-				font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
-			<?php endif; ?>
-			<?php if ( isset( $titleTypography['lineHeight']['mobile'] ) ) : ?>
-				line-height: <?php echo esc_attr( $titleTypography['lineHeight']['mobile'] . ( $titleTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
-			<?php endif;
-			if ( isset( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
-				letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['mobile'] . ( $titleTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
-			<?php endif; ?>
+	<?php if ( isset( $iconSize['mobile'] ) ) : ?>
+		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon svg {
+			width: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
 		}
 	<?php endif; ?>
+		
+	<?php if ( $iconMargin && isset( $iconMargin['mobile'] ) ) : ?>
+		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
+			<?php echo esc_attr( digiblocks_get_dimensions( $iconMargin, 'margin', 'mobile' ) ); ?>
+		}
+	<?php endif; ?>
+		
+	<?php if ( $iconPadding && isset( $iconPadding['mobile'] ) ) : ?>
+		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
+			<?php echo esc_attr( digiblocks_get_dimensions( $iconPadding, 'padding', 'mobile' ) ); ?>
+		}
+	<?php endif; ?>
+		
+	<?php if ( $iconBorderStyle && 'default' !== $iconBorderStyle && 'none' !== $iconBorderStyle && isset( $iconBorderWidth['mobile']) && isset( $iconBorderRadius['mobile'] ) ) : ?>
+		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
+			<?php echo esc_attr( digiblocks_get_dimensions( $iconBorderWidth, 'border-width', 'mobile' ) ); ?>
+			<?php echo esc_attr( digiblocks_get_dimensions( $iconBorderRadius, 'border-radius', 'mobile' ) ); ?>
+		}
+	<?php endif; ?>
+    
+	<?php if ( $showTitle ) : ?>
+		<?php if ( isset( $titleTypography['fontSize']['mobile']) || isset( $titleTypography['lineHeight']['mobile']) || isset( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
+			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-title {
+				<?php if ( isset( $titleTypography['fontSize']['mobile'] ) ) : ?>
+					font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $titleTypography['lineHeight']['mobile'] ) ) : ?>
+					line-height: <?php echo esc_attr( $titleTypography['lineHeight']['mobile'] . ( $titleTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+				<?php endif;
+				if ( isset( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
+					letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['mobile'] . ( $titleTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+				<?php endif; ?>
+			}
+		<?php endif; ?>
+	<?php endif; ?>
 
-	<?php if ( isset( $contentTypography['fontSize']['mobile']) || isset( $contentTypography['lineHeight']['mobile']) || isset( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
-		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-text {
-			<?php if ( isset( $contentTypography['fontSize']['mobile'] ) ) : ?>
-				font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
-			<?php endif;
-			if ( isset( $contentTypography['lineHeight']['mobile'] ) ) : ?>
-				line-height: <?php echo esc_attr( $contentTypography['lineHeight']['mobile'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
-			<?php endif;
-			if ( isset( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
-				letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['mobile'] . ( $contentTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+	<?php if ( $showContent ) : ?>
+		<?php if ( isset( $contentTypography['fontSize']['mobile']) || isset( $contentTypography['lineHeight']['mobile']) || isset( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
+			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-text {
+				<?php if ( isset( $contentTypography['fontSize']['mobile'] ) ) : ?>
+					font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+				<?php endif;
+				if ( isset( $contentTypography['lineHeight']['mobile'] ) ) : ?>
+					line-height: <?php echo esc_attr( $contentTypography['lineHeight']['mobile'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+				<?php endif;
+				if ( isset( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
+					letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['mobile'] . ( $contentTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+				<?php endif; ?>
+			}
+		<?php endif; ?>
+	<?php endif; ?>
+	
+	<?php if ( $linkEnabled && 'button' === $linkType ) : ?>
+		.<?php echo esc_attr( $id ); ?> .digiblocks-button-wrapper {
+			<?php if ( isset( $buttonMargin['mobile'] ) ) : ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $buttonMargin, 'margin', 'mobile' ) ); ?>
+			<?php endif; ?>
+		}
+		
+		.<?php echo esc_attr( $id ); ?> .digiblocks-button {
+			<?php if ( isset( $buttonPadding['mobile'] ) ) : ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $buttonPadding, 'padding', 'mobile' ) ); ?>
+			<?php endif; ?>
+			
+			<?php if ( $buttonBorderStyle && 'default' !== $buttonBorderStyle && 'none' !== $buttonBorderStyle && isset( $buttonBorderWidth['mobile'] ) ) : ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $buttonBorderWidth, 'border-width', 'mobile' ) ); ?>
+			<?php endif; ?>
+			
+			<?php if ( isset( $buttonBorderRadius['mobile'] ) ) : ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $buttonBorderRadius, 'border-radius', 'mobile' ) ); ?>
+			<?php endif; ?>
+			
+			<?php if ( isset( $buttonTypography['fontSize']['mobile'] ) || isset( $buttonTypography['lineHeight']['mobile'] ) || isset( $buttonTypography['letterSpacing']['mobile'] ) ) : ?>
+				<?php if ( isset( $buttonTypography['fontSize']['mobile'] ) ) : ?>
+					font-size: <?php echo esc_attr( $buttonTypography['fontSize']['mobile'] . ( $buttonTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $buttonTypography['lineHeight']['mobile'] ) ) : ?>
+					line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['mobile'] . ( $buttonTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $buttonTypography['letterSpacing']['mobile'] ) ) : ?>
+					letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['mobile'] . ( $buttonTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+				<?php endif; ?>
 			<?php endif; ?>
 		}
 	<?php endif; ?>

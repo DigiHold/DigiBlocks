@@ -14,17 +14,15 @@ const {
 const {
     SelectControl,
     RangeControl,
-    Button,
-    __experimentalToggleGroupControl: ToggleGroupControl,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption,
+    Button
 } = wp.components;
-const { useState, useEffect, useRef, useMemo } = wp.element;
-const { useSelect, useDispatch, select } = wp.data;
+const { useState, useEffect } = wp.element;
+const { useSelect, useDispatch } = wp.data;
 
 /**
  * Internal dependencies
  */
-const { useBlockId } = digi.utils;
+const { useBlockId, getDimensionCSS } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -36,6 +34,7 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
         id,
         width,
         order,
+		hoverEffect,
         backgroundColor,
         backgroundImage,
         backgroundPosition,
@@ -61,46 +60,34 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("layout");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
     
     // State to track if width adjustment is internal to prevent loops
     const [isInternalWidthUpdate, setIsInternalWidthUpdate] = useState(false);
     
     // Get parent block info only
-	const { parentClientId, hasChildBlocks } = useSelect((select) => {
-		const { getBlockParents, getBlockCount } = select('core/block-editor');
-		
-		// Get the parent container block
-		const parents = getBlockParents(clientId);
-		const parentId = parents.length > 0 ? parents[0] : null;
-		
-		return {
-			parentClientId: parentId,
-			hasChildBlocks: getBlockCount(clientId) > 0
-		};
-	}, [clientId]);
-
-	// Get the parent block to access its innerBlocks
-	const parentBlock = useSelect(
-		(select) => parentClientId ? select('core/block-editor').getBlock(parentClientId) : null,
-		[parentClientId]
+	const { parentClientId, hasChildBlocks } = useSelect(
+		(select) => {
+			const { getBlockParents, getBlockCount } = select('core/block-editor');
+			
+			// Get the parent container block
+			const parents = getBlockParents(clientId);
+			const parentId = parents.length > 0 ? parents[0] : null;
+			
+			return {
+				parentClientId: parentId,
+				hasChildBlocks: getBlockCount(clientId) > 0
+			};
+		},
+		[clientId]
 	);
-
-	// Memoize the sibling columns to prevent unnecessary re-renders
-	const siblingColumns = useMemo(() => {
-		if (!parentBlock || !parentBlock.innerBlocks) return [];
-		
-		return parentBlock.innerBlocks
-			.filter(block => block.name === 'digiblocks/column')
-			.map(block => ({
-				clientId: block.clientId,
-				width: block.attributes.width,
-				isCurrent: block.clientId === clientId
-			}));
-	}, [parentBlock, clientId]);
-
-    // Get dispatch function to update other columns
-    const { updateBlockAttributes } = useDispatch('core/block-editor');
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -112,133 +99,14 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
         return unsubscribe;
     }, []);
 
-	// Handle width change with user-friendly distribution
+	// Handle width change
 	const handleWidthChange = (newWidth, device) => {
-		// Enforce minimum width constraint
-		const minWidth = 10;
-		
-		// Get all sibling columns
-		const allColumns = siblingColumns;
-		const totalColumns = allColumns.length;
-		
-		// Skip if only one column
-		if (totalColumns <= 1) {
-			setAttributes({
-				width: {
-					...width,
-					[device]: 100,
-				},
-			});
-			return;
-		}
-		
-		// Ensure newWidth is within valid range
-		newWidth = Math.max(minWidth, Math.min(newWidth, 100 - (minWidth * (totalColumns - 1))));
-		
-		// Skip if already in update loop
-		if (isInternalWidthUpdate) {
-			setAttributes({
-				width: {
-					...width,
-					[device]: Math.round(newWidth * 10) / 10,
-				},
-			});
-			return;
-		}
-		
-		// Set flag to prevent recursive updates
-		setIsInternalWidthUpdate(true);
-		
-		try {
-			// Get current column index
-			const currentIndex = allColumns.findIndex(col => col.isCurrent);
-			if (currentIndex === -1) return;
-			
-			// Current column's old width
-			const oldWidth = parseFloat(width[device] || 0);
-			
-			// Width difference
-			const widthDiff = newWidth - oldWidth;
-			
-			// Update current column's width
-			setAttributes({
-				width: {
-					...width,
-					[device]: Math.round(newWidth * 10) / 10,
-				},
-			});
-			
-			// Auto-adjust the remaining width among the REMAINING columns
-			// (excluding the current one and previously manually set ones)
-			
-			// Get indexes of columns after current
-			const remainingColumnIndexes = [];
-			for (let i = 0; i < totalColumns; i++) {
-				if (i !== currentIndex) {
-					remainingColumnIndexes.push(i);
-				}
-			}
-			
-			if (remainingColumnIndexes.length === 0) return;
-			
-			// Last column will always be adjusted to make total 100%
-			const lastAdjustableIdx = remainingColumnIndexes[remainingColumnIndexes.length - 1];
-			const lastAdjustableCol = allColumns[lastAdjustableIdx];
-			
-			// Get total width of all columns except the last adjustable one
-			const widthWithoutLast = allColumns.reduce((sum, col, idx) => {
-				if (idx === lastAdjustableIdx) return sum;
-				
-				// For current column, use new width
-				if (col.isCurrent) {
-					return sum + newWidth;
-				}
-				
-				return sum + parseFloat(col.width[device] || 0);
-			}, 0);
-			
-			// Calculate last column's width to make total 100%
-			const lastColWidth = 100 - widthWithoutLast;
-			
-			// Ensure minimum width
-			const finalLastColWidth = Math.max(minWidth, Math.round(lastColWidth * 10) / 10);
-			
-			// Adjust last column
-			updateBlockAttributes(lastAdjustableCol.clientId, {
-				width: {
-					...lastAdjustableCol.width,
-					[device]: finalLastColWidth
-				}
-			});
-			
-			// Verify total is 100%
-			setTimeout(() => {
-				const updatedColumns = select('core/block-editor').getBlocks(parentClientId)
-					.filter(block => block.name === 'digiblocks/column');
-				
-				const updatedTotal = updatedColumns.reduce((sum, col) => 
-					sum + parseFloat(col.attributes.width[device] || 0), 0);
-				
-				// Fix any rounding errors if needed
-				if (Math.abs(updatedTotal - 100) > 0.1) {
-					const adjustCol = updatedColumns[lastAdjustableIdx];
-					const currentAdjustWidth = parseFloat(adjustCol.attributes.width[device] || 0);
-					const fixedWidth = currentAdjustWidth + (100 - updatedTotal);
-					
-					updateBlockAttributes(adjustCol.clientId, {
-						width: {
-							...adjustCol.attributes.width,
-							[device]: Math.max(minWidth, Math.round(fixedWidth * 10) / 10)
-						}
-					});
-				}
-			}, 50);
-		} finally {
-			// Reset internal update flag after a delay
-			setTimeout(() => {
-				setIsInternalWidthUpdate(false);
-			}, 100);
-		}
+		setAttributes({
+			width: {
+				...width,
+				[device]: Math.round(newWidth * 100) / 100, // Round to 2 decimal places
+			},
+		});
 	};
 
     // Background position options
@@ -299,10 +167,18 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
         { label: __('Luminosity', 'digiblocks'), value: 'luminosity' },
     ];
 
+    // Hover effect options
+    const hoverEffectOptions = [
+        { label: __("None", "digiblocks"), value: "none" },
+        { label: __("Lift", "digiblocks"), value: "lift" },
+        { label: __("Scale", "digiblocks"), value: "scale" },
+        { label: __("Glow", "digiblocks"), value: "glow" },
+    ];
+
     // Define the tabs for our custom tab panel
     const tabList = [
         { 
-            name: 'layout', 
+            name: 'options', 
             title: __('Layout', 'digiblocks'),
             icon: tabIcons.optionsIcon
         },
@@ -322,21 +198,73 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
     const generateColumnCSS = () => {
         const activeDevice = localActiveDevice;
 
-        // Function to ensure minimum padding of 10px
-        const ensureMinPadding = (paddingValue, unit) => {
-            // If padding is 0 or very small (less than 10px), return 10px
-            if (unit === 'px' && parseFloat(paddingValue) < 10) {
-                return '15px';
-            }
-            // Otherwise return the original value
-            return paddingValue + unit;
-        };
+        /**
+		 * Get responsive padding with minimum 15px enforcement for column block
+		 * 
+		 * @param {Object} padding Padding object with responsive values
+		 * @param {string} device Current device (desktop, tablet, mobile)
+		 * @return {string} Complete padding CSS rule
+		 */
+		const getColumnPadding = (padding, device) => {
+			// Check if device has valid padding values
+			const hasDeviceValues = (dev) => {
+				return padding && padding[dev] && (
+					(padding[dev].top !== undefined && padding[dev].top !== '') ||
+					(padding[dev].right !== undefined && padding[dev].right !== '') ||
+					(padding[dev].bottom !== undefined && padding[dev].bottom !== '') ||
+					(padding[dev].left !== undefined && padding[dev].left !== '')
+				);
+			};
+			
+			// Determine which device values to use (with fallbacks)
+			let values;
+			
+			if (hasDeviceValues(device)) {
+				values = padding[device];
+			} else if (device === 'tablet' && hasDeviceValues('desktop')) {
+				values = padding['desktop'];
+			} else if (device === 'mobile') {
+				if (hasDeviceValues('tablet')) {
+					values = padding['tablet'];
+				} else if (hasDeviceValues('desktop')) {
+					values = padding['desktop'];
+				} else {
+					// No valid values found for any device
+					return '';
+				}
+			} else {
+				// No valid values found
+				return '';
+			}
+			
+			// Apply minimum padding of 10px if needed
+			const ensureMinPadding = (value, unit) => {
+				// For empty or undefined values, use 10px if unit is pixels
+				if (value === undefined || value === '') {
+					return unit === 'px' ? '10px' : '0' + unit;
+				}
+				// For values below 10px
+				if (unit === 'px' && parseFloat(value) < 10) {
+					return '10px';
+				}
+				// For all other values
+				return value + unit;
+			};
+			
+			const unit = values.unit || 'px';
+			
+			const top = ensureMinPadding(values.top, unit);
+			const right = ensureMinPadding(values.right, unit);
+			const bottom = ensureMinPadding(values.bottom, unit);
+			const left = ensureMinPadding(values.left, unit);
+			
+			return `padding: ${top} ${right} ${bottom} ${left} !important;`;
+		};
 
-        // Apply minimum padding
-        const paddingTop = ensureMinPadding(padding[activeDevice].top, padding[activeDevice].unit);
-        const paddingRight = ensureMinPadding(padding[activeDevice].right, padding[activeDevice].unit);
-        const paddingBottom = ensureMinPadding(padding[activeDevice].bottom, padding[activeDevice].unit);
-        const paddingLeft = ensureMinPadding(padding[activeDevice].left, padding[activeDevice].unit);
+		// Get responsive padding with minimum 10px enforcement
+		const paddingCSS = getColumnPadding(padding, activeDevice);
+		const tabletPaddingCSS = getColumnPadding(padding, 'tablet');
+		const mobilePaddingCSS = getColumnPadding(padding, 'mobile');
         
         // Background image CSS
         let backgroundImageCSS = '';
@@ -376,12 +304,24 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
         if (boxShadow && boxShadow.enable) {
             boxShadowCSS = `box-shadow: ${boxShadow.horizontal}px ${boxShadow.vertical}px ${boxShadow.blur}px ${boxShadow.spread}px ${boxShadow.color};`;
         }
+
+		// Hover effects
+        let hoverCSS = '';
         
         // Box shadow hover
         let boxShadowHoverCSS = '';
         if (boxShadowHover && boxShadowHover.enable) {
             const insetHover = boxShadowHover.position === 'inset' ? 'inset ' : '';
-            boxShadowHoverCSS = `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
+            hoverCSS += `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
+        }
+
+        // Additional hover effects
+        if (hoverEffect === 'lift') {
+            hoverCSS += 'transform: translateY(-10px);';
+        } else if (hoverEffect === 'scale') {
+            hoverCSS += 'transform: scale(1.05);';
+        } else if (hoverEffect === 'glow') {
+            hoverCSS += 'filter: brightness(1.1);';
         }
         
         return `
@@ -389,19 +329,19 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
             .${id} {
                 position: relative;
                 width: ${width[activeDevice]}%;
-                padding: ${paddingTop} ${paddingRight} ${paddingBottom} ${paddingLeft};
-                margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};
+                ${paddingCSS}
+				${getDimensionCSS(margin, 'margin', activeDevice)}
                 display: flex;
                 flex-direction: column;
                 ${order[activeDevice] !== 0 ? `order: ${order[activeDevice]};` : ''}
                 ${backgroundColor ? `background-color: ${backgroundColor};` : ''}
                 ${backgroundImageCSS}
                 ${borderStyle !== 'none' ? `
-                border-style: ${borderStyle}!important;
-                border-width: ${borderWidth[activeDevice].top}${borderWidth[activeDevice].unit} ${borderWidth[activeDevice].right}${borderWidth[activeDevice].unit} ${borderWidth[activeDevice].bottom}${borderWidth[activeDevice].unit} ${borderWidth[activeDevice].left}${borderWidth[activeDevice].unit}!important;
-                border-color: ${borderColor}!important;` : ''}
-                border-radius: ${borderRadius[activeDevice].top}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].right}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].bottom}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].left}${borderRadius[activeDevice].unit};
-                ${boxShadowCSS}
+					border-style: ${borderStyle}!important;
+					${getDimensionCSS(borderWidth, 'border-width', activeDevice, true)}
+					border-color: ${borderColor}!important;` : ''}
+                ${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
+				${boxShadowCSS}
                 transition: all 0.3s ease;
             }
             
@@ -420,11 +360,11 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
             @media (max-width: 991px) {
                 .${id} {
                     width: ${width['tablet']}%;
-                    padding: ${padding['tablet'].top}${padding['tablet'].unit} ${padding['tablet'].right}${padding['tablet'].unit} ${padding['tablet'].bottom}${padding['tablet'].unit} ${padding['tablet'].left}${padding['tablet'].unit};
-                    margin: ${margin['tablet'].top}${margin['tablet'].unit} ${margin['tablet'].right}${margin['tablet'].unit} ${margin['tablet'].bottom}${margin['tablet'].unit} ${margin['tablet'].left}${margin['tablet'].unit};
+					${tabletPaddingCSS}
+					${getDimensionCSS(margin, 'margin', 'tablet')}
                     ${order['tablet'] !== 0 ? `order: ${order['tablet']};` : ''}
-                    border-radius: ${borderRadius['tablet'].top}${borderRadius['tablet'].unit} ${borderRadius['tablet'].right}${borderRadius['tablet'].unit} ${borderRadius['tablet'].bottom}${borderRadius['tablet'].unit} ${borderRadius['tablet'].left}${borderRadius['tablet'].unit};
-                    ${borderStyle !== 'none' ? `border-width: ${borderWidth['tablet'].top}${borderWidth['tablet'].unit} ${borderWidth['tablet'].right}${borderWidth['tablet'].unit} ${borderWidth['tablet'].bottom}${borderWidth['tablet'].unit} ${borderWidth['tablet'].left}${borderWidth['tablet'].unit};` : ''}
+					${getDimensionCSS(borderRadius, 'border-radius', 'tablet')}
+                    ${borderStyle !== 'none' ? `${getDimensionCSS(borderWidth, 'border-width', 'tablet', true)}` : ''}
                 }
             }
             
@@ -432,11 +372,11 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
             @media (max-width: 767px) {
                 .${id} {
                     width: ${width['mobile']}%;
-                    padding: ${padding['mobile'].top}${padding['mobile'].unit} ${padding['mobile'].right}${padding['mobile'].unit} ${padding['mobile'].bottom}${padding['mobile'].unit} ${padding['mobile'].left}${padding['mobile'].unit};
-                    margin: ${margin['mobile'].top}${margin['mobile'].unit} ${margin['mobile'].right}${margin['mobile'].unit} ${margin['mobile'].bottom}${margin['mobile'].unit} ${margin['mobile'].left}${margin['mobile'].unit};
+					${mobilePaddingCSS}
+					${getDimensionCSS(margin, 'margin', 'mobile')}
                     ${order['mobile'] !== 0 ? `order: ${order['mobile']};` : ''}
-                    border-radius: ${borderRadius['mobile'].top}${borderRadius['mobile'].unit} ${borderRadius['mobile'].right}${borderRadius['mobile'].unit} ${borderRadius['mobile'].bottom}${borderRadius['mobile'].unit} ${borderRadius['mobile'].left}${borderRadius['mobile'].unit};
-                    ${borderStyle !== 'none' ? `border-width: ${borderWidth['mobile'].top}${borderWidth['mobile'].unit} ${borderWidth['mobile'].right}${borderWidth['mobile'].unit} ${borderWidth['mobile'].bottom}${borderWidth['mobile'].unit} ${borderWidth['mobile'].left}${borderWidth['mobile'].unit};` : ''}
+					${getDimensionCSS(borderRadius, 'border-radius', 'mobile')}
+                    ${borderStyle !== 'none' ? `${getDimensionCSS(borderWidth, 'border-width', 'mobile', true)}` : ''}
                 }
             }
         `;
@@ -458,11 +398,11 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
     // Render tab content based on the active tab
     const renderTabContent = () => {
         switch (activeTab) {
-            case 'layout':
+            case 'options':
                 return (
                     <>
                         <TabPanelBody
-                            tab="layout"
+                            tab="options"
                             name="column"
                             title={__('Column', 'digiblocks')}
                             initialOpen={true}
@@ -475,7 +415,7 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
 									onChange={(value) => handleWidthChange(value, localActiveDevice)}
 									min={10}
 									max={100}
-									step={1}
+									step={0.01}
 									__next40pxDefaultSize={true}
 									__nextHasNoMarginBottom={true}
 								/>
@@ -543,6 +483,22 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                                 />
                             </ResponsiveControl>
                         </TabPanelBody>
+
+						<TabPanelBody
+                            tab="layout"
+                            name="effect"
+                            title={__('Hover Effect', 'digiblocks')}
+                            initialOpen={false}
+                        >
+							<SelectControl
+                                label={__("Hover Effect", "digiblocks")}
+                                value={hoverEffect || 'none'}
+                                options={hoverEffectOptions}
+                                onChange={(value) => setAttributes({ hoverEffect: value })}
+                                __next40pxDefaultSize={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+						</TabPanelBody>
                     </>
                 );
             case 'style':
@@ -583,6 +539,7 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                                     
                                     <PanelColorSettings
                                         title=""
+										enableAlpha={true}
                                         colorSettings={[
                                             {
                                                 value: borderColor,
@@ -636,6 +593,7 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                             <PanelColorSettings
                                 title={__("Background Color", "digiblocks")}
                                 initialOpen={true}
+								enableAlpha={true}
                                 colorSettings={[
                                     {
                                         value: backgroundColor,
@@ -737,6 +695,7 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                             <PanelColorSettings
                                 title={__("Overlay Color", "digiblocks")}
                                 initialOpen={true}
+								enableAlpha={true}
                                 colorSettings={[
                                     {
                                         value: backgroundOverlay,

@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (ctaTitle && !ctaTitle.querySelector('.digiblocks-cta-highlight')) {
         // Try to find and wrap the highlight text with a span if not already highlighted
         const content = ctaTitle.innerHTML;
-        const highlightTextEscaped = <?php echo json_encode( $highlightText ); ?>;
+        const highlightTextEscaped = <?php echo esc_js(wp_json_encode($highlightText)); ?>;
         
         if (content && highlightTextEscaped && content.includes(highlightTextEscaped)) {
             // Create a safe regex pattern

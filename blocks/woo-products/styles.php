@@ -44,16 +44,8 @@ $contentMargin                   = isset( $attrs['contentMargin'] ) ? $attrs['co
     'tablet'  => 12,
     'mobile'  => 12,
 ];
-$padding                         = isset( $attrs['padding'] ) ? $attrs['padding'] : [
-    'desktop' => ['top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px'],
-    'tablet'  => ['top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px'],
-    'mobile'  => ['top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px'],
-];
-$margin                          = isset( $attrs['margin'] ) ? $attrs['margin'] : [
-    'desktop' => ['top' => 0, 'right' => 0, 'bottom' => 30, 'left' => 0, 'unit' => 'px'],
-    'tablet'  => ['top' => 0, 'right' => 0, 'bottom' => 25, 'left' => 0, 'unit' => 'px'],
-    'mobile'  => ['top' => 0, 'right' => 0, 'bottom' => 20, 'left' => 0, 'unit' => 'px'],
-];
+$padding                         = isset( $attrs['padding'] ) ? $attrs['padding'] : digiblocks_get_default_dimensions('px');
+$margin                          = isset( $attrs['margin'] ) ? $attrs['margin'] : digiblocks_get_default_dimensions('px');
 $itemSpacing                     = isset( $attrs['itemSpacing'] ) ? $attrs['itemSpacing'] : [
     'desktop' => 20,
     'tablet'  => 15,
@@ -131,13 +123,13 @@ $buttonPadding                   = isset( $attrs['buttonPadding'] ) ? $attrs['bu
 ];
 $buttonBorderRadius              = isset( $attrs['buttonBorderRadius'] ) ? $attrs['buttonBorderRadius'] : [
     'desktop' => ['top' => 4, 'right' => 4, 'bottom' => 4, 'left' => 4, 'unit' => 'px'],
-    'tablet'  => ['top' => 4, 'right' => 4, 'bottom' => 4, 'left' => 4, 'unit' => 'px'],
-    'mobile'  => ['top' => 4, 'right' => 4, 'bottom' => 4, 'left' => 4, 'unit' => 'px'],
+    'tablet'  => ['top' => '', 'right' => '', 'bottom' => 4, 'left' => '', 'unit' => 'px'],
+    'mobile'  => ['top' => '', 'right' => '', 'bottom' => 4, 'left' => '', 'unit' => 'px'],
 ];
 $imageBorderRadius               = isset( $attrs['imageBorderRadius'] ) ? $attrs['imageBorderRadius'] : [
     'desktop' => ['top' => 8, 'right' => 8, 'bottom' => 8, 'left' => 8, 'unit' => 'px'],
-    'tablet'  => ['top' => 8, 'right' => 8, 'bottom' => 8, 'left' => 8, 'unit' => 'px'],
-    'mobile'  => ['top' => 8, 'right' => 8, 'bottom' => 8, 'left' => 8, 'unit' => 'px'],
+    'tablet'  => ['top' => '', 'right' => '', 'bottom' => 8, 'left' => '', 'unit' => 'px'],
+    'mobile'  => ['top' => '', 'right' => '', 'bottom' => 8, 'left' => '', 'unit' => 'px'],
 ];
 $cardStyle                       = isset( $attrs['cardStyle'] ) ? $attrs['cardStyle'] : false;
 $cardBackgroundColor             = isset( $attrs['cardBackgroundColor'] ) ? $attrs['cardBackgroundColor'] : '#ffffff';
@@ -148,14 +140,14 @@ $cardPadding                     = isset( $attrs['cardPadding'] ) ? $attrs['card
 ];
 $cardBorderRadius                = isset( $attrs['cardBorderRadius'] ) ? $attrs['cardBorderRadius'] : [
     'desktop' => ['top' => 8, 'right' => 8, 'bottom' => 8, 'left' => 8, 'unit' => 'px'],
-    'tablet'  => ['top' => 8, 'right' => 8, 'bottom' => 8, 'left' => 8, 'unit' => 'px'],
-    'mobile'  => ['top' => 8, 'right' => 8, 'bottom' => 8, 'left' => 8, 'unit' => 'px'],
+    'tablet'  => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px'],
+    'mobile'  => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px'],
 ];
 $cardBorderStyle                 = isset( $attrs['cardBorderStyle'] ) ? $attrs['cardBorderStyle'] : 'solid';
 $cardBorderWidth                 = isset( $attrs['cardBorderWidth'] ) ? $attrs['cardBorderWidth'] : [
     'desktop' => ['top' => 1, 'right' => 1, 'bottom' => 1, 'left' => 1, 'unit' => 'px'],
-    'tablet'  => ['top' => 1, 'right' => 1, 'bottom' => 1, 'left' => 1, 'unit' => 'px'],
-    'mobile'  => ['top' => 1, 'right' => 1, 'bottom' => 1, 'left' => 1, 'unit' => 'px'],
+    'tablet'  => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px'],
+    'mobile'  => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px'],
 ];
 $cardBorderColor                 = isset( $attrs['cardBorderColor'] ) ? $attrs['cardBorderColor'] : '#e0e0e0';
 $cardShadow                      = isset( $attrs['cardShadow'] ) ? $attrs['cardShadow'] : [
@@ -187,8 +179,8 @@ ob_start();
 ?>
 /* WooCommerce Products Block - <?php echo esc_attr( $id ); ?> */
 .<?php echo esc_attr( $id ); ?> {
-    margin: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['right'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['bottom'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['left'] . $margin['desktop']['unit'] ); ?>;
-    padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
     width: 100%;
 }
 
@@ -207,13 +199,13 @@ ob_start();
     position: relative;
     <?php if ( $cardStyle ) : ?>
     background-color: <?php echo esc_attr( $cardBackgroundColor ); ?>;
-    padding: <?php echo esc_attr( $cardPadding['desktop']['top'] . $cardPadding['desktop']['unit'] . ' ' . $cardPadding['desktop']['right'] . $cardPadding['desktop']['unit'] . ' ' . $cardPadding['desktop']['bottom'] . $cardPadding['desktop']['unit'] . ' ' . $cardPadding['desktop']['left'] . $cardPadding['desktop']['unit'] ); ?>;
-    border-radius: <?php echo esc_attr( $cardBorderRadius['desktop']['top'] . $cardBorderRadius['desktop']['unit'] . ' ' . $cardBorderRadius['desktop']['right'] . $cardBorderRadius['desktop']['unit'] . ' ' . $cardBorderRadius['desktop']['bottom'] . $cardBorderRadius['desktop']['unit'] . ' ' . $cardBorderRadius['desktop']['left'] . $cardBorderRadius['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $cardPadding, 'padding', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $cardBorderRadius, 'border-radius', 'desktop' ) ); ?>
     
     <?php if ( $cardBorderStyle !== 'none' ) : ?>
     border-style: <?php echo esc_attr( $cardBorderStyle ); ?>;
     border-color: <?php echo esc_attr( $cardBorderColor ); ?>;
-    border-width: <?php echo esc_attr( $cardBorderWidth['desktop']['top'] . $cardBorderWidth['desktop']['unit'] . ' ' . $cardBorderWidth['desktop']['right'] . $cardBorderWidth['desktop']['unit'] . ' ' . $cardBorderWidth['desktop']['bottom'] . $cardBorderWidth['desktop']['unit'] . ' ' . $cardBorderWidth['desktop']['left'] . $cardBorderWidth['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $cardBorderWidth, 'border-width', 'desktop' ) ); ?>
     <?php endif; ?>
     
     box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $cardShadow ) ); ?>;
@@ -247,7 +239,7 @@ ob_start();
 .<?php echo esc_attr( $id ); ?> .digiblocks-product-image {
     width: 100%;
     overflow: hidden;
-    border-radius: <?php echo esc_attr( $imageBorderRadius['desktop']['top'] . $imageBorderRadius['desktop']['unit'] . ' ' . $imageBorderRadius['desktop']['right'] . $imageBorderRadius['desktop']['unit'] . ' ' . $imageBorderRadius['desktop']['bottom'] . $imageBorderRadius['desktop']['unit'] . ' ' . $imageBorderRadius['desktop']['left'] . $imageBorderRadius['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $imageBorderRadius, 'border-radius', 'desktop' ) ); ?>
     position: relative;
 }
 
@@ -521,8 +513,8 @@ ob_start();
     <?php if ( ! empty( $buttonTypography['letterSpacing']['desktop'] ) ) : ?>
     letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['desktop'] . ( $buttonTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
     <?php endif; ?>
-    padding: <?php echo esc_attr( $buttonPadding['desktop']['top'] . $buttonPadding['desktop']['unit'] . ' ' . $buttonPadding['desktop']['right'] . $buttonPadding['desktop']['unit'] . ' ' . $buttonPadding['desktop']['bottom'] . $buttonPadding['desktop']['unit'] . ' ' . $buttonPadding['desktop']['left'] . $buttonPadding['desktop']['unit'] ); ?>;
-    border-radius: <?php echo esc_attr( $buttonBorderRadius['desktop']['top'] . $buttonBorderRadius['desktop']['unit'] . ' ' . $buttonBorderRadius['desktop']['right'] . $buttonBorderRadius['desktop']['unit'] . ' ' . $buttonBorderRadius['desktop']['bottom'] . $buttonBorderRadius['desktop']['unit'] . ' ' . $buttonBorderRadius['desktop']['left'] . $buttonBorderRadius['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $buttonPadding, 'padding', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $buttonBorderRadius, 'border-radius', 'desktop' ) ); ?>
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
@@ -579,8 +571,8 @@ ob_start();
 /* Tablet styles */
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
-        margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
-        padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-products-container {
@@ -591,17 +583,17 @@ ob_start();
     .<?php echo esc_attr( $id ); ?> .digiblocks-product-item {
         gap: <?php echo esc_attr( $imageMargin['tablet'] ); ?>px;
         <?php if ( $cardStyle ) : ?>
-        padding: <?php echo esc_attr( $cardPadding['tablet']['top'] . $cardPadding['tablet']['unit'] . ' ' . $cardPadding['tablet']['right'] . $cardPadding['tablet']['unit'] . ' ' . $cardPadding['tablet']['bottom'] . $cardPadding['tablet']['unit'] . ' ' . $cardPadding['tablet']['left'] . $cardPadding['tablet']['unit'] ); ?>;
-        border-radius: <?php echo esc_attr( $cardBorderRadius['tablet']['top'] . $cardBorderRadius['tablet']['unit'] . ' ' . $cardBorderRadius['tablet']['right'] . $cardBorderRadius['tablet']['unit'] . ' ' . $cardBorderRadius['tablet']['bottom'] . $cardBorderRadius['tablet']['unit'] . ' ' . $cardBorderRadius['tablet']['left'] . $cardBorderRadius['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $cardPadding, 'padding', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $cardBorderRadius, 'border-radius', 'tablet' ) ); ?>
         
         <?php if ( $cardBorderStyle !== 'none' ) : ?>
-        border-width: <?php echo esc_attr( $cardBorderWidth['tablet']['top'] . $cardBorderWidth['tablet']['unit'] . ' ' . $cardBorderWidth['tablet']['right'] . $cardBorderWidth['tablet']['unit'] . ' ' . $cardBorderWidth['tablet']['bottom'] . $cardBorderWidth['tablet']['unit'] . ' ' . $cardBorderWidth['tablet']['left'] . $cardBorderWidth['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $cardBorderWidth, 'border-width', 'tablet' ) ); ?>
         <?php endif; ?>
         <?php endif; ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-product-image {
-        border-radius: <?php echo esc_attr( $imageBorderRadius['tablet']['top'] . $imageBorderRadius['tablet']['unit'] . ' ' . $imageBorderRadius['tablet']['right'] . $imageBorderRadius['tablet']['unit'] . ' ' . $imageBorderRadius['tablet']['bottom'] . $imageBorderRadius['tablet']['unit'] . ' ' . $imageBorderRadius['tablet']['left'] . $imageBorderRadius['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $imageBorderRadius, 'border-radius', 'tablet' ) ); ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-product-content {
@@ -666,16 +658,16 @@ ob_start();
         <?php if ( ! empty( $buttonTypography['letterSpacing']['tablet'] ) ) : ?>
         letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['tablet'] . ( $buttonTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
-        padding: <?php echo esc_attr( $buttonPadding['tablet']['top'] . $buttonPadding['tablet']['unit'] . ' ' . $buttonPadding['tablet']['right'] . $buttonPadding['tablet']['unit'] . ' ' . $buttonPadding['tablet']['bottom'] . $buttonPadding['tablet']['unit'] . ' ' . $buttonPadding['tablet']['left'] . $buttonPadding['tablet']['unit'] ); ?>;
-        border-radius: <?php echo esc_attr( $buttonBorderRadius['tablet']['top'] . $buttonBorderRadius['tablet']['unit'] . ' ' . $buttonBorderRadius['tablet']['right'] . $buttonBorderRadius['tablet']['unit'] . ' ' . $buttonBorderRadius['tablet']['bottom'] . $buttonBorderRadius['tablet']['unit'] . ' ' . $buttonBorderRadius['tablet']['left'] . $buttonBorderRadius['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $buttonPadding, 'padding', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $buttonBorderRadius, 'border-radius', 'tablet' ) ); ?>
     }
 }
 
 /* Mobile styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
-        margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
-        padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-products-container {
@@ -686,17 +678,17 @@ ob_start();
     .<?php echo esc_attr( $id ); ?> .digiblocks-product-item {
         gap: <?php echo esc_attr( $imageMargin['mobile'] ); ?>px;
         <?php if ( $cardStyle ) : ?>
-        padding: <?php echo esc_attr( $cardPadding['mobile']['top'] . $cardPadding['mobile']['unit'] . ' ' . $cardPadding['mobile']['right'] . $cardPadding['mobile']['unit'] . ' ' . $cardPadding['mobile']['bottom'] . $cardPadding['mobile']['unit'] . ' ' . $cardPadding['mobile']['left'] . $cardPadding['mobile']['unit'] ); ?>;
-        border-radius: <?php echo esc_attr( $cardBorderRadius['mobile']['top'] . $cardBorderRadius['mobile']['unit'] . ' ' . $cardBorderRadius['mobile']['right'] . $cardBorderRadius['mobile']['unit'] . ' ' . $cardBorderRadius['mobile']['bottom'] . $cardBorderRadius['mobile']['unit'] . ' ' . $cardBorderRadius['mobile']['left'] . $cardBorderRadius['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $cardPadding, 'padding', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $cardBorderRadius, 'border-radius', 'mobile' ) ); ?>
         
         <?php if ( $cardBorderStyle !== 'none' ) : ?>
-        border-width: <?php echo esc_attr( $cardBorderWidth['mobile']['top'] . $cardBorderWidth['mobile']['unit'] . ' ' . $cardBorderWidth['mobile']['right'] . $cardBorderWidth['mobile']['unit'] . ' ' . $cardBorderWidth['mobile']['bottom'] . $cardBorderWidth['mobile']['unit'] . ' ' . $cardBorderWidth['mobile']['left'] . $cardBorderWidth['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $cardBorderWidth, 'border-width', 'mobile' ) ); ?>
         <?php endif; ?>
         <?php endif; ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-product-image {
-        border-radius: <?php echo esc_attr( $imageBorderRadius['mobile']['top'] . $imageBorderRadius['mobile']['unit'] . ' ' . $imageBorderRadius['mobile']['right'] . $imageBorderRadius['mobile']['unit'] . ' ' . $imageBorderRadius['mobile']['bottom'] . $imageBorderRadius['mobile']['unit'] . ' ' . $imageBorderRadius['mobile']['left'] . $imageBorderRadius['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $imageBorderRadius, 'border-radius', 'mobile' ) ); ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-product-content {
@@ -761,8 +753,8 @@ ob_start();
         <?php if ( ! empty( $buttonTypography['letterSpacing']['mobile'] ) ) : ?>
         letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['mobile'] . ( $buttonTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
-        padding: <?php echo esc_attr( $buttonPadding['mobile']['top'] . $buttonPadding['mobile']['unit'] . ' ' . $buttonPadding['mobile']['right'] . $buttonPadding['mobile']['unit'] . ' ' . $buttonPadding['mobile']['bottom'] . $buttonPadding['mobile']['unit'] . ' ' . $buttonPadding['mobile']['left'] . $buttonPadding['mobile']['unit'] ); ?>;
-        border-radius: <?php echo esc_attr( $buttonBorderRadius['mobile']['top'] . $buttonBorderRadius['mobile']['unit'] . ' ' . $buttonBorderRadius['mobile']['right'] . $buttonBorderRadius['mobile']['unit'] . ' ' . $buttonBorderRadius['mobile']['bottom'] . $buttonBorderRadius['mobile']['unit'] . ' ' . $buttonBorderRadius['mobile']['left'] . $buttonBorderRadius['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $buttonPadding, 'padding', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $buttonBorderRadius, 'border-radius', 'mobile' ) ); ?>
     }
 }
 

@@ -7,7 +7,6 @@ const {
     RichText,
     InspectorControls,
     PanelColorSettings,
-    LinkControl,
     BlockControls,
     AlignmentToolbar,
     MediaUpload,
@@ -29,7 +28,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -107,7 +106,14 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
     }, []);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
 
 	// Create unique class
 	useBlockId( id, clientId, setAttributes );
@@ -595,15 +601,16 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
         // Border styles
         let borderCSS = '';
         if (borderStyle && borderStyle !== 'none') {
-            const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-            const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' };
-            
-            borderCSS = `
-                border-style: ${borderStyle};
-                border-color: ${borderColor || '#e0e0e0'};
-                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
-            `;
+            const borderWidthCSS = getDimensionCSS(borderWidth, 'border-width', activeDevice);
+			
+			// If no border width found, use default 1px all around
+			const borderWidthOutput = borderWidthCSS || 'border-width: 1px 1px 1px 1px;';
+			
+			borderCSS = `
+				border-style: ${borderStyle};
+				border-color: ${borderColor || '#e0e0e0'};
+				${borderWidthOutput}
+			`;
         } else {
             borderCSS = 'border-style: none;';
         }
@@ -614,15 +621,6 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
             const inset = boxShadow.position === 'inset' ? 'inset ' : '';
             boxShadowCSS = `box-shadow: ${inset}${boxShadow.horizontal}px ${boxShadow.vertical}px ${boxShadow.blur}px ${boxShadow.spread}px ${boxShadow.color};`;
         }
-        
-        // Padding and margin
-        const paddingCSS = padding && padding[activeDevice] ? 
-            `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};` : 
-            'padding: 40px 30px;';
-            
-        const marginCSS = margin && margin[activeDevice] ? 
-            `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};` : 
-            'margin: 0 0 30px 0;';
         
         // Background CSS
         let backgroundCSS = '';
@@ -752,16 +750,6 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
             }
         }
         
-        // Button padding
-        const buttonPaddingCSS = buttonPadding && buttonPadding[activeDevice] ? 
-            `padding: ${buttonPadding[activeDevice].top}${buttonPadding[activeDevice].unit} ${buttonPadding[activeDevice].right}${buttonPadding[activeDevice].unit} ${buttonPadding[activeDevice].bottom}${buttonPadding[activeDevice].unit} ${buttonPadding[activeDevice].left}${buttonPadding[activeDevice].unit};` : 
-            'padding: 10px 20px;';
-        
-        // Button border radius
-        const buttonBorderRadiusCSS = buttonBorderRadius && buttonBorderRadius[activeDevice] ? 
-            `border-radius: ${buttonBorderRadius[activeDevice].top}${buttonBorderRadius[activeDevice].unit} ${buttonBorderRadius[activeDevice].right}${buttonBorderRadius[activeDevice].unit} ${buttonBorderRadius[activeDevice].bottom}${buttonBorderRadius[activeDevice].unit} ${buttonBorderRadius[activeDevice].left}${buttonBorderRadius[activeDevice].unit};` : 
-            'border-radius: 4px;';
-        
         // Content width
         const contentWidthCSS = contentWidth ? 
             `max-width: ${contentWidth}${typeof contentWidth === 'number' ? '%' : ''};` : 
@@ -849,7 +837,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                     
                     .${id} .digiblocks-cta-content-container {
                         flex: 1;
-                        ${paddingCSS}
+                        ${getDimensionCSS(padding, 'padding', activeDevice)}
                         ${backgroundColor ? `background-color: ${backgroundColor};` : ''}
                         display: flex;
                         flex-direction: column;
@@ -1207,9 +1195,10 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
             .${id} {
                 ${style !== 'split' ? backgroundCSS : ''}
                 ${borderCSS}
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
                 ${boxShadowCSS}
-                ${style !== 'split' ? paddingCSS : ''}
-                ${marginCSS}
+                ${style !== 'split' ? `${getDimensionCSS(padding, 'padding', activeDevice)}` : ''}
+                ${getDimensionCSS(margin, 'margin', activeDevice)}
                 ${widthCSS}
                 ${minHeightCSS}
                 transition: all 0.3s ease;
@@ -1253,8 +1242,8 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 cursor: pointer;
                 background-color: ${buttonColor || '#1e73be'};
                 color: ${buttonTextColor || '#ffffff'};
-                ${buttonPaddingCSS}
-                ${buttonBorderRadiusCSS}
+                ${getDimensionCSS(buttonPadding, 'padding', activeDevice)}
+                ${getDimensionCSS(buttonBorderRadius, 'border-radius', activeDevice)}
                 ${buttonTypographyCSS}
             }
             
@@ -1278,15 +1267,9 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
             /* Responsive styles */
 			@media (max-width: 991px) {
                 .${id} {
-                    ${style !== 'split' ? 
-                        (padding && padding['tablet'] && padding['tablet'].top && padding['tablet'].right && 
-                        padding['tablet'].bottom && padding['tablet'].left && padding['tablet'].unit) ? 
-                            `padding: ${padding['tablet'].top}${padding['tablet'].unit} ${padding['tablet'].right}${padding['tablet'].unit} ${padding['tablet'].bottom}${padding['tablet'].unit} ${padding['tablet'].left}${padding['tablet'].unit};` : 
-                            'padding: 30px 25px;' : ''}
+                    ${style !== 'split' ? `${getDimensionCSS(padding, 'padding', 'tablet')}` : ''}
                     
-                    margin: ${margin && margin['tablet'] ? 
-                        `${margin['tablet'].top}${margin['tablet'].unit} ${margin['tablet'].right}${margin['tablet'].unit} ${margin['tablet'].bottom}${margin['tablet'].unit} ${margin['tablet'].left}${margin['tablet'].unit}` : 
-                        '0 0 25px 0'};
+					${getDimensionCSS(margin, 'margin', 'tablet')}
                     
                     ${minHeight && minHeight['tablet'] ? 
                         `min-height: ${minHeight['tablet']}px;` : 
@@ -1294,11 +1277,11 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                     
                     ${borderStyle && borderStyle !== 'none' ? 
                         borderWidth && borderWidth['tablet'] ? 
-                            `border-width: ${borderWidth['tablet'].top}${borderWidth['tablet'].unit} ${borderWidth['tablet'].right}${borderWidth['tablet'].unit} ${borderWidth['tablet'].bottom}${borderWidth['tablet'].unit} ${borderWidth['tablet'].left}${borderWidth['tablet'].unit};` : '' : ''}
+                            `${getDimensionCSS(borderWidth, 'border-width', 'tablet')}` : '' : ''}
                     
                     ${borderStyle && borderStyle !== 'none' ? 
                         borderRadius && borderRadius['tablet'] ? 
-                            `border-radius: ${borderRadius['tablet'].top}${borderRadius['tablet'].unit} ${borderRadius['tablet'].right}${borderRadius['tablet'].unit} ${borderRadius['tablet'].bottom}${borderRadius['tablet'].unit} ${borderRadius['tablet'].left}${borderRadius['tablet'].unit};` : '' : ''}
+                            `${getDimensionCSS(borderRadius, 'border-radius', 'tablet')}` : '' : ''}
                 }
                 
                 .${id} .digiblocks-cta-title {
@@ -1326,25 +1309,16 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                 .${id} .digiblocks-cta-button {
                     ${buttonTypography && buttonTypography.fontSize && buttonTypography.fontSize['tablet'] ? 
                         `font-size: ${buttonTypography.fontSize['tablet']}${buttonTypography.fontSizeUnit || 'px'};` : ''}
-                    
-                    ${buttonPadding && buttonPadding['tablet'] ? 
-                        `padding: ${buttonPadding['tablet'].top}${buttonPadding['tablet'].unit} ${buttonPadding['tablet'].right}${buttonPadding['tablet'].unit} ${buttonPadding['tablet'].bottom}${buttonPadding['tablet'].unit} ${buttonPadding['tablet'].left}${buttonPadding['tablet'].unit};` : ''}
-                    
-                    ${buttonBorderRadius && buttonBorderRadius['tablet'] ? 
-                        `border-radius: ${buttonBorderRadius['tablet'].top}${buttonBorderRadius['tablet'].unit} ${buttonBorderRadius['tablet'].right}${buttonBorderRadius['tablet'].unit} ${buttonBorderRadius['tablet'].bottom}${buttonBorderRadius['tablet'].unit} ${buttonBorderRadius['tablet'].left}${buttonBorderRadius['tablet'].unit};` : ''}
+
+					${getDimensionCSS(buttonPadding, 'padding', 'tablet')}
+					${getDimensionCSS(buttonBorderRadius, 'border-radius', 'tablet')}
                 }
             }
 
 			body[data-digiblocks-device="tablet"] .${id} {
-				${style !== 'split' ? 
-                    (padding && padding['tablet'] && padding['tablet'].top && padding['tablet'].right && 
-                    padding['tablet'].bottom && padding['tablet'].left && padding['tablet'].unit) ? 
-                        `padding: ${padding['tablet'].top}${padding['tablet'].unit} ${padding['tablet'].right}${padding['tablet'].unit} ${padding['tablet'].bottom}${padding['tablet'].unit} ${padding['tablet'].left}${padding['tablet'].unit};` : 
-                        'padding: 30px 25px;' : ''}
-				
-				margin: ${margin && margin['tablet'] ? 
-					`${margin['tablet'].top}${margin['tablet'].unit} ${margin['tablet'].right}${margin['tablet'].unit} ${margin['tablet'].bottom}${margin['tablet'].unit} ${margin['tablet'].left}${margin['tablet'].unit}` : 
-					'0 0 25px 0'};
+				${style !== 'split' ? `${getDimensionCSS(padding, 'padding', 'tablet')}` : ''}
+
+				${getDimensionCSS(margin, 'margin', 'tablet')}
 				
 				${minHeight && minHeight['tablet'] ? 
 					`min-height: ${minHeight['tablet']}px;` : 
@@ -1352,11 +1326,9 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 				
 				${borderStyle && borderStyle !== 'none' ? 
 					borderWidth && borderWidth['tablet'] ? 
-						`border-width: ${borderWidth['tablet'].top}${borderWidth['tablet'].unit} ${borderWidth['tablet'].right}${borderWidth['tablet'].unit} ${borderWidth['tablet'].bottom}${borderWidth['tablet'].unit} ${borderWidth['tablet'].left}${borderWidth['tablet'].unit};` : '' : ''}
+						`${getDimensionCSS(borderWidth, 'border-width', 'tablet')}` : '' : ''}
 				
-				${borderStyle && borderStyle !== 'none' ? 
-					borderRadius && borderRadius['tablet'] ? 
-						`border-radius: ${borderRadius['tablet'].top}${borderRadius['tablet'].unit} ${borderRadius['tablet'].right}${borderRadius['tablet'].unit} ${borderRadius['tablet'].bottom}${borderRadius['tablet'].unit} ${borderRadius['tablet'].left}${borderRadius['tablet'].unit};` : '' : ''}
+				${getDimensionCSS(borderRadius, 'border-radius', 'tablet')}
 			}
 			
 			body[data-digiblocks-device="tablet"] .${id} .digiblocks-cta-title {
@@ -1384,37 +1356,26 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 			body[data-digiblocks-device="tablet"] .${id} .digiblocks-cta-button {
 				${buttonTypography && buttonTypography.fontSize && buttonTypography.fontSize['tablet'] ? 
 					`font-size: ${buttonTypography.fontSize['tablet']}${buttonTypography.fontSizeUnit || 'px'};` : ''}
-				
-				${buttonPadding && buttonPadding['tablet'] ? 
-					`padding: ${buttonPadding['tablet'].top}${buttonPadding['tablet'].unit} ${buttonPadding['tablet'].right}${buttonPadding['tablet'].unit} ${buttonPadding['tablet'].bottom}${buttonPadding['tablet'].unit} ${buttonPadding['tablet'].left}${buttonPadding['tablet'].unit};` : ''}
-				
-				${buttonBorderRadius && buttonBorderRadius['tablet'] ? 
-					`border-radius: ${buttonBorderRadius['tablet'].top}${buttonBorderRadius['tablet'].unit} ${buttonBorderRadius['tablet'].right}${buttonBorderRadius['tablet'].unit} ${buttonBorderRadius['tablet'].bottom}${buttonBorderRadius['tablet'].unit} ${buttonBorderRadius['tablet'].left}${buttonBorderRadius['tablet'].unit};` : ''}
+
+				${getDimensionCSS(buttonPadding, 'padding', 'tablet')}
+				${getDimensionCSS(buttonBorderRadius, 'border-radius', 'tablet')}
 			}
 
 			@media (max-width: 767px) {
                 .${id} {
-                    ${style !== 'split' ? 
-                        (padding && padding['mobile'] && padding['mobile'].top && padding['mobile'].right && 
-                        padding['mobile'].bottom && padding['mobile'].left && padding['mobile'].unit) ? 
-                            `padding: ${padding['mobile'].top}${padding['mobile'].unit} ${padding['mobile'].right}${padding['mobile'].unit} ${padding['mobile'].bottom}${padding['mobile'].unit} ${padding['mobile'].left}${padding['mobile'].unit};` : 
-                            'padding: 25px 20px;' : ''}
-                    
-                    margin: ${margin && margin['mobile'] ? 
-                        `${margin['mobile'].top}${margin['mobile'].unit} ${margin['mobile'].right}${margin['mobile'].unit} ${margin['mobile'].bottom}${margin['mobile'].unit} ${margin['mobile'].left}${margin['mobile'].unit}` : 
-                        '0 0 20px 0'};
-                    
-                    ${minHeight && minHeight['mobile'] ? 
-                        `min-height: ${minHeight['mobile']}px;` : 
-                        ''}
-                    
-                    ${borderStyle && borderStyle !== 'none' ? 
-                        borderWidth && borderWidth['mobile'] ? 
-                            `border-width: ${borderWidth['mobile'].top}${borderWidth['mobile'].unit} ${borderWidth['mobile'].right}${borderWidth['mobile'].unit} ${borderWidth['mobile'].bottom}${borderWidth['mobile'].unit} ${borderWidth['mobile'].left}${borderWidth['mobile'].unit};` : '' : ''}
-                    
-                    ${borderStyle && borderStyle !== 'none' ? 
-                        borderRadius && borderRadius['mobile'] ? 
-                            `border-radius: ${borderRadius['mobile'].top}${borderRadius['mobile'].unit} ${borderRadius['mobile'].right}${borderRadius['mobile'].unit} ${borderRadius['mobile'].bottom}${borderRadius['mobile'].unit} ${borderRadius['mobile'].left}${borderRadius['mobile'].unit};` : '' : ''}
+					${style !== 'split' ? `${getDimensionCSS(padding, 'padding', 'mobile')}` : ''}
+
+					${getDimensionCSS(margin, 'margin', 'mobile')}
+					
+					${minHeight && minHeight['mobile'] ? 
+						`min-height: ${minHeight['mobile']}px;` : 
+						''}
+					
+					${borderStyle && borderStyle !== 'none' ? 
+						borderWidth && borderWidth['mobile'] ? 
+							`${getDimensionCSS(borderWidth, 'border-width', 'mobile')}` : '' : ''}
+					
+					${getDimensionCSS(borderRadius, 'border-radius', 'mobile')}
                 }
                 
                 ${style === 'split' ? 
@@ -1427,9 +1388,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                     }
                     
                     .${id} .digiblocks-cta-content-container {
-                        padding: ${padding && padding['mobile'] ? 
-                            `${padding['mobile'].top}${padding['mobile'].unit} ${padding['mobile'].right}${padding['mobile'].unit} ${padding['mobile'].bottom}${padding['mobile'].unit} ${padding['mobile'].left}${padding['mobile'].unit}` : 
-                            '25px 20px'};
+                        ${getDimensionCSS(padding, 'padding', 'mobile')}
                     }` : ''}
                 
                 .${id} .digiblocks-cta-title {
@@ -1458,11 +1417,8 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                     ${buttonTypography && buttonTypography.fontSize && buttonTypography.fontSize['mobile'] ? 
                         `font-size: ${buttonTypography.fontSize['mobile']}${buttonTypography.fontSizeUnit || 'px'};` : ''}
                     
-                    ${buttonPadding && buttonPadding['mobile'] ? 
-                        `padding: ${buttonPadding['mobile'].top}${buttonPadding['mobile'].unit} ${buttonPadding['mobile'].right}${buttonPadding['mobile'].unit} ${buttonPadding['mobile'].bottom}${buttonPadding['mobile'].unit} ${buttonPadding['mobile'].left}${buttonPadding['mobile'].unit};` : ''}
-                    
-                    ${buttonBorderRadius && buttonBorderRadius['mobile'] ? 
-                        `border-radius: ${buttonBorderRadius['mobile'].top}${buttonBorderRadius['mobile'].unit} ${buttonBorderRadius['mobile'].right}${buttonBorderRadius['mobile'].unit} ${buttonBorderRadius['mobile'].bottom}${buttonBorderRadius['mobile'].unit} ${buttonBorderRadius['mobile'].left}${buttonBorderRadius['mobile'].unit};` : ''}
+					${getDimensionCSS(buttonPadding, 'padding', 'mobile')}
+					${getDimensionCSS(buttonBorderRadius, 'border-radius', 'mobile')}
                 }
                 
                 .${id} .digiblocks-cta-buttons {
@@ -1476,27 +1432,19 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
             }
 			
 			body[data-digiblocks-device="mobile"] .${id} {
-				${style !== 'split' ? 
-                    (padding && padding['mobile'] && padding['mobile'].top && padding['mobile'].right && 
-                    padding['mobile'].bottom && padding['mobile'].left && padding['mobile'].unit) ? 
-                        `padding: ${padding['mobile'].top}${padding['mobile'].unit} ${padding['mobile'].right}${padding['mobile'].unit} ${padding['mobile'].bottom}${padding['mobile'].unit} ${padding['mobile'].left}${padding['mobile'].unit};` : 
-                        'padding: 25px 20px;' : ''}
+				${style !== 'split' ? `${getDimensionCSS(padding, 'padding', 'mobile')}` : ''}
 				
-				margin: ${margin && margin['mobile'] ? 
-					`${margin['mobile'].top}${margin['mobile'].unit} ${margin['mobile'].right}${margin['mobile'].unit} ${margin['mobile'].bottom}${margin['mobile'].unit} ${margin['mobile'].left}${margin['mobile'].unit}` : 
-					'0 0 20px 0'};
+				${getDimensionCSS(margin, 'margin', 'mobile')}
 				
 				${minHeight && minHeight['mobile'] ? 
 					`min-height: ${minHeight['mobile']}px;` : 
 					''}
-				
+
 				${borderStyle && borderStyle !== 'none' ? 
 					borderWidth && borderWidth['mobile'] ? 
-						`border-width: ${borderWidth['mobile'].top}${borderWidth['mobile'].unit} ${borderWidth['mobile'].right}${borderWidth['mobile'].unit} ${borderWidth['mobile'].bottom}${borderWidth['mobile'].unit} ${borderWidth['mobile'].left}${borderWidth['mobile'].unit};` : '' : ''}
+						`${getDimensionCSS(borderWidth, 'border-width', 'mobile')}` : '' : ''}
 				
-				${borderStyle && borderStyle !== 'none' ? 
-					borderRadius && borderRadius['mobile'] ? 
-						`border-radius: ${borderRadius['mobile'].top}${borderRadius['mobile'].unit} ${borderRadius['mobile'].right}${borderRadius['mobile'].unit} ${borderRadius['mobile'].bottom}${borderRadius['mobile'].unit} ${borderRadius['mobile'].left}${borderRadius['mobile'].unit};` : '' : ''}
+				${getDimensionCSS(borderRadius, 'border-radius', 'mobile')}
 			}
 			
 			${style === 'split' ? 
@@ -1509,9 +1457,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 				}
 				
 				body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-content-container {
-					padding: ${padding && padding['mobile'] ? 
-						`${padding['mobile'].top}${padding['mobile'].unit} ${padding['mobile'].right}${padding['mobile'].unit} ${padding['mobile'].bottom}${padding['mobile'].unit} ${padding['mobile'].left}${padding['mobile'].unit}` : 
-						'25px 20px'};
+					${getDimensionCSS(padding, 'padding', 'mobile')}
 				}` : ''}
 			
 			body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-title {
@@ -1540,11 +1486,8 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 				${buttonTypography && buttonTypography.fontSize && buttonTypography.fontSize['mobile'] ? 
 					`font-size: ${buttonTypography.fontSize['mobile']}${buttonTypography.fontSizeUnit || 'px'};` : ''}
 				
-				${buttonPadding && buttonPadding['mobile'] ? 
-					`padding: ${buttonPadding['mobile'].top}${buttonPadding['mobile'].unit} ${buttonPadding['mobile'].right}${buttonPadding['mobile'].unit} ${buttonPadding['mobile'].bottom}${buttonPadding['mobile'].unit} ${buttonPadding['mobile'].left}${buttonPadding['mobile'].unit};` : ''}
-				
-				${buttonBorderRadius && buttonBorderRadius['mobile'] ? 
-					`border-radius: ${buttonBorderRadius['mobile'].top}${buttonBorderRadius['mobile'].unit} ${buttonBorderRadius['mobile'].right}${buttonBorderRadius['mobile'].unit} ${buttonBorderRadius['mobile'].bottom}${buttonBorderRadius['mobile'].unit} ${buttonBorderRadius['mobile'].left}${buttonBorderRadius['mobile'].unit};` : ''}
+				${getDimensionCSS(buttonPadding, 'padding', 'mobile')}
+				${getDimensionCSS(buttonBorderRadius, 'border-radius', 'mobile')}				
 			}
 			
 			body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-buttons {
@@ -1554,6 +1497,62 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
 			
 			body[data-digiblocks-device="mobile"] .${id} .digiblocks-cta-button {
 				width: 100%;
+			}
+
+			/* Change image for Split layout */
+			.${id} .digiblocks-image-upload-container {
+				position: relative;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+			
+			.${id} .digiblocks-image-upload-container img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				display: block;
+				cursor: pointer;
+				transition: transform 0.3s ease;
+			}
+			
+			.${id} .digiblocks-image-upload-container:hover img {
+				transform: scale(1.05);
+			}
+			
+			.${id} .digiblocks-change-image-button {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				background-color: rgba(0, 0, 0, 0.5);
+				color: white;
+				padding: 8px 0;
+				text-align: center;
+				font-size: 12px;
+				cursor: pointer;
+				opacity: 0;
+				transition: opacity 0.3s ease;
+				border: none;
+				width: 100%;
+			}
+			
+			.${id} .digiblocks-image-upload-container:hover .digiblocks-change-image-button {
+				opacity: 1;
+			}
+			
+			.${id} .digiblocks-image-placeholder {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background-color: #f0f0f0;
+				color: #888;
+				font-size: 14px;
+				cursor: pointer;
+				min-height: 300px;
 			}
         `;
     };
@@ -1605,33 +1604,31 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                     __nextHasNoMarginBottom={true}
                 />
                 
-                <div style={{ marginTop: '10px' }}>
-                    <LinkControl
-                        label={__("Button Link", "digiblocks")}
-                        value={{
-                            url: button.url || '',
-                            opensInNewTab: button.openInNewTab,
-                            rel: button.rel
-                        }}
-                        settings={[
-                            {
-                                id: 'opensInNewTab',
-                                title: __('Open in new tab', 'digiblocks'),
-                            },
-                            {
-                                id: 'rel',
-                                title: __('Add noopener noreferrer', 'digiblocks'),
-                            },
-                        ]}
-                        onChange={(linkObject) => {
-                            updateButton(button.id, 'url', linkObject.url);
-                            updateButton(button.id, 'openInNewTab', linkObject.opensInNewTab);
-                            updateButton(button.id, 'rel', linkObject.rel);
-                        }}
-                    />
-                </div>
+				<div style={{ marginTop: '10px' }}>
+					<TextControl
+						label={__("Button URL", "digiblocks")}
+						value={button.url || ''}
+						onChange={(value) => updateButton(button.id, 'url', value)}
+						__next40pxDefaultSize={true}
+						__nextHasNoMarginBottom={true}
+					/>
+				</div>
                 
                 <div style={{ marginTop: '15px' }}>
+					<ToggleControl
+						label={__("Open in new tab", "digiblocks")}
+						checked={button.openInNewTab || false}
+						onChange={(value) => updateButton(button.id, 'openInNewTab', value)}
+						__nextHasNoMarginBottom={true}
+					/>
+					
+					<ToggleControl
+						label={__("Add noopener noreferrer", "digiblocks")}
+						checked={!!button.rel}
+						onChange={(value) => updateButton(button.id, 'rel', value ? 'noopener noreferrer' : '')}
+						__nextHasNoMarginBottom={true}
+					/>
+
                     <ToggleControl
                         label={__("Primary Button", "digiblocks")}
                         checked={button.isPrimary || false}
@@ -2311,33 +2308,33 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                                             })}
                                         />
                                     </ResponsiveControl>
-                                    
-                                    {/* Border Radius */}
-                                    <ResponsiveControl
-                                        label={__("Border Radius", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
-                                                top: 0,
-                                                right: 0,
-                                                bottom: 0,
-                                                left: 0,
-                                                unit: 'px'
-                                            }}
-                                            onChange={(value) => setAttributes({
-                                                borderRadius: {
-                                                    ...borderRadius || {},
-                                                    [localActiveDevice]: value
-                                                }
-                                            })}
-                                            units={[
-                                                { label: 'px', value: 'px' },
-                                                { label: '%', value: '%' }
-                                            ]}
-                                        />
-                                    </ResponsiveControl>
                                 </>
                             )}
+                                    
+							{/* Border Radius */}
+							<ResponsiveControl
+								label={__("Border Radius", "digiblocks")}
+							>
+								<DimensionControl
+									values={borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
+										top: 0,
+										right: 0,
+										bottom: 0,
+										left: 0,
+										unit: 'px'
+									}}
+									onChange={(value) => setAttributes({
+										borderRadius: {
+											...borderRadius || {},
+											[localActiveDevice]: value
+										}
+									})}
+									units={[
+										{ label: 'px', value: 'px' },
+										{ label: '%', value: '%' }
+									]}
+								/>
+							</ResponsiveControl>
                         </TabPanelBody>
                         
                         <TabPanelBody
@@ -2591,38 +2588,48 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                                 {renderButtons()}
                             </div>
                         </div>
-                        <div className="digiblocks-cta-image-container">
-                            {!backgroundImage?.url && (
-                                <div className="digiblocks-image-placeholder">
-                                    <MediaUploadCheck>
-                                        <MediaUpload
-                                            onSelect={(media) => {
-                                                setAttributes({
-                                                    backgroundImage: {
-                                                        id: media.id,
-                                                        url: media.url,
-                                                        alt: media.alt || '',
-                                                        width: media.width,
-                                                        height: media.height
-                                                    }
-                                                });
-                                            }}
-                                            allowedTypes={['image']}
-                                            value={backgroundImage?.id}
-                                            render={({ open }) => (
-                                                <Button 
-                                                    variant="secondary"
-                                                    onClick={open}
-                                                    icon="format-image"
-                                                >
-                                                    {__("Select Image", "digiblocks")}
-                                                </Button>
-                                            )}
-                                        />
-                                    </MediaUploadCheck>
-                                </div>
-                            )}
-                        </div>
+						<div className="digiblocks-cta-image-container">
+							<MediaUploadCheck>
+								<MediaUpload
+									onSelect={(media) => {
+										setAttributes({
+											backgroundImage: {
+												id: media.id,
+												url: media.url,
+												alt: media.alt || '',
+												width: media.width,
+												height: media.height
+											}
+										});
+									}}
+									allowedTypes={['image']}
+									value={backgroundImage?.id}
+									render={({ open }) => (
+										<div className="digiblocks-image-upload-container">
+											{backgroundImage?.url ? (
+												<>
+													<img
+														src={backgroundImage.url}
+														alt={backgroundImage.alt || ''}
+														onClick={open}
+													/>
+													<button 
+														className="digiblocks-change-image-button" 
+														onClick={open}
+													>
+														{__('Change Image', 'digiblocks')}
+													</button>
+												</>
+											) : (
+												<div className="digiblocks-image-placeholder" onClick={open}>
+													{__('Choose Image', 'digiblocks')}
+												</div>
+											)}
+										</div>
+									)}
+								/>
+							</MediaUploadCheck>
+						</div>
                     </div>
                 );
                 

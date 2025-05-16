@@ -28,7 +28,7 @@ const { useDispatch, useSelect } = wp.data;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -93,7 +93,14 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
     
     // State for currently selected field
     const [selectedFieldIndex, setSelectedFieldIndex] = useState(-1);
@@ -355,13 +362,11 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
         // Border styles
         let borderCSS = '';
         if (borderStyle && borderStyle !== 'none') {
-            const currentBorderRadius = borderRadius && borderRadius[activeDevice] 
-                ? borderRadius[activeDevice] 
-                : { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' };
-            
             borderCSS = `
-                border: ${borderWidth}px ${borderStyle} ${borderColor};
-                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+				border-style: ${borderStyle};
+				border-color: ${borderColor};
+				${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
             `;
         } else {
             borderCSS = 'border: none;';
@@ -382,39 +387,14 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         // Padding and margin
-        const currentPadding = padding && padding[activeDevice] 
-            ? padding[activeDevice] 
-            : { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' };
-        
-        const currentMargin = margin && margin[activeDevice] 
-            ? margin[activeDevice] 
-            : { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' };
-        
-        const paddingCSS = `
-            padding: ${currentPadding.top}${currentPadding.unit} ${currentPadding.right}${currentPadding.unit} ${currentPadding.bottom}${currentPadding.unit} ${currentPadding.left}${currentPadding.unit};
-        `;
-        
-        const marginCSS = `
-            margin: ${currentMargin.top}${currentMargin.unit} ${currentMargin.right}${currentMargin.unit} ${currentMargin.bottom}${currentMargin.unit} ${currentMargin.left}${currentMargin.unit};
-        `;
+        const paddingCSS = `${getDimensionCSS(padding, 'padding', activeDevice)}`;
+        const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice)}`;
         
         // Input padding
-        const currentInputPadding = inputPadding && inputPadding[activeDevice] 
-            ? inputPadding[activeDevice] 
-            : { top: 12, right: 15, bottom: 12, left: 15, unit: 'px' };
-        
-        const inputPaddingCSS = `
-            padding: ${currentInputPadding.top}${currentInputPadding.unit} ${currentInputPadding.right}${currentInputPadding.unit} ${currentInputPadding.bottom}${currentInputPadding.unit} ${currentInputPadding.left}${currentInputPadding.unit};
-        `;
+        const inputPaddingCSS = `${getDimensionCSS(inputPadding, 'padding', activeDevice)}`;
         
         // Input border radius
-        const currentInputBorderRadius = inputBorderRadius && inputBorderRadius[activeDevice] 
-            ? inputBorderRadius[activeDevice] 
-            : { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' };
-        
-        const inputBorderRadiusCSS = `
-            border-radius: ${currentInputBorderRadius.top}${currentInputBorderRadius.unit} ${currentInputBorderRadius.right}${currentInputBorderRadius.unit} ${currentInputBorderRadius.bottom}${currentInputBorderRadius.unit} ${currentInputBorderRadius.left}${currentInputBorderRadius.unit};
-        `;
+        const inputBorderRadiusCSS = `${getDimensionCSS(inputBorderRadius, 'border-radius', activeDevice)}`;
         
         // Get typography CSS
         let mainTypographyCSS = '';
@@ -589,7 +569,9 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                 width: 100%;
                 ${inputPaddingCSS}
                 ${inputBorderRadiusCSS}
-                border: ${inputBorderWidth}px ${inputBorderStyle} ${inputBorderColor};
+				border-style: ${inputBorderStyle};
+				border-color: ${inputBorderColor};
+				${getDimensionCSS(inputBorderWidth, 'border-width', activeDevice)}
                 background-color: ${inputBackgroundColor};
                 color: ${inputTextColor};
                 transition: all 0.3s ease;
@@ -1644,16 +1626,27 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                             
                             {borderStyle !== 'none' && (
                                 <>
-                                    <RangeControl
+                                    <ResponsiveControl
                                         label={__("Border Width", "digiblocks")}
-                                        value={borderWidth}
-                                        onChange={(value) => setAttributes({ borderWidth: value })}
-                                        min={1}
-                                        max={10}
-                                        step={1}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
+                                    >
+                                        <DimensionControl
+                                            values={borderWidth[localActiveDevice]}
+                                            onChange={(value) =>
+                                                setAttributes({
+                                                    borderWidth: {
+                                                        ...borderWidth,
+                                                        [localActiveDevice]: value,
+                                                    },
+                                                })
+                                            }
+                                            units={[
+                                                { label: 'px', value: 'px' },
+                                                { label: 'rem', value: 'rem' },
+                                                { label: 'em', value: 'em' },
+                                                { label: '%', value: '%' }
+                                            ]}
+                                        />
+                                    </ResponsiveControl>
                                     
                                     <PanelColorSettings
                                         title={__("Border Color", "digiblocks")}
@@ -1672,13 +1665,7 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                                         label={__("Border Radius", "digiblocks")}
                                     >
                                         <DimensionControl
-                                            values={borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
-                                                top: 8,
-                                                right: 8,
-                                                bottom: 8,
-                                                left: 8,
-                                                unit: 'px'
-                                            }}
+                                            values={borderRadius[localActiveDevice]}
                                             onChange={(value) =>
                                                 setAttributes({
                                                     borderRadius: {
@@ -1721,16 +1708,27 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                             
                             {inputBorderStyle !== 'none' && (
                                 <>
-                                    <RangeControl
+                                	<ResponsiveControl
                                         label={__("Input Border Width", "digiblocks")}
-                                        value={inputBorderWidth}
-                                        onChange={(value) => setAttributes({ inputBorderWidth: value })}
-                                        min={1}
-                                        max={10}
-                                        step={1}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
+                                    >
+                                        <DimensionControl
+                                            values={inputBorderWidth[localActiveDevice]}
+                                            onChange={(value) =>
+                                                setAttributes({
+                                                    inputBorderWidth: {
+                                                        ...inputBorderWidth,
+                                                        [localActiveDevice]: value,
+                                                    },
+                                                })
+                                            }
+                                            units={[
+                                                { label: 'px', value: 'px' },
+                                                { label: 'rem', value: 'rem' },
+                                                { label: 'em', value: 'em' },
+                                                { label: '%', value: '%' }
+                                            ]}
+                                        />
+                                    </ResponsiveControl>
                                     
                                     <ResponsiveControl
                                         label={__("Input Border Radius", "digiblocks")}

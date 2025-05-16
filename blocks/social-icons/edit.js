@@ -27,7 +27,7 @@ const { useState, useEffect, useRef, Fragment } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -91,7 +91,14 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
     
     // State for URL popover
     const [urlPopover, setUrlPopover] = useState(null);
@@ -332,19 +339,11 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
         // Border styles
         let borderCSS = '';
         if (iconBorderStyle && iconBorderStyle !== 'none') {
-            const currentBorderWidth = iconBorderWidth && iconBorderWidth[activeDevice] 
-                ? iconBorderWidth[activeDevice] 
-                : { value: 1, unit: 'px' };
-            
-            const currentBorderRadius = iconBorderRadius && iconBorderRadius[activeDevice] 
-                ? iconBorderRadius[activeDevice] 
-                : { value: 0, unit: 'px' };
-            
             borderCSS = `
                 border-style: ${iconBorderStyle};
                 border-color: ${iconBorderColor || '#e0e0e0'};
-                border-width: ${currentBorderWidth.value}${currentBorderWidth.unit};
-                border-radius: ${currentBorderRadius.value}${currentBorderRadius.unit};
+				${getDimensionCSS(iconBorderWidth, 'border-width', activeDevice)}
+				${getDimensionCSS(iconBorderRadius, 'border-radius', activeDevice)}
             `;
         }
         
@@ -386,7 +385,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Padding
         const paddingCSS = padding && padding[activeDevice] 
-            ? `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};`
+            ? `${getDimensionCSS(padding, 'padding', activeDevice)}`
             : '';
             
         // Animation CSS
@@ -450,18 +449,6 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 align-items: center;
                 text-decoration: none;
                 gap: ${currentLabelSpacing}px;
-            }
-            
-            .${id} .digiblocks-social-icon-icon {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background-color: ${iconBackground || 'transparent'};
-                color: ${iconColor || '#333333'};
-                ${borderCSS}
-                ${paddingCSS}
-                transition: all 0.3s ease;
-                cursor: pointer;
             }
             
             .${id} .digiblocks-social-icon-icon {
@@ -997,47 +984,37 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                             {/* Show border width and border radius controls only if a border style is selected */}
                             {iconBorderStyle && iconBorderStyle !== 'none' && (
                                 <>
-                                    <ResponsiveControl
-                                        label={__("Border Width", "digiblocks")}
-                                    >
-                                        <RangeControl
-                                            value={iconBorderWidth[localActiveDevice]?.value || 1}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    iconBorderWidth: {
-                                                        ...iconBorderWidth,
-                                                        [localActiveDevice]: { value, unit: 'px' },
-                                                    },
-                                                })
-                                            }
-                                            min={1}
-                                            max={20}
-                                            step={1}
-                                            __next40pxDefaultSize={true}
-                                            __nextHasNoMarginBottom={true}
-                                        />
-                                    </ResponsiveControl>
-                                    
-                                    <ResponsiveControl
-                                        label={__("Border Radius", "digiblocks")}
-                                    >
-                                        <RangeControl
-                                            value={iconBorderRadius[localActiveDevice]?.value || 0}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    iconBorderRadius: {
-                                                        ...iconBorderRadius,
-                                                        [localActiveDevice]: { value, unit: 'px' },
-                                                    },
-                                                })
-                                            }
-                                            min={0}
-                                            max={50}
-                                            step={1}
-                                            __next40pxDefaultSize={true}
-                                            __nextHasNoMarginBottom={true}
-                                        />
-                                    </ResponsiveControl>
+                                   	<ResponsiveControl
+										label={__("Border Width", "digiblocks")}
+									>
+										<DimensionControl
+											values={iconBorderWidth[localActiveDevice]}
+											onChange={(value) =>
+												setAttributes({
+													iconBorderWidth: {
+														...iconBorderWidth,
+														[localActiveDevice]: value,
+													},
+												})
+											}
+										/>
+									</ResponsiveControl>
+
+									<ResponsiveControl
+										label={__("Border Radius", "digiblocks")}
+									>
+										<DimensionControl
+											values={iconBorderRadius[localActiveDevice]}
+											onChange={(value) =>
+												setAttributes({
+													iconBorderRadius: {
+														...iconBorderRadius,
+														[localActiveDevice]: value,
+													},
+												})
+											}
+										/>
+									</ResponsiveControl>
                                 </>
                             )}
                             
@@ -1045,13 +1022,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Padding", "digiblocks")}
                             >
                                 <DimensionControl
-                                    values={padding && padding[localActiveDevice] ? padding[localActiveDevice] : {
-                                        top: 0,
-                                        right: 0,
-                                        bottom: 0,
-                                        left: 0,
-                                        unit: 'px'
-                                    }}
+                                    values={padding[localActiveDevice]}
                                     onChange={(value) =>
                                         setAttributes({
                                             padding: {

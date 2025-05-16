@@ -43,13 +43,13 @@ $schemaName            = isset( $attrs['schemaName'] ) ? $attrs['schemaName'] : 
 $borderStyle    = isset( $attrs['borderStyle'] ) ? $attrs['borderStyle'] : 'solid';
 $borderRadius   = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : array(
 	'desktop' => array( 'top' => 8, 'right' => 8, 'bottom' => 8, 'left' => 8, 'unit' => 'px' ),
-	'tablet'  => array( 'top' => 8, 'right' => 8, 'bottom' => 8, 'left' => 8, 'unit' => 'px' ),
-	'mobile'  => array( 'top' => 8, 'right' => 8, 'bottom' => 8, 'left' => 8, 'unit' => 'px' ),
+	'tablet'  => array( 'top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px' ),
 );
 $borderWidth    = isset( $attrs['borderWidth'] ) ? $attrs['borderWidth'] : array(
 	'desktop' => array( 'top' => 1, 'right' => 1, 'bottom' => 1, 'left' => 1, 'unit' => 'px' ),
-	'tablet'  => array( 'top' => 1, 'right' => 1, 'bottom' => 1, 'left' => 1, 'unit' => 'px' ),
-	'mobile'  => array( 'top' => 1, 'right' => 1, 'bottom' => 1, 'left' => 1, 'unit' => 'px' ),
+	'tablet'  => array( 'top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px' ),
 );
 
 // Get box shadow attributes
@@ -129,7 +129,7 @@ ob_start();
 ?>
 /* FAQ Block - <?php echo esc_attr( $id ); ?> */
 .<?php echo esc_attr( $id ); ?> {
-	margin: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['right'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['bottom'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['left'] . $margin['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
 	width: 100%;
 }
 
@@ -328,13 +328,11 @@ switch ( $layout ) :
 	<?php 
 	// Always apply border for boxed layout
 	$current_border_style = ($borderStyle && $borderStyle !== 'default' && $borderStyle !== 'none') ? $borderStyle : 'solid';
-	$current_border_width = $borderWidth['desktop'];
-	$current_border_radius = $borderRadius['desktop'];
 	?>
 	border-style: <?php echo esc_attr( $current_border_style ); ?>;
 	border-color: <?php echo esc_attr( $borderColor ); ?>;
-	border-width: <?php echo esc_attr( $current_border_width['top'] . $current_border_width['unit'] . ' ' . $current_border_width['right'] . $current_border_width['unit'] . ' ' . $current_border_width['bottom'] . $current_border_width['unit'] . ' ' . $current_border_width['left'] . $current_border_width['unit'] ); ?>;
-	border-radius: <?php echo esc_attr( $current_border_radius['top'] . $current_border_radius['unit'] . ' ' . $current_border_radius['right'] . $current_border_radius['unit'] . ' ' . $current_border_radius['bottom'] . $current_border_radius['unit'] . ' ' . $current_border_radius['left'] . $current_border_radius['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
 	
 	<?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 	box-shadow: <?php echo esc_attr( ( 'inset' === $boxShadow['position'] ? 'inset ' : '' ) . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
@@ -361,11 +359,12 @@ switch ( $layout ) :
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
-	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
-	padding: 0 <?php echo esc_attr( $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
+	padding-top: 0;
 	border-top: 1px solid <?php echo esc_attr( $borderColor ); ?>;
 	<?php if ( $contentBackgroundColor ) : ?>
 	background-color: <?php echo esc_attr( $contentBackgroundColor ); ?>;
@@ -394,11 +393,12 @@ switch ( $layout ) :
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
-	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
-	padding: 0 <?php echo esc_attr( $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
+	padding-top: 0;
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-answer {
@@ -414,24 +414,20 @@ switch ( $layout ) :
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
-	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
 	<?php 
 	// Apply borders to separated layout questions 
 	$current_border_style = ($borderStyle && $borderStyle !== 'default' && $borderStyle !== 'none') ? $borderStyle : 'solid';
-	$current_border_width = $borderWidth['desktop'];
-	$current_border_radius = $borderRadius['desktop'];
 	?>
 	border-style: <?php echo esc_attr( $current_border_style ); ?>;
 	border-color: <?php echo esc_attr( $borderColor ); ?>;
-	border-width: <?php echo esc_attr( $current_border_width['top'] . $current_border_width['unit'] . ' ' . $current_border_width['right'] . $current_border_width['unit'] . ' ' . $current_border_width['bottom'] . $current_border_width['unit'] . ' ' . $current_border_width['left'] . $current_border_width['unit'] ); ?>;
-	border-radius: <?php echo esc_attr( $current_border_radius['top'] . $current_border_radius['unit'] . ' ' . $current_border_radius['right'] . $current_border_radius['unit'] . ' ' . $current_border_radius['bottom'] . $current_border_radius['unit'] . ' ' . $current_border_radius['left'] . $current_border_radius['unit'] ); ?>;
-	
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
 	<?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 	box-shadow: <?php echo esc_attr( ( 'inset' === $boxShadow['position'] ? 'inset ' : '' ) . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
 	<?php else : ?>
 	box-shadow: none;
 	<?php endif; ?>
-	
 	background-color: <?php echo esc_attr( $backgroundColor ); ?>;
 }
 
@@ -464,15 +460,22 @@ switch ( $layout ) :
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
-	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
 	<?php if ( $contentBackgroundColor ) : ?>
 	background-color: <?php echo esc_attr( $contentBackgroundColor ); ?>;
 	<?php endif; ?>
 	
-	border: 1px solid <?php echo esc_attr( $borderColor ); ?>;
+	<?php 
+	// Apply borders to separated layout questions 
+	$current_border_style = ($borderStyle && $borderStyle !== 'default' && $borderStyle !== 'none') ? $borderStyle : 'solid';
+	?>
+	border-style: <?php echo esc_attr( $current_border_style ); ?>;
+	border-color: <?php echo esc_attr( $borderColor ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'desktop' ) ); ?>
 	border-top: none;
-	border-bottom-left-radius: <?php echo esc_attr( $current_border_radius['left'] . $current_border_radius['unit'] ); ?>;
-	border-bottom-right-radius: <?php echo esc_attr( $current_border_radius['right'] . $current_border_radius['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 	margin-top: -1px;
 }
 <?php
@@ -486,7 +489,7 @@ switch ( $layout ) :
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
-	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
 	border-bottom: 2px solid <?php echo esc_attr( $borderColor ); ?>;
 }
 
@@ -507,7 +510,9 @@ switch ( $layout ) :
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
-	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] ); ?> 0 <?php echo esc_attr( $padding['desktop']['bottom'] . $padding['desktop']['unit'] ); ?> 0;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
+	padding-left: 0;
+	padding-right: 0;
 }
 <?php
 		break;
@@ -518,13 +523,11 @@ switch ( $layout ) :
 	<?php 
 	// Apply borders to bordered layout
 	$current_border_style = ($borderStyle && $borderStyle !== 'default' && $borderStyle !== 'none') ? $borderStyle : 'solid';
-	$current_border_width = $borderWidth['desktop'];
-	$current_border_radius = $borderRadius['desktop'];
 	?>
 	border-style: <?php echo esc_attr( $current_border_style ); ?>;
 	border-color: <?php echo esc_attr( $borderColor ); ?>;
-	border-width: <?php echo esc_attr( $current_border_width['top'] . $current_border_width['unit'] . ' ' . $current_border_width['right'] . $current_border_width['unit'] . ' ' . $current_border_width['bottom'] . $current_border_width['unit'] . ' ' . $current_border_width['left'] . $current_border_width['unit'] ); ?>;
-	border-radius: <?php echo esc_attr( $current_border_radius['top'] . $current_border_radius['unit'] . ' ' . $current_border_radius['right'] . $current_border_radius['unit'] . ' ' . $current_border_radius['bottom'] . $current_border_radius['unit'] . ' ' . $current_border_radius['left'] . $current_border_radius['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
 	
 	background-color: transparent;
 	transition: all 0.3s ease;
@@ -538,7 +541,7 @@ switch ( $layout ) :
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
-	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
 	background-color: <?php echo esc_attr( $backgroundColor ?: '#f8f9fa' ); ?>;
 }
 
@@ -563,7 +566,7 @@ switch ( $layout ) :
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
-	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
 	<?php if ( $contentBackgroundColor ) : ?>
 	background-color: <?php echo esc_attr( $contentBackgroundColor ); ?>;
 	<?php endif; ?>
@@ -581,13 +584,11 @@ switch ( $layout ) :
 	<?php 
 	// Apply borders to default layout
 	$current_border_style = ($borderStyle && $borderStyle !== 'default' && $borderStyle !== 'none') ? $borderStyle : 'solid';
-	$current_border_width = $borderWidth['desktop'];
-	$current_border_radius = $borderRadius['desktop'];
 	?>
 	border-style: <?php echo esc_attr( $current_border_style ); ?>;
 	border-color: <?php echo esc_attr( $borderColor ); ?>;
-	border-width: <?php echo esc_attr( $current_border_width['top'] . $current_border_width['unit'] . ' ' . $current_border_width['right'] . $current_border_width['unit'] . ' ' . $current_border_width['bottom'] . $current_border_width['unit'] . ' ' . $current_border_width['left'] . $current_border_width['unit'] ); ?>;
-	border-radius: <?php echo esc_attr( $current_border_radius['top'] . $current_border_radius['unit'] . ' ' . $current_border_radius['right'] . $current_border_radius['unit'] . ' ' . $current_border_radius['bottom'] . $current_border_radius['unit'] . ' ' . $current_border_radius['left'] . $current_border_radius['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
 	
 	<?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 	box-shadow: <?php echo esc_attr( ( 'inset' === $boxShadow['position'] ? 'inset ' : '' ) . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
@@ -600,11 +601,12 @@ switch ( $layout ) :
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
-	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
-	padding: 0 <?php echo esc_attr( $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
+	padding-top: 0;
 	border-top: 1px solid <?php echo esc_attr( $borderColor ); ?>;
 }
 
@@ -625,30 +627,52 @@ endswitch;
 @media (max-width: 991px) {
 	.<?php echo esc_attr( $id ); ?> {
 		<?php if ( isset( $margin['tablet'] ) ) : ?>
-		margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
 		<?php endif; ?>
 	}
 	
 	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item {
 		margin-bottom: <?php echo esc_attr( isset( $itemsSpacing['tablet'] ) ? $itemsSpacing['tablet'] : $itemsSpacing['desktop'] ); ?>px;
+		<?php if ( 'separated' !== $layout ) : ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'tablet' ) ); ?>
+		<?php endif; ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?>
 	}
 	
 	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question,
 	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-answer {
 		<?php if ( isset( $padding['tablet'] ) ) : ?>
-		padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
 		<?php endif; ?>
 	}
 	
 	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 		<?php if ( isset( $padding['tablet'] ) ) : ?>
-		padding: 0 <?php echo esc_attr( $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
+		padding-top: 0;
 		<?php endif; ?>
 	}
 	
+	<?php if ( 'separated' === $layout ) : ?>
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?>
+	}
+
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?>
+		border-top-left-radius: 0;
+		border-top-right-radius: 0;
+	}
+	<?php endif; ?>
+	
 	<?php if ( 'minimalist' === $layout ) : ?>
 	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
-		padding: <?php echo esc_attr( ( isset( $padding['tablet'] ) ? $padding['tablet']['top'] : $padding['desktop']['top'] ) . ( isset( $padding['tablet'] ) ? $padding['tablet']['unit'] : $padding['desktop']['unit'] ) ); ?> 0 <?php echo esc_attr( ( isset( $padding['tablet'] ) ? $padding['tablet']['bottom'] : $padding['desktop']['bottom'] ) . ( isset( $padding['tablet'] ) ? $padding['tablet']['unit'] : $padding['desktop']['unit'] ) ); ?> 0;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
+		padding-left: 0;
+		padding-right: 0;
 	}
 	<?php endif; ?>
 	
@@ -687,30 +711,52 @@ endswitch;
 @media (max-width: 767px) {
 	.<?php echo esc_attr( $id ); ?> {
 		<?php if ( isset( $margin['mobile'] ) ) : ?>
-		margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?>
 		<?php endif; ?>
 	}
 	
 	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item {
 		margin-bottom: <?php echo esc_attr( isset( $itemsSpacing['mobile'] ) ? $itemsSpacing['mobile'] : $itemsSpacing['desktop'] ); ?>px;
+		<?php if ( 'separated' !== $layout ) : ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'mobile' ) ); ?>
+		<?php endif; ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'mobile' ) ); ?>
 	}
 	
 	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question,
 	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-item.is-active .digiblocks-faq-answer {
 		<?php if ( isset( $padding['mobile'] ) ) : ?>
-		padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
 		<?php endif; ?>
 	}
 	
 	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
 		<?php if ( isset( $padding['mobile'] ) ) : ?>
-		padding: 0 <?php echo esc_attr( $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
+		padding-top: 0;
 		<?php endif; ?>
 	}
 	
+	<?php if ( 'separated' === $layout ) : ?>
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-question {
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'mobile' ) ); ?>
+	}
+
+	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'mobile' ) ); ?>
+		border-top-left-radius: 0;
+		border-top-right-radius: 0;
+	}
+	<?php endif; ?>
+	
 	<?php if ( 'minimalist' === $layout ) : ?>
 	.<?php echo esc_attr( $id ); ?> .digiblocks-faq-answer {
-		padding: <?php echo esc_attr( ( isset( $padding['mobile'] ) ? $padding['mobile']['top'] : $padding['desktop']['top'] ) . ( isset( $padding['mobile'] ) ? $padding['mobile']['unit'] : $padding['desktop']['unit'] ) ); ?> 0 <?php echo esc_attr( ( isset( $padding['mobile'] ) ? $padding['mobile']['bottom'] : $padding['desktop']['bottom'] ) . ( isset( $padding['mobile'] ) ? $padding['mobile']['unit'] : $padding['desktop']['unit'] ) ); ?> 0;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
+		padding-left: 0;
+		padding-right: 0;
 	}
 	<?php endif; ?>
 	

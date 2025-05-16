@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('email_subject', '<?php echo esc_js( $emailSubject ); ?>');
         formData.append('use_site_logo', '<?php echo esc_js( $useSiteLogo ? 'true' : 'false' ); ?>');
         <?php if (!empty($customLogo)) : ?>
-			formData.append('custom_logo', <?php echo json_encode(esc_url_raw($customLogo)); ?>);
+			formData.append('custom_logo', <?php echo esc_js(wp_json_encode(esc_url_raw($customLogo))); ?>);
 		<?php else : ?>
 			formData.append('custom_logo', '');
 		<?php endif; ?>

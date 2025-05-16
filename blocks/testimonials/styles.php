@@ -88,29 +88,7 @@ $padding = isset( $attrs['padding'] ) ? $attrs['padding'] : array(
 );
 
 // Get margin (with fallback)
-$margin = isset( $attrs['margin'] ) ? $attrs['margin'] : array(
-    'desktop' => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 0,
-        'left'   => 0,
-        'unit'   => 'px',
-    ),
-    'tablet'  => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 0,
-        'left'   => 0,
-        'unit'   => 'px',
-    ),
-    'mobile'  => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 0,
-        'left'   => 0,
-        'unit'   => 'px',
-    ),
-);
+$margin = isset( $attrs['margin'] ) ? $attrs['margin'] : digiblocks_get_default_dimensions('px');
 
 // Get borderWidth (with responsive fallback)
 $borderWidth = isset( $attrs['borderWidth'] ) ? $attrs['borderWidth'] : array(
@@ -122,17 +100,17 @@ $borderWidth = isset( $attrs['borderWidth'] ) ? $attrs['borderWidth'] : array(
         'unit'   => 'px',
     ),
     'tablet'  => array(
-        'top'    => 1,
-        'right'  => 1,
-        'bottom' => 1,
-        'left'   => 1,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
     'mobile'  => array(
-        'top'    => 1,
-        'right'  => 1,
-        'bottom' => 1,
-        'left'   => 1,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
 );
@@ -147,17 +125,17 @@ $borderRadius = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : array
         'unit'   => 'px',
     ),
     'tablet'  => array(
-        'top'    => 12,
-        'right'  => 12,
-        'bottom' => 12,
-        'left'   => 12,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
     'mobile'  => array(
-        'top'    => 12,
-        'right'  => 12,
-        'bottom' => 12,
-        'left'   => 12,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
 );
@@ -255,15 +233,15 @@ ob_start();
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
-    padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
-    margin: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['right'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['bottom'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['left'] . $margin['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
     background-color: <?php echo esc_attr( $backgroundColor ); ?>;
     
     <?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle ) : ?>
         border-style: <?php echo esc_attr( $borderStyle ); ?>;
         border-color: <?php echo esc_attr( $borderColor ); ?>;
-        border-width: <?php echo esc_attr( $borderWidth['desktop']['top'] . $borderWidth['desktop']['unit'] . ' ' . $borderWidth['desktop']['right'] . $borderWidth['desktop']['unit'] . ' ' . $borderWidth['desktop']['bottom'] . $borderWidth['desktop']['unit'] . ' ' . $borderWidth['desktop']['left'] . $borderWidth['desktop']['unit'] ); ?>;
-        border-radius: <?php echo esc_attr( $borderRadius['desktop']['top'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['right'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['bottom'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['left'] . $borderRadius['desktop']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'desktop' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php else : ?>
         border: none;
     <?php endif; ?>
@@ -473,15 +451,15 @@ ob_start();
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-content {
         <?php if ( $padding && isset( $padding['tablet'] ) ) : ?>
-            padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
         <?php endif; ?>
         <?php if ( $margin && isset( $margin['tablet'] ) ) : ?>
-            margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
         <?php endif; ?>
         
         <?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle && isset( $borderWidth['tablet']) && isset( $borderRadius['tablet'] ) ) : ?>
-            border-width: <?php echo esc_attr( $borderWidth['tablet']['top'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['right'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['bottom'] . $borderWidth['tablet']['unit'] . ' ' . $borderWidth['tablet']['left'] . $borderWidth['tablet']['unit'] ); ?>;
-            border-radius: <?php echo esc_attr( $borderRadius['tablet']['top'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['right'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['bottom'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['left'] . $borderRadius['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'tablet' ) ); ?>
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?>
         <?php endif; ?>
     }
 
@@ -557,15 +535,15 @@ ob_start();
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> .digiblocks-testimonial-content {
         <?php if ( $padding && isset( $padding['mobile'] ) ) : ?>
-            padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
         <?php endif; ?>
         <?php if ( $margin && isset( $margin['mobile'] ) ) : ?>
-            margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
         <?php endif; ?>
         
         <?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle && isset( $borderWidth['mobile']) && isset( $borderRadius['mobile'] ) ) : ?>
-            border-width: <?php echo esc_attr( $borderWidth['mobile']['top'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['right'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['bottom'] . $borderWidth['mobile']['unit'] . ' ' . $borderWidth['mobile']['left'] . $borderWidth['mobile']['unit'] ); ?>;
-            border-radius: <?php echo esc_attr( $borderRadius['mobile']['top'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['right'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['bottom'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['left'] . $borderRadius['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'tablet' ) ); ?>
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?>
         <?php endif; ?>
     }
 

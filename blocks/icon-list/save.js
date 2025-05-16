@@ -14,12 +14,15 @@ const IconListSave = ({ attributes }) => {
         items,
         animation,
         hoverEffect,
+        listLayout,
+        listAlign,
+        iconPosition
     } = attributes;
 
     // Build class names
     const blockClasses = [
         "digiblocks-icon-list-block",
-		id,
+        id,
         animation !== "none" ? `animate-${animation}` : "",
         hoverEffect !== "none" ? `has-hover-${hoverEffect}` : "",
         customClasses || ""
@@ -36,23 +39,42 @@ const IconListSave = ({ attributes }) => {
     // Render list items
     const renderListItems = () => {
         return items.map((item) => {
+            // Render icon based on source
+            const renderIcon = () => {
+                // For library icons or when iconSource is not set (backward compatibility)
+                if ((!item.iconSource || item.iconSource === 'library') && item.icon && item.icon.svg && item.icon.svg.trim() !== '') {
+                    return (
+                        <div className="digiblocks-icon-list-icon">
+                            <span dangerouslySetInnerHTML={{ __html: item.icon.svg }} />
+                        </div>
+                    );
+                }
+                
+                // For custom SVG
+                if (item.iconSource === 'custom' && item.customSvg && item.customSvg.trim() !== '') {
+                    return (
+                        <div className="digiblocks-icon-list-icon">
+                            <span dangerouslySetInnerHTML={{ __html: item.customSvg }} />
+                        </div>
+                    );
+                }
+                
+                return null;
+            };
+
             const itemContent = (
                 <>
-                    {item.icon && item.icon.svg && (
-						<div className="digiblocks-icon-list-icon">
-							<span dangerouslySetInnerHTML={{ __html: item.icon.svg }} />
-						</div>
-					)}
+                    {renderIcon()}
                     <div className="digiblocks-icon-list-content">
-						<RichText.Content
-							value={item.content}
-						/>
-					</div>
+                        <RichText.Content
+                            value={item.content}
+                        />
+                    </div>
                 </>
             );
 
             // Wrap content in link if enabled
-			if (item.linkUrl) {
+            if (item.linkUrl) {
                 // Handle rel attribute properly
                 let relValue = item.linkRel || '';
                 
@@ -73,7 +95,7 @@ const IconListSave = ({ attributes }) => {
                 
                 return (
                     <li key={item.id} className="digiblocks-icon-list-item">
-						<a
+                        <a 
                             className="digiblocks-icon-list-child" 
                             href={item.linkUrl} 
                             target={item.linkOpenInNewTab ? "_blank" : "_self"} 
@@ -97,7 +119,7 @@ const IconListSave = ({ attributes }) => {
     return (
         <div {...blockProps}>
             <div className="digiblocks-icon-list-wrapper">
-                <ul className="digiblocks-icon-list">
+                <ul className={`digiblocks-icon-list ${iconPosition === 'after' ? 'icon-position-after' : 'icon-position-before'}`}>
                     {renderListItems()}
                 </ul>
             </div>

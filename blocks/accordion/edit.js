@@ -82,7 +82,14 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
     }, []);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
     
     // State for color tabs
     const [titleColorTab, setTitleColorTab] = useState("normal");
@@ -618,6 +625,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                                 <PanelColorSettings
                                                     title={__("Title Colors", "digiblocks")}
                                                     initialOpen={true}
+													enableAlpha={true}
                                                     colorSettings={[
                                                         {
                                                             value: titleColor,
@@ -635,6 +643,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                                 <PanelColorSettings
                                                     title={__("Icon Colors", "digiblocks")}
                                                     initialOpen={false}
+													enableAlpha={true}
                                                     colorSettings={[
                                                         {
                                                             value: iconColor,
@@ -652,6 +661,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                                 <PanelColorSettings
                                                     title={__("Background Colors", "digiblocks")}
                                                     initialOpen={false}
+													enableAlpha={true}
                                                     colorSettings={[
                                                         {
                                                             value: backgroundColor,
@@ -669,6 +679,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                                 <PanelColorSettings
                                                     title={__("Content Colors", "digiblocks")}
                                                     initialOpen={false}
+													enableAlpha={true}
                                                     colorSettings={[
                                                         {
                                                             value: contentColor,
@@ -681,6 +692,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                                 <PanelColorSettings
                                                     title={__("Border Colors", "digiblocks")}
                                                     initialOpen={false}
+													enableAlpha={true}
                                                     colorSettings={[
                                                         {
                                                             value: borderColor,
@@ -697,6 +709,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                                 <PanelColorSettings
                                                     title={__("Title Hover Colors", "digiblocks")}
                                                     initialOpen={true}
+													enableAlpha={true}
                                                     colorSettings={[
                                                         {
                                                             value: titleHoverColor,
@@ -709,6 +722,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                                 <PanelColorSettings
                                                     title={__("Icon Hover Colors", "digiblocks")}
                                                     initialOpen={false}
+													enableAlpha={true}
                                                     colorSettings={[
                                                         {
                                                             value: iconHoverColor,
@@ -721,6 +735,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                                 <PanelColorSettings
                                                     title={__("Background Hover Colors", "digiblocks")}
                                                     initialOpen={false}
+													enableAlpha={true}
                                                     colorSettings={[
                                                         {
                                                             value: backgroundHoverColor,
@@ -733,6 +748,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                                 <PanelColorSettings
                                                     title={__("Content Hover Colors", "digiblocks")}
                                                     initialOpen={false}
+													enableAlpha={true}
                                                     colorSettings={[
                                                         {
                                                             value: contentHoverColor,
@@ -745,6 +761,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                                 <PanelColorSettings
                                                     title={__("Border Hover Colors", "digiblocks")}
                                                     initialOpen={false}
+													enableAlpha={true}
                                                     colorSettings={[
                                                         {
                                                             value: borderHoverColor,

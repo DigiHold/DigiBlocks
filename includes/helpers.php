@@ -8,6 +8,179 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+if ( ! function_exists( 'digiblocks_get_dimensions' ) ) {
+    /**
+     * Generate dimension CSS property (padding, margin, border-width, border-radius).
+     *
+     * @param array  $dimensions Responsive dimension values.
+     * @param string $property CSS property name (padding, margin, etc.).
+     * @param string $device Device (desktop, tablet, mobile).
+     * @return string CSS property with value or empty string.
+     */
+    function digiblocks_get_dimensions( $dimensions, $property, $device = 'desktop' ) {
+        // Check if device data exists
+        if ( !isset( $dimensions[$device] ) ) {
+            return '';
+        }
+        
+        $values = $dimensions[$device];
+        
+        // If not all required properties exist, return empty
+        if ( !isset( $values['top'] ) || !isset( $values['right'] ) || 
+             !isset( $values['bottom'] ) || !isset( $values['left'] ) || 
+             !isset( $values['unit'] ) ) {
+            return '';
+        }
+        
+        // Check if any values are set (not empty)
+        $has_value = 
+            $values['top'] !== '' || 
+            $values['right'] !== '' || 
+            $values['bottom'] !== '' || 
+            $values['left'] !== '';
+        
+        // If no values are set, return empty string
+        if ( !$has_value ) {
+            return '';
+        }
+        
+        // If at least one value exists, make sure all values are set (empty values become 0)
+        $top = $values['top'] !== '' ? $values['top'] : '0';
+        $right = $values['right'] !== '' ? $values['right'] : '0';
+        $bottom = $values['bottom'] !== '' ? $values['bottom'] : '0';
+        $left = $values['left'] !== '' ? $values['left'] : '0';
+        $unit = $values['unit'];
+        
+        // Return formatted CSS
+        return sprintf(
+            '%s: %s%s %s%s %s%s %s%s;',
+            $property,
+            $top, $unit,
+            $right, $unit,
+            $bottom, $unit,
+            $left, $unit
+        );
+    }
+}
+
+if ( ! function_exists( 'digiblocks_get_css' ) ) {
+    /**
+	 * Generate CSS for responsive properties, avoiding duplication across breakpoints.
+	 *
+	 * @param string $property  CSS property name.
+	 * @param mixed  $values    Responsive values (array with desktop, tablet, mobile keys).
+	 * @param string $device    Device (desktop, tablet, mobile).
+	 * @return string           CSS property with value or empty string.
+	 */
+	function digiblocks_get_css($property, $values, $device = 'desktop') {
+		// If the value doesn't exist for this device, return empty
+		if (!isset($values[$device]) || $values[$device] === '') {
+			return '';
+		}
+		
+		// For desktop, always output the value
+		if ($device === 'desktop') {
+			return sprintf('%s: %s;', $property, $values[$device]);
+		}
+		
+		// For tablet, only output if different from desktop
+		if ($device === 'tablet') {
+			// Skip if the value matches desktop
+			if (isset($values['desktop']) && $values['desktop'] !== '' && 
+				$values[$device] === $values['desktop']) {
+				return '';
+			}
+			
+			return sprintf('%s: %s;', $property, $values[$device]);
+		}
+		
+		// For mobile, compare to tablet first, then desktop
+		if ($device === 'mobile') {
+			// If tablet has a value and mobile matches it, skip
+			if (isset($values['tablet']) && $values['tablet'] !== '' && 
+				$values[$device] === $values['tablet']) {
+				return '';
+			}
+			
+			// If no tablet value but desktop has a value and mobile matches it, skip
+			if ((!isset($values['tablet']) || $values['tablet'] === '') && 
+				isset($values['desktop']) && $values['desktop'] !== '' && 
+				$values[$device] === $values['desktop']) {
+				return '';
+			}
+			
+			return sprintf('%s: %s;', $property, $values[$device]);
+		}
+		
+		return '';
+	}
+}
+
+if ( ! function_exists( 'digiblocks_get_gap_css' ) ) {
+    /**
+	 * Get gap CSS.
+	 *
+	 * @param array  $rowGap    Row gap values array with device keys.
+	 * @param array  $columnGap Column gap values array with device keys.
+	 * @param string $device   Current device (desktop, tablet, mobile).
+	 * @return string Appropriate CSS property with value or empty string.
+	 */
+	function digiblocks_get_gap_css($rowGap, $columnGap, $device) {
+		// Check if row gap has a value
+		$hasRowValue = isset($rowGap[$device]['value']) && $rowGap[$device]['value'] !== '';
+		
+		// Check if column gap has a value
+		$hasColumnValue = isset($columnGap[$device]['value']) && $columnGap[$device]['value'] !== '';
+		
+		// If both row and column gaps have values
+		if ($hasRowValue && $hasColumnValue) {
+			$rowValue = $rowGap[$device]['value'];
+			$rowUnit = isset($rowGap[$device]['unit']) && !empty($rowGap[$device]['unit']) ? $rowGap[$device]['unit'] : 'px';
+			
+			$columnValue = $columnGap[$device]['value'];
+			$columnUnit = isset($columnGap[$device]['unit']) && !empty($columnGap[$device]['unit']) ? $columnGap[$device]['unit'] : 'px';
+			
+			// Return full gap property
+			return sprintf('gap: %s%s %s%s;', $rowValue, $rowUnit, $columnValue, $columnUnit);
+		}
+		
+		// If only row gap has a value
+		if ($hasRowValue && !$hasColumnValue) {
+			$rowValue = $rowGap[$device]['value'];
+			$rowUnit = isset($rowGap[$device]['unit']) && !empty($rowGap[$device]['unit']) ? $rowGap[$device]['unit'] : 'px';
+			
+			// Return row-gap property
+			return sprintf('row-gap: %s%s;', $rowValue, $rowUnit);
+		}
+		
+		// If only column gap has a value
+		if (!$hasRowValue && $hasColumnValue) {
+			$columnValue = $columnGap[$device]['value'];
+			$columnUnit = isset($columnGap[$device]['unit']) && !empty($columnGap[$device]['unit']) ? $columnGap[$device]['unit'] : 'px';
+			
+			// Return column-gap property
+			return sprintf('column-gap: %s%s;', $columnValue, $columnUnit);
+		}
+		
+		// If neither has a value, return empty string
+		return '';
+	}
+}
+
+/**
+ * Get default responsive dimension values.
+ *
+ * @param string $unit Optional. The default unit to use.
+ * @return array Default responsive dimension values.
+ */
+function digiblocks_get_default_dimensions($unit = 'px') {
+    return [
+        'desktop' => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => $unit],
+        'tablet'  => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => $unit],
+        'mobile'  => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => $unit],
+    ];
+}
+
 /**
  * Helper function to generate box shadow CSS
  */

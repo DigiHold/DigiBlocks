@@ -26,7 +26,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -89,7 +89,14 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
     }, []);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
 
     // Use ref
 	const previewTimeoutRef = useRef(null);
@@ -217,9 +224,9 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         // Padding and margin
-        const paddingCSS = `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};`;
-        const marginCSS = `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};`;
-        
+        const paddingCSS = `${getDimensionCSS(padding, 'padding', activeDevice)}`;
+        const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice)}`;
+
         // Animation CSS if provided
         let animationCSS = '';
         if (animation && animation !== 'none' && animations[animation]) {
@@ -232,11 +239,6 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
             const separatorWidthValue = separatorWidth[activeDevice] || 50;
             const separatorHeightValue = separatorHeight[activeDevice] || 3;
             const separatorSpacingValue = separatorSpacing[activeDevice] || 10;
-            
-            // Get border radius values for the separator
-            const separatorBorderRadiusValues = separatorBorderRadius && separatorBorderRadius[activeDevice] 
-                ? separatorBorderRadius[activeDevice] 
-                : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' };
             
             const position = separatorPosition === 'top' ? 'top: 0;' : 'bottom: 0;';
             const alignment = align === 'center' ? 'left: 50%; transform: translateX(-50%);' :
@@ -254,7 +256,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                             width: ${separatorWidthValue}px;
                             height: ${separatorHeightValue}px;
                             background-color: ${separatorColor};
-                            border-radius: ${separatorBorderRadiusValues.top}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.right}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.bottom}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.left}${separatorBorderRadiusValues.unit};
+							${getDimensionCSS(separatorBorderRadius, 'border-radius', activeDevice)}
                             ${separatorPosition === 'top' ? `margin-top: ${separatorSpacingValue}px;` : `margin-bottom: ${separatorSpacingValue}px;`}
                         }
                     `;
@@ -270,7 +272,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                             width: ${separatorWidthValue}px;
                             height: ${separatorHeightValue}px;
                             background: linear-gradient(to right, ${separatorColor}, ${separatorSecondaryColor || '#ffffff'}, ${separatorColor});
-                            border-radius: ${separatorBorderRadiusValues.top}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.right}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.bottom}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.left}${separatorBorderRadiusValues.unit};
+							${getDimensionCSS(separatorBorderRadius, 'border-radius', activeDevice)}
                             ${separatorPosition === 'top' ? `margin-top: ${separatorSpacingValue}px;` : `margin-bottom: ${separatorSpacingValue}px;`}
                         }
                     `;
@@ -286,7 +288,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                             width: ${separatorWidthValue}px;
                             height: ${separatorHeightValue}px;
                             background-color: ${separatorColor};
-                            border-radius: ${separatorBorderRadiusValues.top}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.right}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.bottom}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.left}${separatorBorderRadiusValues.unit};
+							${getDimensionCSS(separatorBorderRadius, 'border-radius', activeDevice)}
                             ${separatorPosition === 'top' ? `margin-top: ${separatorSpacingValue}px;` : `margin-bottom: ${separatorSpacingValue}px;`}
                         }
                         
@@ -298,7 +300,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                             width: ${separatorWidthValue}px;
                             height: ${separatorHeightValue}px;
                             background-color: ${separatorSecondaryColor || separatorColor};
-                            border-radius: ${separatorBorderRadiusValues.top}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.right}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.bottom}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.left}${separatorBorderRadiusValues.unit};
+							${getDimensionCSS(separatorBorderRadius, 'border-radius', activeDevice)}
                             ${separatorPosition === 'top' ? `margin-top: ${separatorSpacingValue + separatorHeightValue + 3}px;` : `margin-bottom: ${separatorSpacingValue + separatorHeightValue + 3}px;`}
                         }
                     `;
@@ -320,7 +322,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                 transparent 8px, 
                                 transparent 12px
                             );
-                            border-radius: ${separatorBorderRadiusValues.top}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.right}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.bottom}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.left}${separatorBorderRadiusValues.unit};
+							${getDimensionCSS(separatorBorderRadius, 'border-radius', activeDevice)}
                             ${separatorPosition === 'top' ? `margin-top: ${separatorSpacingValue}px;` : `margin-bottom: ${separatorSpacingValue}px;`}
                         }
                     `;
@@ -342,7 +344,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                 transparent 3px, 
                                 transparent 6px
                             );
-                            border-radius: ${separatorBorderRadiusValues.top}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.right}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.bottom}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.left}${separatorBorderRadiusValues.unit};
+							${getDimensionCSS(separatorBorderRadius, 'border-radius', activeDevice)}
                             ${separatorPosition === 'top' ? `margin-top: ${separatorSpacingValue}px;` : `margin-bottom: ${separatorSpacingValue}px;`}
                         }
                     `;
@@ -414,7 +416,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                             height: ${separatorHeightValue}px;
                             background-color: ${separatorColor};
                             box-shadow: 0 0 ${separatorHeightValue * 3}px ${separatorHeightValue}px ${separatorColor};
-                            border-radius: ${separatorBorderRadiusValues.top}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.right}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.bottom}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.left}${separatorBorderRadiusValues.unit};
+							${getDimensionCSS(separatorBorderRadius, 'border-radius', activeDevice)}
                             ${separatorPosition === 'top' ? `margin-top: ${separatorSpacingValue}px;` : `margin-bottom: ${separatorSpacingValue}px;`}
                         }
                     `;
@@ -430,7 +432,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                             width: ${separatorWidthValue}px;
                             height: ${separatorHeightValue}px;
                             background: linear-gradient(to right, transparent, ${separatorColor}, transparent);
-                            border-radius: ${separatorBorderRadiusValues.top}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.right}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.bottom}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.left}${separatorBorderRadiusValues.unit};
+							${getDimensionCSS(separatorBorderRadius, 'border-radius', activeDevice)}
                             ${separatorPosition === 'top' ? `margin-top: ${separatorSpacingValue}px;` : `margin-bottom: ${separatorSpacingValue}px;`}
                         }
                     `;
@@ -446,7 +448,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                             width: ${separatorWidthValue}px;
                             height: ${separatorHeightValue}px;
                             background-color: ${separatorColor};
-                            border-radius: ${separatorBorderRadiusValues.top}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.right}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.bottom}${separatorBorderRadiusValues.unit} ${separatorBorderRadiusValues.left}${separatorBorderRadiusValues.unit};
+							${getDimensionCSS(separatorBorderRadius, 'border-radius', activeDevice)}
                             ${separatorPosition === 'top' ? `margin-top: ${separatorSpacingValue}px;` : `margin-bottom: ${separatorSpacingValue}px;`}
                         }
                     `;
@@ -869,6 +871,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                     <PanelColorSettings
                                         title={__("Separator Colors", "digiblocks")}
                                         initialOpen={true}
+										enableAlpha={true}
                                         colorSettings={[
                                             {
                                                 value: separatorColor,

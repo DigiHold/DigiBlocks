@@ -21,7 +21,6 @@ $buttonBackgroundHoverColor = isset( $attrs['buttonBackgroundHoverColor'] ) ? $a
 $buttonTextHoverColor      = isset( $attrs['buttonTextHoverColor'] ) ? $attrs['buttonTextHoverColor'] : '#ffffff';
 $borderStyle               = isset( $attrs['borderStyle'] ) ? $attrs['borderStyle'] : 'solid';
 $borderColor               = isset( $attrs['borderColor'] ) ? $attrs['borderColor'] : '#e0e0e0';
-$borderWidth               = isset( $attrs['borderWidth'] ) ? $attrs['borderWidth'] : 1;
 $buttonAlign               = isset( $attrs['buttonAlign'] ) ? $attrs['buttonAlign'] : 'left';
 $animation                 = isset( $attrs['animation'] ) ? $attrs['animation'] : 'none';
 $inputBorderStyle          = isset( $attrs['inputBorderStyle'] ) ? $attrs['inputBorderStyle'] : 'solid';
@@ -32,6 +31,30 @@ $inputTextColor            = isset( $attrs['inputTextColor'] ) ? $attrs['inputTe
 $inputFocusBorderColor     = isset( $attrs['inputFocusBorderColor'] ) ? $attrs['inputFocusBorderColor'] : '#4a6cf7';
 
 // Responsive attributes
+$borderWidth = isset( $attrs['borderWidth'] ) ? $attrs['borderWidth'] : array(
+    'desktop' => array(
+        'top'    => 1,
+        'right'  => 1,
+        'bottom' => 1,
+        'left'   => 1,
+        'unit'   => 'px',
+    ),
+    'tablet'  => array(
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
+        'unit'   => 'px',
+    ),
+    'mobile'  => array(
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
+        'unit'   => 'px',
+    ),
+);
+
 $borderRadius = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : array(
     'desktop' => array(
         'top'    => 8,
@@ -41,17 +64,17 @@ $borderRadius = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : array
         'unit'   => 'px',
     ),
     'tablet'  => array(
-        'top'    => 8,
-        'right'  => 8,
-        'bottom' => 8,
-        'left'   => 8,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
     'mobile'  => array(
-        'top'    => 8,
-        'right'  => 8,
-        'bottom' => 8,
-        'left'   => 8,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
 );
@@ -113,17 +136,17 @@ $inputBorderRadius = isset( $attrs['inputBorderRadius'] ) ? $attrs['inputBorderR
         'unit'   => 'px',
     ),
     'tablet'  => array(
-        'top'    => 4,
-        'right'  => 4,
-        'bottom' => 4,
-        'left'   => 4,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
     'mobile'  => array(
-        'top'    => 4,
-        'right'  => 4,
-        'bottom' => 4,
-        'left'   => 4,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
 );
@@ -211,12 +234,17 @@ ob_start();
     background-color: <?php echo esc_attr( $backgroundColor ); ?>;
     color: <?php echo esc_attr( $textColor ); ?>;
     <?php if ( 'none' !== $borderStyle ) : ?>
-    border: <?php echo esc_attr( $borderWidth ); ?>px <?php echo esc_attr( $borderStyle ); ?> <?php echo esc_attr( $borderColor ); ?>;
+	border-style: <?php echo esc_attr( $borderStyle ); ?>;
+	border-color: <?php echo esc_attr( $borderColor ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'desktop' ) ); ?>
     <?php endif; ?>
-    border-radius: <?php echo esc_attr( $borderRadius['desktop']['top'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['right'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['bottom'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['left'] . $borderRadius['desktop']['unit'] ); ?>;
-    padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
-    margin: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['right'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['bottom'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['left'] . $margin['desktop']['unit'] ); ?>;
-    box-shadow: <?php echo esc_attr( $box_shadow_css ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
+    <?php if ($boxShadow['enable']) : ?>
+        box-shadow: <?php echo esc_attr( $box_shadow_css ); ?>;
+		transition: all .3s ease;
+    <?php endif; ?>
     transition: all 0.3s ease;
     width: 100%;
     <?php if ( !empty($typography['fontFamily']) ) : ?>
@@ -245,9 +273,11 @@ ob_start();
     <?php endif; ?>
 }
 
-.<?php echo esc_attr( $id ); ?>:hover {
+<?php if ($boxShadowHover['enable']) : ?>
+.<?php echo esc_attr($id); ?>:hover {
     box-shadow: <?php echo esc_attr( $box_shadow_hover_css ); ?>;
 }
+<?php endif; ?>
 
 /* Form container */
 .<?php echo esc_attr( $id ); ?> .digiblocks-form {
@@ -312,9 +342,13 @@ ob_start();
 .<?php echo esc_attr( $id ); ?> .digiblocks-form-textarea,
 .<?php echo esc_attr( $id ); ?> .digiblocks-form-select {
     width: 100%;
-    padding: <?php echo esc_attr( $inputPadding['desktop']['top'] . $inputPadding['desktop']['unit'] . ' ' . $inputPadding['desktop']['right'] . $inputPadding['desktop']['unit'] . ' ' . $inputPadding['desktop']['bottom'] . $inputPadding['desktop']['unit'] . ' ' . $inputPadding['desktop']['left'] . $inputPadding['desktop']['unit'] ); ?>;
-    border-radius: <?php echo esc_attr( $inputBorderRadius['desktop']['top'] . $inputBorderRadius['desktop']['unit'] . ' ' . $inputBorderRadius['desktop']['right'] . $inputBorderRadius['desktop']['unit'] . ' ' . $inputBorderRadius['desktop']['bottom'] . $inputBorderRadius['desktop']['unit'] . ' ' . $inputBorderRadius['desktop']['left'] . $inputBorderRadius['desktop']['unit'] ); ?>;
-    border: <?php echo esc_attr( $inputBorderWidth ); ?>px <?php echo esc_attr( $inputBorderStyle ); ?> <?php echo esc_attr( $inputBorderColor ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $inputPadding, 'padding', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $inputBorderRadius, 'border-radius', 'desktop' ) ); ?>
+    <?php if ( 'none' !== $inputBorderStyle ) : ?>
+	border-style: <?php echo esc_attr( $inputBorderStyle ); ?>;
+	border-color: <?php echo esc_attr( $inputBorderColor ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $inputBorderWidth, 'border-width', 'desktop' ) ); ?>
+    <?php endif; ?>
     background-color: <?php echo esc_attr( $inputBackgroundColor ); ?>;
     color: <?php echo esc_attr( $inputTextColor ); ?>;
     transition: all 0.3s ease;
@@ -386,7 +420,7 @@ ob_start();
     background-color: <?php echo esc_attr( $buttonBackgroundColor ); ?>;
     color: <?php echo esc_attr( $buttonTextColor ); ?>;
     border: none;
-    border-radius: <?php echo esc_attr( $inputBorderRadius['desktop']['top'] . $inputBorderRadius['desktop']['unit'] . ' ' . $inputBorderRadius['desktop']['right'] . $inputBorderRadius['desktop']['unit'] . ' ' . $inputBorderRadius['desktop']['bottom'] . $inputBorderRadius['desktop']['unit'] . ' ' . $inputBorderRadius['desktop']['left'] . $inputBorderRadius['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $inputBorderRadius, 'border-radius', 'desktop' ) ); ?>
     padding: 12px 24px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -520,9 +554,12 @@ ob_start();
 /* Tablet Styles */
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
-        padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
-        margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
-        border-radius: <?php echo esc_attr( $borderRadius['tablet']['top'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['right'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['bottom'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['left'] . $borderRadius['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?>
+		<?php if ( 'none' !== $borderStyle ) : ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'tablet' ) ); ?>
+		<?php endif; ?>
         <?php if ( !empty($typography['fontSize']) && !empty($typography['fontSize']['tablet']) ) : ?>
         font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . (!empty($typography['fontSizeUnit']) ? $typography['fontSizeUnit'] : 'px') ); ?>;
         <?php endif; ?>
@@ -555,8 +592,11 @@ ob_start();
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-input,
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-textarea,
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-select {
-        padding: <?php echo esc_attr( $inputPadding['tablet']['top'] . $inputPadding['tablet']['unit'] . ' ' . $inputPadding['tablet']['right'] . $inputPadding['tablet']['unit'] . ' ' . $inputPadding['tablet']['bottom'] . $inputPadding['tablet']['unit'] . ' ' . $inputPadding['tablet']['left'] . $inputPadding['tablet']['unit'] ); ?>;
-        border-radius: <?php echo esc_attr( $inputBorderRadius['tablet']['top'] . $inputBorderRadius['tablet']['unit'] . ' ' . $inputBorderRadius['tablet']['right'] . $inputBorderRadius['tablet']['unit'] . ' ' . $inputBorderRadius['tablet']['bottom'] . $inputBorderRadius['tablet']['unit'] . ' ' . $inputBorderRadius['tablet']['left'] . $inputBorderRadius['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $inputPadding, 'padding', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $inputBorderRadius, 'border-radius', 'tablet' ) ); ?>
+		<?php if ( 'none' !== $inputBorderStyle ) : ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $inputBorderWidth, 'border-width', 'tablet' ) ); ?>
+		<?php endif; ?>
         <?php if ( !empty($typography['fontSize']) && !empty($typography['fontSize']['tablet']) ) : ?>
         font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . (!empty($typography['fontSizeUnit']) ? $typography['fontSizeUnit'] : 'px') ); ?>;
         <?php endif; ?>
@@ -609,9 +649,12 @@ ob_start();
 /* Mobile Styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
-        padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
-        margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
-        border-radius: <?php echo esc_attr( $borderRadius['mobile']['top'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['right'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['bottom'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['left'] . $borderRadius['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'mobile' ) ); ?>
+		<?php if ( 'none' !== $borderStyle ) : ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'mobile' ) ); ?>
+		<?php endif; ?>
         <?php if ( !empty($typography['fontSize']) && !empty($typography['fontSize']['mobile']) ) : ?>
         font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . (!empty($typography['fontSizeUnit']) ? $typography['fontSizeUnit'] : 'px') ); ?>;
         <?php endif; ?>
@@ -644,8 +687,11 @@ ob_start();
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-input,
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-textarea,
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-select {
-        padding: <?php echo esc_attr( $inputPadding['mobile']['top'] . $inputPadding['mobile']['unit'] . ' ' . $inputPadding['mobile']['right'] . $inputPadding['mobile']['unit'] . ' ' . $inputPadding['mobile']['bottom'] . $inputPadding['mobile']['unit'] . ' ' . $inputPadding['mobile']['left'] . $inputPadding['mobile']['unit'] ); ?>;
-        border-radius: <?php echo esc_attr( $inputBorderRadius['mobile']['top'] . $inputBorderRadius['mobile']['unit'] . ' ' . $inputBorderRadius['mobile']['right'] . $inputBorderRadius['mobile']['unit'] . ' ' . $inputBorderRadius['mobile']['bottom'] . $inputBorderRadius['mobile']['unit'] . ' ' . $inputBorderRadius['mobile']['left'] . $inputBorderRadius['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $inputPadding, 'padding', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $inputBorderRadius, 'border-radius', 'mobile' ) ); ?>
+		<?php if ( 'none' !== $inputBorderStyle ) : ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $inputBorderWidth, 'border-width', 'mobile' ) ); ?>
+		<?php endif; ?>
         <?php if ( !empty($typography['fontSize']) && !empty($typography['fontSize']['mobile']) ) : ?>
         font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . (!empty($typography['fontSizeUnit']) ? $typography['fontSizeUnit'] : 'px') ); ?>;
         <?php endif; ?>

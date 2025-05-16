@@ -7,6 +7,10 @@ const { registerBlockType } = wp.blocks;
 /**
  * DigiBlocks
  */
+import ColumnEdit from '../../../blocks/column/edit';
+import ColumnSave from '../../../blocks/column/save';
+import ContainerEdit from '../../../blocks/container/edit';
+import ContainerSave from '../../../blocks/container/save';
 import AccordionEdit from '../../../blocks/accordion/edit';
 import AccordionSave from '../../../blocks/accordion/save';
 import ButtonsEdit from '../../../blocks/buttons/edit';
@@ -15,10 +19,6 @@ import ButtonEdit from '../../../blocks/button/edit';
 import ButtonSave from '../../../blocks/button/save';
 import CallToActionEdit from '../../../blocks/call-to-action/edit';
 import CallToActionSave from '../../../blocks/call-to-action/save';
-import ColumnEdit from '../../../blocks/column/edit';
-import ColumnSave from '../../../blocks/column/save';
-import ContainerEdit from '../../../blocks/container/edit';
-import ContainerSave from '../../../blocks/container/save';
 import CountdownEdit from '../../../blocks/countdown/edit';
 import CountdownSave from '../../../blocks/countdown/save';
 import CounterEdit from '../../../blocks/counter/edit';
@@ -98,6 +98,443 @@ const isWooActive = () => {
     // Check if the woocommerce global object exists
     return typeof window.wc !== 'undefined' || (window.digiBlocksData && window.digiBlocksData.isWooActive);
 };
+
+/**
+ * Register Column block
+ */
+registerBlockType('digiblocks/column', {
+	apiVersion: 2,
+	title: __('Column', 'digiblocks'),
+    parent: ['digiblocks/container'],
+    icon: {
+        src: () => (
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="24" height="24"><path d="M448 64l0 384 128 0c17.7 0 32-14.3 32-32l0-320c0-17.7-14.3-32-32-32L448 64zm-32 0L224 64l0 384 192 0 0-384zM192 448l0-384L64 64C46.3 64 32 78.3 32 96l0 320c0 17.7 14.3 32 32 32l128 0zM0 96C0 60.7 28.7 32 64 32l512 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96z"/></svg>
+        )
+    },
+    description: __('Flexible column component to use within Container blocks', 'digiblocks'),
+    supports: {
+        inserter: false, // Can only be inserted within container block
+        reusable: false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        width: {
+            type: 'object',
+            default: {
+                desktop: 100,
+                tablet: 100,
+                mobile: 100
+            }
+        },
+        order: {
+            type: 'object',
+            default: {
+                desktop: 0,
+                tablet: 0,
+                mobile: 0
+            }
+        },
+        hoverEffect: {
+            type: 'string',
+            default: 'none'
+        },
+        backgroundColor: {
+            type: 'string',
+            default: ''
+        },
+        backgroundImage: {
+            type: 'object',
+            default: {
+                url: '',
+                id: 0,
+                alt: '',
+                size: ''
+            }
+        },
+        backgroundPosition: {
+            type: 'string',
+            default: 'center center'
+        },
+        backgroundRepeat: {
+            type: 'string',
+            default: 'no-repeat'
+        },
+        backgroundSize: {
+            type: 'string',
+            default: 'cover'
+        },
+        backgroundOverlay: {
+            type: 'string',
+            default: ''
+        },
+        backgroundOverlayOpacity: {
+            type: 'number',
+            default: 0.7
+        },
+        backgroundOverlayBlendMode: {
+            type: 'string',
+            default: 'normal'
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+		boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+    },
+    edit: ColumnEdit,
+    save: ColumnSave,
+});
+
+/**
+ * Register Container block
+ */
+registerBlockType('digiblocks/container', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['container'].title,
+    category: 'digiblocks',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['container'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['container'].description,
+    keywords: [__('container', 'digiblocks'), __('section', 'digiblocks'), __('row', 'digiblocks'), __('layout', 'digiblocks'), __('columns', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('container') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+		isNested: {
+			type: 'boolean',
+			default: false
+		},
+        id: {
+            type: 'string',
+            default: '',
+        },
+		flexWrap: {
+			type: 'object',
+			default: {
+				desktop: 'nowrap',
+				tablet: 'nowrap',
+				mobile: 'nowrap'
+			}
+		},
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        layout: {
+            type: 'string',
+            default: ''
+        },
+        contentLayout: {
+            type: 'string',
+            default: 'boxed'
+        },
+		contentWidth: {
+			type: 'object',
+			default: {
+				desktop: parseInt(digiBlocksData.contentWidth) || 1200,
+				tablet: '',
+				mobile: ''
+			}
+		},
+		contentMaxWidth: {
+			type: 'object',
+			default: {
+				desktop: parseInt(digiBlocksData.contentMaxWidth) || 90,
+				tablet: '',
+				mobile: ''
+			}
+		},
+		heightType: {
+			type: 'object',
+			default: {
+				desktop: 'auto',
+				tablet: 'auto',
+				mobile: 'auto'
+			}
+		},
+		horizontalAlign: {
+			type: 'object',
+			default: {
+				desktop: 'center',
+				tablet: 'center',
+				mobile: 'center'
+			}
+		},
+		verticalAlign: {
+			type: 'object',
+			default: {
+				desktop: 'center',
+				tablet: 'center',
+				mobile: 'center'
+			}
+		},
+        minHeight: {
+            type: 'object',
+            default: {
+                desktop: 0,
+                tablet: 0,
+                mobile: 0
+            }
+        },
+		columnGap: {
+			type: 'object',
+			default: {
+				desktop: { value: 20, unit: 'px' },
+				tablet: { value: '', unit: 'px' },
+				mobile: { value: '', unit: 'px' }
+			}
+		},
+		rowGap: {
+			type: 'object',
+			default: {
+				desktop: { value: 20, unit: 'px' },
+				tablet: { value: '', unit: 'px' },
+				mobile: { value: '', unit: 'px' }
+			}
+		},
+        reverseColumnsMobile: {
+            type: 'boolean',
+            default: false
+        },
+        stackOnTablet: {
+            type: 'boolean',
+            default: false
+        },
+        stackOnMobile: {
+            type: 'boolean',
+            default: true
+        },
+        overflowHidden: {
+            type: 'boolean',
+            default: false
+        },
+        zIndex: {
+            type: 'number',
+            default: 0
+        },
+        backgroundColor: {
+            type: 'string',
+            default: ''
+        },
+        backgroundImage: {
+            type: 'object',
+            default: {
+                url: '',
+                id: 0,
+                alt: '',
+                size: ''
+            }
+        },
+        backgroundPosition: {
+            type: 'string',
+            default: 'center center'
+        },
+        backgroundRepeat: {
+            type: 'string',
+            default: 'no-repeat'
+        },
+        backgroundSize: {
+            type: 'string',
+            default: 'cover'
+        },
+        backgroundVideo: {
+            type: 'object',
+            default: {
+                url: '',
+                id: 0,
+                alt: '',
+                size: ''
+            }
+        },
+        backgroundVideoFallbackImage: {
+            type: 'object',
+            default: {
+                url: '',
+                id: 0,
+                alt: '',
+                size: ''
+            }
+        },
+        backgroundOverlay: {
+            type: 'string',
+            default: ''
+        },
+        backgroundOverlayOpacity: {
+            type: 'number',
+            default: 0.7
+        },
+        backgroundOverlayBlendMode: {
+            type: 'string',
+            default: 'normal'
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+		boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+    },
+	example: {
+		attributes: {
+			layout: '',
+			backgroundColor: '#f8f9fa',
+			padding: {
+				desktop: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+			}
+		},
+		// No inner blocks to ensure layout selector appears
+		innerBlocks: [],
+		viewportWidth: 500
+	},
+    edit: ContainerEdit,
+    save: ContainerSave,
+});
 
 /**
  * Register Accordion block
@@ -200,16 +637,16 @@ registerBlockType('digiblocks/accordion', {
 			type: 'object',
 			default: {
 				desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-				tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-				mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 			}
 		},
 		borderWidth: {
 			type: 'object',
 			default: {
 				desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-				tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-				mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 			}
 		},
 		borderStyle: {
@@ -535,16 +972,16 @@ registerBlockType('digiblocks/button', {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderRadius: {
             type: 'object',
             default: {
-                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderColor: {
@@ -590,9 +1027,9 @@ registerBlockType('digiblocks/button', {
         margin: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         onlyIcon: {
@@ -722,21 +1159,41 @@ registerBlockType('digiblocks/call-to-action', {
             type: 'string',
             default: 'none'
         },
-        borderWidth: {
-            type: 'object'
+		borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
         },
-        borderRadius: {
-            type: 'object'
+		borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
         },
         borderColor: {
             type: 'string',
             default: '#e0e0e0'
         },
-        padding: {
-            type: 'object'
+		padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 40, right: 30, bottom: 40, left: 30, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
         },
         margin: {
-            type: 'object'
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
         },
         align: {
             type: 'string',
@@ -768,11 +1225,21 @@ registerBlockType('digiblocks/call-to-action', {
         boxShadowHover: {
             type: 'object'
         },
-        buttonBorderRadius: {
-            type: 'object'
+		buttonBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
         },
-        buttonPadding: {
-            type: 'object'
+		buttonPadding: {
+            type: 'object',
+            default: {
+                desktop: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
         },
         buttonsAlign: {
             type: 'string',
@@ -864,415 +1331,6 @@ registerBlockType('digiblocks/call-to-action', {
     },
     edit: CallToActionEdit,
     save: CallToActionSave,
-});
-
-/**
- * Register Column block
- */
-registerBlockType('digiblocks/column', {
-	apiVersion: 2,
-	title: __('Column', 'digiblocks'),
-    parent: ['digiblocks/container'],
-    icon: {
-        src: () => (
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="24" height="24"><path d="M448 64l0 384 128 0c17.7 0 32-14.3 32-32l0-320c0-17.7-14.3-32-32-32L448 64zm-32 0L224 64l0 384 192 0 0-384zM192 448l0-384L64 64C46.3 64 32 78.3 32 96l0 320c0 17.7 14.3 32 32 32l128 0zM0 96C0 60.7 28.7 32 64 32l512 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96z"/></svg>
-        )
-    },
-    description: __('Flexible column component to use within Container blocks', 'digiblocks'),
-    supports: {
-        inserter: false, // Can only be inserted within container block
-        reusable: false,
-        html: false,
-        className: false,
-        customClassName: false,
-        anchor: false,
-    },
-    attributes: {
-        id: {
-            type: 'string',
-            default: '',
-        },
-        width: {
-            type: 'object',
-            default: {
-                desktop: 100,
-                tablet: 100,
-                mobile: 100
-            }
-        },
-        order: {
-            type: 'object',
-            default: {
-                desktop: 0,
-                tablet: 0,
-                mobile: 0
-            }
-        },
-        backgroundColor: {
-            type: 'string',
-            default: ''
-        },
-        backgroundImage: {
-            type: 'object',
-            default: {
-                url: '',
-                id: 0,
-                alt: '',
-                size: ''
-            }
-        },
-        backgroundPosition: {
-            type: 'string',
-            default: 'center center'
-        },
-        backgroundRepeat: {
-            type: 'string',
-            default: 'no-repeat'
-        },
-        backgroundSize: {
-            type: 'string',
-            default: 'cover'
-        },
-        backgroundOverlay: {
-            type: 'string',
-            default: ''
-        },
-        backgroundOverlayOpacity: {
-            type: 'number',
-            default: 0.7
-        },
-        backgroundOverlayBlendMode: {
-            type: 'string',
-            default: 'normal'
-        },
-        padding: {
-            type: 'object',
-            default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
-            }
-        },
-        margin: {
-            type: 'object',
-            default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
-            }
-        },
-        borderStyle: {
-            type: 'string',
-            default: 'none'
-        },
-        borderWidth: {
-            type: 'object',
-            default: {
-                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
-            }
-        },
-        borderColor: {
-            type: 'string',
-            default: '#e0e0e0'
-        },
-        borderRadius: {
-            type: 'object',
-            default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
-            }
-        },
-		boxShadow: {
-            type: 'object',
-            default: {
-                enable: false,
-                color: 'rgba(0, 0, 0, 0.2)',
-                horizontal: 0,
-                vertical: 0,
-                blur: 0,
-                spread: 0,
-                position: 'outset'
-            }
-        },
-        boxShadowHover: {
-            type: 'object',
-            default: {
-                enable: false,
-                color: 'rgba(0, 0, 0, 0.2)',
-                horizontal: 0,
-                vertical: 0,
-                blur: 0,
-                spread: 0,
-                position: 'outset'
-            }
-        },
-    },
-    edit: ColumnEdit,
-    save: ColumnSave,
-});
-
-/**
- * Register Container block
- */
-registerBlockType('digiblocks/container', {
-    apiVersion: 2,
-    title: digiBlocksData.blocks['container'].title,
-    category: 'digiblocks',
-    icon: {
-        src: () => {
-            const { viewbox, path } = digiBlocksData.blocks['container'].icon;
-            return (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
-                    <path d={path} />
-                </svg>
-            );
-        }
-    },
-    description: digiBlocksData.blocks['container'].description,
-    keywords: [__('container', 'digiblocks'), __('section', 'digiblocks'), __('row', 'digiblocks'), __('layout', 'digiblocks'), __('columns', 'digiblocks')],
-    supports: {
-        inserter: getBlockActiveStatus('container') ? true : false,
-        html: false,
-        className: false,
-        customClassName: false,
-        anchor: false,
-    },
-    attributes: {
-        id: {
-            type: 'string',
-            default: '',
-        },
-        anchor: {
-            type: 'string',
-            default: ''
-        },
-        customClasses: {
-            type: 'string',
-            default: ''
-        },
-        layout: {
-            type: 'string',
-            default: ''
-        },
-        contentLayout: {
-            type: 'string',
-            default: 'boxed'
-        },
-		contentWidth: {
-			type: 'object',
-			default: {
-				desktop: 1200,
-				tablet: '',
-				mobile: ''
-			}
-		},
-		contentMaxWidth: {
-			type: 'object',
-			default: {
-				desktop: 90,
-				tablet: '',
-				mobile: ''
-			}
-		},
-        horizontalAlign: {
-            type: 'string',
-            default: 'center'
-        },
-        verticalAlign: {
-            type: 'string',
-            default: 'center'
-        },
-        heightType: {
-            type: 'string',
-            default: 'auto'
-        },
-        minHeight: {
-            type: 'object',
-            default: {
-                desktop: 0,
-                tablet: 0,
-                mobile: 0
-            }
-        },
-        columnGap: {
-            type: 'object',
-            default: {
-                desktop: 20,
-                tablet: 15,
-                mobile: 10
-            }
-        },
-        rowGap: {
-            type: 'object',
-            default: {
-                desktop: 20,
-                tablet: 15,
-                mobile: 10
-            }
-        },
-        reverseColumnsMobile: {
-            type: 'boolean',
-            default: false
-        },
-        stackOnTablet: {
-            type: 'boolean',
-            default: false
-        },
-        stackOnMobile: {
-            type: 'boolean',
-            default: true
-        },
-        overflowHidden: {
-            type: 'boolean',
-            default: false
-        },
-        zIndex: {
-            type: 'number',
-            default: 0
-        },
-        backgroundColor: {
-            type: 'string',
-            default: ''
-        },
-        backgroundImage: {
-            type: 'object',
-            default: {
-                url: '',
-                id: 0,
-                alt: '',
-                size: ''
-            }
-        },
-        backgroundPosition: {
-            type: 'string',
-            default: 'center center'
-        },
-        backgroundRepeat: {
-            type: 'string',
-            default: 'no-repeat'
-        },
-        backgroundSize: {
-            type: 'string',
-            default: 'cover'
-        },
-        backgroundVideo: {
-            type: 'object',
-            default: {
-                url: '',
-                id: 0,
-                alt: '',
-                size: ''
-            }
-        },
-        backgroundVideoFallbackImage: {
-            type: 'object',
-            default: {
-                url: '',
-                id: 0,
-                alt: '',
-                size: ''
-            }
-        },
-        backgroundOverlay: {
-            type: 'string',
-            default: ''
-        },
-        backgroundOverlayOpacity: {
-            type: 'number',
-            default: 0.7
-        },
-        backgroundOverlayBlendMode: {
-            type: 'string',
-            default: 'normal'
-        },
-        padding: {
-            type: 'object',
-            default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
-            }
-        },
-        margin: {
-            type: 'object',
-            default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
-            }
-        },
-        borderStyle: {
-            type: 'string',
-            default: 'none'
-        },
-        borderWidth: {
-            type: 'object',
-            default: {
-                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
-            }
-        },
-        borderColor: {
-            type: 'string',
-            default: '#e0e0e0'
-        },
-        borderRadius: {
-            type: 'object',
-            default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
-            }
-        },
-		boxShadow: {
-            type: 'object',
-            default: {
-                enable: false,
-                color: 'rgba(0, 0, 0, 0.2)',
-                horizontal: 0,
-                vertical: 0,
-                blur: 0,
-                spread: 0,
-                position: 'outset'
-            }
-        },
-        boxShadowHover: {
-            type: 'object',
-            default: {
-                enable: false,
-                color: 'rgba(0, 0, 0, 0.2)',
-                horizontal: 0,
-                vertical: 0,
-                blur: 0,
-                spread: 0,
-                position: 'outset'
-            }
-        },
-        animation: {
-            type: 'string',
-            default: 'none'
-        },
-    },
-	example: {
-		attributes: {
-			layout: '',
-			backgroundColor: '#f8f9fa',
-			padding: {
-				desktop: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' },
-				tablet: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' },
-				mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' }
-			}
-		},
-		// No inner blocks to ensure layout selector appears
-		innerBlocks: [],
-		viewportWidth: 500
-	},
-    edit: ContainerEdit,
-    save: ContainerSave,
 });
 
 /**
@@ -1390,32 +1448,32 @@ registerBlockType('digiblocks/countdown', {
             type: 'object',
             default: {
                 desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         boxPadding: {
             type: 'object',
             default: {
                 desktop: { top: 10, right: 10, bottom: 10, left: 10, unit: 'px' },
-                tablet: { top: 10, right: 10, bottom: 10, left: 10, unit: 'px' },
-                mobile: { top: 10, right: 10, bottom: 10, left: 10, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         boxMargin: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         boxBorderWidth: {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         boxBorderColor: {
@@ -1689,9 +1747,9 @@ registerBlockType('digiblocks/counter', {
         iconPadding: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         iconMargin: {
@@ -1710,16 +1768,16 @@ registerBlockType('digiblocks/counter', {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         iconBorderRadius: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         iconBorderColor: {
@@ -1877,17 +1935,17 @@ registerBlockType('digiblocks/counter', {
                     unit: 'px'
                 },
                 tablet: {
-                    top: 8,
-                    right: 8,
-                    bottom: 8,
-                    left: 8,
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
                     unit: 'px'
                 },
                 mobile: {
-                    top: 8,
-                    right: 8,
-                    bottom: 8,
-                    left: 8,
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
                     unit: 'px'
                 }
             }
@@ -1903,17 +1961,17 @@ registerBlockType('digiblocks/counter', {
                     unit: 'px'
                 },
                 tablet: {
-                    top: 1,
-                    right: 1,
-                    bottom: 1,
-                    left: 1,
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
                     unit: 'px'
                 },
                 mobile: {
-                    top: 1,
-                    right: 1,
-                    bottom: 1,
-                    left: 1,
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
                     unit: 'px'
                 }
             }
@@ -2191,9 +2249,9 @@ if ( isDigiActive() ) {
             padding: {
                 type: 'object',
                 default: {
-                    desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                    tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                    mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                    desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                    tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                    mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                 }
             },
             margin: {
@@ -2304,8 +2362,8 @@ if ( isDigiActive() ) {
                 type: 'object',
                 default: {
                     desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                    tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                    mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+                    tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                    mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                 }
             },
             imageSize: {
@@ -2316,8 +2374,8 @@ if ( isDigiActive() ) {
                 type: 'object',
                 default: {
                     desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                    tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                    mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                    tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                    mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                 }
             },
             cardStyle: {
@@ -2340,8 +2398,8 @@ if ( isDigiActive() ) {
                 type: 'object',
                 default: {
                     desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                    tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                    mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                    tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                    mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                 }
             },
             cardBorderStyle: {
@@ -2352,8 +2410,8 @@ if ( isDigiActive() ) {
                 type: 'object',
                 default: {
                     desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                    tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                    mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                    tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                    mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                 }
             },
             cardBorderColor: {
@@ -2513,16 +2571,16 @@ registerBlockType('digiblocks/faq', {
             type: 'object',
             default: {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderWidth: {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderStyle: {
@@ -2838,15 +2896,19 @@ registerBlockType('digiblocks/forms', {
 			default: '#e0e0e0'
 		},
         borderWidth: {
-			type: 'number',
-			default: 1
-		},
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
         borderRadius: {
             type: 'object',
             default: {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         padding: {
@@ -2910,15 +2972,19 @@ registerBlockType('digiblocks/forms', {
 			default: '#e0e0e0'
 		},
         inputBorderWidth: {
-			type: 'number',
-			default: 1
-		},
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
         inputBorderRadius: {
             type: 'object',
             default: {
                 desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         inputPadding: {
@@ -3142,16 +3208,16 @@ registerBlockType('digiblocks/google-map', {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderRadius: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderColor: {
@@ -3284,17 +3350,17 @@ registerBlockType('digiblocks/heading', {
         padding: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 15, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 10, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         margin: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         animation: {
@@ -3360,9 +3426,9 @@ registerBlockType('digiblocks/heading', {
         separatorBorderRadius: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         linkEnabled: {
@@ -3454,6 +3520,14 @@ registerBlockType('digiblocks/icon', {
             type: 'string',
             default: ''
         },
+		iconSource: {
+			type: 'string',
+			default: 'library'
+		},
+		customSvg: {
+			type: 'string',
+			default: ''
+		},
         iconValue: {
             type: 'object',
             default: {
@@ -3480,16 +3554,16 @@ registerBlockType('digiblocks/icon', {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         iconBorderRadius: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         iconBorderColor: {
@@ -3507,9 +3581,9 @@ registerBlockType('digiblocks/icon', {
         iconMargin: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         iconHoverColor: {
@@ -3678,9 +3752,9 @@ registerBlockType('digiblocks/icon', {
             backgroundColor: 'transparent',
             iconSize: { desktop: 80 },
 			iconPadding: {
-				desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-				tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-				mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+				desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 			},
         },
     },
@@ -3728,9 +3802,25 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'string',
 			default: ''
 		},
+		iconSource: {
+			type: 'string',
+			default: 'library'
+		},
+		customSvg: {
+			type: 'string',
+			default: ''
+		},
 		iconValue: {
 			type: 'object',
 			default: null
+		},
+		showTitle: {
+			type: 'boolean',
+			default: true
+		},
+		showContent: {
+			type: 'boolean',
+			default: true
 		},
 		title: {
 			type: 'string',
@@ -3780,16 +3870,16 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-				tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-				mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 			}
 		},
 		iconBorderRadius: {
 			type: 'object',
 			default: {
-				desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-				tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-				mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+				desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 			}
 		},
 		iconBorderColor: {
@@ -3799,9 +3889,9 @@ registerBlockType('digiblocks/icon-box', {
 		iconPadding: {
 			type: 'object',
 			default: {
-				desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-				tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-				mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+				desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 			}
 		},
 		iconMargin: {
@@ -3828,6 +3918,10 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'boolean',
 			default: false
 		},
+		linkType: {
+			type: 'string',
+			default: 'box'
+		},
 		linkUrl: {
 			type: 'string',
 			default: ''
@@ -3839,6 +3933,110 @@ registerBlockType('digiblocks/icon-box', {
 		linkRel: {
 			type: 'string',
 			default: ''
+		},
+		buttonText: {
+			type: 'string',
+			default: __('Learn More', 'digiblocks')
+		},
+		buttonBackgroundColor: {
+			type: 'string',
+			default: '#1e73be'
+		},
+		buttonBackgroundHoverColor: {
+			type: 'string',
+			default: '#135e9e'
+		},
+		buttonTextColor: {
+			type: 'string',
+			default: '#ffffff'
+		},
+		buttonTextHoverColor: {
+			type: 'string',
+			default: '#ffffff'
+		},
+		buttonBorderStyle: {
+			type: 'string',
+			default: 'default'
+		},
+		buttonBorderWidth: {
+			type: 'object',
+			default: {
+				desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+			}
+		},
+		buttonBorderRadius: {
+			type: 'object',
+			default: {
+				desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+			}
+		},
+		buttonBorderColor: {
+			type: 'string',
+			default: ''
+		},
+		buttonBorderHoverColor: {
+			type: 'string',
+			default: ''
+		},
+		buttonBoxShadow: {
+			type: 'object',
+			default: {
+				enable: false,
+				color: 'rgba(0, 0, 0, 0.2)',
+				horizontal: 0,
+				vertical: 0,
+				blur: 0,
+				spread: 0,
+				position: 'outset'
+			}
+		},
+		buttonBoxShadowHover: {
+			type: 'object',
+			default: {
+				enable: false,
+				color: 'rgba(0, 0, 0, 0.2)',
+				horizontal: 0,
+				vertical: 0,
+				blur: 0,
+				spread: 0,
+				position: 'outset'
+			}
+		},
+		buttonPadding: {
+			type: 'object',
+			default: {
+				desktop: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px' },
+				tablet: { top: 8, right: 16, bottom: 8, left: 16, unit: 'px' },
+				mobile: { top: 6, right: 12, bottom: 6, left: 12, unit: 'px' }
+			}
+		},
+		buttonMargin: {
+			type: 'object',
+			default: {
+				desktop: { top: 15, right: 0, bottom: 0, left: 0, unit: 'px' },
+				tablet: { top: 10, right: 0, bottom: 0, left: 0, unit: 'px' },
+				mobile: { top: 8, right: 0, bottom: 0, left: 0, unit: 'px' }
+			}
+		},
+		buttonTypography: {
+			type: 'object',
+			default: {
+				fontFamily: '',
+				fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+				fontSizeUnit: 'px',
+				fontWeight: '500',
+				fontStyle: 'normal',
+				textTransform: '',
+				textDecoration: '',
+				lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+				lineHeightUnit: 'em',
+				letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+				letterSpacingUnit: 'px'
+			}
 		},
 		iconSize: {
 			type: 'object',
@@ -4089,12 +4287,21 @@ registerBlockType('digiblocks/icon-list', {
             type: 'string',
             default: ''
         },
+		defaultIconSource: {
+			type: 'string',
+			default: 'library'
+		},
+		defaultCustomSvg: {
+			type: 'string',
+			default: ''
+		},
         items: {
             type: 'array',
             default: [
                 {
                     id: 'item-1',
                     content: __('First list item with icon', 'digiblocks'),
+					iconSource: 'library',
                     icon: {
                         id: 'check',
                         name: 'Check',
@@ -4102,6 +4309,7 @@ registerBlockType('digiblocks/icon-list', {
                         style: 'solid',
                         categories: ['design']
                     },
+					customSvg: '',
                     linkEnabled: false,
                     linkUrl: '',
                     linkOpenInNewTab: false,
@@ -4110,6 +4318,7 @@ registerBlockType('digiblocks/icon-list', {
                 {
                     id: 'item-2',
                     content: __('Second list item with star icon', 'digiblocks'),
+					iconSource: 'library',
                     icon: {
                         id: 'star',
                         name: 'Star',
@@ -4117,6 +4326,7 @@ registerBlockType('digiblocks/icon-list', {
                         style: 'solid',
                         categories: ['design']
                     },
+					customSvg: '',
                     linkUrl: '',
                     linkOpenInNewTab: false,
                     linkRel: ''
@@ -4124,6 +4334,7 @@ registerBlockType('digiblocks/icon-list', {
                 {
                     id: 'item-3',
                     content: __('Third list item with heart icon', 'digiblocks'),
+					iconSource: 'library',
                     icon: {
                         id: 'heart',
                         name: 'Heart',
@@ -4131,6 +4342,7 @@ registerBlockType('digiblocks/icon-list', {
                         style: 'solid',
                         categories: ['design']
                     },
+					customSvg: '',
                     linkUrl: '',
                     linkOpenInNewTab: false,
                     linkRel: ''
@@ -4222,9 +4434,9 @@ registerBlockType('digiblocks/icon-list', {
         padding: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         margin: {
@@ -4243,16 +4455,16 @@ registerBlockType('digiblocks/icon-list', {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderRadius: {
             type: 'object',
             default: {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderColor: {
@@ -4466,16 +4678,16 @@ registerBlockType('digiblocks/image', {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderRadius: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderColor: {
@@ -4512,17 +4724,17 @@ registerBlockType('digiblocks/image', {
         padding: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         margin: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         url: {
@@ -4676,17 +4888,17 @@ registerBlockType('digiblocks/lottie', {
         padding: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         margin: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderStyle: {
@@ -4697,16 +4909,16 @@ registerBlockType('digiblocks/lottie', {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderRadius: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderColor: {
@@ -4949,9 +5161,9 @@ registerBlockType('digiblocks/posts', {
         padding: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         margin: {
@@ -5046,8 +5258,8 @@ registerBlockType('digiblocks/posts', {
             type: 'object',
             default: {
                 desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         imageSize: {
@@ -5058,8 +5270,8 @@ registerBlockType('digiblocks/posts', {
             type: 'object',
             default: {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         cardStyle: {
@@ -5082,8 +5294,8 @@ registerBlockType('digiblocks/posts', {
             type: 'object',
             default: {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         cardBorderStyle: {
@@ -5094,8 +5306,8 @@ registerBlockType('digiblocks/posts', {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         cardBorderColor: {
@@ -5238,9 +5450,9 @@ registerBlockType('digiblocks/pricing-table', {
         padding: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             },
         },
         margin: {
@@ -5255,8 +5467,8 @@ registerBlockType('digiblocks/pricing-table', {
             type: 'object',
             default: {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             },
         },
         borderStyle: {
@@ -5267,8 +5479,8 @@ registerBlockType('digiblocks/pricing-table', {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             },
         },
         borderColor: {
@@ -5319,8 +5531,8 @@ registerBlockType('digiblocks/pricing-table', {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             },
         },
         buttonBorderColor: {
@@ -5721,17 +5933,17 @@ registerBlockType('digiblocks/social-icons', {
         iconBorderWidth: {
             type: 'object',
             default: {
-                desktop: { value: 1, unit: 'px' },
-                tablet: { value: 1, unit: 'px' },
-                mobile: { value: 1, unit: 'px' }
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         iconBorderRadius: {
             type: 'object',
             default: {
-                desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         iconBorderColor: {
@@ -5749,9 +5961,9 @@ registerBlockType('digiblocks/social-icons', {
         padding: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         animation: {
@@ -5967,7 +6179,7 @@ registerBlockType('digiblocks/table', {
             default: {
                 desktop: { top: 15, right: 15, bottom: 15, left: 15, unit: 'px' },
                 tablet: { top: 12, right: 12, bottom: 12, left: 12, unit: 'px' },
-                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         tableBorderCollapse: {
@@ -6054,8 +6266,8 @@ registerBlockType('digiblocks/table', {
             type: 'object',
             default: {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         boxShadow: {
@@ -6295,16 +6507,16 @@ registerBlockType('digiblocks/team', {
             type: 'object',
             default: {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         imageBorderWidth: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         imageBorderColor: {
@@ -6411,8 +6623,8 @@ registerBlockType('digiblocks/team', {
             type: 'object',
             default: {
                 desktop: { top: 50, right: 50, bottom: 50, left: 50, unit: '%' },
-                tablet: { top: 50, right: 50, bottom: 50, left: 50, unit: '%' },
-                mobile: { top: 50, right: 50, bottom: 50, left: 50, unit: '%' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: '%' },
+                mobile: { top: '', right: '', bottom: '', left: 50, unit: '%' }
             }
         },
         iconPadding: {
@@ -6420,7 +6632,7 @@ registerBlockType('digiblocks/team', {
             default: {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
                 tablet: { top: 6, right: 6, bottom: 6, left: 6, unit: 'px' },
-                mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         boxBackgroundColor: {
@@ -6435,16 +6647,16 @@ registerBlockType('digiblocks/team', {
             type: 'object',
             default: {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         boxBorderWidth: {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         boxBorderStyle: {
@@ -6691,16 +6903,16 @@ registerBlockType('digiblocks/testimonials', {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderRadius: {
             type: 'object',
             default: {
                 desktop: { top: 12, right: 12, bottom: 12, left: 12, unit: 'px' },
-                tablet: { top: 12, right: 12, bottom: 12, left: 12, unit: 'px' },
-                mobile: { top: 12, right: 12, bottom: 12, left: 12, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderColor: {
@@ -6742,9 +6954,9 @@ registerBlockType('digiblocks/testimonials', {
         margin: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         contentTypography: {
@@ -7084,9 +7296,9 @@ if ( isWooActive() ) {
 			padding: {
 				type: 'object',
 				default: {
-					desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-					tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-					mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+					desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+					tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+					mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 				}
 			},
 			margin: {
@@ -7197,8 +7409,8 @@ if ( isWooActive() ) {
 				type: 'object',
 				default: {
 					desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-					tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-					mobile: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' }
+					tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+					mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 				}
 			},
 			imageSize: {
@@ -7209,8 +7421,8 @@ if ( isWooActive() ) {
 				type: 'object',
 				default: {
 					desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-					tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-					mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+					tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+					mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 				}
 			},
 			cardStyle: {
@@ -7233,8 +7445,8 @@ if ( isWooActive() ) {
 				type: 'object',
 				default: {
 					desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-					tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-					mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+					tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+					mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 				}
 			},
 			cardBorderStyle: {
@@ -7245,8 +7457,8 @@ if ( isWooActive() ) {
 				type: 'object',
 				default: {
 					desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-					tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-					mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+					tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+					mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 				}
 			},
 			cardBorderColor: {
@@ -7455,16 +7667,16 @@ registerBlockType('digiblocks/logo', {
             type: 'object',
             default: {
                 desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderRadius: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderColor: {
@@ -7502,17 +7714,17 @@ registerBlockType('digiblocks/logo', {
         padding: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         margin: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         animation: {
@@ -7699,8 +7911,8 @@ registerBlockType('digiblocks/navigation', {
             type: 'object',
             default: {
                 desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                tablet: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         animation: {

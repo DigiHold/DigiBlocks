@@ -94,6 +94,7 @@ const BoxShadowControl = ({
 								"Color",
 								"digiblocks"
 							)}
+							enableAlpha={true}
 							colorSettings={[
 								{
 									value: currentValue.color,

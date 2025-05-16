@@ -24,7 +24,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -113,21 +113,14 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
     }, []);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
-    
-    // Use useEffect to set the ID only once when component mounts and initialize missing attributes
-    useEffect(() => {
-        // Initialize iconMargin if it's null
-        if (!iconMargin) {
-            setAttributes({
-                iconMargin: {
-                    desktop: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' },
-                    tablet: { top: 0, right: 0, bottom: 15, left: 0, unit: 'px' },
-                    mobile: { top: 0, right: 0, bottom: 10, left: 0, unit: 'px' }
-                }
-            });
-        }
-    }, [iconMargin, setAttributes]);
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
 
     // State to track if global components are loaded
     const [componentsLoaded, setComponentsLoaded] = useState(false);
@@ -326,15 +319,12 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Border styles
         let borderCSS = '';
-        if (borderStyle && borderStyle !== 'default' && borderStyle !== 'none') {
-            const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-            const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' };
-            
+        if (borderStyle && borderStyle !== 'default' && borderStyle !== 'none') {            
             borderCSS = `
                 border-style: ${borderStyle};
                 border-color: ${borderColor || '#e0e0e0'};
-                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+				${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
             `;
         } else {
             borderCSS = 'border-style: none;';
@@ -348,8 +338,8 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         // Padding and margin
-        const paddingCSS = `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};`;
-        const marginCSS = `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};`;
+        const paddingCSS = `${getDimensionCSS(padding, 'padding', activeDevice)}`;
+        const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice)}`;
         
         // Title typography CSS
         let titleTypographyCSS = '';
@@ -472,25 +462,18 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             // Icon border styles
-            if (iconBorderStyle && iconBorderStyle !== 'default' && iconBorderStyle !== 'none') {
-                const currentIconBorderWidth = iconBorderWidth && iconBorderWidth[activeDevice] 
-                    ? iconBorderWidth[activeDevice] 
-                    : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-                const currentIconBorderRadius = iconBorderRadius && iconBorderRadius[activeDevice] 
-                    ? iconBorderRadius[activeDevice] 
-                    : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' };
-                
+            if (iconBorderStyle && iconBorderStyle !== 'default' && iconBorderStyle !== 'none') {                
                 iconCSS += `
                     border-style: ${iconBorderStyle};
                     border-color: ${iconBorderColor || '#e0e0e0'};
-                    border-width: ${currentIconBorderWidth.top}${currentIconBorderWidth.unit} ${currentIconBorderWidth.right}${currentIconBorderWidth.unit} ${currentIconBorderWidth.bottom}${currentIconBorderWidth.unit} ${currentIconBorderWidth.left}${currentIconBorderWidth.unit};
-                    border-radius: ${currentIconBorderRadius.top}${currentIconBorderRadius.unit} ${currentIconBorderRadius.right}${currentIconBorderRadius.unit} ${currentIconBorderRadius.bottom}${currentIconBorderRadius.unit} ${currentIconBorderRadius.left}${currentIconBorderRadius.unit};
+					${getDimensionCSS(iconBorderWidth, 'border-width', activeDevice)}
+					${getDimensionCSS(iconBorderRadius, 'border-radius', activeDevice)}
                 `;
             }
             
             // Icon padding
             if (iconPadding && iconPadding[activeDevice]) {
-                iconCSS += `padding: ${iconPadding[activeDevice].top}${iconPadding[activeDevice].unit} ${iconPadding[activeDevice].right}${iconPadding[activeDevice].unit} ${iconPadding[activeDevice].bottom}${iconPadding[activeDevice].unit} ${iconPadding[activeDevice].left}${iconPadding[activeDevice].unit};`;
+                iconCSS += `${getDimensionCSS(iconPadding, 'padding', activeDevice)}`;
             }
             
             // Icon hover styles
@@ -508,11 +491,11 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
             
             // Custom icon margin if set
             if (iconMargin && iconMargin[activeDevice]) {
-                iconMarginCSS = `${iconMargin[activeDevice].top}${iconMargin[activeDevice].unit} ${iconMargin[activeDevice].right}${iconMargin[activeDevice].unit} ${iconMargin[activeDevice].bottom}${iconMargin[activeDevice].unit} ${iconMargin[activeDevice].left}${iconMargin[activeDevice].unit}`;
+                iconMarginCSS = `${getDimensionCSS(iconMargin, 'margin', activeDevice)}`;
             } else {
                 // Default margins if not set
                 const defaultBottom = activeDevice === 'desktop' ? 20 : activeDevice === 'tablet' ? 15 : 10;
-                iconMarginCSS = `0px 0px ${defaultBottom}px 0px`;
+                iconMarginCSS = `margin: 0px 0px ${defaultBottom}px 0px;`;
             }
         }
         
@@ -566,7 +549,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
             ${displayIcon && iconValue && iconValue.svg ? `
             /* Icon styles */
             .${id} .digiblocks-counter-icon {
-                margin: ${iconMarginCSS};
+				${iconMarginCSS}
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
@@ -1111,18 +1094,8 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                                 setAttributes({
                                                     iconBorderWidth: {
                                                         desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                                                        tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                                                        mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
-                                                    }
-                                                });
-                                            }
-                                            
-                                            if (!iconBorderRadius || Object.keys(iconBorderRadius).length === 0) {
-                                                setAttributes({
-                                                    iconBorderRadius: {
-                                                        desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                                                        tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                                                        mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                                                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                                                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                                                     }
                                                 });
                                             }
@@ -1157,9 +1130,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                             label={__("Border Width", "digiblocks")}
                                         >
                                             <DimensionControl
-                                                values={iconBorderWidth && iconBorderWidth[localActiveDevice] 
-                                                    ? iconBorderWidth[localActiveDevice] 
-                                                    : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }}
+                                                values={iconBorderWidth[localActiveDevice]}
                                                 onChange={(value) => setAttributes({
                                                     iconBorderWidth: {
                                                         ...iconBorderWidth || {},
@@ -1173,9 +1144,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                             label={__("Border Radius", "digiblocks")}
                                         >
                                             <DimensionControl
-                                                values={iconBorderRadius && iconBorderRadius[localActiveDevice] 
-                                                    ? iconBorderRadius[localActiveDevice] 
-                                                    : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }}
+                                                values={iconBorderRadius[localActiveDevice]}
                                                 onChange={(value) => setAttributes({
                                                     iconBorderRadius: {
                                                         ...iconBorderRadius || {},
@@ -1195,9 +1164,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                     label={__("Icon Padding", "digiblocks")}
                                 >
                                     <DimensionControl
-                                        values={iconPadding && iconPadding[localActiveDevice] 
-                                            ? iconPadding[localActiveDevice] 
-                                            : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }}
+                                        values={iconPadding[localActiveDevice]}
                                         onChange={(value) => setAttributes({
                                             iconPadding: {
                                                 ...iconPadding || {},
@@ -1283,8 +1250,8 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                             setAttributes({
                                                 borderWidth: {
                                                     desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                                                    tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                                                    mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                                                    tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                                                    mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                                                 }
                                             });
                                         }
@@ -1294,8 +1261,8 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                             setAttributes({
                                                 borderRadius: {
                                                     desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                                                    tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                                                    mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                                                    tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                                                    mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                                                 }
                                             });
                                         }
@@ -1325,9 +1292,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                         label={__("Border Width", "digiblocks")}
                                     >
                                         <DimensionControl
-                                            values={borderWidth && borderWidth[localActiveDevice] 
-                                                ? borderWidth[localActiveDevice] 
-                                                : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }}
+                                            values={borderWidth[localActiveDevice]}
                                             onChange={(value) => setAttributes({
                                                 borderWidth: {
                                                     ...borderWidth,
@@ -1341,9 +1306,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                         label={__("Border Radius", "digiblocks")}
                                     >
                                         <DimensionControl
-                                            values={borderRadius && borderRadius[localActiveDevice] 
-                                                ? borderRadius[localActiveDevice] 
-                                                : { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }}
+                                            values={borderRadius[localActiveDevice]}
                                             onChange={(value) => setAttributes({
                                                 borderRadius: {
                                                     ...borderRadius,

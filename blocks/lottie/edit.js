@@ -25,7 +25,7 @@ const { MediaUpload, MediaUploadCheck } = wp.blockEditor;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -113,7 +113,14 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
 
     // State for animation loading
     const [isLoading, setIsLoading] = useState(false);
@@ -183,7 +190,6 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
         loadDotLottieScript()
             .then(() => {
                 if (isMounted.current) {
-                    console.log('DotLottie script loaded successfully');
                     setIsScriptLoaded(true);
                     setIsLoading(false);
                     
@@ -194,7 +200,6 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             })
             .catch((error) => {
-                console.error('Error loading dotlottie script:', error);
                 if (isMounted.current) {
                     setAnimationError('Failed to load animation library: ' + error.message);
                     setIsLoading(false);
@@ -205,7 +210,6 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
     // Initialize or update animation when source or canvas changes
     useEffect(() => {
         if (isScriptLoaded && lottieSource && canvasRef.current) {
-            console.log('Source or critical settings changed, reinitializing animation');
             initializeAnimation();
         }
     }, [isScriptLoaded, lottieSource, canvasRef.current]);
@@ -226,11 +230,6 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
     const initializeAnimation = () => {
 		// Skip if needed components aren't available
 		if (!window.DotLottie || !lottieSource || !canvasRef.current) {
-			console.log('Cannot initialize animation: missing requirements', {
-				DotLottie: !!window.DotLottie,
-				lottieSource,
-				canvasRef: !!canvasRef.current
-			});
 			return;
 		}
 		
@@ -244,8 +243,6 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
 				dotLottieRef.current = null;
 			}
 			
-			console.log('Initializing DotLottie animation with source:', lottieSource);
-			
 			// Initialize DotLottie player with window.DotLottie from the loaded script
 			dotLottieRef.current = new window.DotLottie({
 				autoplay: autoplay,
@@ -256,11 +253,9 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
 			
 			// Add event listener for load - will set speed after loaded
 			dotLottieRef.current.addEventListener('DOMLoaded', () => {
-				console.log('Animation loaded');
 				if (isMounted.current) {
 					// Set speed AFTER animation is loaded
 					if (speed !== 1) {
-						console.log('Setting animation speed to:', speed);
 						dotLottieRef.current.setSpeed(speed);
 					}
 					
@@ -301,7 +296,6 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
 			// Safety timeout to ensure we don't show the loading spinner forever
 			setTimeout(() => {
 				if (isMounted.current && isLoading) {
-					console.log('Animation load timeout - stopping spinner');
 					setIsLoading(false);
 				}
 			}, 3000);
@@ -381,13 +375,6 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
     // Update animation settings when they change
     useEffect(() => {
         if (!dotLottieRef.current || !dotLottieRef.current.isLoaded) return;
-        
-        console.log('Updating animation settings:', { 
-            autoplay, 
-            loop, 
-            speed, 
-            showControls 
-        });
         
         try {
             // Update loop setting
@@ -472,8 +459,8 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
         return `
             /* Lottie Block - ${id} */
             .${id} {
-                margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};
-                padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};
+				${getDimensionCSS(padding, 'padding', activeDevice)}
+				${getDimensionCSS(margin, 'margin', activeDevice)}
                 width: 100%;
                 display: flex;
                 justify-content: ${alignment === 'left' ? 'flex-start' : (alignment === 'right' ? 'flex-end' : 'center')};
@@ -486,11 +473,11 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                 overflow: hidden;
                 position: relative;
                 ${borderStyle !== 'none' ? `
-                border-style: ${borderStyle};
-                border-color: ${borderColor};
-                border-width: ${borderWidth[activeDevice].top}${borderWidth[activeDevice].unit} ${borderWidth[activeDevice].right}${borderWidth[activeDevice].unit} ${borderWidth[activeDevice].bottom}${borderWidth[activeDevice].unit} ${borderWidth[activeDevice].left}${borderWidth[activeDevice].unit};
+					border-style: ${borderStyle};
+					border-color: ${borderColor};
+					${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
                 ` : ''}
-                border-radius: ${borderRadius[activeDevice].top}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].right}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].bottom}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].left}${borderRadius[activeDevice].unit};
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
                 ${shadow.enable ? `box-shadow: ${shadow.horizontal}px ${shadow.vertical}px ${shadow.blur}px ${shadow.spread}px ${shadow.color};` : ''}
             }
             
@@ -623,6 +610,8 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                                         onChange={onURLChange}
                                         placeholder="https://example.com/animation.json"
                                         help={__('Enter the URL to a JSON Lottie animation file', 'digiblocks')}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
                                     />
                                     <Button 
                                         variant="secondary"
@@ -1185,6 +1174,8 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                                     placeholder={__('Enter Lottie JSON URL', 'digiblocks')}
                                     value={lottieSource}
                                     onChange={onURLChange}
+									__next40pxDefaultSize={true}
+									__nextHasNoMarginBottom={true}
                                 />
                                 <Button
                                     variant="primary"

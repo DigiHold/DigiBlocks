@@ -28,7 +28,7 @@ const { addQueryArgs } = wp.url;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody, FontAwesomeControl } = digi.components;
 
@@ -77,7 +77,14 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
     
     // States for modals
     const [iconModalOpen, setIconModalOpen] = useState(false);
@@ -339,10 +346,10 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
 				justify-content: space-between;
 				gap: 8px;
 				text-decoration: none;
-				padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};
+				${getDimensionCSS(padding, 'padding', activeDevice)}
 				color: ${linkColor};
 				background-color: ${linkBackgroundColor};
-				border-radius: ${borderRadius[activeDevice].top}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].right}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].bottom}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].left}${borderRadius[activeDevice].unit};
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
 				transition: all 0.3s ease;
 				${textTypographyCSS}
 			}
@@ -517,7 +524,7 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
 				padding: 8px 10px;
 				background-color: ${linkBackgroundColor};
 				color: ${linkColor};
-				border-radius: ${borderRadius[activeDevice].top}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].right}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].bottom}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].left}${borderRadius[activeDevice].unit};
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
 				${textTypographyCSS}
 			}
 			

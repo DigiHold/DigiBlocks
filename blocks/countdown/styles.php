@@ -39,17 +39,17 @@ $boxBorderRadius          = isset( $attrs['boxBorderRadius'] ) ? $attrs['boxBord
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 4,
-		'right'  => 4,
-		'bottom' => 4,
-		'left'   => 4,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 4,
-		'right'  => 4,
-		'bottom' => 4,
-		'left'   => 4,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -62,43 +62,21 @@ $boxPadding               = isset( $attrs['boxPadding'] ) ? $attrs['boxPadding']
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 10,
-		'right'  => 10,
-		'bottom' => 10,
-		'left'   => 10,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 10,
-		'right'  => 10,
-		'bottom' => 10,
-		'left'   => 10,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
-$boxMargin                = isset( $attrs['boxMargin'] ) ? $attrs['boxMargin'] : array(
-	'desktop' => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 0,
-		'left'   => 0,
-		'unit'   => 'px',
-	),
-	'tablet'  => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 0,
-		'left'   => 0,
-		'unit'   => 'px',
-	),
-	'mobile'  => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 0,
-		'left'   => 0,
-		'unit'   => 'px',
-	),
-);
+$boxMargin                = isset( $attrs['boxMargin'] ) ? $attrs['boxMargin'] : digiblocks_get_default_dimensions('px');
 $boxBorderWidth           = isset( $attrs['boxBorderWidth'] ) ? $attrs['boxBorderWidth'] : array(
 	'desktop' => array(
 		'top'    => 1,
@@ -108,17 +86,17 @@ $boxBorderWidth           = isset( $attrs['boxBorderWidth'] ) ? $attrs['boxBorde
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 1,
-		'right'  => 1,
-		'bottom' => 1,
-		'left'   => 1,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 1,
-		'right'  => 1,
-		'bottom' => 1,
-		'left'   => 1,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -233,7 +211,7 @@ ob_start();
 ?>
 /* Countdown Block - <?php echo esc_attr( $id ); ?> */
 .<?php echo esc_attr( $id ); ?> {
-	margin: <?php echo esc_attr( $boxMargin['desktop']['top'] . $boxMargin['desktop']['unit'] . ' ' . $boxMargin['desktop']['right'] . $boxMargin['desktop']['unit'] . ' ' . $boxMargin['desktop']['bottom'] . $boxMargin['desktop']['unit'] . ' ' . $boxMargin['desktop']['left'] . $boxMargin['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $boxMargin, 'margin', 'desktop' ) ); ?>
 	text-align: <?php echo esc_attr( $align ); ?>;
 	display: block;
 }
@@ -241,7 +219,7 @@ ob_start();
 .<?php echo esc_attr( $id ); ?> .digiblocks-countdown-container {
 	display: inline-flex;
 	flex-wrap: wrap;
-	justify-content: <?php echo $align === 'center' ? 'center' : ($align === 'right' ? 'flex-end' : 'flex-start'); ?>;
+	justify-content: <?php echo $align === 'center' ? 'center' : ( $align === 'right' ? 'flex-end' : 'flex-start' ) ?>;
 	gap: <?php echo esc_attr( $itemSpacing['desktop'] ); ?>px;
 }
 
@@ -415,7 +393,7 @@ ob_start();
 		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			background-color: <?php echo esc_attr( $digitBackground ); ?>;
 			color: <?php echo esc_attr( $digitColor ); ?>;
-			border-radius: <?php echo esc_attr( $boxBorderRadius['desktop']['top'] . $boxBorderRadius['desktop']['unit'] . ' ' . $boxBorderRadius['desktop']['right'] . $boxBorderRadius['desktop']['unit'] . ' ' . $boxBorderRadius['desktop']['bottom'] . $boxBorderRadius['desktop']['unit'] . ' ' . $boxBorderRadius['desktop']['left'] . $boxBorderRadius['desktop']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderRadius, 'border-radius', 'desktop' ) ); ?>
 			padding: <?php echo esc_attr( $boxPadding['desktop']['top'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['right'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['bottom'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['left'] . $boxPadding['desktop']['unit'] ); ?>;
 			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
@@ -441,9 +419,11 @@ ob_start();
 		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			background-color: transparent;
 			color: <?php echo esc_attr( $digitColor ); ?>;
-			border: <?php echo esc_attr( $boxBorderWidth['desktop']['top'] . $boxBorderWidth['desktop']['unit'] ); ?> solid <?php echo esc_attr( $boxBorderColor ); ?>;
-			border-radius: <?php echo esc_attr( $boxBorderRadius['desktop']['top'] . $boxBorderRadius['desktop']['unit'] . ' ' . $boxBorderRadius['desktop']['right'] . $boxBorderRadius['desktop']['unit'] . ' ' . $boxBorderRadius['desktop']['bottom'] . $boxBorderRadius['desktop']['unit'] . ' ' . $boxBorderRadius['desktop']['left'] . $boxBorderRadius['desktop']['unit'] ); ?>;
-			padding: <?php echo esc_attr( $boxPadding['desktop']['top'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['right'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['bottom'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['left'] . $boxPadding['desktop']['unit'] ); ?>;
+			border-style: solid;
+			<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderWidth, 'border-width', 'desktop' ) ); ?>
+			border-color: <?php echo esc_attr( $boxBorderColor ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderRadius, 'border-radius', 'desktop' ) ); ?>
+			<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'desktop' ) ); ?>
 			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
@@ -469,7 +449,7 @@ ob_start();
 			background-color: <?php echo esc_attr( $digitBackground ); ?>;
 			color: <?php echo esc_attr( $digitColor ); ?>;
 			border-radius: 50px;
-			padding: <?php echo esc_attr( $boxPadding['desktop']['top'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['right'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['bottom'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['left'] . $boxPadding['desktop']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'desktop' ) ); ?>
 			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
@@ -495,7 +475,7 @@ ob_start();
 			background-color: <?php echo esc_attr( $digitBackground ); ?>;
 			color: <?php echo esc_attr( $digitColor ); ?>;
 			border-radius: 8px;
-			padding: <?php echo esc_attr( $boxPadding['desktop']['top'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['right'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['bottom'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['left'] . $boxPadding['desktop']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'desktop' ) ); ?>
 			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
@@ -525,7 +505,7 @@ ob_start();
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			padding: <?php echo esc_attr( $boxPadding['desktop']['top'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['right'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['bottom'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['left'] . $boxPadding['desktop']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'desktop' ) ); ?>
 			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
@@ -582,7 +562,7 @@ ob_start();
 /* Tablet styles */
 @media (max-width: 991px) {
 	.<?php echo esc_attr( $id ); ?> {
-		margin: <?php echo esc_attr( $boxMargin['tablet']['top'] . $boxMargin['tablet']['unit'] . ' ' . $boxMargin['tablet']['right'] . $boxMargin['tablet']['unit'] . ' ' . $boxMargin['tablet']['bottom'] . $boxMargin['tablet']['unit'] . ' ' . $boxMargin['tablet']['left'] . $boxMargin['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $boxMargin, 'margin', 'tablet' ) ); ?>
 	}
 	
 	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-container {
@@ -633,12 +613,12 @@ ob_start();
 	
 	<?php if ( 'boxes' === $style ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
-			padding: <?php echo esc_attr( $boxPadding['tablet']['top'] . $boxPadding['tablet']['unit'] . ' ' . $boxPadding['tablet']['right'] . $boxPadding['tablet']['unit'] . ' ' . $boxPadding['tablet']['bottom'] . $boxPadding['tablet']['unit'] . ' ' . $boxPadding['tablet']['left'] . $boxPadding['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'tablet' ) ); ?>
 			<?php if ( 'outlined' !== $boxStyle && 'default' !== $boxStyle ) : ?>
-				border-radius: <?php echo esc_attr( $boxBorderRadius['tablet']['top'] . $boxBorderRadius['tablet']['unit'] . ' ' . $boxBorderRadius['tablet']['right'] . $boxBorderRadius['tablet']['unit'] . ' ' . $boxBorderRadius['tablet']['bottom'] . $boxBorderRadius['tablet']['unit'] . ' ' . $boxBorderRadius['tablet']['left'] . $boxBorderRadius['tablet']['unit'] ); ?>;
+				<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderRadius, 'border-radius', 'tablet' ) ); ?>
 			<?php elseif ( 'outlined' === $boxStyle ) : ?>
-				border-width: <?php echo esc_attr( $boxBorderWidth['tablet']['top'] . $boxBorderWidth['tablet']['unit'] . ' ' . $boxBorderWidth['tablet']['right'] . $boxBorderWidth['tablet']['unit'] . ' ' . $boxBorderWidth['tablet']['bottom'] . $boxBorderWidth['tablet']['unit'] . ' ' . $boxBorderWidth['tablet']['left'] . $boxBorderWidth['tablet']['unit'] ); ?>;
-				border-radius: <?php echo esc_attr( $boxBorderRadius['tablet']['top'] . $boxBorderRadius['tablet']['unit'] . ' ' . $boxBorderRadius['tablet']['right'] . $boxBorderRadius['tablet']['unit'] . ' ' . $boxBorderRadius['tablet']['bottom'] . $boxBorderRadius['tablet']['unit'] . ' ' . $boxBorderRadius['tablet']['left'] . $boxBorderRadius['tablet']['unit'] ); ?>;
+				<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderWidth, 'border-width', 'tablet' ) ); ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderRadius, 'border-radius', 'tablet' ) ); ?>
 			<?php endif; ?>
 		}
 	<?php endif; ?>
@@ -655,7 +635,7 @@ ob_start();
 /* Mobile styles */
 @media (max-width: 767px) {
 	.<?php echo esc_attr( $id ); ?> {
-		margin: <?php echo esc_attr( $boxMargin['mobile']['top'] . $boxMargin['mobile']['unit'] . ' ' . $boxMargin['mobile']['right'] . $boxMargin['mobile']['unit'] . ' ' . $boxMargin['mobile']['bottom'] . $boxMargin['mobile']['unit'] . ' ' . $boxMargin['mobile']['left'] . $boxMargin['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $boxMargin, 'margin', 'mobile' ) ); ?>
 	}
 	
 	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-container {
@@ -706,12 +686,12 @@ ob_start();
 	
 	<?php if ( 'boxes' === $style ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
-			padding: <?php echo esc_attr( $boxPadding['mobile']['top'] . $boxPadding['mobile']['unit'] . ' ' . $boxPadding['mobile']['right'] . $boxPadding['mobile']['unit'] . ' ' . $boxPadding['mobile']['bottom'] . $boxPadding['mobile']['unit'] . ' ' . $boxPadding['mobile']['left'] . $boxPadding['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'mobile' ) ); ?>
 			<?php if ( 'outlined' !== $boxStyle && 'default' !== $boxStyle ) : ?>
-				border-radius: <?php echo esc_attr( $boxBorderRadius['mobile']['top'] . $boxBorderRadius['mobile']['unit'] . ' ' . $boxBorderRadius['mobile']['right'] . $boxBorderRadius['mobile']['unit'] . ' ' . $boxBorderRadius['mobile']['bottom'] . $boxBorderRadius['mobile']['unit'] . ' ' . $boxBorderRadius['mobile']['left'] . $boxBorderRadius['mobile']['unit'] ); ?>;
+				<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderRadius, 'border-radius', 'mobile' ) ); ?>
 			<?php elseif ( 'outlined' === $boxStyle ) : ?>
-				border-width: <?php echo esc_attr( $boxBorderWidth['mobile']['top'] . $boxBorderWidth['mobile']['unit'] . ' ' . $boxBorderWidth['mobile']['right'] . $boxBorderWidth['mobile']['unit'] . ' ' . $boxBorderWidth['mobile']['bottom'] . $boxBorderWidth['mobile']['unit'] . ' ' . $boxBorderWidth['mobile']['left'] . $boxBorderWidth['mobile']['unit'] ); ?>;
-				border-radius: <?php echo esc_attr( $boxBorderRadius['mobile']['top'] . $boxBorderRadius['mobile']['unit'] . ' ' . $boxBorderRadius['mobile']['right'] . $boxBorderRadius['mobile']['unit'] . ' ' . $boxBorderRadius['mobile']['bottom'] . $boxBorderRadius['mobile']['unit'] . ' ' . $boxBorderRadius['mobile']['left'] . $boxBorderRadius['mobile']['unit'] ); ?>;
+				<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderWidth, 'border-width', 'mobile' ) ); ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderRadius, 'border-radius', 'mobile' ) ); ?>
 			<?php endif; ?>
 		}
 	<?php endif; ?>

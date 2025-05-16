@@ -25,7 +25,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const {
     ResponsiveControl,
@@ -46,6 +46,8 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
         anchor,
         customClasses,
         items,
+		defaultIconSource,
+		defaultCustomSvg,
         defaultIcon,
         contentTypography,
         listLayout,
@@ -98,7 +100,14 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
     }, []);
 
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
 	
 	// State to track if global components are loaded
     const [componentsLoaded, setComponentsLoaded] = useState(false);
@@ -289,21 +298,12 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
             borderStyle !== "default" &&
             borderStyle !== "none"
         ) {
-            const currentBorderWidth =
-                borderWidth && borderWidth[activeDevice]
-                    ? borderWidth[activeDevice]
-                    : { top: 1, right: 1, bottom: 1, left: 1, unit: "px" };
-            const currentBorderRadius =
-                borderRadius && borderRadius[activeDevice]
-                    ? borderRadius[activeDevice]
-                    : { top: 8, right: 8, bottom: 8, left: 8, unit: "px" };
-
             borderCSS = `
                 border-style: ${borderStyle};
                 border-color: ${borderColor || "#e0e0e0"};
-                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
-            `;
+				${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
+			`;
         } else {
             borderCSS = "border: none;";
         }
@@ -316,8 +316,8 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
         }
 
         // Padding and margin
-        const paddingCSS = `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};`;
-        const marginCSS = `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};`;
+        const paddingCSS = `${getDimensionCSS(padding, 'padding', activeDevice)}`;
+        const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice)}`;
 
         // Content typography CSS
         let contentTypographyCSS = "";
@@ -516,17 +516,90 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__("List Items", "digiblocks")}
                             initialOpen={true}
                         >
-							{!componentsLoaded ? (
-								<div style={{ textAlign: 'center', padding: '20px 0' }}>
-									<div className="components-spinner"></div>
-									<p>{__('Loading icon selector...', 'digiblocks')}</p>
-								</div>
-							) : (
-								<FontAwesomeControl
-									label={__('Select Icon', 'digiblocks')}
-									value={defaultIcon}
-									onChange={(value) => setAttributes({ defaultIcon: value })}
+							<ToggleGroupControl
+								label={__("Default Icon Source", "digiblocks")}
+								value={defaultIconSource || 'library'}
+								onChange={(value) => setAttributes({ defaultIconSource: value })}
+								isBlock
+								__next40pxDefaultSize={true}
+								__nextHasNoMarginBottom={true}
+							>
+								<ToggleGroupControlOption 
+									value="library" 
+									label={__("Library", "digiblocks")} 
 								/>
+								<ToggleGroupControlOption 
+									value="custom" 
+									label={__("Custom", "digiblocks")} 
+								/>
+							</ToggleGroupControl>
+
+							{/* Library icon picker */}
+							{(!defaultIconSource || defaultIconSource === 'library') && (
+								<>
+									{!componentsLoaded ? (
+										<div style={{ textAlign: 'center', padding: '20px 0' }}>
+											<div className="components-spinner"></div>
+											<p>{__('Loading icon selector...', 'digiblocks')}</p>
+										</div>
+									) : (
+										<FontAwesomeControl
+											label={__('Select Icon', 'digiblocks')}
+											value={defaultIcon}
+											onChange={(value) => setAttributes({ defaultIcon: value })}
+										/>
+									)}
+								</>
+							)}
+
+							{/* Custom SVG input */}
+							{defaultIconSource === 'custom' && (
+								<div style={{ marginTop: '15px' }}>
+									<div className="components-base-control">
+										<label className="components-base-control__label" htmlFor="default-custom-svg-input">
+											{__('Custom SVG Code', 'digiblocks')}
+										</label>
+										<textarea
+											id="default-custom-svg-input"
+											className="components-textarea-control__input"
+											value={defaultCustomSvg || ''}
+											onChange={(e) => {
+												const newSvg = e.target.value;
+												
+												// Create a default icon object with the custom SVG
+												const newIconValue = {
+													id: 'custom-svg',
+													name: 'Custom SVG',
+													svg: newSvg,
+													style: 'custom',
+													categories: ['custom']
+												};
+												
+												// Update both the customSvg attribute and the defaultIcon
+												setAttributes({ 
+													defaultCustomSvg: newSvg,
+													defaultIcon: newIconValue
+												});
+											}}
+											placeholder={__('Paste your SVG code here...', 'digiblocks')}
+											rows={6}
+											style={{ width: '100%', marginTop: '8px' }}
+										/>
+										<p className="components-base-control__help">
+											{__('Paste your SVG code here. Make sure it only contains valid SVG markup.', 'digiblocks')}
+										</p>
+									</div>
+									
+									{/* Preview of custom SVG */}
+									{defaultCustomSvg && (
+										<div style={{ marginTop: '15px', marginBottom: '15px' }}>
+											<p><strong>{__('Preview:', 'digiblocks')}</strong></p>
+											<div style={{ padding: '20px', background: '#f0f0f1', borderRadius: '3px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+												<div style={{ width: '50px', height: '50px' }} dangerouslySetInnerHTML={{ __html: defaultCustomSvg }}></div>
+											</div>
+										</div>
+									)}
+								</div>
 							)}
 
 							<ToggleGroupControl
@@ -848,18 +921,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                                             )}
                                         >
                                             <DimensionControl
-                                                values={
-                                                    (borderWidth &&
-                                                        borderWidth[
-                                                            localActiveDevice
-                                                        ]) || {
-                                                        top: 1,
-                                                        right: 1,
-                                                        bottom: 1,
-                                                        left: 1,
-                                                        unit: "px",
-                                                    }
-                                                }
+                                                values={borderWidth[localActiveDevice]}
                                                 onChange={(value) =>
                                                     setAttributes({
                                                         borderWidth: {
@@ -879,18 +941,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                                             )}
                                         >
                                             <DimensionControl
-                                                values={
-                                                    (borderRadius &&
-                                                        borderRadius[
-                                                            localActiveDevice
-                                                        ]) || {
-                                                        top: 8,
-                                                        right: 8,
-                                                        bottom: 8,
-                                                        left: 8,
-                                                        unit: "px",
-                                                    }
-                                                }
+                                                values={borderRadius[localActiveDevice]}
                                                 onChange={(value) =>
                                                     setAttributes({
                                                         borderRadius: {
@@ -1281,27 +1332,114 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                 </div>
 
                 {iconModalOpen && currentEditingItem !== null && (
-                    <Modal
-                        title={__("Choose Icon", "digiblocks")}
-                        onRequestClose={() => setIconModalOpen(false)}
-                        className="digiblocks-icon-modal"
-                    >
-                        {!componentsLoaded ? (
-							<div style={{ textAlign: 'center', padding: '20px 0' }}>
-								<div className="components-spinner"></div>
-								<p>{__('Loading icon selector...', 'digiblocks')}</p>
-							</div>
-						) : (
-							<FontAwesomeControl
-								value={items[currentEditingItem].icon}
-								onChange={(newIcon) => {
-									setItemIcon(currentEditingItem, newIcon);
-									setIconModalOpen(false);
-								}}
+					<Modal
+						title={__("Choose Icon", "digiblocks")}
+						onRequestClose={() => setIconModalOpen(false)}
+						className="digiblocks-icon-modal"
+					>
+						<ToggleGroupControl
+							label={__("Icon Source", "digiblocks")}
+							value={items[currentEditingItem].iconSource || 'library'}
+							onChange={(value) => {
+								const newItems = [...items];
+								newItems[currentEditingItem].iconSource = value;
+								setAttributes({ items: newItems });
+							}}
+							isBlock
+							__next40pxDefaultSize={true}
+							__nextHasNoMarginBottom={true}
+						>
+							<ToggleGroupControlOption 
+								value="library" 
+								label={__("Library", "digiblocks")} 
 							/>
+							<ToggleGroupControlOption 
+								value="custom" 
+								label={__("Custom", "digiblocks")} 
+							/>
+						</ToggleGroupControl>
+
+						{/* Library icon picker */}
+						{(!items[currentEditingItem].iconSource || items[currentEditingItem].iconSource === 'library') && (
+							<>
+								{!componentsLoaded ? (
+									<div style={{ textAlign: 'center', padding: '20px 0' }}>
+										<div className="components-spinner"></div>
+										<p>{__('Loading icon selector...', 'digiblocks')}</p>
+									</div>
+								) : (
+									<FontAwesomeControl
+										value={items[currentEditingItem].icon}
+										onChange={(newIcon) => {
+											setItemIcon(currentEditingItem, newIcon);
+											setIconModalOpen(false);
+										}}
+									/>
+								)}
+							</>
 						)}
-                    </Modal>
-                )}
+
+						{/* Custom SVG input */}
+						{items[currentEditingItem].iconSource === 'custom' && (
+							<div style={{ marginTop: '15px' }}>
+								<div className="components-base-control">
+									<label className="components-base-control__label" htmlFor="custom-svg-input">
+										{__('Custom SVG Code', 'digiblocks')}
+									</label>
+									<textarea
+										id="custom-svg-input"
+										className="components-textarea-control__input"
+										value={items[currentEditingItem].customSvg || ''}
+										onChange={(e) => {
+											const newSvg = e.target.value;
+											const newItems = [...items];
+											
+											// Create an icon object with the custom SVG
+											const newIconValue = {
+												id: 'custom-svg',
+												name: 'Custom SVG',
+												svg: newSvg,
+												style: 'custom',
+												categories: ['custom']
+											};
+											
+											// Update both the customSvg and the icon
+											newItems[currentEditingItem].customSvg = newSvg;
+											newItems[currentEditingItem].icon = newIconValue;
+											
+											setAttributes({ items: newItems });
+										}}
+										placeholder={__('Paste your SVG code here...', 'digiblocks')}
+										rows={6}
+										style={{ width: '100%', marginTop: '8px' }}
+									/>
+									<p className="components-base-control__help">
+										{__('Paste your SVG code here. Make sure it only contains valid SVG markup.', 'digiblocks')}
+									</p>
+								</div>
+								
+								{/* Preview of custom SVG */}
+								{items[currentEditingItem].customSvg && (
+									<div style={{ marginTop: '15px', marginBottom: '15px' }}>
+										<p><strong>{__('Preview:', 'digiblocks')}</strong></p>
+										<div style={{ padding: '20px', background: '#f0f0f1', borderRadius: '3px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+											<div style={{ width: '50px', height: '50px' }} dangerouslySetInnerHTML={{ __html: items[currentEditingItem].customSvg }}></div>
+										</div>
+									</div>
+								)}
+								
+								<div style={{ marginTop: '15px', display: 'flex', justifyContent: 'flex-end' }}>
+									<Button 
+										variant="primary" 
+										onClick={() => setIconModalOpen(false)}
+									>
+										{__("Apply", "digiblocks")}
+									</Button>
+								</div>
+							</div>
+						)}
+					</Modal>
+				)}
 
                 {linkModalOpen && currentEditingItem !== null && (
                     <Modal

@@ -31,7 +31,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -99,7 +99,14 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
     }, []);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
 
     // Correct image size URL
     useEffect(() => {
@@ -284,27 +291,9 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
         });
     };
 
-    // Alignment handler for each device
-    const handleAlignmentChange = (device, value) => {
-        if (device === 'desktop') {
-            setAttributes({ align: value });
-        } else if (device === 'tablet') {
-            setAttributes({ alignTablet: value });
-        } else if (device === 'mobile') {
-            setAttributes({ alignMobile: value });
-        }
-    };
-
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
-        
-        // Get alignment based on active device
-        const currentAlign = activeDevice === 'desktop' 
-            ? align 
-            : activeDevice === 'tablet' 
-                ? alignTablet 
-                : alignMobile;
         
         // Calculate width and height based on device
         const currentWidth = width[activeDevice] ? 
@@ -318,14 +307,10 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
         // Create border styles
         let borderCSS = '';
         if (borderStyle && borderStyle !== 'none') {
-            const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-            const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' };
-            
             borderCSS = `
                 border-style: ${borderStyle};
                 border-color: ${borderColor || '#e0e0e0'};
-                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+				${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
             `;
         } else {
             borderCSS = 'border-style: none;';
@@ -340,11 +325,11 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Create padding and margin styles
         const paddingCSS = padding && padding[activeDevice] ? 
-            `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};` : 
+            `${getDimensionCSS(padding, 'padding', activeDevice)}` : 
             'padding: 0;';
             
         const marginCSS = margin && margin[activeDevice] ? 
-            `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};` : 
+            `${getDimensionCSS(margin, 'margin', activeDevice)}` : 
             'margin: 0 0 30px 0;';
         
         // Overlay CSS
@@ -413,8 +398,8 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
             /* Main block styles */
             .${id} {
                 display: flex;
-				${currentAlign === 'left' ? 'justify-content: flex-start;' : (currentAlign === 'right' ? 'justify-content: flex-end;' : 'justify-content: center;')}
-                text-align: ${currentAlign};
+				${align === 'left' ? 'justify-content: flex-start;' : (align === 'right' ? 'justify-content: flex-end;' : 'justify-content: center;')}
+                text-align: ${align};
                 width: 100%;
                 ${marginCSS}
                 transition: all 0.3s ease;
@@ -430,6 +415,7 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                 ${paddingCSS}
                 ${borderCSS}
                 ${boxShadowCSS}
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
                 overflow: hidden;
                 transition: all 0.3s ease;
             }
@@ -516,6 +502,8 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                                         value={altText}
                                         onChange={(value) => setAttributes({ altText: value })}
                                         help={__('Alternative text describes your image to people who cannot see it. Add a descriptive text to help screen-reader users.', 'digiblocks')}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
                                     />
                                     
                                     <TextControl
@@ -523,6 +511,8 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                                         value={title}
                                         onChange={(value) => setAttributes({ title: value })}
                                         help={__('Shown as a tooltip when a user hovers over the image.', 'digiblocks')}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
                                     />
                                     
                                     <SelectControl
@@ -818,8 +808,8 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                                                             setAttributes({
                                                                 borderWidth: {
                                                                     desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                                                                    tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                                                                    mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
+                                                                    tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                                                                    mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                                                                 }
                                                             });
                                                         }
@@ -829,8 +819,8 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                                                             setAttributes({
                                                                 borderRadius: {
                                                                     desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                                                                    tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                                                                    mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                                                                    tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                                                                    mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                                                                 }
                                                             });
                                                         }

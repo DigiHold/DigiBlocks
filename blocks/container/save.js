@@ -9,6 +9,7 @@ const { useBlockProps, useInnerBlocksProps } = wp.blockEditor;
  */
 const ContainerSave = ({ attributes }) => {
     const {
+		isNested,
         id,
         anchor,
         customClasses,
@@ -18,7 +19,7 @@ const ContainerSave = ({ attributes }) => {
     } = attributes;
 
     // Build class names
-    const classNames = `digiblocks-container alignfull ${id} ${customClasses || ''}${animation !== 'none' ? ` animate-${animation}` : ''}`;
+    const classNames = `digiblocks-container ${isNested ? '' : 'alignfull'} ${id} ${customClasses || ''}${animation !== 'none' ? ` animate-${animation}` : ''}`;
     
     // Save block props
     const blockProps = useBlockProps.save({

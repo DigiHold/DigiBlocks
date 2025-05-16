@@ -26,9 +26,9 @@ const { createBlock } = wp.blocks;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody, ResponsiveRangeControl, ResponsiveButtonGroup } = digi.components;
 
 /**
  * Container layouts
@@ -137,6 +137,7 @@ const containerLayouts = [
  */
 const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
     const {
+		flexWrap,
         id,
         anchor,
         customClasses,
@@ -183,7 +184,14 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("layout");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
     
     // State for showing the layout selector
     const [showLayoutSelector, setShowLayoutSelector] = useState(!layout);
@@ -201,18 +209,34 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
         return unsubscribe;
     }, []);
 
+	// Check if this container is nested inside another container
+	const { isNested } = useSelect(
+		(select) => {
+			const { getBlockParentsByBlockName } = select('core/block-editor');
+			return {
+				isNested: getBlockParentsByBlockName(clientId, 'digiblocks/container').length > 0
+			};
+		},
+		[clientId]
+	);
+
+	// Update the isNested attribute when component mounts or when parent changes
+	useEffect(() => {
+		setAttributes({ isNested });
+	}, [isNested, setAttributes]);
+
     // Get inner blocks
     const { innerBlocks, hasChildBlocks } = useSelect(
-        (select) => {
-            const { getBlocks } = select('core/block-editor');
-            const blocks = getBlocks(clientId);
-            return {
-                innerBlocks: blocks,
-                hasChildBlocks: blocks.length > 0,
-            };
-        },
-        [clientId]
-    );
+		(select) => {
+			const { getBlocks } = select('core/block-editor');
+			const blocks = getBlocks(clientId);
+			return {
+				innerBlocks: blocks,
+				hasChildBlocks: blocks.length > 0,
+			};
+		},
+		[clientId]
+	);
 
     // Access dispatch methods
     const { replaceInnerBlocks } = useDispatch('core/block-editor');
@@ -250,7 +274,6 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 					{
 						...existingColumn.attributes,
 						width: {
-							...existingColumn.attributes.width,
 							desktop: columnWidth,
 							tablet: stackOnTablet ? 100 : columnWidth,
 							mobile: stackOnMobile ? 100 : columnWidth
@@ -388,7 +411,7 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
     // Define the tabs for our custom tab panel
     const tabList = [
         { 
-            name: 'layout', 
+            name: 'options', 
             title: __('Layout', 'digiblocks'),
             icon: tabIcons.optionsIcon
         },
@@ -409,37 +432,107 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
         }
     ];
 
+	// Get responsive padding with minimum 10px enforcement
+	const getContainerPadding = (padding, device) => {
+		// Check if current device has valid padding values
+		const hasDeviceValues = (dev) => {
+			return padding && padding[dev] && (
+				(padding[dev].top !== undefined && padding[dev].top !== '') ||
+				(padding[dev].right !== undefined && padding[dev].right !== '') ||
+				(padding[dev].bottom !== undefined && padding[dev].bottom !== '') ||
+				(padding[dev].left !== undefined && padding[dev].left !== '')
+			);
+		};
+		
+		// Determine which device values to use (with fallbacks)
+		let values;
+		
+		if (hasDeviceValues(device)) {
+			values = padding[device];
+		} else if (device === 'tablet' && hasDeviceValues('desktop')) {
+			values = padding['desktop'];
+		} else if (device === 'mobile') {
+			if (hasDeviceValues('tablet')) {
+				values = padding['tablet'];
+			} else if (hasDeviceValues('desktop')) {
+				values = padding['desktop'];
+			} else {
+				// No valid values found for any device
+				return '';
+			}
+		} else {
+			// No valid values found
+			return '';
+		}
+		
+		// Apply minimum padding of 10px if needed
+		const ensureMinPadding = (value, unit) => {
+			if (value === undefined || value === '') {
+				return '0' + unit;
+			}
+			if (unit === 'px' && parseFloat(value) < 10) {
+				return '10px';
+			}
+			return value + unit;
+		};
+		
+		const unit = values.unit || 'px';
+		
+		const top = ensureMinPadding(values.top, unit);
+		const right = ensureMinPadding(values.right, unit);
+		const bottom = ensureMinPadding(values.bottom, unit);
+		const left = ensureMinPadding(values.left, unit);
+		
+		return `padding: ${top} ${right} ${bottom} ${left} !important;`;
+	};
+
+	// Helper function to get gap value with fallback
+	const getGapValue = (gapObj, device) => {
+		// If the current device has a value, use it
+		if (gapObj[device] && gapObj[device].value !== '') {
+			return {
+				value: gapObj[device].value,
+				unit: gapObj[device].unit || 'px'
+			};
+		}
+		
+		// For tablet: fallback to desktop
+		if (device === 'tablet') {
+			return {
+				value: gapObj.desktop.value,
+				unit: gapObj.desktop.unit || 'px'
+			};
+		}
+		
+		// For mobile: try tablet first, then desktop
+		if (device === 'mobile') {
+			if (gapObj.tablet && gapObj.tablet.value !== '') {
+				return {
+					value: gapObj.tablet.value,
+					unit: gapObj.tablet.unit || 'px'
+				};
+			}
+			return {
+				value: gapObj.desktop.value,
+				unit: gapObj.desktop.unit || 'px'
+			};
+		}
+		
+		// Default case (should not happen)
+		return {
+			value: 0,
+			unit: 'px'
+		};
+	};
+
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = localActiveDevice;
 
-		// Function to ensure minimum padding of 10px
-		const ensureMinPadding = (paddingValue, unit) => {
-			// If padding is 0 or very small (less than 10px), return 10px
-			if (unit === 'px' && parseFloat(paddingValue) < 10) {
-				return '10px';
-			}
-			// Otherwise return the original value
-			return paddingValue + unit;
-		};
-
-		// Apply minimum padding
-		const paddingTop = ensureMinPadding(padding[activeDevice].top, padding[activeDevice].unit);
-		const paddingRight = ensureMinPadding(padding[activeDevice].right, padding[activeDevice].unit);
-		const paddingBottom = ensureMinPadding(padding[activeDevice].bottom, padding[activeDevice].unit);
-		const paddingLeft = ensureMinPadding(padding[activeDevice].left, padding[activeDevice].unit);
-		
-		// Apply minimum padding for tablet
-		const tabletPaddingTop = ensureMinPadding(padding['tablet'].top, padding['tablet'].unit);
-		const tabletPaddingRight = ensureMinPadding(padding['tablet'].right, padding['tablet'].unit);
-		const tabletPaddingBottom = ensureMinPadding(padding['tablet'].bottom, padding['tablet'].unit);
-		const tabletPaddingLeft = ensureMinPadding(padding['tablet'].left, padding['tablet'].unit);
-		
-		// Apply minimum padding for mobile
-		const mobilePaddingTop = ensureMinPadding(padding['mobile'].top, padding['mobile'].unit);
-		const mobilePaddingRight = ensureMinPadding(padding['mobile'].right, padding['mobile'].unit);
-		const mobilePaddingBottom = ensureMinPadding(padding['mobile'].bottom, padding['mobile'].unit);
-		const mobilePaddingLeft = ensureMinPadding(padding['mobile'].left, padding['mobile'].unit);
+		// Get responsive padding with minimum 10px enforcement
+		const paddingCSS = getContainerPadding(padding, activeDevice);
+		const tabletPaddingCSS = getContainerPadding(padding, 'tablet');
+		const mobilePaddingCSS = getContainerPadding(padding, 'mobile');
         
         // Animation CSS if provided
         let animationCSS = '';
@@ -495,45 +588,59 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Height CSS
         let heightCSS = '';
-        if (heightType === 'full') {
-            heightCSS = 'height: 100vh;';
-        } else if (heightType === 'custom') {
-            heightCSS = `min-height: ${minHeight[activeDevice]}px !important;`;
-        }
+		if (heightType[activeDevice] === 'full') {
+			heightCSS = 'height: 100vh;';
+		} else if (heightType[activeDevice] === 'custom') {
+			heightCSS = `min-height: ${minHeight[activeDevice]}px !important;`;
+		}
         
         // Content width CSS
         let contentWidthCSS = '';
-		if (contentLayout === 'full') {
-            contentWidthCSS = 'width: 100%;';
-        } else {
-			contentWidthCSS = `width: ${contentWidth[activeDevice]}px;
-            margin-left: auto;
-            margin-right: auto;`;
-        }
+		if (!isNested) {
+			if (contentLayout === 'full') {
+				contentWidthCSS = 'width: 100%;';
+			} else {
+				// Get the appropriate width value with fallback
+				const widthValue = contentWidth[activeDevice] !== undefined && contentWidth[activeDevice] !== '' 
+					? contentWidth[activeDevice] 
+					: contentWidth.desktop;
+					
+				contentWidthCSS = `width: ${widthValue}px;
+				margin-left: auto;
+				margin-right: auto;`;
+			}
+		}
         
         // Content max width CSS
         let contentMaxWidthCSS = '';
-		if (contentLayout === 'full') {
-            contentMaxWidthCSS = 'max-width: 100%;';
-        } else {
-			contentMaxWidthCSS = `max-width: ${contentMaxWidth[activeDevice]}%;`;
-        }
+		if (!isNested) {
+			if (contentLayout === 'full') {
+				contentMaxWidthCSS = 'max-width: 100%;';
+			} else {
+				// Get the appropriate max-width value with fallback
+				const maxWidthValue = contentMaxWidth[activeDevice] !== undefined && contentMaxWidth[activeDevice] !== '' 
+					? contentMaxWidth[activeDevice] 
+					: contentMaxWidth.desktop;
+					
+				contentMaxWidthCSS = `max-width: ${maxWidthValue}%;`;
+			}
+		}
         
         return `
             /* Container Block - ${id} */
             .${id} {
                 position: relative;
-                padding: ${paddingTop} ${paddingRight} ${paddingBottom} ${paddingLeft};
-                margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};
+                ${paddingCSS}
+				${getDimensionCSS(margin, 'margin', activeDevice)}
                 width: 100%;
                 ${heightCSS}
                 ${backgroundColor ? `background-color: ${backgroundColor};` : ''}
                 ${backgroundImageCSS}
                 ${borderStyle !== 'none' ? `
                 border-style: ${borderStyle}!important;
-                border-width: ${borderWidth[activeDevice].top}${borderWidth[activeDevice].unit} ${borderWidth[activeDevice].right}${borderWidth[activeDevice].unit} ${borderWidth[activeDevice].bottom}${borderWidth[activeDevice].unit} ${borderWidth[activeDevice].left}${borderWidth[activeDevice].unit}!important;
+				${getDimensionCSS(borderWidth, 'border-width', activeDevice, true)}
                 border-color: ${borderColor}!important;` : ''}
-                border-radius: ${borderRadius[activeDevice].top}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].right}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].bottom}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].left}${borderRadius[activeDevice].unit};
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
                 ${boxShadowCSS}
                 ${overflowHidden ? 'overflow: hidden;' : ''}
                 ${zIndex ? `z-index: ${zIndex};` : ''}
@@ -545,21 +652,23 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                 ${boxShadowHoverCSS}
             }
 
-			.${id} .digiblocks-container-inner {
+			.${id} > .digiblocks-container-inner {
                 display: flex;
-				flex-wrap: nowrap;
-                gap: ${rowGap[activeDevice]}px ${columnGap[activeDevice]}px;
-                width: 100%;
-                ${contentWidthCSS}
-                ${contentMaxWidthCSS}
-                align-items: ${verticalAlign};
-                justify-content: ${horizontalAlign};
+				flex-wrap: ${flexWrap[activeDevice]};
+                align-items: ${verticalAlign[activeDevice]};
+    			justify-content: ${horizontalAlign[activeDevice]};
+				gap: ${getGapValue(rowGap, activeDevice).value}${getGapValue(rowGap, activeDevice).unit} ${getGapValue(columnGap, activeDevice).value}${getGapValue(columnGap, activeDevice).unit};
+            }
+
+			.${id}.alignfull > .digiblocks-container-inner {
+				${!isNested ? contentWidthCSS : ''}
+				${!isNested ? contentMaxWidthCSS : ''}
             }
             
             ${overlayCSS}
             
             /* Background video */
-            .${id} .digiblocks-bg-video-container {
+            .${id} > .digiblocks-bg-video-container {
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -571,7 +680,7 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                 border-radius: inherit;
             }
             
-            .${id} .digiblocks-bg-video {
+            .${id} > .digiblocks-bg-video {
                 position: absolute;
                 top: 50%;
                 left: 50%;
@@ -584,42 +693,69 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
             }
 
 			/* Responsive preview */
-			body[data-digiblocks-device="tablet"] .${id} .digiblocks-container-inner {
+			body[data-digiblocks-device="tablet"] .${id} {
+				${heightType['tablet'] === 'custom' ? `min-height: ${minHeight['tablet']}px;` : ''}
+			}
+
+			body[data-digiblocks-device="tablet"] .${id} > .digiblocks-container-inner {
+				flex-wrap: ${flexWrap['tablet']};
+				align-items: ${verticalAlign['tablet']};
+				justify-content: ${horizontalAlign['tablet']};
+				gap: ${getGapValue(rowGap, 'tablet').value}${getGapValue(rowGap, 'tablet').unit} ${getGapValue(columnGap, 'tablet').value}${getGapValue(columnGap, 'tablet').unit};
 				${stackOnTablet ? 'flex-direction: column;' : ''}
 			}
 
 			${stackOnTablet ? `
-				body[data-digiblocks-device="tablet"] .${id} .digiblocks-container-inner .digiblocks-column {
+				body[data-digiblocks-device="tablet"] .${id} > .digiblocks-container-inner .digiblocks-column {
 					width: 100%;
 				}` : ''}
-			
-			body[data-digiblocks-device="mobile"] .${id} .digiblocks-container-inner {
+
+			body[data-digiblocks-device="mobile"] .${id} {
+				${heightType['mobile'] === 'custom' ? `min-height: ${minHeight['mobile']}px;` : ''}
+			}
+
+			body[data-digiblocks-device="mobile"] .${id} > .digiblocks-container-inner {
+				flex-wrap: ${flexWrap['mobile']};
+				align-items: ${verticalAlign['mobile']};
+				justify-content: ${horizontalAlign['mobile']};
+				gap: ${getGapValue(rowGap, 'mobile').value}${getGapValue(rowGap, 'mobile').unit} ${getGapValue(columnGap, 'mobile').value}${getGapValue(columnGap, 'mobile').unit};
 				${stackOnMobile ? 'flex-direction: column;' : ''}
 				${reverseColumnsMobile ? 'flex-direction: column-reverse;' : ''}
 			}
 
 			${stackOnMobile ? `
-				body[data-digiblocks-device="mobile"] .${id} .digiblocks-container-inner .digiblocks-column {
+				body[data-digiblocks-device="mobile"] .${id} > .digiblocks-container-inner .digiblocks-column {
 					width: 100%;
 				}` : ''}
             
             /* Tablet styles */
             @media (max-width: 991px) {
                 .${id} {
-                    padding: ${tabletPaddingTop} ${tabletPaddingRight} ${tabletPaddingBottom} ${tabletPaddingLeft};
-                    margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};
-                    ${heightType === 'custom' ? `min-height: ${minHeight['tablet']}px;` : ''}
-                    border-radius: ${borderRadius[activeDevice].top}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].right}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].bottom}${borderRadius[activeDevice].unit} ${borderRadius[activeDevice].left}${borderRadius[activeDevice].unit};
-                    ${borderStyle !== 'none' ? `border-width: ${borderWidth['tablet'].top}${borderWidth['tablet'].unit} ${borderWidth['tablet'].right}${borderWidth['tablet'].unit} ${borderWidth['tablet'].bottom}${borderWidth['tablet'].unit} ${borderWidth['tablet'].left}${borderWidth['tablet'].unit};` : ''}
+                    ${tabletPaddingCSS}
+					${getDimensionCSS(margin, 'margin', 'tablet')}
+					${heightType['tablet'] === 'custom' ? `min-height: ${minHeight['tablet']}px;` : ''}
+					${getDimensionCSS(borderRadius, 'border-radius', 'tablet')}
+					${borderStyle !== 'none' ? `${getDimensionCSS(borderWidth, 'border-width', 'tablet', true)}` : ''}
                 }
 
-				.${id} .digiblocks-container-inner {
-					gap: ${rowGap[activeDevice]}px ${columnGap[activeDevice]}px;
+				.${id} > .digiblocks-container-inner {
+					${!isNested && contentLayout !== 'full' ? `
+						width: ${contentWidth.tablet !== undefined && contentWidth.tablet !== '' 
+							? contentWidth.tablet 
+							: contentWidth.desktop}px;
+						max-width: ${contentMaxWidth.tablet !== undefined && contentMaxWidth.tablet !== '' 
+							? contentMaxWidth.tablet 
+							: contentMaxWidth.desktop}%;
+					` : ''}
+					flex-wrap: ${flexWrap['tablet']};
+					align-items: ${verticalAlign['tablet']};
+					justify-content: ${horizontalAlign['tablet']};
+					gap: ${getGapValue(rowGap, 'tablet').value}${getGapValue(rowGap, 'tablet').unit} ${getGapValue(columnGap, 'tablet').value}${getGapValue(columnGap, 'tablet').unit};
                     ${stackOnTablet ? 'flex-direction: column;' : ''}
 				}
 
 				${stackOnTablet ? `
-					.${id} .digiblocks-container-inner .digiblocks-column {
+					.${id} > .digiblocks-container-inner .digiblocks-column {
 						width: 100%;
 					}` : ''}
             }
@@ -627,21 +763,36 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
             /* Mobile styles */
             @media (max-width: 767px) {
                 .${id} {
-                    padding: ${mobilePaddingTop} ${mobilePaddingRight} ${mobilePaddingBottom} ${mobilePaddingLeft};
-                    margin: ${margin['mobile'].top}${margin['mobile'].unit} ${margin['mobile'].right}${margin['mobile'].unit} ${margin['mobile'].bottom}${margin['mobile'].unit} ${margin['mobile'].left}${margin['mobile'].unit};
-                    ${heightType === 'custom' ? `min-height: ${minHeight['mobile']}px;` : ''}
-                    border-radius: ${borderRadius['mobile'].top}${borderRadius['mobile'].unit} ${borderRadius['mobile'].right}${borderRadius['mobile'].unit} ${borderRadius['mobile'].bottom}${borderRadius['mobile'].unit} ${borderRadius['mobile'].left}${borderRadius['mobile'].unit};
+                    ${mobilePaddingCSS}
+					${getDimensionCSS(margin, 'margin', 'mobile')}
+                    ${heightType['mobile'] === 'custom' ? `min-height: ${minHeight['mobile']}px;` : ''}
+					${getDimensionCSS(borderRadius, 'border-radius', 'mobile')}
                     ${borderStyle !== 'none' ? `border-width: ${borderWidth['mobile'].top}${borderWidth['mobile'].unit} ${borderWidth['mobile'].right}${borderWidth['mobile'].unit} ${borderWidth['mobile'].bottom}${borderWidth['mobile'].unit} ${borderWidth['mobile'].left}${borderWidth['mobile'].unit};` : ''}
                 }
 
-				.${id} .digiblocks-container-inner {
-					gap: ${rowGap['mobile']}px ${columnGap['mobile']}px;
+				.${id} > .digiblocks-container-inner {
+					${!isNested && contentLayout !== 'full' ? `
+						width: ${contentWidth.mobile !== undefined && contentWidth.mobile !== '' 
+							? contentWidth.mobile 
+							: (contentWidth.tablet !== undefined && contentWidth.tablet !== '' 
+								? contentWidth.tablet 
+								: contentWidth.desktop)}px;
+						max-width: ${contentMaxWidth.mobile !== undefined && contentMaxWidth.mobile !== '' 
+							? contentMaxWidth.mobile 
+							: (contentMaxWidth.tablet !== undefined && contentMaxWidth.tablet !== '' 
+								? contentMaxWidth.tablet 
+								: contentMaxWidth.desktop)}%;
+					` : ''}
+					flex-wrap: ${flexWrap['mobile']};
+					align-items: ${verticalAlign['mobile']};
+					justify-content: ${horizontalAlign['mobile']};
+					gap: ${getGapValue(rowGap, 'mobile').value}${getGapValue(rowGap, 'mobile').unit} ${getGapValue(columnGap, 'mobile').value}${getGapValue(columnGap, 'mobile').unit};
                     ${stackOnMobile ? 'flex-direction: column;' : ''}
                     ${reverseColumnsMobile ? 'flex-direction: column-reverse;' : ''}
 				}
 
 				${stackOnMobile ? `
-					.${id} .digiblocks-container-inner .digiblocks-column {
+					.${id} > .digiblocks-container-inner .digiblocks-column {
 						width: 100%;
 					}` : ''}
             }
@@ -653,7 +804,7 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Generate block props
     const blockProps = useBlockProps({
-        className: `digiblocks-container ${id} ${customClasses || ''}`,
+        className: `digiblocks-container ${isNested ? '' : 'alignfull'} ${id} ${customClasses || ''}`,
         id: anchor || null,
     });
 
@@ -673,11 +824,11 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
     // Render tab content based on the active tab
     const renderTabContent = () => {
         switch (activeTab) {
-            case 'layout':
+            case 'options':
                 return (
                     <>
                         <TabPanelBody
-                            tab="layout"
+                            tab="options"
                             name="layout"
                             title={__('Container Layout', 'digiblocks')}
                             initialOpen={true}
@@ -690,161 +841,151 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                                 {layout ? __('Change Layout', 'digiblocks') : __('Select Layout', 'digiblocks')}
                             </Button>
                             
-							<ToggleGroupControl
-                                label={__("Layout", "digiblocks")}
-                                value={contentLayout}
-                                onChange={(value) => setAttributes({ contentLayout: value })}
-                                isBlock
-                                __next40pxDefaultSize={true}
-                                __nextHasNoMarginBottom={true}
-                            >
-                                <ToggleGroupControlOption 
-                                    value="boxed" 
-                                    label={__("Boxed", "digiblocks")}
-                                />
-                                <ToggleGroupControlOption 
-                                    value="full" 
-                                    label={__("Full Width", "digiblocks")}
-                                />
-                            </ToggleGroupControl>
-
-							{contentLayout === 'boxed' && (
+							{!isNested && (
 								<>
-									<ResponsiveControl
-										label={__('Content Width (px)', 'digiblocks')}
+									<ToggleGroupControl
+										label={__("Layout", "digiblocks")}
+										value={contentLayout}
+										onChange={(value) => setAttributes({ contentLayout: value })}
+										isBlock
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
 									>
-										<RangeControl
-											value={contentWidth[localActiveDevice]}
-											onChange={(value) =>
-												setAttributes({
-													contentWidth: {
-														...contentWidth,
-														[localActiveDevice]: value,
-													},
-												})
-											}
-											min={0}
-											max={2000}
-											step={1}
-											__next40pxDefaultSize={true}
-											__nextHasNoMarginBottom={true}
+										<ToggleGroupControlOption 
+											value="boxed" 
+											label={__("Boxed", "digiblocks")}
 										/>
-									</ResponsiveControl>
+										<ToggleGroupControlOption 
+											value="full" 
+											label={__("Full Width", "digiblocks")}
+										/>
+									</ToggleGroupControl>
 
-									<ResponsiveControl
-										label={__('Content Max Width (%)', 'digiblocks')}
-									>
-										<RangeControl
-											value={contentMaxWidth[localActiveDevice]}
-											onChange={(value) =>
-												setAttributes({
-													contentMaxWidth: {
-														...contentMaxWidth,
-														[localActiveDevice]: value,
-													},
-												})
-											}
-											min={0}
-											max={100}
-											step={1}
-											__next40pxDefaultSize={true}
-											__nextHasNoMarginBottom={true}
-										/>
-									</ResponsiveControl>
+									{contentLayout === 'boxed' && (
+										<>
+											<ResponsiveControl
+												label={__('Content Width (px)', 'digiblocks')}
+											>
+												<RangeControl
+													value={
+														contentWidth[localActiveDevice] !== '' ? 
+														contentWidth[localActiveDevice] : 
+														(localActiveDevice === 'desktop' ? 
+															(digiBlocksData.contentWidth || 1200) : 
+															contentWidth.desktop || digiBlocksData.contentWidth || 1200)
+													}
+													onChange={(value) =>
+														setAttributes({
+															contentWidth: {
+																...contentWidth,
+																[localActiveDevice]: value,
+															},
+														})
+													}
+													min={300}
+													max={2000}
+													step={1}
+													__next40pxDefaultSize={true}
+													__nextHasNoMarginBottom={true}
+												/>
+											</ResponsiveControl>
+
+											<ResponsiveControl
+												label={__('Content Max Width (%)', 'digiblocks')}
+											>
+												<RangeControl
+													value={
+														contentMaxWidth[localActiveDevice] !== '' ? 
+														contentMaxWidth[localActiveDevice] : 
+														(localActiveDevice === 'desktop' ? 
+															(digiBlocksData.contentMaxWidth || 90) : 
+															contentMaxWidth.desktop || digiBlocksData.contentMaxWidth || 90)
+													}
+													onChange={(value) =>
+														setAttributes({
+															contentMaxWidth: {
+																...contentMaxWidth,
+																[localActiveDevice]: value,
+															},
+														})
+													}
+													min={0}
+													max={100}
+													step={1}
+													__next40pxDefaultSize={true}
+													__nextHasNoMarginBottom={true}
+												/>
+											</ResponsiveControl>
+										</>
+									)}
 								</>
 							)}
+
+							<ResponsiveButtonGroup
+								label={__('Flex Wrap', 'digiblocks')}
+								value={flexWrap}
+								onChange={(value) => setAttributes({ flexWrap: value })}
+								options={[
+									{ label: __('No Wrap', 'digiblocks'), value: 'nowrap' },
+									{ label: __('Wrap', 'digiblocks'), value: 'wrap' },
+								]}
+							/>
                             
-                            <ToggleGroupControl
-                                label={__("Height", "digiblocks")}
-                                value={heightType}
-                                onChange={(value) => setAttributes({ heightType: value })}
-                                isBlock
-                                __next40pxDefaultSize={true}
-                                __nextHasNoMarginBottom={true}
-                            >
-                                <ToggleGroupControlOption 
-                                    value="auto" 
-                                    label={__("Auto", "digiblocks")}
-                                />
-                                <ToggleGroupControlOption 
-                                    value="full" 
-                                    label={__("Full", "digiblocks")}
-                                />
-                                <ToggleGroupControlOption 
-                                    value="custom" 
-                                    label={__("Custom", "digiblocks")}
-                                />
-                            </ToggleGroupControl>
-                            
-                            {heightType === 'custom' && (
-                                <ResponsiveControl
-                                    label={__('Min Height', 'digiblocks')}
-                                >
-                                    <RangeControl
-                                        value={minHeight[localActiveDevice]}
-                                        onChange={(value) =>
-                                            setAttributes({
-                                                minHeight: {
-                                                    ...minHeight,
-                                                    [localActiveDevice]: value,
-                                                },
-                                            })
-                                        }
-                                        min={0}
-                                        max={1000}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
-                                </ResponsiveControl>
-                            )}
-                            
-                            <ToggleGroupControl
-                                label={__("Horizontal Align", "digiblocks")}
-                                value={horizontalAlign}
-                                onChange={(value) => setAttributes({ horizontalAlign: value })}
-                                isBlock
-                                __next40pxDefaultSize={true}
-                                __nextHasNoMarginBottom={true}
-                            >
-                                <ToggleGroupControlOption 
-                                    value="flex-start" 
-                                    label={__("Left", "digiblocks")}
-                                />
-                                <ToggleGroupControlOption 
-                                    value="center" 
-                                    label={__("Center", "digiblocks")}
-                                />
-                                <ToggleGroupControlOption 
-                                    value="flex-end" 
-                                    label={__("Right", "digiblocks")}
-                                />
-                                <ToggleGroupControlOption 
-                                    value="space-between" 
-                                    label={__("Space", "digiblocks")}
-                                />
-                            </ToggleGroupControl>
-                            
-                            <ToggleGroupControl
-                                label={__("Vertical Align", "digiblocks")}
-                                value={verticalAlign}
-                                onChange={(value) => setAttributes({ verticalAlign: value })}
-                                isBlock
-                                __next40pxDefaultSize={true}
-                                __nextHasNoMarginBottom={true}
-                            >
-                                <ToggleGroupControlOption 
-                                    value="flex-start" 
-                                    label={__("Top", "digiblocks")}
-                                />
-                                <ToggleGroupControlOption 
-                                    value="center" 
-                                    label={__("Middle", "digiblocks")}
-                                />
-                                <ToggleGroupControlOption 
-                                    value="flex-end" 
-                                    label={__("Bottom", "digiblocks")}
-                                />
-                            </ToggleGroupControl>
+                            <ResponsiveButtonGroup
+								label={__("Height", "digiblocks")}
+								value={heightType}
+								onChange={(value) => setAttributes({ heightType: value })}
+								options={[
+									{ label: __("Auto", "digiblocks"), value: "auto" },
+									{ label: __("Full", "digiblocks"), value: "full" },
+									{ label: __("Custom", "digiblocks"), value: "custom" }
+								]}
+							/>
+
+							{heightType[localActiveDevice] === 'custom' && (
+								<ResponsiveControl
+									label={__('Min Height', 'digiblocks')}
+								>
+									<RangeControl
+										value={minHeight[localActiveDevice]}
+										onChange={(value) =>
+											setAttributes({
+												minHeight: {
+													...minHeight,
+													[localActiveDevice]: value,
+												},
+											})
+										}
+										min={0}
+										max={1000}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+								</ResponsiveControl>
+							)}
+
+							<ResponsiveButtonGroup
+								label={__("Horizontal Align", "digiblocks")}
+								value={horizontalAlign}
+								onChange={(value) => setAttributes({ horizontalAlign: value })}
+								options={[
+									{ label: __("Left", "digiblocks"), value: "flex-start" },
+									{ label: __("Center", "digiblocks"), value: "center" },
+									{ label: __("Right", "digiblocks"), value: "flex-end" },
+									{ label: __("Space", "digiblocks"), value: "space-between" }
+								]}
+							/>
+
+							<ResponsiveButtonGroup
+								label={__("Vertical Align", "digiblocks")}
+								value={verticalAlign}
+								onChange={(value) => setAttributes({ verticalAlign: value })}
+								options={[
+									{ label: __("Top", "digiblocks"), value: "flex-start" },
+									{ label: __("Middle", "digiblocks"), value: "center" },
+									{ label: __("Bottom", "digiblocks"), value: "flex-end" }
+								]}
+							/>
                         </TabPanelBody>
                         
                         <TabPanelBody
@@ -853,45 +994,36 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={false}
                         >
-                            <ResponsiveControl
-                                label={__('Column Gap', 'digiblocks')}
-                            >
-                                <RangeControl
-                                    value={columnGap[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            columnGap: {
-                                                ...columnGap,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    min={0}
-                                    max={100}
-                                    __next40pxDefaultSize={true}
-                                    __nextHasNoMarginBottom={true}
-                                />
-                            </ResponsiveControl>
-                            
-                            <ResponsiveControl
-                                label={__('Row Gap', 'digiblocks')}
-                            >
-                                <RangeControl
-                                    value={rowGap[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            rowGap: {
-                                                ...rowGap,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    min={0}
-                                    max={100}
-                                    __next40pxDefaultSize={true}
-                                    __nextHasNoMarginBottom={true}
-                                />
-                            </ResponsiveControl>
+							<ResponsiveRangeControl
+								label={__("Column Gap", "digiblocks")}
+								value={columnGap}
+								onChange={(value) => setAttributes({ columnGap: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' },
+									{ label: 'em', value: 'em' },
+									{ label: 'rem', value: 'rem' },
+								]}
+								defaultUnit="px"
+								min={0}
+								max={100}
+								step={1}
+							/>
+
+							<ResponsiveRangeControl
+								label={__("Row Gap", "digiblocks")}
+								value={rowGap}
+								onChange={(value) => setAttributes({ rowGap: value })}
+								units={[ // no % unit as it doesn't work on Row Gap
+									{ label: 'px', value: 'px' },
+									{ label: 'em', value: 'em' },
+									{ label: 'rem', value: 'rem' },
+								]}
+								defaultUnit="px"
+								min={0}
+								max={100}
+								step={1}
+							/>
                             
                             <ResponsiveControl
                                 label={__('Padding', 'digiblocks')}
@@ -996,6 +1128,7 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                                     
                                     <PanelColorSettings
                                         title=""
+										enableAlpha={true}
                                         colorSettings={[
                                             {
                                                 value: borderColor,
@@ -1077,6 +1210,7 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                             <PanelColorSettings
                                 title={__("Background Color", "digiblocks")}
                                 initialOpen={true}
+								enableAlpha={true}
                                 colorSettings={[
                                     {
                                         value: backgroundColor,
@@ -1289,6 +1423,7 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                             <PanelColorSettings
                                 title={__("Overlay Color", "digiblocks")}
                                 initialOpen={true}
+								enableAlpha={true}
                                 colorSettings={[
                                     {
                                         value: backgroundOverlay,

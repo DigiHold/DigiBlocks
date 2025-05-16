@@ -40,43 +40,21 @@ $imageBorderRadius        = isset( $attrs['imageBorderRadius'] ) ? $attrs['image
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 8,
-		'right'  => 8,
-		'bottom' => 8,
-		'left'   => 8,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 8,
-		'right'  => 8,
-		'bottom' => 8,
-		'left'   => 8,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
-$imageBorderWidth         = isset( $attrs['imageBorderWidth'] ) ? $attrs['imageBorderWidth'] : array(
-	'desktop' => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 0,
-		'left'   => 0,
-		'unit'   => 'px',
-	),
-	'tablet'  => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 0,
-		'left'   => 0,
-		'unit'   => 'px',
-	),
-	'mobile'  => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 0,
-		'left'   => 0,
-		'unit'   => 'px',
-	),
-);
+$imageBorderWidth         = isset( $attrs['imageBorderWidth'] ) ? $attrs['imageBorderWidth'] : digiblocks_get_default_dimensions('px');
 $imageBorderColor         = isset( $attrs['imageBorderColor'] ) ? $attrs['imageBorderColor'] : '#e0e0e0';
 $imageBorderStyle         = isset( $attrs['imageBorderStyle'] ) ? $attrs['imageBorderStyle'] : 'none';
 $typography               = isset( $attrs['typography'] ) ? $attrs['typography'] : array(
@@ -180,17 +158,17 @@ $iconBorderRadius         = isset( $attrs['iconBorderRadius'] ) ? $attrs['iconBo
 		'unit'   => '%',
 	),
 	'tablet'  => array(
-		'top'    => 50,
-		'right'  => 50,
-		'bottom' => 50,
-		'left'   => 50,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => '%',
 	),
 	'mobile'  => array(
-		'top'    => 50,
-		'right'  => 50,
-		'bottom' => 50,
-		'left'   => 50,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => '%',
 	),
 );
@@ -228,17 +206,17 @@ $boxBorderRadius          = isset( $attrs['boxBorderRadius'] ) ? $attrs['boxBord
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 8,
-		'right'  => 8,
-		'bottom' => 8,
-		'left'   => 8,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 8,
-		'right'  => 8,
-		'bottom' => 8,
-		'left'   => 8,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -251,17 +229,17 @@ $boxBorderWidth           = isset( $attrs['boxBorderWidth'] ) ? $attrs['boxBorde
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 1,
-		'right'  => 1,
-		'bottom' => 1,
-		'left'   => 1,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 1,
-		'right'  => 1,
-		'bottom' => 1,
-		'left'   => 1,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -340,70 +318,35 @@ $column_width_desktop = "calc((100% - " . ( ( $columns['desktop'] - 1 ) * $gutte
 $column_width_tablet  = "calc((100% - " . ( ( $columns['tablet'] - 1 ) * $gutter['tablet'] ) . "px) / " . $columns['tablet'] . ")";
 $column_width_mobile  = "calc((100% - " . ( ( $columns['mobile'] - 1 ) * $gutter['mobile'] ) . "px) / " . $columns['mobile'] . ")";
 
-// Process margins
-$box_margin_desktop = $boxMargin['desktop']['top'] . $boxMargin['desktop']['unit'] . ' ' . $boxMargin['desktop']['right'] . $boxMargin['desktop']['unit'] . ' ' . $boxMargin['desktop']['bottom'] . $boxMargin['desktop']['unit'] . ' ' . $boxMargin['desktop']['left'] . $boxMargin['desktop']['unit'];
-$box_margin_tablet  = $boxMargin['tablet']['top'] . $boxMargin['tablet']['unit'] . ' ' . $boxMargin['tablet']['right'] . $boxMargin['tablet']['unit'] . ' ' . $boxMargin['tablet']['bottom'] . $boxMargin['tablet']['unit'] . ' ' . $boxMargin['tablet']['left'] . $boxMargin['tablet']['unit'];
-$box_margin_mobile  = $boxMargin['mobile']['top'] . $boxMargin['mobile']['unit'] . ' ' . $boxMargin['mobile']['right'] . $boxMargin['mobile']['unit'] . ' ' . $boxMargin['mobile']['bottom'] . $boxMargin['mobile']['unit'] . ' ' . $boxMargin['mobile']['left'] . $boxMargin['mobile']['unit'];
-
-// Process padding
-$box_padding_desktop = $boxPadding['desktop']['top'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['right'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['bottom'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['left'] . $boxPadding['desktop']['unit'];
-$box_padding_tablet  = $boxPadding['tablet']['top'] . $boxPadding['tablet']['unit'] . ' ' . $boxPadding['tablet']['right'] . $boxPadding['tablet']['unit'] . ' ' . $boxPadding['tablet']['bottom'] . $boxPadding['tablet']['unit'] . ' ' . $boxPadding['tablet']['left'] . $boxPadding['tablet']['unit'];
-$box_padding_mobile  = $boxPadding['mobile']['top'] . $boxPadding['mobile']['unit'] . ' ' . $boxPadding['mobile']['right'] . $boxPadding['mobile']['unit'] . ' ' . $boxPadding['mobile']['bottom'] . $boxPadding['mobile']['unit'] . ' ' . $boxPadding['mobile']['left'] . $boxPadding['mobile']['unit'];
-
-// Process box border radius
-$box_border_radius_desktop = $boxBorderRadius['desktop']['top'] . $boxBorderRadius['desktop']['unit'] . ' ' . $boxBorderRadius['desktop']['right'] . $boxBorderRadius['desktop']['unit'] . ' ' . $boxBorderRadius['desktop']['bottom'] . $boxBorderRadius['desktop']['unit'] . ' ' . $boxBorderRadius['desktop']['left'] . $boxBorderRadius['desktop']['unit'];
-$box_border_radius_tablet  = $boxBorderRadius['tablet']['top'] . $boxBorderRadius['tablet']['unit'] . ' ' . $boxBorderRadius['tablet']['right'] . $boxBorderRadius['tablet']['unit'] . ' ' . $boxBorderRadius['tablet']['bottom'] . $boxBorderRadius['tablet']['unit'] . ' ' . $boxBorderRadius['tablet']['left'] . $boxBorderRadius['tablet']['unit'];
-$box_border_radius_mobile  = $boxBorderRadius['mobile']['top'] . $boxBorderRadius['mobile']['unit'] . ' ' . $boxBorderRadius['mobile']['right'] . $boxBorderRadius['mobile']['unit'] . ' ' . $boxBorderRadius['mobile']['bottom'] . $boxBorderRadius['mobile']['unit'] . ' ' . $boxBorderRadius['mobile']['left'] . $boxBorderRadius['mobile']['unit'];
-
-// Process box border width
-$box_border_width_desktop = $boxBorderWidth['desktop']['top'] . $boxBorderWidth['desktop']['unit'] . ' ' . $boxBorderWidth['desktop']['right'] . $boxBorderWidth['desktop']['unit'] . ' ' . $boxBorderWidth['desktop']['bottom'] . $boxBorderWidth['desktop']['unit'] . ' ' . $boxBorderWidth['desktop']['left'] . $boxBorderWidth['desktop']['unit'];
-$box_border_width_tablet  = $boxBorderWidth['tablet']['top'] . $boxBorderWidth['tablet']['unit'] . ' ' . $boxBorderWidth['tablet']['right'] . $boxBorderWidth['tablet']['unit'] . ' ' . $boxBorderWidth['tablet']['bottom'] . $boxBorderWidth['tablet']['unit'] . ' ' . $boxBorderWidth['tablet']['left'] . $boxBorderWidth['tablet']['unit'];
-$box_border_width_mobile  = $boxBorderWidth['mobile']['top'] . $boxBorderWidth['mobile']['unit'] . ' ' . $boxBorderWidth['mobile']['right'] . $boxBorderWidth['mobile']['unit'] . ' ' . $boxBorderWidth['mobile']['bottom'] . $boxBorderWidth['mobile']['unit'] . ' ' . $boxBorderWidth['mobile']['left'] . $boxBorderWidth['mobile']['unit'];
-
-// Process image border width
-$image_border_width_desktop = $imageBorderWidth['desktop']['top'] . $imageBorderWidth['desktop']['unit'] . ' ' . $imageBorderWidth['desktop']['right'] . $imageBorderWidth['desktop']['unit'] . ' ' . $imageBorderWidth['desktop']['bottom'] . $imageBorderWidth['desktop']['unit'] . ' ' . $imageBorderWidth['desktop']['left'] . $imageBorderWidth['desktop']['unit'];
-$image_border_width_tablet  = $imageBorderWidth['tablet']['top'] . $imageBorderWidth['tablet']['unit'] . ' ' . $imageBorderWidth['tablet']['right'] . $imageBorderWidth['tablet']['unit'] . ' ' . $imageBorderWidth['tablet']['bottom'] . $imageBorderWidth['tablet']['unit'] . ' ' . $imageBorderWidth['tablet']['left'] . $imageBorderWidth['tablet']['unit'];
-$image_border_width_mobile  = $imageBorderWidth['mobile']['top'] . $imageBorderWidth['mobile']['unit'] . ' ' . $imageBorderWidth['mobile']['right'] . $imageBorderWidth['mobile']['unit'] . ' ' . $imageBorderWidth['mobile']['bottom'] . $imageBorderWidth['mobile']['unit'] . ' ' . $imageBorderWidth['mobile']['left'] . $imageBorderWidth['mobile']['unit'];
-
 // Get image border radius based on style or custom values
 $image_border_radius_value_desktop = '';
 $image_border_radius_value_tablet  = '';
 $image_border_radius_value_mobile  = '';
 
 if ( 'circle' === $imageStyle ) {
-	$image_border_radius_value_desktop = '50%';
-	$image_border_radius_value_tablet  = '50%';
-	$image_border_radius_value_mobile  = '50%';
+	$image_border_radius_value_desktop = 'border-radius: 50%;';
+	$image_border_radius_value_tablet  = 'border-radius: 50%;';
+	$image_border_radius_value_mobile  = 'border-radius: 50%;';
 } elseif ( 'square' === $imageStyle ) {
-	$image_border_radius_value_desktop = '0';
-	$image_border_radius_value_tablet  = '0';
-	$image_border_radius_value_mobile  = '0';
+	$image_border_radius_value_desktop = 'border-radius: 0;';
+	$image_border_radius_value_tablet  = 'border-radius: 0;';
+	$image_border_radius_value_mobile  = 'border-radius: 0;';
 } elseif ( 'rounded' === $imageStyle ) {
-	$image_border_radius_value_desktop = '8px';
-	$image_border_radius_value_tablet  = '8px';
-	$image_border_radius_value_mobile  = '8px';
+	$image_border_radius_value_desktop = 'border-radius: 8px;';
+	$image_border_radius_value_tablet  = 'border-radius: 8px;';
+	$image_border_radius_value_mobile  = 'border-radius: 8px;';
 } else {
-	$image_border_radius_value_desktop = $imageBorderRadius['desktop']['top'] . $imageBorderRadius['desktop']['unit'] . ' ' . $imageBorderRadius['desktop']['right'] . $imageBorderRadius['desktop']['unit'] . ' ' . $imageBorderRadius['desktop']['bottom'] . $imageBorderRadius['desktop']['unit'] . ' ' . $imageBorderRadius['desktop']['left'] . $imageBorderRadius['desktop']['unit'];
-	$image_border_radius_value_tablet  = $imageBorderRadius['tablet']['top'] . $imageBorderRadius['tablet']['unit'] . ' ' . $imageBorderRadius['tablet']['right'] . $imageBorderRadius['tablet']['unit'] . ' ' . $imageBorderRadius['tablet']['bottom'] . $imageBorderRadius['tablet']['unit'] . ' ' . $imageBorderRadius['tablet']['left'] . $imageBorderRadius['tablet']['unit'];
-	$image_border_radius_value_mobile  = $imageBorderRadius['mobile']['top'] . $imageBorderRadius['mobile']['unit'] . ' ' . $imageBorderRadius['mobile']['right'] . $imageBorderRadius['mobile']['unit'] . ' ' . $imageBorderRadius['mobile']['bottom'] . $imageBorderRadius['mobile']['unit'] . ' ' . $imageBorderRadius['mobile']['left'] . $imageBorderRadius['mobile']['unit'];
+	$image_border_radius_value_desktop = digiblocks_get_dimensions( $imageBorderRadius, 'border-radius', 'desktop' );
+	$image_border_radius_value_tablet  = digiblocks_get_dimensions( $imageBorderRadius, 'border-radius', 'tablet' );
+	$image_border_radius_value_mobile  = digiblocks_get_dimensions( $imageBorderRadius, 'border-radius', 'mobile' );
 }
-
-// Process icon border radius
-$icon_border_radius_desktop = $iconBorderRadius['desktop']['top'] . $iconBorderRadius['desktop']['unit'] . ' ' . $iconBorderRadius['desktop']['right'] . $iconBorderRadius['desktop']['unit'] . ' ' . $iconBorderRadius['desktop']['bottom'] . $iconBorderRadius['desktop']['unit'] . ' ' . $iconBorderRadius['desktop']['left'] . $iconBorderRadius['desktop']['unit'];
-$icon_border_radius_tablet  = $iconBorderRadius['tablet']['top'] . $iconBorderRadius['tablet']['unit'] . ' ' . $iconBorderRadius['tablet']['right'] . $iconBorderRadius['tablet']['unit'] . ' ' . $iconBorderRadius['tablet']['bottom'] . $iconBorderRadius['tablet']['unit'] . ' ' . $iconBorderRadius['tablet']['left'] . $iconBorderRadius['tablet']['unit'];
-$icon_border_radius_mobile  = $iconBorderRadius['mobile']['top'] . $iconBorderRadius['mobile']['unit'] . ' ' . $iconBorderRadius['mobile']['right'] . $iconBorderRadius['mobile']['unit'] . ' ' . $iconBorderRadius['mobile']['bottom'] . $iconBorderRadius['mobile']['unit'] . ' ' . $iconBorderRadius['mobile']['left'] . $iconBorderRadius['mobile']['unit'];
-
-// Process icon padding
-$icon_padding_desktop = $iconPadding['desktop']['top'] . $iconPadding['desktop']['unit'] . ' ' . $iconPadding['desktop']['right'] . $iconPadding['desktop']['unit'] . ' ' . $iconPadding['desktop']['bottom'] . $iconPadding['desktop']['unit'] . ' ' . $iconPadding['desktop']['left'] . $iconPadding['desktop']['unit'];
-$icon_padding_tablet  = $iconPadding['tablet']['top'] . $iconPadding['tablet']['unit'] . ' ' . $iconPadding['tablet']['right'] . $iconPadding['tablet']['unit'] . ' ' . $iconPadding['tablet']['bottom'] . $iconPadding['tablet']['unit'] . ' ' . $iconPadding['tablet']['left'] . $iconPadding['tablet']['unit'];
-$icon_padding_mobile  = $iconPadding['mobile']['top'] . $iconPadding['mobile']['unit'] . ' ' . $iconPadding['mobile']['right'] . $iconPadding['mobile']['unit'] . ' ' . $iconPadding['mobile']['bottom'] . $iconPadding['mobile']['unit'] . ' ' . $iconPadding['mobile']['left'] . $iconPadding['mobile']['unit'];
 
 // CSS Output
 ob_start();
 ?>
 /* Team Block - <?php echo esc_attr( $id ); ?> */
 .<?php echo esc_attr( $id ); ?> {
-    margin: <?php echo esc_attr( $box_margin_desktop ); ?>;
+    <?php echo esc_attr( digiblocks_get_dimensions( $boxMargin, 'margin', 'desktop' ) ); ?>
 }
 
 /* Grid Layout */
@@ -454,11 +397,11 @@ ob_start();
     <?php if ( 'none' !== $boxBorderStyle ) : ?>
     border-style: <?php echo esc_attr( $boxBorderStyle ); ?>;
     border-color: <?php echo esc_attr( $boxBorderColor ); ?>;
-    border-width: <?php echo esc_attr( $box_border_width_desktop ); ?>;
-    border-radius: <?php echo esc_attr( $box_border_radius_desktop ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderWidth, 'border-width', 'desktop' ) ); ?>
     <?php endif; ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderRadius, 'border-radius', 'desktop' ) ); ?>
     box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadow ) ); ?>;
-    padding: <?php echo esc_attr( $box_padding_desktop ); ?>;
+    <?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'desktop' ) ); ?>
     transition: all 0.3s ease;
 }
 
@@ -474,11 +417,11 @@ ob_start();
     width: <?php echo esc_attr( $imageSize['desktop'] ); ?>px;
     height: <?php echo esc_attr( $imageSize['desktop'] ); ?>px;
 	max-width: 100%;
-    border-radius: <?php echo esc_attr( $image_border_radius_value_desktop ); ?>;
+    <?php echo esc_attr( $image_border_radius_value_desktop ); ?>
     overflow: hidden;
     display: flex;
     <?php if ( 'none' !== $imageBorderStyle ) : ?>
-	border-width: <?php echo esc_attr( $image_border_width_desktop ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $imageBorderWidth, 'border-width', 'desktop' ) ); ?>
 	border-style: <?php echo esc_attr( $imageBorderStyle ); ?>;
 	border-color: <?php echo esc_attr( $imageBorderColor ); ?>;
     <?php endif; ?>
@@ -595,9 +538,9 @@ ob_start();
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: <?php echo esc_attr( $icon_border_radius_desktop ); ?>;
+    <?php echo esc_attr( digiblocks_get_dimensions( $iconBorderRadius, 'border-radius', 'desktop' ) ); ?>
     background-color: <?php echo esc_attr( $iconBackgroundColor ); ?>;
-    padding: <?php echo esc_attr( $icon_padding_desktop ); ?>;
+    <?php echo esc_attr( digiblocks_get_dimensions( $iconPadding, 'padding', 'desktop' ) ); ?>
     transition: all 0.3s ease;
     cursor: pointer;
 }
@@ -618,7 +561,7 @@ ob_start();
 /* Tablet Styles */
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
-        margin: <?php echo esc_attr( $box_margin_tablet ); ?>;
+        <?php echo esc_attr( digiblocks_get_dimensions( $boxMargin, 'margin', 'tablet' ) ); ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-container {
@@ -638,17 +581,18 @@ ob_start();
         width: <?php echo esc_attr( $column_width_tablet ); ?>;
         <?php endif; ?>
 		<?php if ( 'none' !== $boxBorderStyle ) : ?>
-        border-width: <?php echo esc_attr( $box_border_width_tablet ); ?>;
-        border-radius: <?php echo esc_attr( $box_border_radius_tablet ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderWidth, 'border-width', 'tablet' ) ); ?>
         <?php endif; ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderRadius, 'border-radius', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'tablet' ) ); ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-image {
         width: <?php echo esc_attr( $imageSize['tablet'] ); ?>px;
         height: <?php echo esc_attr( $imageSize['tablet'] ); ?>px;
-        border-radius: <?php echo esc_attr( $image_border_radius_value_tablet ); ?>;
+        <?php echo esc_attr( $image_border_radius_value_tablet ); ?>
         <?php if ( 'none' !== $imageBorderStyle ) : ?>
-        border-width: <?php echo esc_attr( $image_border_width_tablet ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $imageBorderWidth, 'border-width', 'tablet' ) ); ?>
         <?php endif; ?>
     }
     
@@ -693,8 +637,8 @@ ob_start();
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon {
-        border-radius: <?php echo esc_attr( $icon_border_radius_tablet ); ?>;
-        padding: <?php echo esc_attr( $icon_padding_tablet ); ?>;
+        <?php echo esc_attr( digiblocks_get_dimensions( $iconBorderRadius, 'border-radius', 'tablet' ) ); ?>
+        <?php echo esc_attr( digiblocks_get_dimensions( $iconPadding, 'padding', 'tablet' ) ); ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon svg {
@@ -706,7 +650,7 @@ ob_start();
 /* Mobile Styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
-        margin: <?php echo esc_attr( $box_margin_mobile ); ?>;
+        <?php echo esc_attr( digiblocks_get_dimensions( $boxMargin, 'margin', 'mobile' ) ); ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-container {
@@ -726,17 +670,18 @@ ob_start();
 		width: <?php echo esc_attr( $column_width_mobile ); ?>;
 		<?php endif; ?>
 		<?php if ( 'none' !== $boxBorderStyle ) : ?>
-		border-width: <?php echo esc_attr( $box_border_width_mobile ); ?>;
-		border-radius: <?php echo esc_attr( $box_border_radius_mobile ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderWidth, 'border-width', 'mobile' ) ); ?>
 		<?php endif; ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderRadius, 'border-radius', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'mobile' ) ); ?>
 	}
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-image {
         width: <?php echo esc_attr( $imageSize['mobile'] ); ?>px;
         height: <?php echo esc_attr( $imageSize['mobile'] ); ?>px;
-        border-radius: <?php echo esc_attr( $image_border_radius_value_mobile ); ?>;
+        <?php echo esc_attr( $image_border_radius_value_mobile ); ?>
         <?php if ( 'none' !== $imageBorderStyle ) : ?>
-        border-width: <?php echo esc_attr( $image_border_width_mobile ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $imageBorderWidth, 'border-width', 'mobile' ) ); ?>
         <?php endif; ?>
     }
     
@@ -781,8 +726,8 @@ ob_start();
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon {
-        border-radius: <?php echo esc_attr( $icon_border_radius_mobile ); ?>;
-        padding: <?php echo esc_attr( $icon_padding_mobile ); ?>;
+        <?php echo esc_attr( digiblocks_get_dimensions( $iconBorderRadius, 'border-radius', 'mobile' ) ); ?>
+        <?php echo esc_attr( digiblocks_get_dimensions( $iconPadding, 'padding', 'mobile' ) ); ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon svg {

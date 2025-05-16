@@ -25,7 +25,7 @@ const { useSelect } = wp.data;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -102,7 +102,14 @@ const PostsEdit = ({ attributes, setAttributes, clientId }) => {
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -289,8 +296,8 @@ const PostsEdit = ({ attributes, setAttributes, clientId }) => {
         return `
             /* Posts Block - ${id} */
             .${id} {
-                margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};
-                padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};
+				${getDimensionCSS(padding, 'padding', activeDevice)}
+				${getDimensionCSS(margin, 'margin', activeDevice)}
                 width: 100%;
             }
             
@@ -329,16 +336,16 @@ const PostsEdit = ({ attributes, setAttributes, clientId }) => {
 				flex-direction: column;
 				gap: ${imageMargin[activeDevice]}px;
                 ${cardStyle ? `
-                background-color: ${cardBackgroundColor};
-                padding: ${cardPadding[activeDevice].top}${cardPadding[activeDevice].unit} ${cardPadding[activeDevice].right}${cardPadding[activeDevice].unit} ${cardPadding[activeDevice].bottom}${cardPadding[activeDevice].unit} ${cardPadding[activeDevice].left}${cardPadding[activeDevice].unit};
-                border-radius: ${cardBorderRadius[activeDevice].top}${cardBorderRadius[activeDevice].unit} ${cardBorderRadius[activeDevice].right}${cardBorderRadius[activeDevice].unit} ${cardBorderRadius[activeDevice].bottom}${cardBorderRadius[activeDevice].unit} ${cardBorderRadius[activeDevice].left}${cardBorderRadius[activeDevice].unit};
-                ` : ''}
+					background-color: ${cardBackgroundColor};
+					${getDimensionCSS(cardPadding, 'padding', activeDevice)}
+					${getDimensionCSS(cardBorderRadius, 'border-radius', activeDevice)}
+					` : ''}
                 
                 ${cardStyle && cardBorderStyle !== 'none' ? `
-                border-style: ${cardBorderStyle};
-                border-color: ${cardBorderColor};
-                border-width: ${cardBorderWidth[activeDevice].top}${cardBorderWidth[activeDevice].unit} ${cardBorderWidth[activeDevice].right}${cardBorderWidth[activeDevice].unit} ${cardBorderWidth[activeDevice].bottom}${cardBorderWidth[activeDevice].unit} ${cardBorderWidth[activeDevice].left}${cardBorderWidth[activeDevice].unit};
-                ` : ''}
+					border-style: ${cardBorderStyle};
+					border-color: ${cardBorderColor};
+					${getDimensionCSS(cardBorderWidth, 'border-width', activeDevice)}
+					` : ''}
                 
                 ${cardStyle && cardShadow?.enable ? `box-shadow: ${cardShadow.horizontal}px ${cardShadow.vertical}px ${cardShadow.blur}px ${cardShadow.spread}px ${cardShadow.color};` : ''}
                 transition: all 0.3s ease;
@@ -348,7 +355,7 @@ const PostsEdit = ({ attributes, setAttributes, clientId }) => {
             .${id} .digiblocks-post-image {
                 width: 100%;
                 overflow: hidden;
-				border-radius: ${imageBorderRadius[activeDevice].top}${imageBorderRadius[activeDevice].unit} ${imageBorderRadius[activeDevice].right}${imageBorderRadius[activeDevice].unit} ${imageBorderRadius[activeDevice].bottom}${imageBorderRadius[activeDevice].unit} ${imageBorderRadius[activeDevice].left}${imageBorderRadius[activeDevice].unit};
+				${getDimensionCSS(imageBorderRadius, 'border-radius', activeDevice)}
             }
             
             .${id} .digiblocks-post-image img {
@@ -501,8 +508,8 @@ const PostsEdit = ({ attributes, setAttributes, clientId }) => {
                 ${buttonTypography.lineHeight?.[activeDevice] ? `line-height: ${buttonTypography.lineHeight[activeDevice]}${buttonTypography.lineHeightUnit || 'em'};` : ''}
                 ${buttonTypography.letterSpacing?.[activeDevice] ? `letter-spacing: ${buttonTypography.letterSpacing[activeDevice]}${buttonTypography.letterSpacingUnit || 'px'};` : ''}
                 text-decoration: none;
-                padding: ${buttonPadding[activeDevice].top}${buttonPadding[activeDevice].unit} ${buttonPadding[activeDevice].right}${buttonPadding[activeDevice].unit} ${buttonPadding[activeDevice].bottom}${buttonPadding[activeDevice].unit} ${buttonPadding[activeDevice].left}${buttonPadding[activeDevice].unit};
-                border-radius: ${buttonBorderRadius[activeDevice].top}${buttonBorderRadius[activeDevice].unit} ${buttonBorderRadius[activeDevice].right}${buttonBorderRadius[activeDevice].unit} ${buttonBorderRadius[activeDevice].bottom}${buttonBorderRadius[activeDevice].unit} ${buttonBorderRadius[activeDevice].left}${buttonBorderRadius[activeDevice].unit};
+				${getDimensionCSS(buttonPadding, 'padding', activeDevice)}
+				${getDimensionCSS(buttonBorderRadius, 'border-radius', activeDevice)}
                 transition: all 0.3s ease;
             }
 

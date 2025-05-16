@@ -12,39 +12,16 @@ const {
 const { useState, useEffect } = wp.element;
 
 /**
- * Fallback device icons - ensure we always have icons even if global ones aren't ready
- */
-const fallbackIcons = {
-    desktop: (
-        <svg width="8" height="7" viewBox="0 0 8 7" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7.33333 0H0.666667C0.298611 0 0 0.293945 0 0.65625V5.03125C0 5.39355 0.298611 5.6875 0.666667 5.6875H3.33333L3.11111 6.34375H2.11111C1.92639 6.34375 1.77778 6.49004 1.77778 6.67188C1.77778 6.85371 1.92639 7 2.11111 7H5.88889C6.07361 7 6.22222 6.85371 6.22222 6.67188C6.22222 6.49004 6.07361 6.34375 5.88889 6.34375H4.88889L4.66667 5.6875H7.33333C7.70139 5.6875 8 5.39355 8 5.03125V0.65625C8 0.293945 7.70139 0 7.33333 0ZM7.11111 4.8125H0.888889V0.875H7.11111V4.8125Z" />
-        </svg>
-    ),
-    tablet: (
-        <svg width="6" height="8" viewBox="0 0 6 8" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 0H1C0.447715 0 0 0.447715 0 1V7C0 7.55228 0.447715 8 1 8H5C5.55228 8 6 7.55228 6 7V1C6 0.447715 5.55228 0 5 0ZM5 7H1V1H5V7Z" />
-        </svg>
-    ),
-    mobile: (
-        <svg width="4" height="8" viewBox="0 0 4 8" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3.33333 0H0.666667C0.297995 0 0 0.298 0 0.666667V7.33333C0 7.702 0.297995 8 0.666667 8H3.33333C3.70201 8 4 7.702 4 7.33333V0.666667C4 0.298 3.70201 0 3.33333 0ZM2 7.33333C1.63201 7.33333 1.33333 7.03467 1.33333 6.66667C1.33333 6.29867 1.63201 6 2 6C2.36799 6 2.66667 6.29867 2.66667 6.66667C2.66667 7.03467 2.36799 7.33333 2 7.33333ZM3.33333 5.33333H0.666667V1.33333H3.33333V5.33333Z" />
-        </svg>
-    )
-};
-
-/**
  * Typography Control Component that matches WordPress native typography controls
- * 
- * @param {Object} props Component properties
- * @param {string} props.label Control label
- * @param {Object} props.value Current typography values
- * @param {Function} props.onChange Change handler
- * @param {Object} props.defaults Default values
- * @returns {JSX.Element} Typography control component
  */
 const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
-    // State for panel toggle
-    const [isOpen, setIsOpen] = useState(false);
+	// Generate a unique ID for this typography control
+    const [controlId] = useState(`typography-${Math.random().toString(36).substr(2, 9)}`);
+    
+    // State for panel toggle - use UI state for persistence
+    const [isOpen, setIsOpen] = useState(() => {
+        return window.digi.uiState.getPanelState('typography', controlId) ?? false;
+    });
     
     // State for font weight options (will be dynamically updated based on selected font)
     const [fontWeightOptions, setFontWeightOptions] = useState([
@@ -73,40 +50,10 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
     // State to track if fonts have been loaded
     const [fontLoaded, setFontLoaded] = useState(false);
     
-    // Initialize responsiveState if it doesn't exist
-    if (!window.digi) window.digi = {};
-    if (!window.digi.responsiveState) {
-        window.digi.responsiveState = {
-            activeDevice: 'desktop',
-            listeners: [],
-            setActiveDevice(device) {
-                this.activeDevice = device;
-                this.notifyListeners();
-            },
-            toggleDevice() {
-                if (this.activeDevice === "desktop") this.setActiveDevice("tablet");
-                else if (this.activeDevice === "tablet") this.setActiveDevice("mobile");
-                else this.setActiveDevice("desktop");
-            },
-            subscribe(callback) {
-                this.listeners.push(callback);
-                return () => {
-                    this.listeners = this.listeners.filter(cb => cb !== callback);
-                };
-            },
-            notifyListeners() {
-                this.listeners.forEach(callback => callback(this.activeDevice));
-            },
-            getNextDevice() {
-                if (this.activeDevice === "desktop") return "tablet";
-                if (this.activeDevice === "tablet") return "mobile";
-                return "desktop";
-            }
-        };
-    }
-    
-    // Use global device state instead of local state
-    const [activeDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
+    // Use global responsive state for local rendering
+    const [localActiveDevice, setLocalActiveDevice] = useState(
+        window.digi?.responsiveState?.activeDevice || 'desktop'
+    );
     
     // Expand the received values with defaults
     const values = {
@@ -125,7 +72,21 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
         ...value
     };
 
-    // First useEffect - Load Google Font data and set initial font options
+    // Subscribe to global device state changes
+    useEffect(() => {
+        // Skip if global state doesn't exist
+        if (!window.digi?.responsiveState?.subscribe) return;
+        
+        const unsubscribe = window.digi.responsiveState.subscribe((device) => {
+            setLocalActiveDevice(device);
+            document.body.setAttribute('data-digiblocks-device', device);
+        });
+        
+        // Cleanup subscription on unmount
+        return unsubscribe;
+    }, []);
+
+    // Load Google Font data and set initial font options
     useEffect(() => {
         // Get Google Fonts data
         let googleFontsData = window.digi?.getGoogleFonts;
@@ -158,7 +119,7 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
         }
     }, []);
 
-    // Second useEffect - Load fonts when component mounts and when values change
+    // Load fonts when component mounts and when values change
     useEffect(() => {
         // This will run when the component mounts and anytime values.fontFamily or values.fontWeight changes
         if (values.fontFamily && !values.fontFamily.includes(',') && values.fontFamily !== 'system-ui') {
@@ -170,7 +131,7 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
         }
     }, [values.fontFamily, values.fontWeight]);
 
-    // Third useEffect - Force loading saved fonts on initial render
+    // Force loading saved fonts on initial render
     useEffect(() => {
         // This specifically targets the initial load only
         if (!fontLoaded && values.fontFamily && !values.fontFamily.includes(',') && values.fontFamily !== 'system-ui') {
@@ -183,61 +144,6 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
             return () => clearTimeout(timer);
         }
     }, [fontLoaded]);
-    
-    // Subscribe to global device state changes
-    useEffect(() => {
-        const unsubscribe = window.digi.responsiveState.subscribe((device) => {
-            setLocalActiveDevice(device);
-        });
-        
-        // Cleanup subscription on unmount
-        return unsubscribe;
-    }, []);
-
-    // Font size units
-    const fontSizeUnits = [
-        { label: 'px', value: 'px' },
-        { label: 'em', value: 'em' },
-        { label: 'rem', value: 'rem' },
-        { label: 'vw', value: 'vw' },
-    ];
-
-    // Line height units
-    const lineHeightUnits = [
-        { label: 'px', value: 'px' },
-        { label: 'em', value: 'em' },
-    ];
-
-    // Letter spacing units
-    const letterSpacingUnits = [
-        { label: 'px', value: 'px' },
-        { label: 'em', value: 'em' },
-    ];
-
-    // Font style options
-    const fontStyleOptions = [
-        { label: __('Default', 'digiblocks'), value: 'normal' },
-        { label: __('Italic', 'digiblocks'), value: 'italic' },
-        { label: __('Oblique', 'digiblocks'), value: 'oblique' },
-    ];
-
-    // Text transform options
-    const textTransformOptions = [
-        { label: __('Default', 'digiblocks'), value: '' },
-        { label: __('None', 'digiblocks'), value: 'none' },
-        { label: __('Capitalize', 'digiblocks'), value: 'capitalize' },
-        { label: __('Uppercase', 'digiblocks'), value: 'uppercase' },
-        { label: __('Lowercase', 'digiblocks'), value: 'lowercase' },
-    ];
-
-    // Text decoration options
-    const textDecorationOptions = [
-        { label: __('Default', 'digiblocks'), value: '' },
-        { label: __('None', 'digiblocks'), value: 'none' },
-        { label: __('Underline', 'digiblocks'), value: 'underline' },
-        { label: __('Overline', 'digiblocks'), value: 'overline' },
-        { label: __('Line Through', 'digiblocks'), value: 'line-through' },
-    ];
 
     // Update font weight options when font family changes
     useEffect(() => {
@@ -290,6 +196,51 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
         }
     }, [values.fontFamily]);
 
+    // Font size units
+    const fontSizeUnits = [
+        { label: 'px', value: 'px' },
+        { label: 'em', value: 'em' },
+        { label: 'rem', value: 'rem' },
+        { label: 'vw', value: 'vw' },
+    ];
+
+    // Line height units
+    const lineHeightUnits = [
+        { label: 'px', value: 'px' },
+        { label: 'em', value: 'em' },
+    ];
+
+    // Letter spacing units
+    const letterSpacingUnits = [
+        { label: 'px', value: 'px' },
+        { label: 'em', value: 'em' },
+    ];
+
+    // Font style options
+    const fontStyleOptions = [
+        { label: __('Default', 'digiblocks'), value: 'normal' },
+        { label: __('Italic', 'digiblocks'), value: 'italic' },
+        { label: __('Oblique', 'digiblocks'), value: 'oblique' },
+    ];
+
+    // Text transform options
+    const textTransformOptions = [
+        { label: __('Default', 'digiblocks'), value: '' },
+        { label: __('None', 'digiblocks'), value: 'none' },
+        { label: __('Capitalize', 'digiblocks'), value: 'capitalize' },
+        { label: __('Uppercase', 'digiblocks'), value: 'uppercase' },
+        { label: __('Lowercase', 'digiblocks'), value: 'lowercase' },
+    ];
+
+    // Text decoration options
+    const textDecorationOptions = [
+        { label: __('Default', 'digiblocks'), value: '' },
+        { label: __('None', 'digiblocks'), value: 'none' },
+        { label: __('Underline', 'digiblocks'), value: 'underline' },
+        { label: __('Overline', 'digiblocks'), value: 'overline' },
+        { label: __('Line Through', 'digiblocks'), value: 'line-through' },
+    ];
+
     // Update handler for all typography settings
     const updateTypographyValue = (property, newValue) => {
         const updatedValues = {
@@ -320,42 +271,32 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
 
     // Toggle panel open/closed
     const toggleTypographyPanel = () => {
-        setIsOpen(!isOpen);
+        const newState = !isOpen;
+        setIsOpen(newState);
+        window.digi.uiState.setPanelState('typography', controlId, newState);
     };
 
-    // Get device icon with fallback
+    // Get device icon
     const getDeviceIcon = (device) => {
         // If global icons exist, use them
         if (window.digi?.icons?.deviceIcons?.[device]) {
             return window.digi.icons.deviceIcons[device];
         }
-        // Otherwise use fallback icons
-        return fallbackIcons[device];
+        // Fallback to a simple icon
+        return <span className={`dashicon dashicons dashicons-${device}`}></span>;
     };
 
-    // Render responsive control button - uses global state with fallback
-    const renderResponsiveControl = () => {
-        // Check if global function exists
-        if (typeof window.digi?.createDeviceToggleButton === 'function') {
-            return (
-                <div className="digiblocks-responsive-control-inner">
-                    {window.digi.createDeviceToggleButton(Button)}
-                </div>
-            );
+    const handleToggleDevice = () => {
+        if (window.digi?.responsiveState?.toggleDevice) {
+            window.digi.responsiveState.toggleDevice();
+        } else {
+            // Fallback toggle logic
+            const nextDevice = localActiveDevice === "desktop" ? "tablet" : 
+                              localActiveDevice === "tablet" ? "mobile" : "desktop";
+            setLocalActiveDevice(nextDevice);
+            // Directly set the attribute on body
+            document.body.setAttribute('data-digiblocks-device', nextDevice);
         }
-        
-        // Fallback
-        return (
-            <div className="digiblocks-responsive-control-inner">
-                <Button 
-                    className="digiblocks-responsive-common-button"
-                    onClick={() => window.digi.responsiveState.toggleDevice()}
-                    aria-label={__(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks")}
-                >
-                    {getDeviceIcon(activeDevice)}
-                </Button>
-            </div>
-        );
     };
 
     return (
@@ -395,15 +336,21 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                                     <div className="digiblocks-control__header">
                                         <div className="digiblocks-responsive-label-wrap">
                                             <span className="digiblocks-control-label">{__('Font Size', 'digiblocks')}</span>
-                                            {renderResponsiveControl()}
+                                            <Button 
+                                                className="digiblocks-responsive-common-button"
+                                                onClick={handleToggleDevice}
+                                                aria-label={__(`Switch to ${window.digi?.responsiveState?.getNextDevice() || 'next'} view`, "digiblocks")}
+                                            >
+                                                {getDeviceIcon(localActiveDevice)}
+                                            </Button>
                                         </div>
                                         <div className="digiblocks-range-control__actions digiblocks-control__actions">
                                             <div tabIndex="0">
                                                 <button 
                                                     type="button" 
-                                                    disabled={values.fontSize[activeDevice] === defaults.fontSize?.[activeDevice]}
+                                                    disabled={values.fontSize[localActiveDevice] === defaults.fontSize?.[localActiveDevice]}
                                                     className="components-button digiblocks-reset is-secondary is-small"
-                                                    onClick={() => updateResponsiveValue('fontSize', activeDevice, defaults.fontSize?.[activeDevice] || 16)}
+                                                    onClick={() => updateResponsiveValue('fontSize', localActiveDevice, defaults.fontSize?.[localActiveDevice] || 16)}
                                                 >
                                                     <span className="dashicon dashicons dashicons-image-rotate"></span>
                                                 </button>
@@ -413,7 +360,7 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                                                 onChange={(value) => updateTypographyValue('fontSizeUnit', value)}
                                                 isBlock
                                                 isSmall
-												hideLabelFromVision
+                                                hideLabelFromVision
                                                 aria-label={__("Select Units", "digiblocks")}
                                                 __next40pxDefaultSize={true}
                                                 __nextHasNoMarginBottom={true}
@@ -430,8 +377,8 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                                     </div>
                                     <div className="digiblocks-range-control__mobile-controls">
                                         <RangeControl
-                                            value={values.fontSize[activeDevice]}
-                                            onChange={(newValue) => updateResponsiveValue('fontSize', activeDevice, newValue)}
+                                            value={values.fontSize[localActiveDevice]}
+                                            onChange={(newValue) => updateResponsiveValue('fontSize', localActiveDevice, newValue)}
                                             min={0}
                                             max={200}
                                             step={values.fontSizeUnit === 'px' ? 1 : 0.1}
@@ -497,15 +444,21 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                                     <div className="digiblocks-control__header">
                                         <div className="digiblocks-responsive-label-wrap">
                                             <span className="digiblocks-control-label">{__('Line Height', 'digiblocks')}</span>
-                                            {renderResponsiveControl()}
+                                            <Button 
+                                                className="digiblocks-responsive-common-button"
+                                                onClick={handleToggleDevice}
+                                                aria-label={__(`Switch to ${window.digi?.responsiveState?.getNextDevice() || 'next'} view`, "digiblocks")}
+                                            >
+                                                {getDeviceIcon(localActiveDevice)}
+                                            </Button>
                                         </div>
                                         <div className="digiblocks-range-control__actions digiblocks-control__actions">
                                             <div tabIndex="0">
                                                 <button 
                                                     type="button" 
-                                                    disabled={values.lineHeight[activeDevice] === defaults.lineHeight?.[activeDevice]}
+                                                    disabled={values.lineHeight[localActiveDevice] === defaults.lineHeight?.[localActiveDevice]}
                                                     className="components-button digiblocks-reset is-secondary is-small"
-                                                    onClick={() => updateResponsiveValue('lineHeight', activeDevice, defaults.lineHeight?.[activeDevice] || 1.5)}
+                                                    onClick={() => updateResponsiveValue('lineHeight', localActiveDevice, defaults.lineHeight?.[localActiveDevice] || 1.5)}
                                                 >
                                                     <span className="dashicon dashicons dashicons-image-rotate"></span>
                                                 </button>
@@ -515,7 +468,7 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                                                 onChange={(value) => updateTypographyValue('lineHeightUnit', value)}
                                                 isBlock
                                                 isSmall
-												hideLabelFromVision
+                                                hideLabelFromVision
                                                 aria-label={__("Select Units", "digiblocks")}
                                                 __next40pxDefaultSize={true}
                                                 __nextHasNoMarginBottom={true}
@@ -532,8 +485,8 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                                     </div>
                                     <div className="digiblocks-range-control__mobile-controls">
                                         <RangeControl
-                                            value={values.lineHeight[activeDevice]}
-                                            onChange={(newValue) => updateResponsiveValue('lineHeight', activeDevice, newValue)}
+                                            value={values.lineHeight[localActiveDevice]}
+                                            onChange={(newValue) => updateResponsiveValue('lineHeight', localActiveDevice, newValue)}
                                             min={0}
                                             max={values.lineHeightUnit === 'px' ? 200 : 3}
                                             step={values.lineHeightUnit === 'px' ? 1 : 0.1}
@@ -553,15 +506,21 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                                     <div className="digiblocks-control__header">
                                         <div className="digiblocks-responsive-label-wrap">
                                             <span className="digiblocks-control-label">{__('Letter Spacing', 'digiblocks')}</span>
-                                            {renderResponsiveControl()}
+                                            <Button 
+                                                className="digiblocks-responsive-common-button"
+                                                onClick={handleToggleDevice}
+                                                aria-label={__(`Switch to ${window.digi?.responsiveState?.getNextDevice() || 'next'} view`, "digiblocks")}
+                                            >
+                                                {getDeviceIcon(localActiveDevice)}
+                                            </Button>
                                         </div>
                                         <div className="digiblocks-range-control__actions digiblocks-control__actions">
                                             <div tabIndex="0">
                                                 <button 
                                                     type="button" 
-                                                    disabled={values.letterSpacing[activeDevice] === defaults.letterSpacing?.[activeDevice]}
+                                                    disabled={values.letterSpacing[localActiveDevice] === defaults.letterSpacing?.[localActiveDevice]}
                                                     className="components-button digiblocks-reset is-secondary is-small"
-                                                    onClick={() => updateResponsiveValue('letterSpacing', activeDevice, defaults.letterSpacing?.[activeDevice] || 0)}
+                                                    onClick={() => updateResponsiveValue('letterSpacing', localActiveDevice, defaults.letterSpacing?.[localActiveDevice] || 0)}
                                                 >
                                                     <span className="dashicon dashicons dashicons-image-rotate"></span>
                                                 </button>
@@ -571,7 +530,7 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                                                 onChange={(value) => updateTypographyValue('letterSpacingUnit', value)}
                                                 isBlock
                                                 isSmall
-												hideLabelFromVision
+                                                hideLabelFromVision
                                                 aria-label={__("Select Units", "digiblocks")}
                                                 __next40pxDefaultSize={true}
                                                 __nextHasNoMarginBottom={true}
@@ -588,8 +547,8 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                                     </div>
                                     <div className="digiblocks-range-control__mobile-controls">
                                         <RangeControl
-                                            value={values.letterSpacing[activeDevice]}
-                                            onChange={(newValue) => updateResponsiveValue('letterSpacing', activeDevice, newValue)}
+                                            value={values.letterSpacing[localActiveDevice]}
+                                            onChange={(newValue) => updateResponsiveValue('letterSpacing', localActiveDevice, newValue)}
                                             min={-50}
                                             max={200}
                                             step={values.letterSpacingUnit === 'px' ? 1 : 0.1}

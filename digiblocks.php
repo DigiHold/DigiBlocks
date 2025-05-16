@@ -23,8 +23,9 @@ define( 'DIGIBLOCKS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DIGIBLOCKS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'DIGIBLOCKS_PLUGIN_FILE', __FILE__ );
 define( 'DIGIBLOCKS_PLUGIN_BASE', plugin_basename( __FILE__ ) );
-define( 'DIGIBLOCKS_ASSETS_DIR', WP_CONTENT_DIR . '/uploads/digiblocks' );
-define( 'DIGIBLOCKS_ASSETS_URL', WP_CONTENT_URL . '/uploads/digiblocks' );
+$upload_dir = wp_upload_dir();
+define( 'DIGIBLOCKS_ASSETS_DIR', $upload_dir['basedir'] . '/digiblocks' );
+define( 'DIGIBLOCKS_ASSETS_URL', $upload_dir['baseurl'] . '/digiblocks' );
 
 // Include the main DigiBlocks class file.
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-digiblocks.php';

@@ -37,9 +37,9 @@ body .components-button.is-secondary.digiblocks-reset.is-small {
     color: #ccc;
     padding: 0 4px;
 
-	&:not(:disabled) {
-		color: #007cba;
-	}
+    &:not(:disabled) {
+        color: #007cba;
+    }
 }
 
 .digiblocks-reset .dashicons-image-rotate {
@@ -58,7 +58,7 @@ body .components-button.is-secondary.digiblocks-reset.is-small {
     direction: initial;
     display: flex;
     align-items: center;
-	gap: .25rem;
+    gap: 0.25rem;
 }
 
 .digiblocks-control__units .components-button {
@@ -154,8 +154,8 @@ body .components-button.is-secondary.digiblocks-reset.is-small {
     justify-content: center;
     display: flex;
     align-items: center;
-	flex: 1;
-	height: auto;
+    flex: 1;
+    height: auto;
     font-size: 12px;
     cursor: pointer;
     transition: none;
@@ -183,7 +183,7 @@ body .components-button.is-secondary.digiblocks-reset.is-small {
 }
 
 .digiblocks-spacing-label.digiblocks-spacing-link-label {
-	flex: 1;
+    flex: 1;
 }
 
 /* Main Container */

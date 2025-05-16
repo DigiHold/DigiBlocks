@@ -220,7 +220,7 @@ if ( $schemaEnabled && ! empty( $items ) ) :
 		document.addEventListener('DOMContentLoaded', function() {
 			const schemaScript = document.createElement('script');
 			schemaScript.type = 'application/ld+json';
-			schemaScript.innerHTML = <?php echo json_encode(json_encode($schema_data)); ?>;
+			schemaScript.innerHTML = <?php echo esc_js(wp_json_encode(wp_json_encode($schema_data))); ?>;
 			document.head.appendChild(schemaScript);
 		});
 		<?php

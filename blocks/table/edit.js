@@ -26,7 +26,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -80,7 +80,14 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
     const [isAnimating, setIsAnimating] = useState(false);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
     
     // State for currently selected cell
     const [selectedCell, setSelectedCell] = useState({ row: -1, col: -1 });
@@ -363,8 +370,8 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                     },
                     borderRadius: {
                         desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                        tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                        mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     }
                 };
                 break;
@@ -391,9 +398,9 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                         position: 'outset'
                     },
                     borderRadius: {
-                        desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                        tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                        mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                        desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     }
                 };
                 break;
@@ -420,9 +427,9 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                         position: 'outset'
                     },
                     borderRadius: {
-                        desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                        tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                        mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+                        desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                        mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                     }
                 };
         }
@@ -475,22 +482,13 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         // Border radius
-        const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' };
-        const borderRadiusCSS = `
-            border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
-        `;
+        const borderRadiusCSS = `${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}`;
         
         // Cell padding
-        const currentCellPadding = cellPadding && cellPadding[activeDevice] ? cellPadding[activeDevice] : { top: 15, right: 15, bottom: 15, left: 15, unit: 'px' };
-        const cellPaddingCSS = `
-            padding: ${currentCellPadding.top}${currentCellPadding.unit} ${currentCellPadding.right}${currentCellPadding.unit} ${currentCellPadding.bottom}${currentCellPadding.unit} ${currentCellPadding.left}${currentCellPadding.unit};
-        `;
+        const cellPaddingCSS = `${getDimensionCSS(cellPadding, 'padding', activeDevice)}`;
         
         // Margin
-        const marginValue = margin && margin[activeDevice] ? margin[activeDevice] : { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' };
-        const marginCSS = `
-            margin: ${marginValue.top}${marginValue.unit} ${marginValue.right}${marginValue.unit} ${marginValue.bottom}${marginValue.unit} ${marginValue.left}${marginValue.unit};
-        `;
+        const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice)}`;
         
         // Typography for header
         let headingTypographyCSS = '';
@@ -1252,13 +1250,7 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Border Radius", "digiblocks")}
                             >
                                 <DimensionControl
-                                    values={borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
-                                        top: 8,
-                                        right: 8,
-                                        bottom: 8,
-                                        left: 8,
-                                        unit: 'px'
-                                    }}
+                                    values={borderRadius[localActiveDevice]}
                                     onChange={(value) =>
                                         setAttributes({
                                             borderRadius: {

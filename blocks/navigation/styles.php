@@ -78,17 +78,17 @@ $borderRadius = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : array
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 4,
-		'right'  => 4,
-		'bottom' => 4,
-		'left'   => 4,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 0,
-		'left'   => 0,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -164,10 +164,10 @@ ob_start();
 	justify-content: space-between;
 	gap: 8px;
 	text-decoration: none;
-	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
 	color: <?php echo esc_attr( $linkColor ); ?>;
 	background-color: <?php echo esc_attr( $linkBackgroundColor ); ?>;
-	border-radius: <?php echo esc_attr( $borderRadius['desktop']['top'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['right'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['bottom'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['left'] . $borderRadius['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
 	transition: all 0.3s ease;
 
 	<?php if ( ! empty( $textTypography['fontFamily'] ) ) : ?>
@@ -349,8 +349,8 @@ ob_start();
 	}
 	
 	.<?php echo esc_attr( $id ); ?> .digiblocks-navigation-link {
-		padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
-		border-radius: <?php echo esc_attr( $borderRadius['tablet']['top'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['right'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['bottom'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['left'] . $borderRadius['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?>
 		
 		<?php if ( ! empty( $textTypography['fontSize']['tablet'] ) ) : ?>
 			font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
@@ -400,8 +400,8 @@ ob_start();
 	}
 	
 	.<?php echo esc_attr( $id ); ?> .digiblocks-navigation-link {
-		padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
-		border-radius: <?php echo esc_attr( $borderRadius['mobile']['top'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['right'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['bottom'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['left'] . $borderRadius['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'mobile' ) ); ?>
 		
 		<?php if ( ! empty( $textTypography['fontSize']['mobile'] ) ) : ?>
 			font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
@@ -474,13 +474,6 @@ ob_start();
         display: none;
     }
 }
-
-/* Animation keyframes if animation is set */
-<?php if ( $animation_class ) : ?>
-.<?php echo esc_attr( $id ); ?> .digiblocks-navigation-menu {
-	animation-name: <?php echo esc_attr( str_replace( 'animate-', '', $animation_class ) ); ?>;
-}
-<?php endif; ?>
 
 /* WordPress specific menu styles */
 .<?php echo esc_attr( $id ); ?> .current-menu-item > .digiblocks-navigation-link {

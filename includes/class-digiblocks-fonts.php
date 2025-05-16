@@ -2,7 +2,7 @@
 /**
  * DigiBlocks Fonts
  * 
- * Handles loading Google Fonts locally for DigiBlocks.
+ * Handles loading Google Fonts locally or via CDN for DigiBlocks.
  */
 class DigiBlocks_Fonts {
     /**
@@ -44,7 +44,7 @@ class DigiBlocks_Fonts {
      * Get instance of the fonts class.
      */
     public static function get_instance() {
-        if (is_null(self::$instance)) {
+        if (null === self::$instance) {
             self::$instance = new self();
         }
         return self::$instance;
@@ -74,7 +74,7 @@ class DigiBlocks_Fonts {
      */
     public function init() {
         // Add hook to process fonts when saving posts
-        add_action('save_post', array($this, 'process_post_fonts'), 10, 2);
+        add_action('save_post', array($this, 'process_post_fonts'), 10, 3);
         
         // Add hook to clean up fonts when a post is deleted
         add_action('before_delete_post', array($this, 'cleanup_post_fonts'));
@@ -85,8 +85,9 @@ class DigiBlocks_Fonts {
      *
      * @param int $post_id Post ID.
      * @param WP_Post $post Post object.
+     * @param bool $update Whether this is an existing post being updated.
      */
-    public function process_post_fonts($post_id, $post) {
+    public function process_post_fonts($post_id, $post, $update = false) {
         // Ensure post_id is an integer
         $post_id = (int) $post_id;
         
@@ -109,7 +110,7 @@ class DigiBlocks_Fonts {
         
         // Check if content has any DigiBlocks blocks
         if (false === strpos($content, '<!-- wp:digiblocks/')) {
-            // No DigiBlocks found, clean up CSS file and update font usage
+            // No DigiBlocks found, clean up font files and data
             $this->cleanup_post_fonts($post_id);
             return;
         }
@@ -121,20 +122,63 @@ class DigiBlocks_Fonts {
         $blocks = parse_blocks($content);
         $detected_fonts = $this->scan_blocks_for_fonts($blocks);
         
-        // Process detected fonts and generate CSS
+        // Get the font loading preference
+        $settings = get_option('digiblocks_settings', array());
+        $use_local_fonts = isset($settings['google_fonts_local']) ? $settings['google_fonts_local'] : false;
+        
+        // Store the detected fonts information for this post
+        $this->update_post_fonts_data($post_id, $detected_fonts);
+        
+        // Process detected fonts based on loading preference
         if (!empty($detected_fonts)) {
-            $new_font_files = array();
-            $css_content = $this->process_fonts($detected_fonts, $new_font_files);
-            
-            if (!empty($css_content)) {
-                $this->save_fonts_css($post_id, $css_content);
+            if ($use_local_fonts) {
+                // Local fonts - Download and process fonts locally
+                $new_font_files = array();
+                $css_content = $this->process_fonts($detected_fonts, $new_font_files);
                 
-                // Update font usage tracking efficiently
-                $this->update_font_usage($post_id, $new_font_files, $old_font_files);
+                if (!empty($css_content)) {
+                    $this->save_fonts_css($post_id, $css_content);
+                    
+                    // Update font usage tracking efficiently
+                    $this->update_font_usage($post_id, $new_font_files, $old_font_files);
+                }
+            } else {
+                // When using Google CDN, we just need to clean up any local font files
+                // The actual font loading will happen in enqueue_fonts()
+                $this->remove_fonts_css($post_id);
+                $this->update_font_usage($post_id, array(), $old_font_files);
             }
         } else {
-            // No fonts found, clean up CSS file and update font usage
+            // No fonts found, clean up fonts data
             $this->cleanup_post_fonts($post_id);
+        }
+    }
+
+    /**
+     * Store the detected fonts information for a post.
+     *
+     * @param int $post_id Post ID.
+     * @param array $detected_fonts Detected fonts information.
+     */
+    private function update_post_fonts_data($post_id, $detected_fonts) {
+        // Get the current fonts data
+        $fonts_data = get_option('digiblocks_fonts_data', array());
+        
+        // Ensure fonts_data is an array
+        if (!is_array($fonts_data)) {
+            $fonts_data = array();
+        }
+        
+        if (empty($detected_fonts)) {
+            // No fonts detected, remove entry if exists
+            if (isset($fonts_data[$post_id])) {
+                unset($fonts_data[$post_id]);
+                update_option('digiblocks_fonts_data', $fonts_data);
+            }
+        } else {
+            // Store fonts information
+            $fonts_data[$post_id] = $detected_fonts;
+            update_option('digiblocks_fonts_data', $fonts_data);
         }
     }
 
@@ -205,38 +249,40 @@ class DigiBlocks_Fonts {
      * @param array $font_usage Font usage data.
      */
     private function cleanup_unused_font_files($font_usage) {
-		// Ensure font_usage is an array
-		if (!is_array($font_usage)) {
-			return;
-		}
-		
-		// Build a list of all used font files
-		$used_font_files = array();
-		foreach ($font_usage as $post_files) {
-			if (is_array($post_files)) {
-				foreach ($post_files as $file) {
-					if (is_string($file)) {  // Make sure $file is a string
-						$used_font_files[$file] = true;
-					}
-				}
-			}
-		}
-		
-		// Check all font files in the directory
-		if (file_exists($this->fonts_dir) && is_dir($this->fonts_dir)) {
-			$files = glob($this->fonts_dir . '/*');
-			foreach ($files as $file) {
-				if (is_file($file)) {
-					$filename = basename($file);
-					
-					// Delete if not used
-					if (!isset($used_font_files[$filename])) {
-						wp_delete_file( $file );
-					}
-				}
-			}
-		}
-	}
+        // Ensure font_usage is an array
+        if (!is_array($font_usage)) {
+            return;
+        }
+        
+        // Build a list of all used font files
+        $used_font_files = array();
+        foreach ($font_usage as $post_files) {
+            if (is_array($post_files)) {
+                foreach ($post_files as $file) {
+                    if (is_string($file)) {  // Make sure $file is a string
+                        $used_font_files[$file] = true;
+                    }
+                }
+            }
+        }
+        
+        // Check all font files in the directory
+        if (file_exists($this->fonts_dir) && is_dir($this->fonts_dir)) {
+            $files = glob($this->fonts_dir . '/*');
+            if ($files) {
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        $filename = basename($file);
+                        
+                        // Delete if not used
+                        if (!isset($used_font_files[$filename])) {
+                            wp_delete_file($file);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Scan blocks for font usage.
@@ -730,12 +776,12 @@ class DigiBlocks_Fonts {
         // Save the file directly for speed
         $result = file_put_contents($file_path, $font_data);
         if ($result !== false) {
-			global $wp_filesystem;
-			if ( ! function_exists( 'WP_Filesystem' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-			}
-			WP_Filesystem();
-			$wp_filesystem->chmod( $file_path, FS_CHMOD_FILE );
+            global $wp_filesystem;
+            if (!function_exists('WP_Filesystem')) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+            WP_Filesystem();
+            $wp_filesystem->chmod($file_path, FS_CHMOD_FILE);
             return true;
         }
         
@@ -763,12 +809,12 @@ class DigiBlocks_Fonts {
         // Save the CSS file directly for speed
         $result = file_put_contents($css_file, $css);
         if ($result !== false) {
-			global $wp_filesystem;
-			if ( ! function_exists( 'WP_Filesystem' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-			}
-			WP_Filesystem();
-			$wp_filesystem->chmod( $css_file, FS_CHMOD_FILE );
+            global $wp_filesystem;
+            if (!function_exists('WP_Filesystem')) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+            WP_Filesystem();
+            $wp_filesystem->chmod($css_file, FS_CHMOD_FILE);
             return true;
         }
         
@@ -776,7 +822,20 @@ class DigiBlocks_Fonts {
     }
 
     /**
-     * Enqueue fonts for a post.
+     * Remove the fonts CSS file for a post.
+     *
+     * @param int $post_id Post ID.
+     */
+    private function remove_fonts_css($post_id) {
+        $css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-fonts-' . $post_id . '.css';
+        
+        if (file_exists($css_file)) {
+            wp_delete_file($css_file);
+        }
+    }
+
+    /**
+     * Enqueue fonts for the current page.
      */
     public function enqueue_fonts() {
         global $post;
@@ -786,16 +845,71 @@ class DigiBlocks_Fonts {
         }
         
         $post_id = $post->ID;
-        $css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-fonts-' . $post_id . '.css';
         
-        // Check if fonts CSS file exists and enqueue it
-        if (file_exists($css_file)) {
-            wp_enqueue_style(
-                'digiblocks-fonts-' . $post_id,
-                DIGIBLOCKS_ASSETS_URL . '/digiblocks-fonts-' . $post_id . '.css',
-                array(),
-                filemtime($css_file)
-            );
+        // Get the font loading preference
+        $settings = get_option('digiblocks_settings', array());
+        $use_local_fonts = isset($settings['google_fonts_local']) ? $settings['google_fonts_local'] : false;
+        
+        if ($use_local_fonts) {
+            // Local fonts - Load the CSS file if it exists
+            $css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-fonts-' . $post_id . '.css';
+            
+            if (file_exists($css_file)) {
+                wp_enqueue_style(
+                    'digiblocks-fonts-' . $post_id,
+                    DIGIBLOCKS_ASSETS_URL . '/digiblocks-fonts-' . $post_id . '.css',
+                    array(),
+                    filemtime($css_file)
+                );
+            }
+        } else {
+            // Google CDN fonts
+			$fonts_data = get_option('digiblocks_fonts_data', array());
+			
+			if (isset($fonts_data[$post_id]) && !empty($fonts_data[$post_id])) {
+				// Collect font families and their weights
+				$font_families = array();
+				
+				foreach ($fonts_data[$post_id] as $font_family => $weights) {
+					// Skip system fonts
+					if ($this->is_system_font($font_family)) {
+						continue;
+					}
+					
+					// Skip empty font families
+					if (empty($font_family)) {
+						continue;
+					}
+					
+					// Encode font family name
+					$encoded_family = str_replace(' ', '+', $font_family);
+					
+					// Format weights for API v1
+					if (!empty($weights)) {
+						// Sort weights for consistency
+						sort($weights);
+						$font_families[] = $encoded_family . ':' . implode(',', $weights);
+					} else {
+						$font_families[] = $encoded_family;
+					}
+				}
+				
+				// Only proceed if we have font families
+				if (!empty($font_families)) {
+					// Construct the Google Fonts URL using API v1 format
+					$google_fonts_url = 'https://fonts.googleapis.com/css?family=';
+					$google_fonts_url .= implode('|', $font_families);
+					$google_fonts_url .= '&display=swap';
+					
+					// Enqueue the stylesheet
+					wp_enqueue_style(
+						'digiblocks-google-fonts-' . $post_id,
+						$google_fonts_url,
+						array(),
+						DIGIBLOCKS_VERSION
+					);
+				}
+			}
         }
     }
 
@@ -807,6 +921,9 @@ class DigiBlocks_Fonts {
     public function cleanup_post_fonts($post_id) {
         // Ensure post_id is an integer
         $post_id = (int) $post_id;
+        
+        // Clean up font files
+        $this->remove_fonts_css($post_id);
         
         // Get the current font usage
         $font_usage = get_option($this->font_usage_option, array());
@@ -825,10 +942,91 @@ class DigiBlocks_Fonts {
             $this->cleanup_unused_font_files($font_usage);
         }
         
-        // Delete the CSS file
-        $css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-fonts-' . $post_id . '.css';
-        if (file_exists($css_file)) {
-            wp_delete_file( $css_file );
+        // Remove fonts data for this post
+        $fonts_data = get_option('digiblocks_fonts_data', array());
+        if (isset($fonts_data[$post_id])) {
+            unset($fonts_data[$post_id]);
+            update_option('digiblocks_fonts_data', $fonts_data);
         }
     }
+
+	/**
+	 * Process all fonts when setting changes.
+	 * 
+	 * @param bool $use_local_fonts Whether to use local fonts or CDN.
+	 */
+	public function process_all_fonts_on_setting_change($use_local_fonts) {
+		// Get the data of fonts used in all posts
+		$fonts_data = get_option('digiblocks_fonts_data', array());
+		
+		if (empty($fonts_data)) {
+			return; // No fonts to process
+		}
+		
+		if ($use_local_fonts) {
+			// Switching to local fonts: Download all fonts
+			$all_font_files = array();
+			
+			foreach ($fonts_data as $post_id => $detected_fonts) {
+				if (!empty($detected_fonts)) {
+					$post_font_files = array();
+					$css_content = $this->process_fonts($detected_fonts, $post_font_files);
+					
+					if (!empty($css_content)) {
+						$this->save_fonts_css($post_id, $css_content);
+						$all_font_files = array_merge($all_font_files, $post_font_files);
+					}
+				}
+			}
+			
+			// Update font usage option with all font files
+			$font_usage = array();
+			foreach ($fonts_data as $post_id => $detected_fonts) {
+				if (!empty($detected_fonts)) {
+					// Find which font files belong to this post
+					$post_font_files = array();
+					foreach ($all_font_files as $font_file) {
+						// Check if font file belongs to any font used in this post
+						foreach ($detected_fonts as $font_family => $weights) {
+							$font_family_slug = str_replace(' ', '-', strtolower($font_family));
+							if (strpos($font_file, $font_family_slug) === 0) {
+								$post_font_files[] = $font_file;
+								break;
+							}
+						}
+					}
+					
+					if (!empty($post_font_files)) {
+						$font_usage[$post_id] = $post_font_files;
+					}
+				}
+			}
+			
+			update_option($this->font_usage_option, $font_usage);
+		} else {
+			// Switching to CDN: Remove all local font files and CSS
+			// First, get all posts with font data
+			$posts_with_fonts = array_keys($fonts_data);
+			
+			// Remove all font CSS files
+			foreach ($posts_with_fonts as $post_id) {
+				$this->remove_fonts_css($post_id);
+			}
+			
+			// Clear font usage tracking
+			update_option($this->font_usage_option, array());
+			
+			// Clean up all font files in the directory
+			if (file_exists($this->fonts_dir) && is_dir($this->fonts_dir)) {
+				$files = glob($this->fonts_dir . '/*');
+				if ($files) {
+					foreach ($files as $file) {
+						if (is_file($file)) {
+							wp_delete_file($file);
+						}
+					}
+				}
+			}
+		}
+	}
 }

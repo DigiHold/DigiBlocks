@@ -62,7 +62,7 @@ class DigiBlocks_Forms_Handler {
 		// Get form data.
 		$form_id         = isset( $_POST['form_id'] ) ? sanitize_text_field( wp_unslash( $_POST['form_id'] ) ) : '';
 		$form_name       = isset( $_POST['form_name'] ) ? sanitize_text_field( wp_unslash( $_POST['form_name'] ) ) : esc_html__( 'Contact Form', 'digiblocks' );
-		$field_labels    = isset( $_POST['field_labels'] ) ? json_decode( stripslashes( $_POST['field_labels'] ), true ) : array();
+		$field_labels    = isset( $_POST['field_labels'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['field_labels'] ) ), true ) : array();
 		$email_subject   = isset( $_POST['email_subject'] ) ? sanitize_text_field( wp_unslash( $_POST['email_subject'] ) ) : '';
 		$use_site_logo   = isset( $_POST['use_site_logo'] ) ? sanitize_text_field( wp_unslash( $_POST['use_site_logo'] ) ) === 'true' : true;
 		$custom_logo     = isset( $_POST['custom_logo'] ) ? esc_url_raw( wp_unslash( $_POST['custom_logo'] ) ) : '';
@@ -201,7 +201,7 @@ class DigiBlocks_Forms_Handler {
 		);
 
 		// Get recipient email.
-		$recipient = isset( $_POST['recipient'] ) ? sanitize_email( wp_unslash( $_POST['recipient'] ) ) : get_option( 'admin_email' );
+		$recipient = isset( $_POST['recipient'] ) ? sanitize_email( wp_unslash( $_POST['recipient'] ) ) : get_option( 'admin_email' ); // phpcs:ignore
 		
 		// Check if recipient is valid.
 		if ( ! is_email( $recipient ) ) {
@@ -366,18 +366,19 @@ class DigiBlocks_Forms_Handler {
 											
 		// Logo section
 		if ( $logo_url ) {
-			$html .= '<div style="text-align: center; margin-bottom: 20px;">
-						<img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $site_name ) . '" style="max-width: 200px; height: auto;">
-					</div>';
+			// phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage
+			$html .= '<div style="text-align: center; margin-bottom: 20px;"><img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $site_name ) . '" style="max-width: 200px; height: auto;"></div>';
 		} else {
-			$html .= '<div style="text-align: center; margin-bottom: 20px;">
-						<h1 style="color: #4a6cf7; font-size: 24px; margin: 0;">' . esc_html( $site_name ) . '</h1>
-					</div>';
+			$html .= '<div style="text-align: center; margin-bottom: 20px;"><h1 style="color: #4a6cf7; font-size: 24px; margin: 0;">' . esc_html( $site_name ) . '</h1></div>';
 		}
 		
 		// Form name title
 		$html .= '<h2 style="color: #3d4852; font-size: 20px; font-weight: bold; margin-top: 0; margin-bottom: 20px; text-align: center;">
-					' . sprintf( esc_html__( 'New message from %s', 'digiblocks' ), esc_html( $form_name ) ) . '
+					' . sprintf(
+						/* translators: %s: Form name */
+						esc_html__( 'New message from %s', 'digiblocks' ),
+						esc_html( $form_name )
+						) . '
 				</h2>';
 		
 		// Optional header text
@@ -435,7 +436,8 @@ class DigiBlocks_Forms_Handler {
 		
 		// Footer signature
 		$html .= '<div class="footer-text">' . 
-					sprintf( 
+					sprintf(
+						/* translators: %1$s: Site name, %2$s: Site URL */
 						esc_html__( 'This email was sent from %1$s (%2$s)', 'digiblocks' ),
 						esc_html( $site_name ),
 						'<a href="' . esc_url( $site_url ) . '" style="color: #4a6cf7; text-decoration: underline;">' . esc_html( $site_url ) . '</a>'

@@ -25,7 +25,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, ResponsiveRangeControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, FontAwesomeControl } = digi.components;
 
@@ -243,14 +243,11 @@ const LogoEdit = ({ attributes, setAttributes, clientId }) => {
         // Border styles
         let borderCSS = '';
         if (borderStyle && borderStyle !== 'none') {
-            const currentBorderWidth = borderWidth[activeDevice];
-            const currentBorderRadius = borderRadius[activeDevice];
-            
             borderCSS = `
                 border-style: ${borderStyle};
                 border-color: ${borderColor || '#e0e0e0'};
-                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+				${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
             `;
         }
         
@@ -340,8 +337,8 @@ const LogoEdit = ({ attributes, setAttributes, clientId }) => {
                 ${backgroundColor ? `background-color: ${backgroundColor};` : ''}
                 ${borderCSS}
                 ${boxShadowCSS}
-				${padding[activeDevice] ? `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};` : ''}
-                ${margin[activeDevice] ? `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};` : ''}
+				${getDimensionCSS(padding, 'padding', activeDevice)}
+				${getDimensionCSS(margin, 'margin', activeDevice)}
                 transition: all 0.3s ease;
             }
             

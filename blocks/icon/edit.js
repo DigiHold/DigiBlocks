@@ -24,7 +24,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -36,6 +36,8 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
         id,
         anchor,
         customClasses,
+		iconSource,
+        customSvg,
         iconValue,
         iconSize,
         iconColor,
@@ -89,7 +91,14 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
     }, []);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
     
     // Use useEffect to set the ID only once when component mounts and initialize missing attributes
     useEffect(() => {
@@ -230,14 +239,11 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
         // Container styles
         let containerStyles = '';
         if (borderStyle && borderStyle !== 'default' && borderStyle !== 'none') {
-            const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-            const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' };
-            
             containerStyles += `
                 border-style: ${borderStyle};
                 border-color: ${borderColor || '#e0e0e0'};
-                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+				${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
+				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
             `;
         }
         
@@ -262,24 +268,17 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
             
             // Icon border styles
             if (iconBorderStyle && iconBorderStyle !== 'default' && iconBorderStyle !== 'none') {
-                const currentIconBorderWidth = iconBorderWidth && iconBorderWidth[activeDevice] 
-                    ? iconBorderWidth[activeDevice] 
-                    : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-                const currentIconBorderRadius = iconBorderRadius && iconBorderRadius[activeDevice] 
-                    ? iconBorderRadius[activeDevice] 
-                    : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' };
-                
                 iconCSS += `
                     border-style: ${iconBorderStyle};
                     border-color: ${iconBorderColor || '#e0e0e0'};
-                    border-width: ${currentIconBorderWidth.top}${currentIconBorderWidth.unit} ${currentIconBorderWidth.right}${currentIconBorderWidth.unit} ${currentIconBorderWidth.bottom}${currentIconBorderWidth.unit} ${currentIconBorderWidth.left}${currentIconBorderWidth.unit};
-                    border-radius: ${currentIconBorderRadius.top}${currentIconBorderRadius.unit} ${currentIconBorderRadius.right}${currentIconBorderRadius.unit} ${currentIconBorderRadius.bottom}${currentIconBorderRadius.unit} ${currentIconBorderRadius.left}${currentIconBorderRadius.unit};
+					${getDimensionCSS(iconBorderWidth, 'border-width', activeDevice)}
+					${getDimensionCSS(iconBorderRadius, 'border-radius', activeDevice)}
                 `;
             }
             
             // Icon padding
             if (iconPadding && iconPadding[activeDevice]) {
-                iconCSS += `padding: ${iconPadding[activeDevice].top}${iconPadding[activeDevice].unit} ${iconPadding[activeDevice].right}${iconPadding[activeDevice].unit} ${iconPadding[activeDevice].bottom}${iconPadding[activeDevice].unit} ${iconPadding[activeDevice].left}${iconPadding[activeDevice].unit};`;
+                iconCSS += `${getDimensionCSS(iconPadding, 'padding', activeDevice)}`;
             }
             
             // Icon hover styles
@@ -351,7 +350,7 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
         // Margin handling
         let marginCSS = '';
         if (iconMargin && iconMargin[activeDevice]) {
-            marginCSS = `margin: ${iconMargin[activeDevice].top}${iconMargin[activeDevice].unit} ${iconMargin[activeDevice].right}${iconMargin[activeDevice].unit} ${iconMargin[activeDevice].bottom}${iconMargin[activeDevice].unit} ${iconMargin[activeDevice].left}${iconMargin[activeDevice].unit};`;
+            marginCSS = `${getDimensionCSS(iconMargin, 'margin', activeDevice)}`;
         }
         
         // Set base styles for the block
@@ -432,21 +431,34 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Render icon
     const renderIcon = () => {
-        // Make sure we only try to display an icon if the iconValue exists and has a non-empty svg property
-        if (!iconValue || !iconValue.svg || iconValue.svg.trim() === '') {
-            return null;
-        }
-        
-        return (
-            <div className="digiblocks-icon">
-                <span
-                    dangerouslySetInnerHTML={{
-                        __html: iconValue.svg,
-                    }}
-                />
-            </div>
-        );
-    };
+		// For library icons, use the existing approach
+		if (iconSource === 'library' && iconValue && iconValue.svg && iconValue.svg.trim() !== '') {
+			return (
+				<div className="digiblocks-icon">
+					<span
+						dangerouslySetInnerHTML={{
+							__html: iconValue.svg,
+						}}
+					/>
+				</div>
+			);
+		}
+		
+		// For custom SVG
+		if (iconSource === 'custom' && customSvg && customSvg.trim() !== '') {
+			return (
+				<div className="digiblocks-icon">
+					<span
+						dangerouslySetInnerHTML={{
+							__html: customSvg,
+						}}
+					/>
+				</div>
+			);
+		}
+		
+		return null;
+	};
 
     // Render icon tab content based on active tab
     const renderIconTabContent = (tabName) => {
@@ -505,17 +517,6 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
                                         }
                                     });
                                 }
-                                
-                                // Set initial border radius if not already set
-                                if (!iconBorderRadius || Object.keys(iconBorderRadius).length === 0) {
-                                    setAttributes({
-                                        iconBorderRadius: {
-                                            desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                                            tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                                            mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
-                                        }
-                                    });
-                                }
                             }
                             
                             setAttributes({
@@ -556,13 +557,7 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Border Width", "digiblocks")}
                             >
                                 <DimensionControl
-                                    values={iconBorderWidth && iconBorderWidth[localActiveDevice] ? iconBorderWidth[localActiveDevice] : {
-                                        top: 1,
-                                        right: 1,
-                                        bottom: 1,
-                                        left: 1,
-                                        unit: 'px'
-                                    }}
+                                    values={iconBorderWidth[localActiveDevice]}
                                     onChange={(value) =>
                                         setAttributes({
                                             iconBorderWidth: {
@@ -579,13 +574,7 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Border Radius", "digiblocks")}
                             >
                                 <DimensionControl
-                                    values={iconBorderRadius && iconBorderRadius[localActiveDevice] ? iconBorderRadius[localActiveDevice] : {
-                                        top: 0,
-                                        right: 0,
-                                        bottom: 0,
-                                        left: 0,
-                                        unit: 'px'
-                                    }}
+                                    values={iconBorderRadius[localActiveDevice]}
                                     onChange={(value) =>
                                         setAttributes({
                                             iconBorderRadius: {
@@ -608,13 +597,7 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
                         label={__("Padding", "digiblocks")}
                     >
                         <DimensionControl
-                            values={iconPadding && iconPadding[localActiveDevice] ? iconPadding[localActiveDevice] : {
-                                top: 0,
-                                right: 0,
-                                bottom: 0,
-                                left: 0,
-                                unit: 'px'
-                            }}
+                            values={iconPadding[localActiveDevice]}
                             onChange={(value) =>
                                 setAttributes({
                                     iconPadding: {
@@ -631,21 +614,11 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
                         label={__("Margin", "digiblocks")}
                     >
                         <DimensionControl
-                            values={iconMargin && iconMargin[localActiveDevice] ? iconMargin[localActiveDevice] : {
-                                top: 0,
-                                right: 0,
-                                bottom: 0,
-                                left: 0,
-                                unit: 'px'
-                            }}
+                            values={iconMargin[localActiveDevice]}
                             onChange={(value) =>
                                 setAttributes({
                                     iconMargin: {
-                                        ...iconMargin || {
-                                            desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                                            tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                                            mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
-                                        },
+                                        ...iconMargin,
                                         [localActiveDevice]: value,
                                     },
                                 })
@@ -774,39 +747,112 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
                     <>
                         <div className="components-panel__body is-opened">
                             {/* Icon select box display */}
-                            <div style={{ marginBottom: '2rem' }}>
-                                {!componentsLoaded ? (
-                                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                                        <Spinner />
-                                        <p>{__('Loading icon selector...', 'digiblocks')}</p>
-                                    </div>
-                                ) : (
-                                    <FontAwesomeControl
-                                        label={__('Select Icon', 'digiblocks')}
-                                        value={iconValue}
-                                        onChange={setIconValue}
-                                    />
-                                )}
-                                
-                                {iconValue && componentsLoaded && (
-                                    <>
-                                        {/* Show info about selected icon */}
-                                        <div style={{ marginTop: '15px', marginBottom: '15px', padding: '10px', background: '#f0f0f1', borderRadius: '3px' }}>
-                                            <p style={{ margin: '0 0 5px 0' }}>
-                                                <strong>{__('Selected Icon:', 'digiblocks')}</strong> {iconValue.name}
-                                            </p>
-                                            <p style={{ margin: '0 0 5px 0' }}>
-                                                <strong>{__('Style:', 'digiblocks')}</strong> {iconValue.style}
-                                            </p>
-                                            {iconValue.categories && iconValue.categories.length > 0 && (
-                                                <p style={{ margin: '0' }}>
-                                                    <strong>{__('Categories:', 'digiblocks')}</strong> {iconValue.categories.join(', ')}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
+							<div style={{ marginBottom: '2rem' }}>
+								<ToggleGroupControl
+									label={__("Icon Source", "digiblocks")}
+									value={iconSource || 'library'}
+									onChange={(value) => setAttributes({ iconSource: value })}
+									isBlock
+									__next40pxDefaultSize={true}
+									__nextHasNoMarginBottom={true}
+								>
+									<ToggleGroupControlOption 
+										value="library" 
+										label={__("Library", "digiblocks")} 
+									/>
+									<ToggleGroupControlOption 
+										value="custom" 
+										label={__("Custom", "digiblocks")} 
+									/>
+								</ToggleGroupControl>
+
+								{/* Show library picker if 'library' is selected */}
+								{iconSource === 'library' && (
+									<>
+										{!componentsLoaded ? (
+											<div style={{ textAlign: 'center', padding: '20px 0' }}>
+												<Spinner />
+												<p>{__('Loading icon selector...', 'digiblocks')}</p>
+											</div>
+										) : (
+											<FontAwesomeControl
+												label={__('Select Icon', 'digiblocks')}
+												value={iconValue}
+												onChange={setIconValue}
+											/>
+										)}
+										
+										{iconValue && componentsLoaded && (
+											<>
+												{/* Show info about selected icon */}
+												<div style={{ marginTop: '15px', marginBottom: '15px', padding: '10px', background: '#f0f0f1', borderRadius: '3px' }}>
+													<p style={{ margin: '0 0 5px 0' }}>
+														<strong>{__('Selected Icon:', 'digiblocks')}</strong> {iconValue.name}
+													</p>
+													<p style={{ margin: '0 0 5px 0' }}>
+														<strong>{__('Style:', 'digiblocks')}</strong> {iconValue.style}
+													</p>
+													{iconValue.categories && iconValue.categories.length > 0 && (
+														<p style={{ margin: '0' }}>
+															<strong>{__('Categories:', 'digiblocks')}</strong> {iconValue.categories.join(', ')}
+														</p>
+													)}
+												</div>
+											</>
+										)}
+									</>
+								)}
+
+								{/* Show custom SVG textarea if 'custom' is selected */}
+								{iconSource === 'custom' && (
+									<div style={{ marginTop: '15px' }}>
+										<div className="components-base-control">
+											<label className="components-base-control__label" htmlFor="custom-svg-input">
+												{__('Custom SVG Code', 'digiblocks')}
+											</label>
+											<textarea
+												id="custom-svg-input"
+												className="components-textarea-control__input"
+												value={customSvg || ''}
+												onChange={(e) => {
+													const newSvg = e.target.value;
+													
+													// Create an iconValue object with the custom SVG
+													const newIconValue = {
+														id: 'custom-svg',
+														name: 'Custom SVG',
+														svg: newSvg,
+														style: 'custom',
+														categories: ['custom']
+													};
+													
+													// Update both the customSvg attribute and the iconValue
+													setAttributes({ 
+														customSvg: newSvg,
+														iconValue: newIconValue
+													});
+												}}
+												placeholder={__('Paste your SVG code here...', 'digiblocks')}
+												rows={10}
+												style={{ width: '100%', marginTop: '8px' }}
+											/>
+											<p className="components-base-control__help">
+												{__('Paste your SVG code here. Make sure it only contains valid SVG markup. For security reasons, scripts and external references will be removed.', 'digiblocks')}
+											</p>
+										</div>
+										
+										{/* Preview of custom SVG */}
+										{customSvg && (
+											<div style={{ marginTop: '15px', marginBottom: '15px' }}>
+												<p><strong>{__('Preview:', 'digiblocks')}</strong></p>
+												<div style={{ padding: '20px', background: '#f0f0f1', borderRadius: '3px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+													<div className="digiblocks-custom-svg-preview" style={{ width: '50px', height: '50px' }} dangerouslySetInnerHTML={{ __html: customSvg }}></div>
+												</div>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
 
                             {/* Icon transform controls */}
                             <div className="icon-transform-controls">

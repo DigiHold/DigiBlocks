@@ -29,15 +29,29 @@ $iconBackground       = isset( $attrs['iconBackground'] ) ? $attrs['iconBackgrou
 $iconHoverBackground  = isset( $attrs['iconHoverBackground'] ) ? $attrs['iconHoverBackground'] : '';
 $iconBorderStyle      = isset( $attrs['iconBorderStyle'] ) ? $attrs['iconBorderStyle'] : 'none';
 $iconBorderWidth      = isset( $attrs['iconBorderWidth'] ) ? $attrs['iconBorderWidth'] : array(
-    'desktop' => array( 'value' => 1, 'unit' => 'px' ),
-    'tablet'  => array( 'value' => 1, 'unit' => 'px' ),
-    'mobile'  => array( 'value' => 1, 'unit' => 'px' )
+    'desktop' => array(
+        'top'    => 1,
+        'right'  => 1,
+        'bottom' => 1,
+        'left'   => 1,
+        'unit'   => 'px',
+    ),
+    'tablet'  => array(
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
+        'unit'   => 'px',
+    ),
+    'mobile'  => array(
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
+        'unit'   => 'px',
+    ),
 );
-$iconBorderRadius     = isset( $attrs['iconBorderRadius'] ) ? $attrs['iconBorderRadius'] : array(
-    'desktop' => array( 'value' => 0, 'unit' => 'px' ),
-    'tablet'  => array( 'value' => 0, 'unit' => 'px' ),
-    'mobile'  => array( 'value' => 0, 'unit' => 'px' )
-);
+$iconBorderRadius     = isset( $attrs['iconBorderRadius'] ) ? $attrs['iconBorderRadius'] : digiblocks_get_default_dimensions('px');
 $iconBorderColor      = isset( $attrs['iconBorderColor'] ) ? $attrs['iconBorderColor'] : '#e0e0e0';
 $iconHoverBorderColor = isset( $attrs['iconHoverBorderColor'] ) ? $attrs['iconHoverBorderColor'] : '';
 $labelColor           = isset( $attrs['labelColor'] ) ? $attrs['labelColor'] : '';
@@ -48,11 +62,7 @@ $labelSpacing         = isset( $attrs['labelSpacing'] ) ? $attrs['labelSpacing']
     'mobile'  => 5
 );
 $align                = isset( $attrs['align'] ) ? $attrs['align'] : 'left';
-$padding              = isset( $attrs['padding'] ) ? $attrs['padding'] : array(
-    'desktop' => array( 'top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px' ),
-    'tablet'  => array( 'top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px' ),
-    'mobile'  => array( 'top' => 0, 'right' => 0, 'bottom' => 0, 'left' => 0, 'unit' => 'px' )
-);
+$padding              = isset( $attrs['padding'] ) ? $attrs['padding'] : digiblocks_get_default_dimensions('px');
 $animation            = isset( $attrs['animation'] ) ? $attrs['animation'] : 'none';
 $showLabels           = isset( $attrs['showLabels'] ) ? $attrs['showLabels'] : false;
 $labelPosition        = isset( $attrs['labelPosition'] ) ? $attrs['labelPosition'] : 'bottom';
@@ -111,11 +121,11 @@ ob_start();
     <?php if ( $iconBorderStyle && $iconBorderStyle !== 'none' ) : ?>
 		border-style: <?php echo esc_attr( $iconBorderStyle ); ?>;
 		border-color: <?php echo esc_attr( $iconBorderColor ); ?>;
-		border-width: <?php echo esc_attr( $iconBorderWidth['desktop']['value'] . $iconBorderWidth['desktop']['unit'] ); ?>;
-		border-radius: <?php echo esc_attr( $iconBorderRadius['desktop']['value'] . $iconBorderRadius['desktop']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $iconBorderWidth, 'border-width', 'desktop' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $iconBorderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php endif; ?>
     <?php if ( $padding && isset( $padding['desktop'] ) ) : ?>
-    	padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
     <?php endif; ?>
     transition: all 0.3s ease;
 }
@@ -225,13 +235,13 @@ ob_start();
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon {
         <?php if ( $iconBorderStyle && $iconBorderStyle !== 'none' && isset( $iconBorderWidth['tablet'] ) ) : ?>
-        	border-width: <?php echo esc_attr( $iconBorderWidth['tablet']['value'] . $iconBorderWidth['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $iconBorderWidth, 'border-width', 'tablet' ) ); ?>
         <?php endif; ?>
         <?php if ( $iconBorderStyle && $iconBorderStyle !== 'none' && isset( $iconBorderRadius['tablet'] ) ) : ?>
-        	border-radius: <?php echo esc_attr( $iconBorderRadius['tablet']['value'] . $iconBorderRadius['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $iconBorderRadius, 'border-radius', 'tablet' ) ); ?>
         <?php endif; ?>
         <?php if ( $padding && isset( $padding['tablet'] ) ) : ?>
-        	padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
         <?php endif; ?>
     }
 
@@ -269,13 +279,13 @@ ob_start();
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon {
         <?php if ( $iconBorderStyle && $iconBorderStyle !== 'none' && isset( $iconBorderWidth['mobile'] ) ) : ?>
-        	border-width: <?php echo esc_attr( $iconBorderWidth['mobile']['value'] . $iconBorderWidth['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $iconBorderWidth, 'border-width', 'mobile' ) ); ?>
         <?php endif; ?>
         <?php if ( $iconBorderStyle && $iconBorderStyle !== 'none' && isset( $iconBorderRadius['mobile'] ) ) : ?>
-        	border-radius: <?php echo esc_attr( $iconBorderRadius['mobile']['value'] . $iconBorderRadius['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $iconBorderRadius, 'border-radius', 'mobile' ) ); ?>
         <?php endif; ?>
         <?php if ( $padding && isset( $padding['mobile'] ) ) : ?>
-        	padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
         <?php endif; ?>
     }
 

@@ -14,9 +14,11 @@ const {
 const {
     SelectControl,
     RangeControl,
+	ToggleControl,
     TabPanel,
     Spinner,
     Button,
+    TextControl,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
 } = wp.components;
@@ -25,7 +27,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -37,7 +39,11 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         id,
         anchor,
         customClasses,
+		iconSource,
+        customSvg,
         iconValue,
+		showTitle,
+    	showContent,
         title,
         content,
         titleColor,
@@ -72,9 +78,25 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         borderColor,
         hoverEffect,
         linkEnabled,
+        linkType,
         linkUrl,
         linkOpenInNewTab,
         linkRel,
+        buttonText,
+        buttonBackgroundColor,
+        buttonBackgroundHoverColor,
+        buttonTextColor,
+        buttonTextHoverColor,
+        buttonBorderStyle,
+        buttonBorderWidth,
+        buttonBorderRadius,
+        buttonBorderColor,
+        buttonBorderHoverColor,
+        buttonBoxShadow,
+        buttonBoxShadowHover,
+        buttonPadding,
+        buttonMargin,
+        buttonTypography,
     } = attributes;
 
 	// Create unique class
@@ -97,7 +119,14 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
     }, []);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
     
     // Use useEffect to set the ID only once when component mounts and initialize missing attributes
     useEffect(() => {
@@ -194,6 +223,12 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             value: animation,
         })),
     ];
+    
+    // Link type options
+    const linkTypeOptions = [
+        { label: __("Box", "digiblocks"), value: "box" },
+        { label: __("Button", "digiblocks"), value: "button" },
+    ];
 
     // Define the tabs for our custom tab panel
     const tabList = [
@@ -233,16 +268,13 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         const activeDevice = window.digi.responsiveState.activeDevice;
         
         // Border styles
+        let borderRadiusCSS = getDimensionCSS(borderRadius, 'border-radius', activeDevice);
         let borderCSS = '';
         if (borderStyle && borderStyle !== 'default' && borderStyle !== 'none') {
-            const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
-            const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' };
-            
             borderCSS = `
                 border-style: ${borderStyle};
                 border-color: ${borderColor || '#e0e0e0'};
-                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+                ${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
             `;
         } else {
             borderCSS = 'border-style: none;';
@@ -256,9 +288,9 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         // Padding and margin
-        const paddingCSS = `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};`;
-        const marginCSS = `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};`;
-        
+        const paddingCSS = `${getDimensionCSS(padding, 'padding', activeDevice)}`;
+        const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice)}`;  
+
         // Title typography CSS
         let titleTypographyCSS = '';
         if (titleTypography) {
@@ -331,13 +363,52 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             }
         }
         
+        // Button typography CSS
+        let buttonTypographyCSS = '';
+        if (buttonTypography) {
+            if (buttonTypography.fontFamily) {
+                buttonTypographyCSS += `font-family: ${buttonTypography.fontFamily};`;
+            }
+            
+            if (buttonTypography.fontSize && buttonTypography.fontSize[activeDevice]) {
+                buttonTypographyCSS += `font-size: ${buttonTypography.fontSize[activeDevice]}${buttonTypography.fontSizeUnit || 'px'};`;
+            }
+            
+            if (buttonTypography.fontWeight) {
+                buttonTypographyCSS += `font-weight: ${buttonTypography.fontWeight};`;
+            }
+            
+            if (buttonTypography.fontStyle) {
+                buttonTypographyCSS += `font-style: ${buttonTypography.fontStyle};`;
+            }
+            
+            if (buttonTypography.textTransform) {
+                buttonTypographyCSS += `text-transform: ${buttonTypography.textTransform};`;
+            }
+            
+            if (buttonTypography.textDecoration) {
+                buttonTypographyCSS += `text-decoration: ${buttonTypography.textDecoration};`;
+            }
+            
+            if (buttonTypography.lineHeight && buttonTypography.lineHeight[activeDevice]) {
+                buttonTypographyCSS += `line-height: ${buttonTypography.lineHeight[activeDevice]}${buttonTypography.lineHeightUnit || 'em'};`;
+            }
+            
+            if (buttonTypography.letterSpacing && buttonTypography.letterSpacing[activeDevice]) {
+                buttonTypographyCSS += `letter-spacing: ${buttonTypography.letterSpacing[activeDevice]}${buttonTypography.letterSpacingUnit || 'px'};`;
+            }
+        }
+        
         // Icon styles - only apply if an icon exists
         let iconCSS = '';
         let iconHoverCSS = '';
         let iconMarginCSS = '';
+
+		// Check if either a library icon or custom SVG exists
+		const hasIcon = (iconValue && iconValue.svg) || (iconSource === 'custom' && customSvg && customSvg.trim() !== '');
         
         // Only process icon styles if an icon actually exists
-        if (iconValue && iconValue.svg) {
+        if (hasIcon) {
             // Icon background color
             if (iconBackgroundColor) {
                 iconCSS += `background-color: ${iconBackgroundColor};`;
@@ -355,14 +426,14 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 iconCSS += `
                     border-style: ${iconBorderStyle};
                     border-color: ${iconBorderColor || '#e0e0e0'};
-                    border-width: ${currentIconBorderWidth.top}${currentIconBorderWidth.unit} ${currentIconBorderWidth.right}${currentIconBorderWidth.unit} ${currentIconBorderWidth.bottom}${currentIconBorderWidth.unit} ${currentIconBorderWidth.left}${currentIconBorderWidth.unit};
-                    border-radius: ${currentIconBorderRadius.top}${currentIconBorderRadius.unit} ${currentIconBorderRadius.right}${currentIconBorderRadius.unit} ${currentIconBorderRadius.bottom}${currentIconBorderRadius.unit} ${currentIconBorderRadius.left}${currentIconBorderRadius.unit};
+					${getDimensionCSS(iconBorderWidth, 'border-width', activeDevice)}
+					${getDimensionCSS(iconBorderRadius, 'border-radius', activeDevice)}
                 `;
             }
             
             // Icon padding
             if (iconPadding && iconPadding[activeDevice]) {
-                iconCSS += `padding: ${iconPadding[activeDevice].top}${iconPadding[activeDevice].unit} ${iconPadding[activeDevice].right}${iconPadding[activeDevice].unit} ${iconPadding[activeDevice].bottom}${iconPadding[activeDevice].unit} ${iconPadding[activeDevice].left}${iconPadding[activeDevice].unit};`;
+                iconCSS += `${getDimensionCSS(iconPadding, 'padding', activeDevice)}`;
             }
             
             // Icon hover styles
@@ -380,11 +451,11 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             
             // Custom icon margin if set
             if (iconMargin && iconMargin[activeDevice]) {
-                iconMarginCSS = `${iconMargin[activeDevice].top}${iconMargin[activeDevice].unit} ${iconMargin[activeDevice].right}${iconMargin[activeDevice].unit} ${iconMargin[activeDevice].bottom}${iconMargin[activeDevice].unit} ${iconMargin[activeDevice].left}${iconMargin[activeDevice].unit}`;
+                iconMarginCSS = `${getDimensionCSS(iconMargin, 'margin', activeDevice)}`;
             } else {
                 // Default margins if not set
                 const defaultBottom = activeDevice === 'desktop' ? 20 : activeDevice === 'tablet' ? 15 : 10;
-                iconMarginCSS = `0px 0px ${defaultBottom}px 0px`;
+                iconMarginCSS = `margin: 0px 0px ${defaultBottom}px 0px;`;
             }
         }
         
@@ -408,10 +479,82 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Link styles
         let linkCSS = '';
-        if (linkEnabled) {
-            linkCSS = `
-                cursor: pointer;
-                text-decoration: none;
+		if (linkEnabled && linkType === 'box') {
+			linkCSS = `
+				cursor: pointer;
+				text-decoration: none;
+			`;
+		}
+        
+        // Button styles
+        let buttonCSS = '';
+        let buttonHoverCSS = '';
+        
+        if (linkEnabled && linkType === 'button') {
+            // Button border styles
+            let buttonBorderCSS = '';
+            if (buttonBorderStyle && buttonBorderStyle !== 'default' && buttonBorderStyle !== 'none') {
+                buttonBorderCSS = `
+                    border-style: ${buttonBorderStyle};
+                    border-color: ${buttonBorderColor || buttonBackgroundColor};
+                    ${getDimensionCSS(buttonBorderWidth, 'border-width', activeDevice)}
+                `;
+            } else {
+                buttonBorderCSS = 'border-style: none;';
+            }
+            
+            // Button box shadow
+            let buttonBoxShadowCSS = 'box-shadow: none;';
+            if (buttonBoxShadow && buttonBoxShadow.enable) {
+                const inset = buttonBoxShadow.position === 'inset' ? 'inset ' : '';
+                buttonBoxShadowCSS = `box-shadow: ${inset}${buttonBoxShadow.horizontal}px ${buttonBoxShadow.vertical}px ${buttonBoxShadow.blur}px ${buttonBoxShadow.spread}px ${buttonBoxShadow.color};`;
+            }
+            
+            // Button padding and margin
+            const buttonPaddingCSS = `${getDimensionCSS(buttonPadding, 'padding', activeDevice)}`;
+            const buttonMarginCSS = `${getDimensionCSS(buttonMargin, 'margin', activeDevice)}`;
+            
+            // Button hover styles
+            if (buttonBoxShadowHover && buttonBoxShadowHover.enable) {
+                const insetHover = buttonBoxShadowHover.position === 'inset' ? 'inset ' : '';
+                buttonHoverCSS += `box-shadow: ${insetHover}${buttonBoxShadowHover.horizontal}px ${buttonBoxShadowHover.vertical}px ${buttonBoxShadowHover.blur}px ${buttonBoxShadowHover.spread}px ${buttonBoxShadowHover.color};`;
+            }
+            
+            if (buttonBackgroundHoverColor) {
+                buttonHoverCSS += `background-color: ${buttonBackgroundHoverColor};`;
+            }
+            
+            if (buttonTextHoverColor) {
+                buttonHoverCSS += `color: ${buttonTextHoverColor};`;
+            }
+            
+            if (buttonBorderHoverColor) {
+                buttonHoverCSS += `border-color: ${buttonBorderHoverColor};`;
+            }
+            
+            buttonCSS = `
+                .${id} .digiblocks-button-wrapper {
+                    display: flex;
+                    justify-content: ${align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start'};
+                    ${buttonMarginCSS}
+                }
+                
+                .${id} .digiblocks-button {
+                    display: inline-block;
+                    background-color: ${buttonBackgroundColor};
+                    color: ${buttonTextColor};
+                    ${buttonPaddingCSS}
+                    ${buttonBorderCSS}
+                    ${getDimensionCSS(buttonBorderRadius, 'border-radius', activeDevice)}
+                    ${buttonBoxShadowCSS}
+                    ${buttonTypographyCSS}
+                    text-decoration: none;
+                    transition: all 0.3s ease;
+                }
+                
+                .${id} .digiblocks-button:hover {
+                    ${buttonHoverCSS}
+                }
             `;
         }
         
@@ -424,8 +567,9 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 ${paddingCSS}
                 ${marginCSS}
                 ${borderCSS}
+                ${borderRadiusCSS}
                 transition: all 0.3s ease;
-                ${linkEnabled ? linkCSS : ''}
+                ${linkEnabled && linkType === 'box' ? linkCSS : ''}
             }
             
             /* Hover effects */
@@ -434,37 +578,37 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 ${hoverCSS}
             }
             
-            ${iconValue && iconValue.svg ? `
-            /* Icon styles */
-            .${id} .digiblocks-icon-box-icon {
-                margin: ${iconMarginCSS};
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                ${iconCSS}
-                transition: all 0.3s ease;
-            }
+            ${hasIcon ? `
+				/* Icon styles */
+				.${id} .digiblocks-icon-box-icon {
+					${iconMarginCSS}
+					display: inline-flex;
+					align-items: center;
+					justify-content: center;
+					${iconCSS}
+					transition: all 0.3s ease;
+				}
 
-            .${id} .digiblocks-icon-box-icon span {
-                display: flex;
-            }
+				.${id} .digiblocks-icon-box-icon span {
+					display: flex;
+				}
 
-            .${id} .digiblocks-icon-box-icon svg {
-                width: ${iconSize[activeDevice]}px;
-                height: 100%;
-                fill: ${iconColor || 'inherit'};
-                transition: all 0.3s ease;
-            }
-            
-            /* Icon hover styles */
-            .${id}:hover .digiblocks-icon-box-icon {
-                ${iconHoverCSS}
-            }
-            
-            .${id}:hover .digiblocks-icon-box-icon svg {
-                ${iconHoverColor ? `fill: ${iconHoverColor};` : ''}
-            }
-            ` : ''}
+				.${id} .digiblocks-icon-box-icon svg {
+					width: ${iconSize[activeDevice]}px;
+					height: 100%;
+					fill: ${iconColor || 'inherit'};
+					transition: all 0.3s ease;
+				}
+				
+				/* Icon hover styles */
+				.${id}:hover .digiblocks-icon-box-icon {
+					${iconHoverCSS}
+				}
+				
+				.${id}:hover .digiblocks-icon-box-icon svg {
+					${iconHoverColor ? `fill: ${iconHoverColor};` : ''}
+				}
+				` : ''}
             
             /* Title styles */
             .${id} .digiblocks-icon-box-title {
@@ -490,6 +634,9 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             .${id}:hover .digiblocks-icon-box-text {
                 ${textHoverColor ? `color: ${textHoverColor};` : ''}
             }
+            
+            /* Button styles */
+            ${buttonCSS}
         `;
     };
 
@@ -497,22 +644,74 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
     const FontAwesomeControl = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
 
     // Render icon
-    const renderIcon = () => {
-		// Make sure we only try to display an icon if the iconValue exists and has a non-empty svg property
-		if (!iconValue || !iconValue.svg || iconValue.svg.trim() === '') {
-			return null;
+	const renderIcon = () => {
+		// For library icons
+		if (iconSource === 'library' && iconValue && iconValue.svg && iconValue.svg.trim() !== '') {
+			return (
+				<div className="digiblocks-icon-box-icon">
+					<span
+						dangerouslySetInnerHTML={{
+							__html: iconValue.svg,
+						}}
+					/>
+				</div>
+			);
 		}
 		
-		return (
-			<div className="digiblocks-icon-box-icon">
-				<span
-					dangerouslySetInnerHTML={{
-						__html: iconValue.svg,
-					}}
-				/>
-			</div>
-		);
+		// For custom SVG
+		if (iconSource === 'custom' && customSvg && customSvg.trim() !== '') {
+			return (
+				<div className="digiblocks-icon-box-icon">
+					<span
+						dangerouslySetInnerHTML={{
+							__html: customSvg,
+						}}
+					/>
+				</div>
+			);
+		}
+		
+		// Default case for backward compatibility
+		if (!iconSource && iconValue && iconValue.svg && iconValue.svg.trim() !== '') {
+			return (
+				<div className="digiblocks-icon-box-icon">
+					<span
+						dangerouslySetInnerHTML={{
+							__html: iconValue.svg,
+						}}
+					/>
+				</div>
+			);
+		}
+		
+		return null;
 	};
+    
+    // Render button if needed
+    const renderButton = () => {
+        if (!linkEnabled || linkType !== 'button') {
+            return null;
+        }
+        
+        return (
+            <div className="digiblocks-button-wrapper">
+                <a 
+                    className="digiblocks-button"
+                    href={linkUrl || '#'}
+                    target={linkOpenInNewTab ? "_blank" : "_self"}
+                    rel={linkRel}
+                    onClick={(e) => e.preventDefault()}
+                >
+                    <RichText
+                        tagName="span"
+                        value={buttonText}
+                        onChange={(value) => setAttributes({ buttonText: value })}
+                        placeholder={__('Button Text', 'digiblocks')}
+                    />
+                </a>
+            </div>
+        );
+    };
 
     // Render icon tab content based on active tab
     const renderIconTabContent = (tabName) => {
@@ -566,19 +765,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                     setAttributes({
                                         iconBorderWidth: {
                                             desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                                            tablet: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
-                                            mobile: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' }
-                                        }
-                                    });
-                                }
-                                
-                                // Set initial border radius if not already set
-                                if (!iconBorderRadius || Object.keys(iconBorderRadius).length === 0) {
-                                    setAttributes({
-                                        iconBorderRadius: {
-                                            desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                                            tablet: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                                            mobile: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' }
+                                            tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                                            mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                                         }
                                     });
                                 }
@@ -622,13 +810,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Border Width", "digiblocks")}
                             >
                                 <DimensionControl
-                                    values={iconBorderWidth && iconBorderWidth[localActiveDevice] ? iconBorderWidth[localActiveDevice] : {
-                                        top: 1,
-                                        right: 1,
-                                        bottom: 1,
-                                        left: 1,
-                                        unit: 'px'
-                                    }}
+                                    values={iconBorderWidth[localActiveDevice]}
                                     onChange={(value) =>
                                         setAttributes({
                                             iconBorderWidth: {
@@ -645,13 +827,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Border Radius", "digiblocks")}
                             >
                                 <DimensionControl
-                                    values={iconBorderRadius && iconBorderRadius[localActiveDevice] ? iconBorderRadius[localActiveDevice] : {
-                                        top: 0,
-                                        right: 0,
-                                        bottom: 0,
-                                        left: 0,
-                                        unit: 'px'
-                                    }}
+                                    values={iconBorderRadius[localActiveDevice]}
                                     onChange={(value) =>
                                         setAttributes({
                                             iconBorderRadius: {
@@ -674,13 +850,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                         label={__("Padding", "digiblocks")}
                     >
                         <DimensionControl
-                            values={iconPadding && iconPadding[localActiveDevice] ? iconPadding[localActiveDevice] : {
-                                top: 0,
-                                right: 0,
-                                bottom: 0,
-                                left: 0,
-                                unit: 'px'
-                            }}
+                            values={iconPadding[localActiveDevice]}
                             onChange={(value) =>
                                 setAttributes({
                                     iconPadding: {
@@ -697,13 +867,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                         label={__("Margin", "digiblocks")}
                     >
                         <DimensionControl
-                            values={iconMargin && iconMargin[localActiveDevice] ? iconMargin[localActiveDevice] : {
-                                top: 0,
-                                right: 0,
-                                bottom: localActiveDevice === 'desktop' ? 20 : localActiveDevice === 'tablet' ? 15 : 10,
-                                left: 0,
-                                unit: 'px'
-                            }}
+                            values={iconMargin[localActiveDevice]}
                             onChange={(value) =>
                                 setAttributes({
                                     iconMargin: {
@@ -876,6 +1040,266 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         return null;
     };
 
+    // Render button tab content based on active tab
+    const renderButtonTabContent = (tabName) => {
+        if (tabName === 'normal') {
+            return (
+                <>
+                    <PanelColorSettings
+                        title={__(
+                            "Button Colors",
+                            "digiblocks"
+                        )}
+                        initialOpen={true}
+                        enableAlpha={true}
+                        colorSettings={[
+                            {
+                                value: buttonTextColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        buttonTextColor: value,
+                                    }),
+                                label: __(
+                                    "Text Color",
+                                    "digiblocks"
+                                ),
+                            },
+                            {
+                                value: buttonBackgroundColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        buttonBackgroundColor: value,
+                                    }),
+                                label: __(
+                                    "Background Color",
+                                    "digiblocks"
+                                ),
+                            },
+                        ]}
+                    />
+                    
+                    {/* Button Border Controls */}
+                    <SelectControl
+                        label={__("Border Style", "digiblocks")}
+                        value={buttonBorderStyle || 'default'}
+                        options={borderStyleOptions}
+                        onChange={(value) => {
+                            // Initialize border width and radius with defaults when a style is first selected
+                            if ((value !== 'default' && value !== 'none') && 
+                                (buttonBorderStyle === 'default' || buttonBorderStyle === 'none' || !buttonBorderStyle)) {
+                                // Set initial border width if not already set
+                                if (!buttonBorderWidth || Object.keys(buttonBorderWidth).length === 0) {
+                                    setAttributes({
+                                        buttonBorderWidth: {
+                                            desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                                            tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                                            mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+                                        }
+                                    });
+                                }
+                            }
+                            
+                            setAttributes({
+                                buttonBorderStyle: value,
+                            });
+                        }}
+                        __next40pxDefaultSize={true}
+                        __nextHasNoMarginBottom={true}
+                    />
+                    
+                    {/* Show border width and border radius controls only if a border style is selected */}
+                    {buttonBorderStyle && buttonBorderStyle !== 'default' && buttonBorderStyle !== 'none' && (
+                        <>
+                            {/* Border Color */}
+                            <PanelColorSettings
+                                title={__(
+                                    "Border Color",
+                                    "digiblocks"
+                                )}
+                                enableAlpha={true}
+                                colorSettings={[
+                                    {
+                                        value: buttonBorderColor,
+                                        onChange: (value) =>
+                                            setAttributes({
+                                                buttonBorderColor: value,
+                                            }),
+                                        label: __(
+                                            "Border Color",
+                                            "digiblocks"
+                                        ),
+                                    },
+                                ]}
+                            />
+                            
+                            {/* Border Width */}
+                            <ResponsiveControl
+                                label={__("Border Width", "digiblocks")}
+                            >
+                                <DimensionControl
+                                    values={buttonBorderWidth[localActiveDevice]}
+                                    onChange={(value) =>
+                                        setAttributes({
+                                            buttonBorderWidth: {
+                                                ...buttonBorderWidth,
+                                                [localActiveDevice]: value,
+                                            },
+                                        })
+                                    }
+                                />
+                            </ResponsiveControl>
+                        </>
+                    )}
+                    
+                    {/* Button Border Radius */}
+                    <ResponsiveControl
+                        label={__("Border Radius", "digiblocks")}
+                    >
+                        <DimensionControl
+                            values={buttonBorderRadius[localActiveDevice]}
+                            onChange={(value) =>
+                                setAttributes({
+                                    buttonBorderRadius: {
+                                        ...buttonBorderRadius,
+                                        [localActiveDevice]: value,
+                                    },
+                                })
+                            }
+                            units={[
+                                { label: 'px', value: 'px' },
+                                { label: '%', value: '%' }
+                            ]}
+                        />
+                    </ResponsiveControl>
+                    
+                    {/* Button Padding */}
+                    <ResponsiveControl
+                        label={__("Padding", "digiblocks")}
+                    >
+                        <DimensionControl
+                            values={buttonPadding[localActiveDevice]}
+                            onChange={(value) =>
+                                setAttributes({
+                                    buttonPadding: {
+                                        ...buttonPadding,
+                                        [localActiveDevice]: value,
+                                    },
+                                })
+                            }
+                        />
+                    </ResponsiveControl>
+                    
+                    {/* Button Margin */}
+                    <ResponsiveControl
+                        label={__("Margin", "digiblocks")}
+                    >
+                        <DimensionControl
+                            values={buttonMargin[localActiveDevice]}
+                            onChange={(value) =>
+                                setAttributes({
+                                    buttonMargin: {
+                                        ...buttonMargin,
+                                        [localActiveDevice]: value,
+                                    },
+                                })
+                            }
+                        />
+                    </ResponsiveControl>
+                    
+                    {/* Button Box Shadow */}
+					<BoxShadowControl
+						normalValue={buttonBoxShadow}
+						hoverValue={buttonBoxShadowHover}
+						onNormalChange={(value) =>
+							setAttributes({
+								buttonBoxShadow: value,
+							})
+						}
+						onHoverChange={(value) =>
+							setAttributes({
+								buttonBoxShadowHover: value,
+							})
+						}
+					/>
+                </>
+            );
+        } else if (tabName === 'hover') {
+            return (
+                <>
+                    <PanelColorSettings
+                        title={__(
+                            "Button Hover Colors",
+                            "digiblocks"
+                        )}
+                        initialOpen={true}
+                        enableAlpha={true}
+                        colorSettings={[
+                            {
+                                value: buttonTextHoverColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        buttonTextHoverColor: value,
+                                    }),
+                                label: __(
+                                    "Text Color",
+                                    "digiblocks"
+                                ),
+                            },
+                            {
+                                value: buttonBackgroundHoverColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        buttonBackgroundHoverColor: value,
+                                    }),
+                                label: __(
+                                    "Background Color",
+                                    "digiblocks"
+                                ),
+                            },
+                            {
+                                value: buttonBorderHoverColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        buttonBorderHoverColor: value,
+                                    }),
+                                label: __(
+                                    "Border Color",
+                                    "digiblocks"
+                                ),
+                            },
+                        ]}
+                    />
+                </>
+            );
+        }
+        
+        return null;
+    };
+    
+    // Render typography tab content for the button
+    const renderButtonTypographyContent = () => {
+        return (
+            <TypographyControl
+                label={__(
+                    "Button Typography",
+                    "digiblocks"
+                )}
+                value={buttonTypography}
+                onChange={(value) =>
+                    setAttributes({
+                        buttonTypography: value,
+                    })
+                }
+                defaults={{
+                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                    fontSizeUnit: 'px',
+                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                    lineHeightUnit: 'em',
+                }}
+            />
+        );
+    };
+
     // Render tab content based on the active tab
     const renderTabContent = () => {
         switch (activeTab) {
@@ -885,38 +1309,126 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                         <div className="components-panel__body is-opened">
                             {/* Icon select box display */}
                             <div style={{ marginBottom: '2rem' }}>
-                                {!componentsLoaded ? (
-                                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                                        <Spinner />
-                                        <p>{__('Loading icon selector...', 'digiblocks')}</p>
-                                    </div>
-                                ) : (
-                                    <FontAwesomeControl
-                                        label={__('Select Icon', 'digiblocks')}
-                                        value={iconValue}
-                                        onChange={setIconValue}
-                                    />
-                                )}
-                                
-                                {iconValue && componentsLoaded && (
-                                    <>
-                                        {/* Show info about selected icon */}
-                                        <div style={{ marginTop: '15px', marginBottom: '15px', padding: '10px', background: '#f0f0f1', borderRadius: '3px' }}>
-                                            <p style={{ margin: '0 0 5px 0' }}>
-                                                <strong>{__('Selected Icon:', 'digiblocks')}</strong> {iconValue.name}
-                                            </p>
-                                            <p style={{ margin: '0 0 5px 0' }}>
-                                                <strong>{__('Style:', 'digiblocks')}</strong> {iconValue.style}
-                                            </p>
-                                            {iconValue.categories && iconValue.categories.length > 0 && (
-                                                <p style={{ margin: '0' }}>
-                                                    <strong>{__('Categories:', 'digiblocks')}</strong> {iconValue.categories.join(', ')}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
+								<ToggleGroupControl
+									label={__("Icon Source", "digiblocks")}
+									value={iconSource || 'library'}
+									onChange={(value) => setAttributes({ iconSource: value })}
+									isBlock
+									__next40pxDefaultSize={true}
+									__nextHasNoMarginBottom={true}
+								>
+									<ToggleGroupControlOption 
+										value="library" 
+										label={__("Library", "digiblocks")} 
+									/>
+									<ToggleGroupControlOption 
+										value="custom" 
+										label={__("Custom", "digiblocks")} 
+									/>
+								</ToggleGroupControl>
+
+								{/* Show library picker if 'library' is selected */}
+								{iconSource === 'library' && (
+									<>
+										{!componentsLoaded ? (
+											<div style={{ textAlign: 'center', padding: '20px 0' }}>
+												<Spinner />
+												<p>{__('Loading icon selector...', 'digiblocks')}</p>
+											</div>
+										) : (
+											<FontAwesomeControl
+												label={__('Select Icon', 'digiblocks')}
+												value={iconValue}
+												onChange={setIconValue}
+											/>
+										)}
+										
+										{iconValue && componentsLoaded && (
+											<>
+												{/* Show info about selected icon */}
+												<div style={{ marginTop: '15px', marginBottom: '15px', padding: '10px', background: '#f0f0f1', borderRadius: '3px' }}>
+													<p style={{ margin: '0 0 5px 0' }}>
+														<strong>{__('Selected Icon:', 'digiblocks')}</strong> {iconValue.name}
+													</p>
+													<p style={{ margin: '0 0 5px 0' }}>
+														<strong>{__('Style:', 'digiblocks')}</strong> {iconValue.style}
+													</p>
+													{iconValue.categories && iconValue.categories.length > 0 && (
+														<p style={{ margin: '0' }}>
+															<strong>{__('Categories:', 'digiblocks')}</strong> {iconValue.categories.join(', ')}
+														</p>
+													)}
+												</div>
+											</>
+										)}
+									</>
+								)}
+
+								{/* Show custom SVG textarea if 'custom' is selected */}
+								{iconSource === 'custom' && (
+									<div style={{ marginTop: '15px' }}>
+										<div className="components-base-control">
+											<label className="components-base-control__label" htmlFor="custom-svg-input">
+												{__('Custom SVG Code', 'digiblocks')}
+											</label>
+											<textarea
+												id="custom-svg-input"
+												className="components-textarea-control__input"
+												value={customSvg || ''}
+												onChange={(e) => {
+													const newSvg = e.target.value;
+													
+													// Create an iconValue object with the custom SVG
+													const newIconValue = {
+														id: 'custom-svg',
+														name: 'Custom SVG',
+														svg: newSvg,
+														style: 'custom',
+														categories: ['custom']
+													};
+													
+													// Update both the customSvg attribute and the iconValue
+													setAttributes({ 
+														customSvg: newSvg,
+														iconValue: newIconValue
+													});
+												}}
+												placeholder={__('Paste your SVG code here...', 'digiblocks')}
+												rows={10}
+												style={{ width: '100%', marginTop: '8px' }}
+											/>
+											<p className="components-base-control__help">
+												{__('Paste your SVG code here. Make sure it only contains valid SVG markup. For security reasons, scripts and external references will be removed.', 'digiblocks')}
+											</p>
+										</div>
+										
+										{/* Preview of custom SVG */}
+										{customSvg && (
+											<div style={{ marginTop: '15px', marginBottom: '15px' }}>
+												<p><strong>{__('Preview:', 'digiblocks')}</strong></p>
+												<div style={{ padding: '20px', background: '#f0f0f1', borderRadius: '3px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+													<div className="digiblocks-custom-svg-preview" style={{ width: '50px', height: '50px' }} dangerouslySetInnerHTML={{ __html: customSvg }}></div>
+												</div>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
+
+							{/* Toggle controls for showing/hiding elements */}
+							<ToggleControl
+                                label={__("Show Title", "digiblocks")}
+                                checked={showTitle}
+                                onChange={(value) => setAttributes({ showTitle: value })}
+                                __nextHasNoMarginBottom={true}
+                            />
+
+							<ToggleControl
+                                label={__("Show Description", "digiblocks")}
+                                checked={showContent}
+                                onChange={(value) => setAttributes({ showContent: value })}
+                                __nextHasNoMarginBottom={true}
+                            />
 
                             {/* Link settings */}
                             {!linkEnabled ? (
@@ -931,44 +1443,76 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                     </div>
                                 </div>
                             ) : (
-                                <LinkControl
-                                    key="link-control"
-                                    value={{
-                                        url: linkUrl,
-                                        opensInNewTab: linkOpenInNewTab,
-                                        rel: linkRel
-                                    }}
-                                    settings={[
-                                        {
-                                            id: 'opensInNewTab',
-                                            title: __('Open in new tab', 'digiblocks'),
-                                        },
-                                        {
-                                            id: 'rel',
-                                            title: __('Add noopener noreferrer', 'digiblocks'),
-                                        },
-                                    ]}
-                                    onChange={(newLink) => {
-                                        setAttributes({
-                                            linkUrl: newLink.url,
-                                            linkOpenInNewTab: newLink.opensInNewTab,
-                                            linkRel: newLink.rel
-                                        });
-                                    }}
-                                    onRemove={() => {
-                                        setAttributes({
-                                            linkEnabled: false,
-                                            linkUrl: '',
-                                            linkOpenInNewTab: false,
-                                            linkRel: ''
-                                        });
-                                    }}
-                                    suggestionsQuery={{
-                                        type: 'post',
-                                        subtype: 'any',
-                                    }}
-                                    forceIsEditingLink={!linkUrl}
-                                />
+                                <>
+                                    <LinkControl
+                                        key="link-control"
+                                        value={{
+                                            url: linkUrl,
+                                            opensInNewTab: linkOpenInNewTab,
+                                            rel: linkRel
+                                        }}
+                                        settings={[
+                                            {
+                                                id: 'opensInNewTab',
+                                                title: __('Open in new tab', 'digiblocks'),
+                                            },
+                                            {
+                                                id: 'rel',
+                                                title: __('Add noopener noreferrer', 'digiblocks'),
+                                            },
+                                        ]}
+                                        onChange={(newLink) => {
+                                            setAttributes({
+                                                linkUrl: newLink.url,
+                                                linkOpenInNewTab: newLink.opensInNewTab,
+                                                linkRel: newLink.rel
+                                            });
+                                        }}
+                                        onRemove={() => {
+                                            setAttributes({
+                                                linkEnabled: false,
+                                                linkUrl: '',
+                                                linkOpenInNewTab: false,
+                                                linkRel: ''
+                                            });
+                                        }}
+                                        suggestionsQuery={{
+                                            type: 'post',
+                                            subtype: 'any',
+                                        }}
+                                        forceIsEditingLink={!linkUrl}
+                                    />
+									
+									<div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+										<ToggleGroupControl
+											label={__("Link Type", "digiblocks")}
+											value={linkType}
+											onChange={(value) => setAttributes({ linkType: value })}
+											isBlock
+											__next40pxDefaultSize={true}
+											__nextHasNoMarginBottom={true}
+										>
+											<ToggleGroupControlOption 
+												value="box" 
+												label={__("Box", "digiblocks")} 
+											/>
+											<ToggleGroupControlOption 
+												value="button" 
+												label={__("Button", "digiblocks")} 
+											/>
+										</ToggleGroupControl>
+									</div>
+                                    
+                                    {linkType === 'button' && (
+                                        <TextControl
+                                            label={__("Button Text", "digiblocks")}
+                                            value={buttonText}
+                                            onChange={(value) => setAttributes({ buttonText: value })}
+                                            __next40pxDefaultSize={true}
+                                            __nextHasNoMarginBottom={true}
+                                        />
+                                    )}
+                                </>
                             )}
                         </div>
                     </>
@@ -1033,6 +1577,10 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                     lineHeightUnit: 'em',
                                 }}
                             />
+                            
+                            {linkEnabled && linkType === "button" && 
+                                renderButtonTypographyContent()
+                            }
                         </TabPanelBody>
                         <TabPanelBody 
 							tab="style"
@@ -1098,17 +1646,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                                 }
                                             });
                                         }
-                                        
-                                        // Set initial border radius if not already set
-                                        if (!borderRadius || Object.keys(borderRadius).length === 0) {
-                                            setAttributes({
-                                                borderRadius: {
-                                                    desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                                                    tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                                                    mobile: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
-                                                }
-                                            });
-                                        }
                                     }
                                     
                                     setAttributes({
@@ -1119,7 +1656,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                 __nextHasNoMarginBottom={true}
                             />
                             
-                            {/* Show border width and border radius controls only if a border style is selected */}
+                            {/* Show border color and width only if border style is selected */}
                             {borderStyle && borderStyle !== 'default' && borderStyle !== 'none' && (
                                 <>
                                     {/* Border Color */}
@@ -1166,35 +1703,35 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                             }
                                         />
                                     </ResponsiveControl>
-                                    
-                                    {/* Border Radius */}
-                                    <ResponsiveControl
-                                        label={__("Border Radius", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
-                                                top: 0,
-                                                right: 0,
-                                                bottom: 0,
-                                                left: 0,
-                                                unit: 'px'
-                                            }}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    borderRadius: {
-                                                        ...borderRadius,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                            units={[
-                                                { label: 'px', value: 'px' },
-                                                { label: '%', value: '%' }
-                                            ]}
-                                        />
-                                    </ResponsiveControl>
                                 </>
                             )}
+                            
+                            {/* Border Radius (always show) */}
+                            <ResponsiveControl
+                                label={__("Border Radius", "digiblocks")}
+                            >
+                                <DimensionControl
+                                    values={borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
+                                        top: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        left: 0,
+                                        unit: 'px'
+                                    }}
+                                    onChange={(value) =>
+                                        setAttributes({
+                                            borderRadius: {
+                                                ...borderRadius,
+                                                [localActiveDevice]: value,
+                                            },
+                                        })
+                                    }
+                                    units={[
+                                        { label: 'px', value: 'px' },
+                                        { label: '%', value: '%' }
+                                    ]}
+                                />
+                            </ResponsiveControl>
                             
                             <SelectControl
                                 label={__(
@@ -1212,6 +1749,22 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                 __nextHasNoMarginBottom={true}
                             />
                         </TabPanelBody>
+                        {linkEnabled && linkType === "button" && (
+                            <TabPanelBody
+                                tab="style"
+                                name="button"
+                                title={__("Button", "digiblocks")}
+                                initialOpen={false}
+                            >
+                                <TabPanel
+                                    className="digiblocks-control-tabs"
+                                    activeClass="active-tab"
+                                    tabs={stateTabList}
+                                >
+                                    {(tab) => renderButtonTabContent(tab.name)}
+                                </TabPanel>
+                            </TabPanelBody>
+                        )}
                         <TabPanelBody
 							tab="style"
 							name="shadow"
@@ -1390,30 +1943,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         id: anchor || null, // Set the anchor as ID if provided
     });
 
-    // Prepare content
-    const boxContent = (
-        <div className="digiblocks-icon-box-content">
-            {renderIcon()}
-            <RichText
-                tagName="h3"
-                className="digiblocks-icon-box-title"
-                value={title}
-                onChange={(value) => setAttributes({ title: value })}
-                placeholder={__("Feature Title", "digiblocks")}
-            />
-            <RichText
-                tagName="p"
-                className="digiblocks-icon-box-text"
-                value={content}
-                onChange={(value) => setAttributes({ content: value })}
-                placeholder={__(
-                    "Add your feature description here.",
-                    "digiblocks"
-                )}
-            />
-        </div>
-    );
-
     return (
         <>
             {/* Add alignment control to the toolbar */}
@@ -1438,7 +1967,31 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             <style dangerouslySetInnerHTML={{ __html: generateCSS() }} />
 
             <div {...blockProps}>
-                {boxContent}
+                <div className="digiblocks-icon-box-content">
+                    {renderIcon()}
+                    {showTitle && (
+						<RichText
+							tagName="h3"
+							className="digiblocks-icon-box-title"
+							value={title}
+							onChange={(value) => setAttributes({ title: value })}
+							placeholder={__("Feature Title", "digiblocks")}
+						/>
+					)}
+					{showContent && (
+						<RichText
+							tagName="p"
+							className="digiblocks-icon-box-text"
+							value={content}
+							onChange={(value) => setAttributes({ content: value })}
+							placeholder={__(
+								"Add your feature description here.",
+								"digiblocks"
+							)}
+						/>
+					)}
+                    {renderButton()}
+                </div>
             </div>
         </>
     );

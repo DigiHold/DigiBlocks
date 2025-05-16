@@ -8,7 +8,9 @@ const { useBlockProps } = wp.blockEditor;
  */
 const IconSave = ({ attributes }) => {
     const { 
-        id, 
+        id,
+		iconSource,
+		customSvg,
         iconValue, 
         align, 
         animation, 
@@ -17,11 +19,7 @@ const IconSave = ({ attributes }) => {
         customClasses,
         linkEnabled,
         linkUrl,
-        linkOpenInNewTab,
-        linkRel,
-        rotateIcon,
-        flipHorizontal,
-        flipVertical
+        linkOpenInNewTab
     } = attributes;
 
     // Build class names
@@ -44,17 +42,26 @@ const IconSave = ({ attributes }) => {
 
     // Render icon
     const renderIcon = () => {
-        // Make sure we only try to display an icon if the iconValue exists and has a non-empty svg property
-        if (!iconValue || !iconValue.svg || iconValue.svg.trim() === '') {
-            return null;
-        }
-        
-        return (
-            <div className="digiblocks-icon">
-                <span dangerouslySetInnerHTML={{ __html: iconValue.svg }} />
-            </div>
-        );
-    };
+		// For library icons
+		if (iconSource === 'library' && iconValue && iconValue.svg && iconValue.svg.trim() !== '') {
+			return (
+				<div className="digiblocks-icon">
+					<span dangerouslySetInnerHTML={{ __html: iconValue.svg }} />
+				</div>
+			);
+		}
+		
+		// For custom SVG
+		if (iconSource === 'custom' && customSvg && customSvg.trim() !== '') {
+			return (
+				<div className="digiblocks-icon">
+					<span dangerouslySetInnerHTML={{ __html: customSvg }} />
+				</div>
+			);
+		}
+		
+		return null;
+	};
 
     // If link is enabled, make the entire icon a link
     if (linkEnabled && linkUrl) {

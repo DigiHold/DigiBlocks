@@ -14,7 +14,7 @@ const { useState, useEffect } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animationPreview } = digi.utils;
+const { useBlockId } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, CustomTabPanel } = digi.components;
 
@@ -46,7 +46,14 @@ const SpacerEdit = ({ attributes, setAttributes, clientId }) => {
     }, []);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
 
     // Define the tabs for the custom tab panel
     const tabList = [

@@ -53,29 +53,7 @@ $separatorSpacing = isset( $attrs['separatorSpacing'] ) ? $attrs['separatorSpaci
 );
 
 // Get separatorBorderRadius (with fallback)
-$separatorBorderRadius = isset( $attrs['separatorBorderRadius'] ) ? $attrs['separatorBorderRadius'] : array(
-    'desktop' => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 0,
-        'left'   => 0,
-        'unit'   => 'px',
-    ),
-    'tablet'  => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 0,
-        'left'   => 0,
-        'unit'   => 'px',
-    ),
-    'mobile'  => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 0,
-        'left'   => 0,
-        'unit'   => 'px',
-    ),
-);
+$separatorBorderRadius = isset( $attrs['separatorBorderRadius'] ) ? $attrs['separatorBorderRadius'] : digiblocks_get_default_dimensions('px');
 
 // Get textShadow settings
 $textShadow = isset( $attrs['textShadow'] ) ? $attrs['textShadow'] : array(
@@ -174,8 +152,8 @@ ob_start();
 	<?php if ( $backgroundColor ) : ?>
         background-color: <?php echo esc_attr( $backgroundColor ); ?>;
     <?php endif; ?>
-    padding: <?php echo esc_attr( $padding['desktop']['top'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['right'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['bottom'] . $padding['desktop']['unit'] . ' ' . $padding['desktop']['left'] . $padding['desktop']['unit'] ); ?>;
-    margin: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['right'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['bottom'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['left'] . $margin['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
     transition: all 0.3s ease;
 }
 
@@ -271,17 +249,6 @@ ob_start();
 <?php if ( $displaySeparator ) : ?>
 /* Enhanced Separator styles */
 <?php
-// Get border radius values for the separator
-$separator_border_radius = '';
-if ( isset( $separatorBorderRadius['desktop'] ) ) {
-    $separator_border_radius = $separatorBorderRadius['desktop']['top'] . $separatorBorderRadius['desktop']['unit'] . ' ' . 
-                              $separatorBorderRadius['desktop']['right'] . $separatorBorderRadius['desktop']['unit'] . ' ' . 
-                              $separatorBorderRadius['desktop']['bottom'] . $separatorBorderRadius['desktop']['unit'] . ' ' . 
-                              $separatorBorderRadius['desktop']['left'] . $separatorBorderRadius['desktop']['unit'];
-}
-?>
-
-<?php
 // Generate the right position styling based on alignment
 $position_css = 'bottom: 0;';
 if ( 'top' === $separatorPosition ) {
@@ -314,7 +281,7 @@ switch ( $separatorStyle ) :
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background-color: <?php echo esc_attr( $separatorColor ); ?>;
-    border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
@@ -328,7 +295,7 @@ switch ( $separatorStyle ) :
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background: linear-gradient(to right, <?php echo esc_attr( $separatorColor ); ?>, <?php echo esc_attr( $separatorSecondaryColor ); ?>, <?php echo esc_attr( $separatorColor ); ?>);
-    border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
@@ -342,7 +309,7 @@ switch ( $separatorStyle ) :
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background-color: <?php echo esc_attr( $separatorColor ); ?>;
-    border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php echo esc_attr( $spacing_margin ); ?>
 }
 
@@ -354,7 +321,7 @@ switch ( $separatorStyle ) :
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background-color: <?php echo esc_attr( $separatorSecondaryColor ); ?>;
-    border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php echo $separatorPosition === 'top' 
         ? "margin-top: " . esc_attr(($separatorSpacing['desktop'] + $separatorHeight['desktop'] + 3)) . "px;" 
         : "margin-bottom: " . esc_attr(($separatorSpacing['desktop'] + $separatorHeight['desktop'] + 3)) . "px;"; ?>
@@ -376,7 +343,7 @@ switch ( $separatorStyle ) :
         transparent 8px, 
         transparent 12px
     );
-    border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
@@ -396,7 +363,7 @@ switch ( $separatorStyle ) :
         transparent 3px, 
         transparent 6px
     );
-    border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
@@ -462,7 +429,7 @@ switch ( $separatorStyle ) :
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background-color: <?php echo esc_attr( $separatorColor ); ?>;
     box-shadow: 0 0 <?php echo esc_attr( $separatorHeight['desktop'] * 3 ); ?>px <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px <?php echo esc_attr( $separatorColor ); ?>;
-    border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
@@ -476,7 +443,7 @@ switch ( $separatorStyle ) :
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background: linear-gradient(to right, transparent, <?php echo esc_attr( $separatorColor ); ?>, transparent);
-    border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php break;
@@ -490,7 +457,7 @@ switch ( $separatorStyle ) :
     width: <?php echo esc_attr( $separatorWidth['desktop'] ); ?>px;
     height: <?php echo esc_attr( $separatorHeight['desktop'] ); ?>px;
     background-color: <?php echo esc_attr( $separatorColor ); ?>;
-    border-radius: <?php echo esc_attr( $separator_border_radius ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php echo esc_attr( $spacing_margin ); ?>
 }
 <?php endswitch; ?>
@@ -500,8 +467,8 @@ switch ( $separatorStyle ) :
 /* Tablet Styles */
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
-        padding: <?php echo esc_attr( $padding['tablet']['top'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['right'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['bottom'] . $padding['tablet']['unit'] . ' ' . $padding['tablet']['left'] . $padding['tablet']['unit'] ); ?>;
-        margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
     }
     
     <?php if ( isset( $typography['fontSize']['tablet'] ) ) : ?>
@@ -525,14 +492,6 @@ switch ( $separatorStyle ) :
         ? "margin-top: {$separatorSpacing['tablet']}px;" 
         : "margin-bottom: {$separatorSpacing['tablet']}px;";
         
-    $tablet_border_radius = '';
-    if ( isset( $separatorBorderRadius['tablet'] ) ) {
-        $tablet_border_radius = $separatorBorderRadius['tablet']['top'] . $separatorBorderRadius['tablet']['unit'] . ' ' . 
-                               $separatorBorderRadius['tablet']['right'] . $separatorBorderRadius['tablet']['unit'] . ' ' . 
-                               $separatorBorderRadius['tablet']['bottom'] . $separatorBorderRadius['tablet']['unit'] . ' ' . 
-                               $separatorBorderRadius['tablet']['left'] . $separatorBorderRadius['tablet']['unit'];
-    }
-    
     // Different styles for tablet size
     switch ( $separatorStyle ) :
         case 'line-solid':
@@ -544,7 +503,7 @@ switch ( $separatorStyle ) :
     .<?php echo esc_attr( $id ); ?>::before {
         width: <?php echo esc_attr( $separatorWidth['tablet'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['tablet'] ); ?>px;
-        border-radius: <?php echo esc_attr( $tablet_border_radius ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'tablet' ) ); ?>
         <?php echo esc_attr($tablet_spacing); ?>
     }
     <?php break;
@@ -553,14 +512,14 @@ switch ( $separatorStyle ) :
     .<?php echo esc_attr( $id ); ?>::before {
         width: <?php echo esc_attr( $separatorWidth['tablet'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['tablet'] ); ?>px;
-        border-radius: <?php echo esc_attr( $tablet_border_radius ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'tablet' ) ); ?>
         <?php echo esc_attr($tablet_spacing); ?>
     }
     
     .<?php echo esc_attr( $id ); ?>::after {
         width: <?php echo esc_attr( $separatorWidth['tablet'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['tablet'] ); ?>px;
-        border-radius: <?php echo esc_attr( $tablet_border_radius ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'tablet' ) ); ?>
         <?php echo $separatorPosition === 'top' 
             ? "margin-top: " . esc_attr(($separatorSpacing['tablet'] + $separatorHeight['tablet'] + 3)) . "px;" 
             : "margin-bottom: " . esc_attr(($separatorSpacing['tablet'] + $separatorHeight['tablet'] + 3)) . "px;"; ?>
@@ -592,8 +551,8 @@ switch ( $separatorStyle ) :
 /* Mobile Styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
-        padding: <?php echo esc_attr( $padding['mobile']['top'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['right'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['bottom'] . $padding['mobile']['unit'] . ' ' . $padding['mobile']['left'] . $padding['mobile']['unit'] ); ?>;
-        margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?>
     }
     
     <?php if ( isset( $typography['fontSize']['mobile'] ) ) : ?>
@@ -617,14 +576,6 @@ switch ( $separatorStyle ) :
         ? "margin-top: {$separatorSpacing['mobile']}px;" 
         : "margin-bottom: {$separatorSpacing['mobile']}px;";
         
-    $mobile_border_radius = '';
-    if ( isset( $separatorBorderRadius['mobile'] ) ) {
-        $mobile_border_radius = $separatorBorderRadius['mobile']['top'] . $separatorBorderRadius['mobile']['unit'] . ' ' . 
-                               $separatorBorderRadius['mobile']['right'] . $separatorBorderRadius['mobile']['unit'] . ' ' . 
-                               $separatorBorderRadius['mobile']['bottom'] . $separatorBorderRadius['mobile']['unit'] . ' ' . 
-                               $separatorBorderRadius['mobile']['left'] . $separatorBorderRadius['mobile']['unit'];
-    }
-    
     // Different styles for mobile size
     switch ( $separatorStyle ) :
         case 'line-solid':
@@ -636,7 +587,7 @@ switch ( $separatorStyle ) :
     .<?php echo esc_attr( $id ); ?>::before {
         width: <?php echo esc_attr( $separatorWidth['mobile'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['mobile'] ); ?>px;
-        border-radius: <?php echo esc_attr( $mobile_border_radius ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'mobile' ) ); ?>
         <?php echo esc_attr($mobile_spacing); ?>
     }
     <?php break;
@@ -645,14 +596,14 @@ switch ( $separatorStyle ) :
     .<?php echo esc_attr( $id ); ?>::before {
         width: <?php echo esc_attr( $separatorWidth['mobile'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['mobile'] ); ?>px;
-        border-radius: <?php echo esc_attr( $mobile_border_radius ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'mobile' ) ); ?>
         <?php echo esc_attr($mobile_spacing); ?>
     }
     
     .<?php echo esc_attr( $id ); ?>::after {
         width: <?php echo esc_attr( $separatorWidth['mobile'] ); ?>px;
         height: <?php echo esc_attr( $separatorHeight['mobile'] ); ?>px;
-        border-radius: <?php echo esc_attr( $mobile_border_radius ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $separatorBorderRadius, 'border-radius', 'mobile' ) ); ?>
         <?php echo $separatorPosition === 'top' 
             ? "margin-top: " . esc_attr(($separatorSpacing['mobile'] + $separatorHeight['mobile'] + 3)) . "px;" 
             : "margin-bottom: " . esc_attr(($separatorSpacing['mobile'] + $separatorHeight['mobile'] + 3)) . "px;"; ?>

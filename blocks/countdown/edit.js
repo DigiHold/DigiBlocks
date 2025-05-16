@@ -26,7 +26,7 @@ const { useState, useEffect, useRef } = wp.element;
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
 const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
@@ -107,8 +107,15 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
     }, []);
     
     // State for active tab
-    const [activeTab, setActiveTab] = useState("options");
-    
+    const [activeTab, setActiveTab] = useState(() => {
+		// Try to get the saved tab for this block
+		if (window.digi.uiState) {
+			const savedTab = window.digi.uiState.getActiveTab(clientId);
+			if (savedTab) return savedTab;
+		}
+		return "options"; // Default fallback
+	});
+
     // State for active style tab
     const [activeStyleTab, setActiveStyleTab] = useState("normal");
     
@@ -278,10 +285,6 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
         const activeDevice = localActiveDevice;
         
         // Get device-specific values
-        const currentBoxPadding = boxPadding && boxPadding[activeDevice] ? boxPadding[activeDevice] : { top: 10, right: 10, bottom: 10, left: 10, unit: 'px' };
-        const currentBoxMargin = boxMargin && boxMargin[activeDevice] ? boxMargin[activeDevice] : { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' };
-        const currentBoxBorderRadius = boxBorderRadius && boxBorderRadius[activeDevice] ? boxBorderRadius[activeDevice] : { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' };
-        const currentBoxBorderWidth = boxBorderWidth && boxBorderWidth[activeDevice] ? boxBorderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' };
         const currentItemSpacing = itemSpacing && itemSpacing[activeDevice] !== undefined ? itemSpacing[activeDevice] : 20;
         const currentLabelSpacing = labelSpacing && labelSpacing[activeDevice] !== undefined ? labelSpacing[activeDevice] : 5;
         
@@ -362,8 +365,8 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                         .${id} .digiblocks-countdown-item-inner {
                             background-color: ${digitBackground || '#f0f0f0'};
                             color: ${digitColor || '#333333'};
-                            border-radius: ${currentBoxBorderRadius.top}${currentBoxBorderRadius.unit} ${currentBoxBorderRadius.right}${currentBoxBorderRadius.unit} ${currentBoxBorderRadius.bottom}${currentBoxBorderRadius.unit} ${currentBoxBorderRadius.left}${currentBoxBorderRadius.unit};
-                            padding: ${currentBoxPadding.top}${currentBoxPadding.unit} ${currentBoxPadding.right}${currentBoxPadding.unit} ${currentBoxPadding.bottom}${currentBoxPadding.unit} ${currentBoxPadding.left}${currentBoxPadding.unit};
+							${getDimensionCSS(boxPadding, 'padding', activeDevice)}
+							${getDimensionCSS(boxBorderRadius, 'border-radius', activeDevice)}
                             ${boxShadowCSS}
                         }
                         .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
@@ -378,9 +381,12 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                         .${id} .digiblocks-countdown-item-inner {
                             background-color: transparent;
                             color: ${digitColor || '#333333'};
-                            border: ${currentBoxBorderWidth.top}${currentBoxBorderWidth.unit} solid ${boxBorderColor || '#e0e0e0'};
-                            border-radius: ${currentBoxBorderRadius.top}${currentBoxBorderRadius.unit} ${currentBoxBorderRadius.right}${currentBoxBorderRadius.unit} ${currentBoxBorderRadius.bottom}${currentBoxBorderRadius.unit} ${currentBoxBorderRadius.left}${currentBoxBorderRadius.unit};
-                            padding: ${currentBoxPadding.top}${currentBoxPadding.unit} ${currentBoxPadding.right}${currentBoxPadding.unit} ${currentBoxPadding.bottom}${currentBoxPadding.unit} ${currentBoxPadding.left}${currentBoxPadding.unit};
+							${getDimensionCSS(boxPadding, 'padding', activeDevice)}
+							border-style: solid;
+							${getDimensionCSS(boxBorderWidth, 'border-width', activeDevice)}
+							border-color: ${boxBorderColor || '#e0e0e0'};
+							${getDimensionCSS(boxBorderRadius, 'border-radius', activeDevice)}
+							${getDimensionCSS(boxPadding, 'padding', activeDevice)}
                             ${boxShadowCSS}
                         }
                         .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
@@ -396,7 +402,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                             background-color: ${digitBackground || '#f0f0f0'};
                             color: ${digitColor || '#333333'};
                             border-radius: 50px;
-                            padding: ${currentBoxPadding.top}${currentBoxPadding.unit} ${currentBoxPadding.right}${currentBoxPadding.unit} ${currentBoxPadding.bottom}${currentBoxPadding.unit} ${currentBoxPadding.left}${currentBoxPadding.unit};
+							${getDimensionCSS(boxPadding, 'padding', activeDevice)}
                             ${boxShadowCSS}
                         }
                         .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
@@ -412,7 +418,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                             background-color: ${digitBackground || '#f0f0f0'};
                             color: ${digitColor || '#333333'};
                             border-radius: 8px;
-                            padding: ${currentBoxPadding.top}${currentBoxPadding.unit} ${currentBoxPadding.right}${currentBoxPadding.unit} ${currentBoxPadding.bottom}${currentBoxPadding.unit} ${currentBoxPadding.left}${currentBoxPadding.unit};
+							${getDimensionCSS(boxPadding, 'padding', activeDevice)}
                             ${boxShadowCSS}
                         }
                         .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
@@ -432,7 +438,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                             display: flex;
                             justify-content: center;
                             align-items: center;
-                            padding: ${currentBoxPadding.top}${currentBoxPadding.unit} ${currentBoxPadding.right}${currentBoxPadding.unit} ${currentBoxPadding.bottom}${currentBoxPadding.unit} ${currentBoxPadding.left}${currentBoxPadding.unit};
+							${getDimensionCSS(boxPadding, 'padding', activeDevice)}
                             ${boxShadowCSS}
                         }
                         .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
@@ -578,7 +584,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
         return `
             /* Countdown Block - ${id} */
             .${id} {
-                margin: ${currentBoxMargin.top}${currentBoxMargin.unit} ${currentBoxMargin.right}${currentBoxMargin.unit} ${currentBoxMargin.bottom}${currentBoxMargin.unit} ${currentBoxMargin.left}${currentBoxMargin.unit};
+				${getDimensionCSS(boxMargin, 'margin', activeDevice)}
                 text-align: ${align};
                 display: block;
             }

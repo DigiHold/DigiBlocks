@@ -6,6 +6,7 @@
 .block-editor-block-list__block[data-type="digiblocks/container"] {
     position: relative;
     min-height: 100px;
+    padding: 10px;
     display: flex;
     border: 1px dashed #ddd;
     justify-content: center;
@@ -35,6 +36,7 @@
 .block-editor-block-list__block[data-type="digiblocks/column"] {
     position: relative;
     min-height: 50px;
+    padding: 10px;
     border: 1px dashed #ddd;
 }
 

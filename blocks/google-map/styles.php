@@ -28,63 +28,56 @@ $borderWidth            = isset($attrs['borderWidth']) ? $attrs['borderWidth'] :
         'unit' => 'px'
     ),
     'tablet' => array(
-        'top' => 1,
-        'right' => 1,
-        'bottom' => 1,
-        'left' => 1,
+        'top' => '',
+        'right' => '',
+        'bottom' => '',
+        'left' => '',
         'unit' => 'px'
     ),
     'mobile' => array(
-        'top' => 1,
-        'right' => 1,
-        'bottom' =>
-        1,
-        'left' => 1,
+        'top' => '',
+        'right' => '',
+        'bottom' => '',
+        'left' => '',
         'unit' => 'px'
     )
 );
-$borderRadius           = isset($attrs['borderRadius']) ? $attrs['borderRadius'] : array(
-    'desktop' => array(
-        'top' => 0,
-        'right' => 0,
-        'bottom' => 0,
-        'left' => 0,
-        'unit' => 'px'
-    ),
-    'tablet' => array(
-        'top' => 0,
-        'right' => 0,
-        'bottom' => 0,
-        'left' => 0,
-        'unit' => 'px'
-    ),
-    'mobile' => array(
-        'top' => 0,
-        'right' => 0,
-        'bottom' => 0,
-        'left' => 0,
-        'unit' => 'px'
-    )
-);
+$borderRadius           = isset($attrs['borderRadius']) ? $attrs['borderRadius'] : digiblocks_get_default_dimensions('px');
 $borderColor            = isset($attrs['borderColor']) ? $attrs['borderColor'] : '#e0e0e0';
-$boxShadow              = isset($attrs['boxShadow']) ? $attrs['boxShadow'] : array(
-    'enable' => false,
-    'color' => 'rgba(0, 0, 0, 0.2)',
+
+// Box shadow
+$boxShadow = isset( $attrs['boxShadow'] ) ? $attrs['boxShadow'] : array(
+    'enable'     => false,
+    'color'      => 'rgba(0, 0, 0, 0.1)',
     'horizontal' => 0,
-    'vertical' => 0,
-    'blur' => 0,
-    'spread' => 0,
-    'position' => 'outset'
+    'vertical'   => 0,
+    'blur'       => 0,
+    'spread'     => 0,
+    'position'   => 'outset',
 );
-$boxShadowHover         = isset($attrs['boxShadowHover']) ? $attrs['boxShadowHover'] : array(
-    'enable' => false,
-    'color' => 'rgba(0, 0, 0, 0.2)',
+
+$boxShadowHover = isset( $attrs['boxShadowHover'] ) ? $attrs['boxShadowHover'] : array(
+    'enable'     => false,
+    'color'      => 'rgba(0, 0, 0, 0.2)',
     'horizontal' => 0,
-    'vertical' => 0,
-    'blur' => 0,
-    'spread' => 0,
-    'position' => 'outset'
+    'vertical'   => 0,
+    'blur'       => 0,
+    'spread'     => 0,
+    'position'   => 'outset',
 );
+
+// Get box shadow CSS
+$box_shadow_css = 'none';
+if ( $boxShadow['enable'] ) {
+    $position = $boxShadow['position'] === 'inset' ? 'inset ' : '';
+    $box_shadow_css = $position . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'];
+}
+
+$box_shadow_hover_css = 'none';
+if ( $boxShadowHover['enable'] ) {
+    $position = $boxShadowHover['position'] === 'inset' ? 'inset ' : '';
+    $box_shadow_hover_css = $position . $boxShadowHover['horizontal'] . 'px ' . $boxShadowHover['vertical'] . 'px ' . $boxShadowHover['blur'] . 'px ' . $boxShadowHover['spread'] . 'px ' . $boxShadowHover['color'];
+}
 
 // CSS Output
 ob_start();
@@ -98,35 +91,19 @@ ob_start();
     <?php if ($borderStyle !== 'none') : ?>
         border-style: <?php echo esc_attr($borderStyle); ?>;
         border-color: <?php echo esc_attr($borderColor); ?>;
-        border-width: <?php echo esc_attr($borderWidth['desktop']['top'] . $borderWidth['desktop']['unit'] . ' ' 
-            . $borderWidth['desktop']['right'] . $borderWidth['desktop']['unit'] . ' ' 
-            . $borderWidth['desktop']['bottom'] . $borderWidth['desktop']['unit'] . ' ' 
-            . $borderWidth['desktop']['left'] . $borderWidth['desktop']['unit']); ?>;
-        border-radius: <?php echo esc_attr($borderRadius['desktop']['top'] . $borderRadius['desktop']['unit'] . ' ' 
-            . $borderRadius['desktop']['right'] . $borderRadius['desktop']['unit'] . ' ' 
-            . $borderRadius['desktop']['bottom'] . $borderRadius['desktop']['unit'] . ' ' 
-            . $borderRadius['desktop']['left'] . $borderRadius['desktop']['unit']); ?>;
+        <?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'desktop' ) ); ?>
+        <?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
     <?php endif; ?>
     
-    <?php if (isset($boxShadow['enable']) && $boxShadow['enable']) : ?>
-        box-shadow: <?php echo esc_attr(($boxShadow['position'] === 'inset' ? 'inset ' : '') 
-            . $boxShadow['horizontal'] . 'px ' 
-            . $boxShadow['vertical'] . 'px ' 
-            . $boxShadow['blur'] . 'px ' 
-            . $boxShadow['spread'] . 'px ' 
-            . $boxShadow['color']); ?>;
+    <?php if ($boxShadow['enable']) : ?>
+        box-shadow: <?php echo esc_attr( $box_shadow_css ); ?>;
 		transition: all .3s ease;
     <?php endif; ?>
 }
 
-<?php if (isset($boxShadowHover['enable']) && $boxShadowHover['enable']) : ?>
+<?php if ($boxShadowHover['enable']) : ?>
 .<?php echo esc_attr($id); ?>:hover {
-    box-shadow: <?php echo esc_attr(($boxShadowHover['position'] === 'inset' ? 'inset ' : '') 
-		. $boxShadowHover['horizontal'] . 'px ' 
-		. $boxShadowHover['vertical'] . 'px ' 
-		. $boxShadowHover['blur'] . 'px ' 
-		. $boxShadowHover['spread'] . 'px ' 
-		. $boxShadowHover['color']); ?>;
+    box-shadow: <?php echo esc_attr( $box_shadow_hover_css ); ?>;
 }
 <?php endif; ?>
 
@@ -141,14 +118,8 @@ ob_start();
         height: <?php echo esc_attr(isset($mapHeight['tablet']) ? $mapHeight['tablet'] : 350); ?>px;
         
         <?php if ($borderStyle !== 'none' && isset($borderWidth['tablet']) && isset($borderRadius['tablet'])) : ?>
-            border-width: <?php echo esc_attr($borderWidth['tablet']['top'] . $borderWidth['tablet']['unit'] . ' ' 
-                . $borderWidth['tablet']['right'] . $borderWidth['tablet']['unit'] . ' ' 
-                . $borderWidth['tablet']['bottom'] . $borderWidth['tablet']['unit'] . ' ' 
-                . $borderWidth['tablet']['left'] . $borderWidth['tablet']['unit']); ?>;
-            border-radius: <?php echo esc_attr($borderRadius['tablet']['top'] . $borderRadius['tablet']['unit'] . ' ' 
-                . $borderRadius['tablet']['right'] . $borderRadius['tablet']['unit'] . ' ' 
-                . $borderRadius['tablet']['bottom'] . $borderRadius['tablet']['unit'] . ' ' 
-                . $borderRadius['tablet']['left'] . $borderRadius['tablet']['unit']); ?>;
+            <?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'tablet' ) ); ?>
+        	<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?>
         <?php endif; ?>
     }
 }
@@ -159,14 +130,8 @@ ob_start();
         height: <?php echo esc_attr(isset($mapHeight['mobile']) ? $mapHeight['mobile'] : 300); ?>px;
         
         <?php if ($borderStyle !== 'none' && isset($borderWidth['mobile']) && isset($borderRadius['mobile'])) : ?>
-            border-width: <?php echo esc_attr($borderWidth['mobile']['top'] . $borderWidth['mobile']['unit'] . ' ' 
-                . $borderWidth['mobile']['right'] . $borderWidth['mobile']['unit'] . ' ' 
-                . $borderWidth['mobile']['bottom'] . $borderWidth['mobile']['unit'] . ' ' 
-                . $borderWidth['mobile']['left'] . $borderWidth['mobile']['unit']); ?>;
-            border-radius: <?php echo esc_attr($borderRadius['mobile']['top'] . $borderRadius['mobile']['unit'] . ' ' 
-                . $borderRadius['mobile']['right'] . $borderRadius['mobile']['unit'] . ' ' 
-                . $borderRadius['mobile']['bottom'] . $borderRadius['mobile']['unit'] . ' ' 
-                . $borderRadius['mobile']['left'] . $borderRadius['mobile']['unit']); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'mobile' ) ); ?>
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'mobile' ) ); ?>
         <?php endif; ?>
     }
 }

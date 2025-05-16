@@ -65,17 +65,17 @@ $borderRadius = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : array
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 8,
-		'right'  => 8,
-		'bottom' => 8,
-		'left'   => 8,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 8,
-		'right'  => 8,
-		'bottom' => 8,
-		'left'   => 8,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -210,7 +210,7 @@ ob_start();
 ?>
 /* Table Block - <?php echo esc_attr( $id ); ?> */
 .<?php echo esc_attr( $id ); ?> {
-    margin: <?php echo esc_attr( $margin['desktop']['top'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['right'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['bottom'] . $margin['desktop']['unit'] . ' ' . $margin['desktop']['left'] . $margin['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
     
     <?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
         box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadow ) ); ?>;
@@ -218,9 +218,7 @@ ob_start();
     <?php else : ?>
         box-shadow: none;
     <?php endif; ?>
-    
-    border-radius: <?php echo esc_attr( $borderRadius['desktop']['top'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['right'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['bottom'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['left'] . $borderRadius['desktop']['unit'] ); ?>;
-    
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
     width: 100%;
     overflow: hidden;
 }
@@ -278,8 +276,7 @@ ob_start();
     <?php else : ?>
         border: none;
     <?php endif; ?>
-    
-    border-radius: <?php echo esc_attr( $borderRadius['desktop']['top'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['right'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['bottom'] . $borderRadius['desktop']['unit'] . ' ' . $borderRadius['desktop']['left'] . $borderRadius['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
 }
 
 /* Table header styles */
@@ -318,9 +315,7 @@ ob_start();
     <?php if ( ! empty( $headerTypography['letterSpacing']['desktop'] ) ) : ?>
         letter-spacing: <?php echo esc_attr( $headerTypography['letterSpacing']['desktop'] . ( $headerTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
     <?php endif; ?>
-    
-    padding: <?php echo esc_attr( $cellPadding['desktop']['top'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['right'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['bottom'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['left'] . $cellPadding['desktop']['unit'] ); ?>;
-    
+	<?php echo esc_attr( digiblocks_get_dimensions( $cellPadding, 'padding', 'desktop' ) ); ?>    
     vertical-align: middle;
     border: <?php echo esc_attr( $tableBorderWidth ); ?>px <?php echo esc_attr( $tableBorderStyle ); ?> <?php echo esc_attr( $tableBorderColor ); ?>;
 }
@@ -338,7 +333,7 @@ ob_start();
 /* Table body styles */
 .<?php echo esc_attr( $id ); ?> .digiblocks-table tbody td {
     background-color: <?php echo esc_attr( $bodyBackgroundColor ); ?>;
-    padding: <?php echo esc_attr( $cellPadding['desktop']['top'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['right'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['bottom'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['left'] . $cellPadding['desktop']['unit'] ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $cellPadding, 'padding', 'desktop' ) ); ?> 
     vertical-align: middle;
     border: <?php echo esc_attr( $tableBorderWidth ); ?>px <?php echo esc_attr( $tableBorderStyle ); ?> <?php echo esc_attr( $tableBorderColor ); ?>;
 }
@@ -435,9 +430,7 @@ ob_start();
     <?php if ( ! empty( $footerTypography['letterSpacing']['desktop'] ) ) : ?>
         letter-spacing: <?php echo esc_attr( $footerTypography['letterSpacing']['desktop'] . ( $footerTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
     <?php endif; ?>
-    
-    padding: <?php echo esc_attr( $cellPadding['desktop']['top'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['right'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['bottom'] . $cellPadding['desktop']['unit'] . ' ' . $cellPadding['desktop']['left'] . $cellPadding['desktop']['unit'] ); ?>;
-    
+	<?php echo esc_attr( digiblocks_get_dimensions( $cellPadding, 'padding', 'desktop' ) ); ?>     
     text-align: <?php echo esc_attr( $footerAlignment ); ?>;
     vertical-align: middle;
     border: <?php echo esc_attr( $tableBorderWidth ); ?>px <?php echo esc_attr( $tableBorderStyle ); ?> <?php echo esc_attr( $tableBorderColor ); ?>;
@@ -485,17 +478,17 @@ ob_start();
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
         <?php if ( isset( $margin['tablet'] ) ) : ?>
-            margin: <?php echo esc_attr( $margin['tablet']['top'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['right'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['bottom'] . $margin['tablet']['unit'] . ' ' . $margin['tablet']['left'] . $margin['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?> 
         <?php endif; ?>
         
         <?php if ( isset( $borderRadius['tablet'] ) ) : ?>
-            border-radius: <?php echo esc_attr( $borderRadius['tablet']['top'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['right'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['bottom'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['left'] . $borderRadius['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?> 
         <?php endif; ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-table {
         <?php if ( isset( $borderRadius['tablet'] ) ) : ?>
-            border-radius: <?php echo esc_attr( $borderRadius['tablet']['top'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['right'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['bottom'] . $borderRadius['tablet']['unit'] . ' ' . $borderRadius['tablet']['left'] . $borderRadius['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?> 
         <?php endif; ?>
         
         <?php if ( isset( $textTypography['fontSize']['tablet'] ) ) : ?>
@@ -511,7 +504,7 @@ ob_start();
     .<?php echo esc_attr( $id ); ?> .digiblocks-table tbody td,
     .<?php echo esc_attr( $id ); ?> .digiblocks-table tfoot td {
         <?php if ( isset( $cellPadding['tablet'] ) ) : ?>
-            padding: <?php echo esc_attr( $cellPadding['tablet']['top'] . $cellPadding['tablet']['unit'] . ' ' . $cellPadding['tablet']['right'] . $cellPadding['tablet']['unit'] . ' ' . $cellPadding['tablet']['bottom'] . $cellPadding['tablet']['unit'] . ' ' . $cellPadding['tablet']['left'] . $cellPadding['tablet']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $cellPadding, 'padding', 'tablet' ) ); ?> 
         <?php endif; ?>
     }
     
@@ -554,17 +547,17 @@ ob_start();
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
         <?php if ( isset( $margin['mobile'] ) ) : ?>
-            margin: <?php echo esc_attr( $margin['mobile']['top'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['right'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['bottom'] . $margin['mobile']['unit'] . ' ' . $margin['mobile']['left'] . $margin['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?> 
         <?php endif; ?>
         
         <?php if ( isset( $borderRadius['mobile'] ) ) : ?>
-            border-radius: <?php echo esc_attr( $borderRadius['mobile']['top'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['right'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['bottom'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['left'] . $borderRadius['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'mobile' ) ); ?> 
         <?php endif; ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-table {
         <?php if ( isset( $borderRadius['mobile'] ) ) : ?>
-            border-radius: <?php echo esc_attr( $borderRadius['mobile']['top'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['right'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['bottom'] . $borderRadius['mobile']['unit'] . ' ' . $borderRadius['mobile']['left'] . $borderRadius['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'mobile' ) ); ?> 
         <?php endif; ?>
         
         <?php if ( isset( $textTypography['fontSize']['mobile'] ) ) : ?>
@@ -580,7 +573,7 @@ ob_start();
     .<?php echo esc_attr( $id ); ?> .digiblocks-table tbody td,
     .<?php echo esc_attr( $id ); ?> .digiblocks-table tfoot td {
         <?php if ( isset( $cellPadding['mobile'] ) ) : ?>
-            padding: <?php echo esc_attr( $cellPadding['mobile']['top'] . $cellPadding['mobile']['unit'] . ' ' . $cellPadding['mobile']['right'] . $cellPadding['mobile']['unit'] . ' ' . $cellPadding['mobile']['bottom'] . $cellPadding['mobile']['unit'] . ' ' . $cellPadding['mobile']['left'] . $cellPadding['mobile']['unit'] ); ?>;
+			<?php echo esc_attr( digiblocks_get_dimensions( $cellPadding, 'padding', 'mobile' ) ); ?> 
         <?php endif; ?>
     }
     

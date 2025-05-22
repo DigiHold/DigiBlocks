@@ -341,6 +341,12 @@ body.rtl .digiblocks-admin-wrap {
     line-height: 1.5;
 }
 
+.digiblocks-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
 .digiblocks-form-flex {
     display: flex;
     gap: 1.5rem;
@@ -376,6 +382,7 @@ body.rtl .digiblocks-admin-wrap {
 }
 
 .digiblocks-form-field input[type="text"],
+.digiblocks-form-field input[type="url"],
 .digiblocks-form-field input[type="number"],
 .digiblocks-form-field input[type="password"],
 .digiblocks-form-field select,

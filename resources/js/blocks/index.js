@@ -43,6 +43,8 @@ import ImageEdit from '../../../blocks/image/edit';
 import ImageSave from '../../../blocks/image/save';
 import LottieEdit from '../../../blocks/lottie/edit';
 import LottieSave from '../../../blocks/lottie/save';
+import NewsletterEdit from '../../../blocks/newsletter/edit';
+import NewsletterSave from '../../../blocks/newsletter/save';
 import PostsEdit from '../../../blocks/posts/edit';
 import PostsSave from '../../../blocks/posts/save';
 import PricingTableEdit from '../../../blocks/pricing-table/edit';
@@ -71,16 +73,45 @@ import NavigationEdit from '../../../blocks/navigation/edit';
 import NavigationSave from '../../../blocks/navigation/save';
 import LoginLinkEdit from '../../../blocks/login-link/edit';
 import LoginLinkSave from '../../../blocks/login-link/save';
+import PageTitleEdit from '../../../blocks/page-title/edit';
+import PageTitleSave from '../../../blocks/page-title/save';
+import BreadcrumbsEdit from '../../../blocks/breadcrumbs/edit';
+import BreadcrumbsSave from '../../../blocks/breadcrumbs/save';
+import FeaturedImageEdit from '../../../blocks/featured-image/edit';
+import FeaturedImageSave from '../../../blocks/featured-image/save';
+import PostMetaEdit from '../../../blocks/post-meta/edit';
+import PostMetaSave from '../../../blocks/post-meta/save';
+import PostContentEdit from '../../../blocks/post-content/edit';
+import PostContentSave from '../../../blocks/post-content/save';
+import PostNavigationEdit from '../../../blocks/post-navigation/edit';
+import PostNavigationSave from '../../../blocks/post-navigation/save';
+import SocialShareEdit from '../../../blocks/social-share/edit';
+import SocialShareSave from '../../../blocks/social-share/save';
+import TableOfContentsEdit from '../../../blocks/table-of-contents/edit';
+import TableOfContentsSave from '../../../blocks/table-of-contents/save';
+import AuthorBoxEdit from '../../../blocks/author-box/edit';
+import AuthorBoxSave from '../../../blocks/author-box/save';
+import RelatedPostsEdit from '../../../blocks/related-posts/edit';
+import RelatedPostsSave from '../../../blocks/related-posts/save';
+import PostCommentsEdit from '../../../blocks/post-comments/edit';
+import PostCommentsSave from '../../../blocks/post-comments/save';
+import CopyrightEdit from '../../../blocks/copyright/edit';
+import CopyrightSave from '../../../blocks/copyright/save';
 
 /**
- * Register blocks based on their status
+ * Checks if a block is active
+ * 
+ * @param {string} blockName The name of the block to check
+ * @return {boolean} Whether the block is active
  */
 const getBlockActiveStatus = (blockName) => {
-    // Check if digiBlocksData.activeBlocks exists and has this block info
-    if (digiBlocksData.activeBlocks && typeof digiBlocksData.activeBlocks[blockName] !== 'undefined') {
-        return digiBlocksData.activeBlocks[blockName];
+    // Check if block is in the inactive list
+    if (digiBlocksData.inactiveBlocks && typeof digiBlocksData.inactiveBlocks[blockName] !== 'undefined' && 
+        digiBlocksData.inactiveBlocks[blockName] === true) {
+        return false;
     }
-    // Default to active if not specified
+    
+    // By default, all blocks are active
     return true;
 };
 
@@ -125,6 +156,14 @@ registerBlockType('digiblocks/column', {
             type: 'string',
             default: '',
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         width: {
             type: 'object',
             default: {
@@ -286,6 +325,14 @@ registerBlockType('digiblocks/container', {
             type: 'string',
             default: '',
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
 		flexWrap: {
 			type: 'object',
 			default: {
@@ -572,6 +619,14 @@ registerBlockType('digiblocks/accordion', {
 			type: 'string',
 			default: ''
 		},
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
 		customClasses: {
 			type: 'string',
 			default: ''
@@ -819,6 +874,14 @@ registerBlockType('digiblocks/buttons', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -896,6 +959,14 @@ registerBlockType('digiblocks/button', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -1083,6 +1154,14 @@ registerBlockType('digiblocks/call-to-action', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -1368,6 +1447,14 @@ registerBlockType('digiblocks/countdown', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -1648,6 +1735,14 @@ registerBlockType('digiblocks/counter', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -2082,6 +2177,14 @@ if ( isDigiActive() ) {
                 type: 'string',
                 default: ''
             },
+			visibility: {
+				type: 'object',
+				default: {
+					desktop: false,
+					tablet: false,
+					mobile: false
+				}
+			},
             customClasses: {
                 type: 'string',
                 default: ''
@@ -2506,6 +2609,14 @@ registerBlockType('digiblocks/faq', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -2799,6 +2910,14 @@ registerBlockType('digiblocks/forms', {
 		},
         anchor: {
 			type: 'string'
+		},
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
 		},
         customClasses: {
 			type: 'string'
@@ -3136,6 +3255,14 @@ registerBlockType('digiblocks/google-map', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -3299,6 +3426,14 @@ registerBlockType('digiblocks/heading', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -3307,9 +3442,9 @@ registerBlockType('digiblocks/heading', {
             type: 'string',
             default: __('Add Your Heading', 'digiblocks')
         },
-        level: {
-            type: 'number',
-            default: 2
+        headingTag: {
+            type: 'string',
+            default: 'h2'
         },
         textColor: {
             type: 'string',
@@ -3344,8 +3479,12 @@ registerBlockType('digiblocks/heading', {
             }
         },
         align: {
-            type: 'string',
-            default: 'left'
+            type: 'object',
+            default: {
+                desktop: 'left',
+                tablet: 'left',
+                mobile: 'left'
+            }
         },
         padding: {
             type: 'object',
@@ -3516,6 +3655,14 @@ registerBlockType('digiblocks/icon', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -3536,6 +3683,14 @@ registerBlockType('digiblocks/icon', {
                 svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"></path></svg>',
                 style: 'solid',
                 categories: ['symbols', 'emoji']
+            }
+        },
+		align: {
+            type: 'object',
+            default: {
+                desktop: 'flex-start',
+                tablet: '',
+                mobile: ''
             }
         },
         iconColor: {
@@ -3629,10 +3784,6 @@ registerBlockType('digiblocks/icon', {
         backgroundHoverColor: {
             type: 'string',
             default: ''
-        },
-        align: {
-            type: 'string',
-            default: 'center'
         },
         animation: {
             type: 'string',
@@ -3798,6 +3949,14 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'string',
 			default: ''
 		},
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
 		customClasses: {
 			type: 'string',
 			default: ''
@@ -3813,6 +3972,30 @@ registerBlockType('digiblocks/icon-box', {
 		iconValue: {
 			type: 'object',
 			default: null
+		},
+		align: {
+			type: 'object',
+			default: {
+				desktop: 'center',
+				tablet: 'center',
+				mobile: 'center'
+			}
+		},
+		iconLayout: {
+			type: 'object',
+			default: {
+				desktop: 'above',
+				tablet: 'above',
+				mobile: 'above'
+			}
+		},
+		iconContentGap: {
+			type: 'object',
+			default: {
+				desktop: { value: 20, unit: 'px' },
+				tablet: { value: 15, unit: 'px' },
+				mobile: { value: 10, unit: 'px' }
+			}
 		},
 		showTitle: {
 			type: 'boolean',
@@ -3897,9 +4080,9 @@ registerBlockType('digiblocks/icon-box', {
 		iconMargin: {
 			type: 'object',
 			default: {
-				desktop: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' },
-				tablet: { top: 0, right: 0, bottom: 15, left: 0, unit: 'px' },
-				mobile: { top: 0, right: 0, bottom: 10, left: 0, unit: 'px' }
+				desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 			}
 		},
 		iconHoverColor: {
@@ -4130,10 +4313,6 @@ registerBlockType('digiblocks/icon-box', {
 				}
 			}
 		},
-		align: {
-			type: 'string',
-			default: 'center'
-		},
 		animation: {
 			type: 'string',
 			default: 'none'
@@ -4283,6 +4462,14 @@ registerBlockType('digiblocks/icon-list', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -4593,6 +4780,14 @@ registerBlockType('digiblocks/image', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -4821,6 +5016,14 @@ registerBlockType('digiblocks/lottie', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -4963,6 +5166,425 @@ registerBlockType('digiblocks/lottie', {
 });
 
 /**
+ * Register Newsletter block
+ */
+registerBlockType('digiblocks/newsletter', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['newsletter'].title,
+    category: 'digiblocks',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['newsletter'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['newsletter'].description,
+    keywords: [__('newsletter', 'digiblocks'), __('subscribe', 'digiblocks'), __('email', 'digiblocks'), __('mailchimp', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('newsletter') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        layout: {
+            type: 'string',
+            default: 'stacked'
+        },
+        align: {
+            type: 'object',
+            default: {
+                desktop: 'left',
+                tablet: 'left',
+                mobile: 'left'
+            }
+        },
+        title: {
+            type: 'string',
+            default: __('Subscribe to our Newsletter', 'digiblocks')
+        },
+        showTitle: {
+            type: 'boolean',
+            default: true
+        },
+        description: {
+            type: 'string',
+            default: __('Stay updated with our latest news and offers', 'digiblocks')
+        },
+        showDescription: {
+            type: 'boolean',
+            default: true
+        },
+        emailPlaceholder: {
+            type: 'string',
+            default: __('Enter your email address', 'digiblocks')
+        },
+        namePlaceholder: {
+            type: 'string',
+            default: __('Enter your name', 'digiblocks')
+        },
+        buttonText: {
+            type: 'string',
+            default: __('Subscribe', 'digiblocks')
+        },
+        showNameField: {
+            type: 'boolean',
+            default: false
+        },
+        successMessage: {
+            type: 'string',
+            default: __('Thank you for subscribing!', 'digiblocks')
+        },
+        errorMessage: {
+            type: 'string',
+            default: __('Something went wrong. Please try again.', 'digiblocks')
+        },
+        titleColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        titleHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        descriptionColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        inputTextColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        inputBackgroundColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        inputBorderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        inputBorderFocusColor: {
+            type: 'string',
+            default: '#4a6cf7'
+        },
+        inputPlaceholderColor: {
+            type: 'string',
+            default: '#999999'
+        },
+        buttonTextColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        buttonBackgroundColor: {
+            type: 'string',
+            default: '#4a6cf7'
+        },
+        buttonTextHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        buttonBackgroundHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        buttonBorderColor: {
+            type: 'string',
+            default: ''
+        },
+        buttonBorderHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        backgroundColor: {
+            type: 'string',
+            default: ''
+        },
+        backgroundHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        containerBorderColor: {
+            type: 'string',
+            default: ''
+        },
+        containerBorderHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        titleTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 24, tablet: 22, mobile: 20 },
+                fontSizeUnit: 'px',
+                fontWeight: '600',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        contentTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        textTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        buttonTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: '500',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        containerBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        containerBorderWidth: {
+            type: 'object',
+            default: {
+                desktop: 1,
+                tablet: 1,
+                mobile: 1
+            }
+        },
+        containerBorderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+        inputBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        inputBorderWidth: {
+            type: 'object',
+            default: {
+                desktop: 1,
+                tablet: 1,
+                mobile: 1
+            }
+        },
+        inputBorderStyle: {
+            type: 'string',
+            default: 'solid'
+        },
+        buttonBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        buttonBorderWidth: {
+            type: 'object',
+            default: {
+                desktop: 1,
+                tablet: 1,
+                mobile: 1
+            }
+        },
+        buttonBorderStyle: {
+            type: 'string',
+            default: 'solid'
+        },
+        spacing: {
+            type: 'object',
+            default: {
+                desktop: { value: 20, unit: 'px' },
+                tablet: { value: 15, unit: 'px' },
+                mobile: { value: 10, unit: 'px' }
+            }
+        },
+        inputSpacing: {
+            type: 'object',
+            default: {
+                desktop: { value: 10, unit: 'px' },
+                tablet: { value: 8, unit: 'px' },
+                mobile: { value: 6, unit: 'px' }
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        buttonBoxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        buttonBoxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.15)',
+                horizontal: 0,
+                vertical: 2,
+                blur: 8,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        inputBoxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        inputBoxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.15)',
+                horizontal: 0,
+                vertical: 2,
+                blur: 4,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+    },
+    example: {
+        attributes: {
+            title: __('Subscribe to our Newsletter', 'digiblocks'),
+            description: __('Stay updated with our latest news and offers', 'digiblocks'),
+            layout: 'stacked',
+            showTitle: true,
+            showDescription: true,
+            showNameField: false,
+            buttonText: __('Subscribe', 'digiblocks'),
+        },
+    },
+    edit: NewsletterEdit,
+    save: NewsletterSave,
+});
+
+/**
  * Register Posts block
  */
 registerBlockType('digiblocks/posts', {
@@ -4997,6 +5619,14 @@ registerBlockType('digiblocks/posts', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -5404,6 +6034,14 @@ registerBlockType('digiblocks/pricing-table', {
         anchor: {
             type: 'string',
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
         },
@@ -5656,6 +6294,14 @@ registerBlockType('digiblocks/separator', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -5833,9 +6479,25 @@ registerBlockType('digiblocks/social-icons', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
+        },
+		align: {
+            type: 'object',
+            default: {
+                desktop: 'flex-start',
+                tablet: '',
+                mobile: ''
+            }
         },
         icons: {
             type: 'array',
@@ -5953,10 +6615,6 @@ registerBlockType('digiblocks/social-icons', {
         iconHoverBorderColor: {
             type: 'string',
             default: ''
-        },
-        align: {
-            type: 'string',
-            default: 'left'
         },
         padding: {
             type: 'object',
@@ -6083,6 +6741,14 @@ registerBlockType('digiblocks/spacer', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -6142,6 +6808,14 @@ registerBlockType('digiblocks/table', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -6389,6 +7063,14 @@ registerBlockType('digiblocks/team', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -6806,6 +7488,14 @@ registerBlockType('digiblocks/testimonials', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -7112,6 +7802,14 @@ if ( isWooActive() ) {
 			anchor: {
 				type: 'string',
 				default: ''
+			},
+			visibility: {
+				type: 'object',
+				default: {
+					desktop: false,
+					tablet: false,
+					mobile: false
+				}
 			},
 			customClasses: {
 				type: 'string',
@@ -7551,6 +8249,14 @@ registerBlockType('digiblocks/logo', {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -7624,8 +8330,12 @@ registerBlockType('digiblocks/logo', {
 			}
 		},
         logoAlignment: {
-            type: 'string',
-            default: 'center'
+            type: 'object',
+            default: {
+                desktop: 'flex-start',
+                tablet: '',
+                mobile: ''
+            }
         },
         textColor: {
             type: 'string',
@@ -7768,7 +8478,7 @@ registerBlockType('digiblocks/navigation', {
     description: digiBlocksData.blocks['navigation'].description,
     keywords: [__('navigation', 'digiblocks'), __('menu', 'digiblocks'), __('header', 'digiblocks')],
     supports: {
-		inserter: getBlockActiveStatus('navigation') ? true : false,
+        inserter: getBlockActiveStatus('navigation') ? true : false,
         html: false,
         className: false,
         customClassName: false,
@@ -7777,12 +8487,20 @@ registerBlockType('digiblocks/navigation', {
     attributes: {
         id: {
             type: 'string',
-			default: '',
+            default: '',
         },
         anchor: {
             type: 'string',
             default: ''
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         customClasses: {
             type: 'string',
             default: ''
@@ -7799,17 +8517,45 @@ registerBlockType('digiblocks/navigation', {
             type: 'array',
             default: []
         },
-        orientation: {
-            type: 'string',
-            default: 'horizontal'
+        flexWrap: {
+            type: 'object',
+            default: {
+                desktop: 'nowrap',
+                tablet: '',
+                mobile: ''
+            }
         },
-        layout: {
-            type: 'string',
-            default: 'default'
+        orientation: {
+            type: 'object',
+            default: {
+                desktop: 'horizontal',
+                tablet: '',
+                mobile: ''
+            }
         },
         align: {
+            type: 'object',
+            default: {
+                desktop: 'flex-start',
+                tablet: '',
+                mobile: ''
+            }
+        },
+        columns: {
+            type: 'object',
+            default: {
+                desktop: 1,
+                tablet: 1,
+                mobile: 1
+            }
+        },
+        linkEffect: {
             type: 'string',
-            default: 'flex-start'
+            default: 'none'
+        },
+        submenuEffect: {
+            type: 'string',
+            default: 'fade'
         },
         mobileBreakpoint: {
             type: 'number',
@@ -7818,6 +8564,10 @@ registerBlockType('digiblocks/navigation', {
         showMobileToggle: {
             type: 'boolean',
             default: true
+        },
+		mobileAlign: {
+            type: 'object',
+            default: 'flex-end',
         },
         toggleIcon: {
             type: 'string',
@@ -7834,6 +8584,22 @@ registerBlockType('digiblocks/navigation', {
         toggleIconHoverColor: {
             type: 'string',
             default: ''
+        },
+        mobileToggleSize: {
+            type: 'object',
+            default: {
+                desktop: 48,
+                tablet: 44,
+                mobile: 40
+            }
+        },
+        mobileIconSize: {
+            type: 'object',
+            default: {
+                desktop: 24,
+                tablet: 22,
+                mobile: 20
+            }
         },
         textTypography: {
             type: 'object',
@@ -7875,22 +8641,22 @@ registerBlockType('digiblocks/navigation', {
             type: 'string',
             default: '#e0e0e0'
         },
-		submenuMobileBackgroundColor: {
-			type: 'string',
-			default: 'rgba(0, 0, 0, 0.02)'
-		},
-		submenuMobileLinkColor: {
-			type: 'string',
-			default: ''
-		},
-		submenuMobileLinkHoverColor: {
-			type: 'string',
-			default: ''
-		},
-		submenuMobileLinkHoverBackgroundColor: {
-			type: 'string',
-			default: ''
-		},
+        submenuMobileBackgroundColor: {
+            type: 'string',
+            default: 'rgba(0, 0, 0, 0.02)'
+        },
+        submenuMobileLinkColor: {
+            type: 'string',
+            default: ''
+        },
+        submenuMobileLinkHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        submenuMobileLinkHoverBackgroundColor: {
+            type: 'string',
+            default: ''
+        },
         itemSpacing: {
             type: 'object',
             default: {
@@ -7990,6 +8756,14 @@ registerBlockType('digiblocks/login-link', {
         customClasses: {
             type: 'string',
         },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
         loginText: {
             type: 'string',
             default: __('Log In', 'digiblocks'),
@@ -8038,6 +8812,14 @@ registerBlockType('digiblocks/login-link', {
             type: 'string',
             default: '',
         },
+		align: {
+            type: 'object',
+            default: {
+                desktop: 'flex-start',
+                tablet: '',
+                mobile: ''
+            }
+        },
         textColor: {
             type: 'string',
         },
@@ -8076,4 +8858,2944 @@ registerBlockType('digiblocks/login-link', {
     },
     edit: LoginLinkEdit,
     save: LoginLinkSave,
+});
+
+/**
+ * Register Page Title block
+ */
+registerBlockType('digiblocks/page-title', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['page-title'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['page-title'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['page-title'].description,
+    keywords: [__('title', 'digiblocks'), __('heading', 'digiblocks'), __('header', 'digiblocks')],
+    // Disable all default controls and settings panels
+    supports: {
+		inserter: getBlockActiveStatus('page-title') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        headingTag: {
+            type: 'string',
+            default: 'h2'
+        },
+        align: {
+			type: 'object',
+			default: {
+				desktop: 'left',
+				tablet: 'left',
+				mobile: 'left'
+			}
+		},
+        color: {
+            type: 'string',
+            default: '#333333'
+        },
+        hoverColor: {
+            type: 'string',
+            default: ''
+        },
+        typography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 42, tablet: 32, mobile: 24 },
+                fontSizeUnit: 'px',
+                fontWeight: '700',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 15, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 12, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 10, left: 0, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        }
+    },
+    example: {
+        attributes: {
+            headingTag: 'h2',
+            align: 'left',
+            color: '#333333',
+            typography: {
+                fontSize: { desktop: 32 },
+                fontWeight: '700',
+                lineHeight: { desktop: 1.2 }
+            }
+        }
+    },
+    edit: PageTitleEdit,
+    save: PageTitleSave,
+});
+
+/**
+ * Register Breadcrumbs block
+ */
+registerBlockType('digiblocks/breadcrumbs', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['breadcrumbs'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['breadcrumbs'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['breadcrumbs'].description,
+    keywords: [__('breadcrumb', 'digiblocks'), __('navigation', 'digiblocks'), __('path', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('breadcrumbs') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        align: {
+            type: 'object',
+            default: {
+                desktop: 'left',
+                tablet: 'left',
+                mobile: 'left'
+            }
+        },
+        textColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        linkColor: {
+            type: 'string',
+            default: '#0066cc'
+        },
+        linkHoverColor: {
+            type: 'string',
+            default: '#004c99'
+        },
+        separatorColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        typography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 14, tablet: 13, mobile: 12 },
+                fontSizeUnit: 'px',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.5, tablet: 1.5, mobile: 1.5 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        separatorSize: {
+            type: 'object',
+            default: {
+                desktop: 12,
+                tablet: 10,
+                mobile: 9
+            }
+        },
+        separatorSpacing: {
+            type: 'object',
+            default: {
+                desktop: 8,
+                tablet: 6,
+                mobile: 4
+            }
+        },
+        showHome: {
+            type: 'boolean',
+            default: true
+        },
+        homeText: {
+            type: 'string',
+            default: __('Home', 'digiblocks')
+        },
+        showCurrent: {
+            type: 'boolean',
+            default: true
+        },
+        useYoast: {
+            type: 'boolean',
+            default: false
+        },
+        useRankMath: {
+            type: 'boolean',
+            default: false
+        },
+        useMicrodata: {
+            type: 'boolean',
+            default: true
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        }
+    },
+    example: {
+        attributes: {
+            textColor: '#666666',
+            linkColor: '#0066cc',
+            homeText: __('Home', 'digiblocks'),
+            showHome: true,
+            showCurrent: true
+        }
+    },
+    edit: BreadcrumbsEdit,
+    save: BreadcrumbsSave,
+});
+
+/**
+ * Register Featured Image block
+ */
+registerBlockType('digiblocks/featured-image', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['featured-image'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['featured-image'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['featured-image'].description,
+    keywords: [__('featured image', 'digiblocks'), __('thumbnail', 'digiblocks'), __('post image', 'digiblocks')],
+    // Disable all default controls and settings panels
+    supports: {
+        inserter: getBlockActiveStatus('featured-image') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        imageSize: {
+            type: 'string',
+            default: 'large'
+        },
+        imageCrop: {
+            type: 'boolean',
+            default: false
+        },
+        aspectRatio: {
+            type: 'string',
+            default: 'default'
+        },
+        customHeight: {
+            type: 'object',
+            default: {
+                desktop: 300,
+                tablet: 250,
+                mobile: 200
+            }
+        },
+        enableCaption: {
+            type: 'boolean',
+            default: false
+        },
+        linkToPost: {
+            type: 'boolean',
+            default: false
+        },
+        width: {
+            type: 'object',
+            default: {
+                desktop: 100,
+                tablet: 100,
+                mobile: 100
+            }
+        },
+        align: {
+            type: 'object',
+            default: {
+                desktop: 'center',
+                tablet: 'center',
+                mobile: 'center'
+            }
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.3)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        }
+    },
+    example: {
+        attributes: {
+            imageSize: 'medium',
+            borderStyle: 'solid',
+            borderColor: '#e0e0e0',
+            borderRadius: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' }
+            }
+        }
+    },
+    edit: FeaturedImageEdit,
+    save: FeaturedImageSave,
+});
+
+/**
+ * Register Post Meta block
+ */
+registerBlockType('digiblocks/post-meta', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['post-meta'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['post-meta'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['post-meta'].description,
+    keywords: [__('meta', 'digiblocks'), __('author', 'digiblocks'), __('date', 'digiblocks'), __('categories', 'digiblocks'), __('tags', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('post-meta') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        displayAuthor: {
+            type: 'boolean',
+            default: true
+        },
+        displayDate: {
+            type: 'boolean',
+            default: true
+        },
+        displayCategories: {
+            type: 'boolean',
+            default: true
+        },
+        displayTags: {
+            type: 'boolean',
+            default: true
+        },
+        iconDisplay: {
+            type: 'boolean',
+            default: true
+        },
+        layout: {
+            type: 'string',
+            default: 'inline'
+        },
+        separator: {
+            type: 'string',
+            default: 'dot'
+        },
+        align: {
+            type: 'object',
+            default: {
+                desktop: 'left',
+                tablet: 'left',
+                mobile: 'left'
+            }
+        },
+        spacing: {
+            type: 'object',
+            default: {
+                desktop: 15,
+                tablet: 15,
+                mobile: 10
+            }
+        },
+        textColor: {
+            type: 'string',
+            default: ''
+        },
+        textHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        iconColor: {
+            type: 'string',
+            default: ''
+        },
+        typography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 14, tablet: 13, mobile: 12 },
+                fontSizeUnit: 'px',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        }
+    },
+    example: {
+        attributes: {
+            displayAuthor: true,
+            displayDate: true,
+            displayCategories: true,
+            displayTags: false,
+            iconDisplay: true,
+            separator: 'dot',
+            layout: 'inline',
+            textColor: '#666666'
+        }
+    },
+    edit: PostMetaEdit,
+    save: PostMetaSave,
+});
+
+/**
+ * Register Post Content block
+ */
+registerBlockType('digiblocks/post-content', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['post-content'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['post-content'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['post-content'].description,
+    keywords: [__('content', 'digiblocks'), __('text', 'digiblocks'), __('post', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('post-content') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        color: {
+            type: 'string',
+            default: ''
+        },
+        textAlign: {
+            type: 'object',
+            default: {
+                desktop: 'left',
+                tablet: 'left',
+                mobile: 'left'
+            }
+        },
+        columns: {
+            type: 'object',
+            default: {
+                desktop: 1,
+                tablet: 1,
+                mobile: 1
+            }
+        },
+        dropcap: {
+            type: 'boolean',
+            default: false
+        },
+        dropCapColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        dropCapSize: {
+            type: 'object',
+            default: {
+                desktop: 3.5,
+                tablet: 3.0,
+                mobile: 2.5
+            }
+        },
+        dropCapSpace: {
+            type: 'object',
+            default: {
+                desktop: 10,
+                tablet: 8,
+                mobile: 6
+            }
+        },
+        listSpacing: {
+            type: 'object',
+            default: {
+                desktop: 20,
+                tablet: 15,
+                mobile: 10
+            }
+        },
+        paragraphSpacing: {
+            type: 'object',
+            default: {
+                desktop: 20,
+                tablet: 15,
+                mobile: 10
+            }
+        },
+        headingSpacing: {
+            type: 'object',
+            default: {
+                desktop: 30,
+                tablet: 25,
+                mobile: 20
+            }
+        },
+        typography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: '',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.7, tablet: 1.6, mobile: 1.5 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: {
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
+                    unit: 'px'
+                },
+                tablet: {
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
+                    unit: 'px'
+                },
+                mobile: {
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
+                    unit: 'px'
+                }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: {
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
+                    unit: 'px'
+                },
+                tablet: {
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
+                    unit: 'px'
+                },
+                mobile: {
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
+                    unit: 'px'
+                }
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        }
+    },
+    example: {
+        attributes: {
+            dropcap: true,
+            color: '#333333',
+            typography: {
+                fontSize: { desktop: 16 },
+                lineHeight: { desktop: 1.7 }
+            }
+        }
+    },
+    edit: PostContentEdit,
+    save: PostContentSave,
+});
+
+/**
+ * Register Post Navigation block
+ */
+registerBlockType('digiblocks/post-navigation', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['post-navigation'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['post-navigation'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['post-navigation'].description,
+    keywords: [__('navigation', 'digiblocks'), __('post links', 'digiblocks'), __('next', 'digiblocks'), __('previous', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('post-navigation') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        showPostTitle: {
+            type: 'boolean',
+            default: true
+        },
+        showNavLabels: {
+            type: 'boolean',
+            default: true
+        },
+        previousLabel: {
+            type: 'string',
+            default: __('Previous', 'digiblocks')
+        },
+        nextLabel: {
+            type: 'string',
+            default: __('Next', 'digiblocks')
+        },
+        showFeaturedImage: {
+            type: 'boolean',
+            default: false
+        },
+        imageSize: {
+            type: 'string',
+            default: 'thumbnail'
+        },
+        color: {
+            type: 'string',
+            default: '#333333'
+        },
+        hoverColor: {
+            type: 'string',
+            default: ''
+        },
+        backgroundColor: {
+            type: 'string',
+            default: 'transparent'
+        },
+        backgroundHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'default'
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        borderHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        typography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: '',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 5,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+		boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        }
+    },
+    example: {
+        attributes: {
+            navigationType: 'default',
+            showPostTitle: true,
+            showNavLabels: true,
+            previousLabel: __('Previous', 'digiblocks'),
+            nextLabel: __('Next', 'digiblocks'),
+            color: '#333333',
+            backgroundColor: 'transparent'
+        }
+    },
+    edit: PostNavigationEdit,
+    save: PostNavigationSave,
+});
+
+/**
+ * Register Social Share block
+ */
+registerBlockType('digiblocks/social-share', {
+    apiVersion: 2,
+	title: digiBlocksData.blocks['social-share'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['social-share'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['social-share'].description,
+    keywords: [__('social', 'digiblocks'), __('share', 'digiblocks'), __('facebook', 'digiblocks'), __('twitter', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('social-share') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        showLabels: {
+            type: 'boolean',
+            default: false
+        },
+        buttonStyle: {
+            type: 'string',
+            default: 'filled'
+        },
+        buttonSize: {
+            type: 'object',
+            default: {
+                desktop: 40,
+                tablet: 36,
+                mobile: 32
+            }
+        },
+        iconSpacing: {
+            type: 'object',
+            default: {
+                desktop: 10,
+                tablet: 8,
+                mobile: 6
+            }
+        },
+        alignment: {
+            type: 'object',
+            default: {
+                desktop: 'flex-start',
+                tablet: '',
+                mobile: ''
+            }
+        },
+        useCustomColors: {
+            type: 'boolean',
+            default: false
+        },
+        buttonBackgroundColor: {
+            type: 'string',
+            default: ''
+        },
+        buttonTextColor: {
+            type: 'string',
+            default: ''
+        },
+        buttonHoverBackgroundColor: {
+            type: 'string',
+            default: ''
+        },
+        buttonHoverTextColor: {
+            type: 'string',
+            default: ''
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+		borderColor: {
+			type: 'string',
+			default: ''
+		},
+		borderHoverColor: {
+			type: 'string',
+			default: ''
+		},
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 10, right: 15, bottom: 10, left: 15, unit: 'px' },
+                tablet: { top: 8, right: 12, bottom: 8, left: 12, unit: 'px' },
+                mobile: { top: 6, right: 10, bottom: 6, left: 10, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        typography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 14, tablet: 13, mobile: 12 },
+                fontSizeUnit: 'px',
+                fontWeight: '',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        // Social platforms
+        facebook: {
+            type: 'boolean',
+            default: true
+        },
+        twitter: {
+            type: 'boolean',
+            default: true
+        },
+        linkedin: {
+            type: 'boolean',
+            default: true
+        },
+        pinterest: {
+            type: 'boolean',
+            default: true
+        },
+        reddit: {
+            type: 'boolean',
+            default: false
+        },
+        whatsapp: {
+            type: 'boolean',
+            default: false
+        },
+        telegram: {
+            type: 'boolean',
+            default: false
+        },
+        email: {
+            type: 'boolean',
+            default: true
+        },
+        print: {
+            type: 'boolean',
+            default: false
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        }
+    },
+    example: {
+        attributes: {
+            facebook: true,
+            twitter: true,
+            linkedin: true,
+            email: true,
+            pinterest: false,
+            reddit: false,
+            whatsapp: false,
+            telegram: false,
+            print: false,
+            buttonStyle: 'filled',
+            buttonSize: {
+                desktop: 40
+            },
+            alignment: {
+                desktop: 'flex-start'
+            }
+        }
+    },
+    edit: SocialShareEdit,
+    save: SocialShareSave,
+});
+
+/**
+ * Register Table of Contents block
+ */
+registerBlockType('digiblocks/table-of-contents', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['table-of-contents'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['table-of-contents'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['table-of-contents'].description,
+    keywords: [__('toc', 'digiblocks'), __('table of contents', 'digiblocks'), __('contents', 'digiblocks'), __('headings', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('table-of-contents') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        title: {
+            type: 'string',
+            default: __('Table of Contents', 'digiblocks')
+        },
+        showTitle: {
+            type: 'boolean',
+            default: true
+        },
+        titleTag: {
+            type: 'string',
+            default: 'h2'
+        },
+        headingSelector: {
+            type: 'string', 
+            default: 'h2'
+        },
+        maxDepth: {
+            type: 'number',
+            default: 3
+        },
+        listType: {
+            type: 'string',
+            default: 'ul'
+        },
+        scrollOffset: {
+            type: 'number',
+            default: 30
+        },
+        enableSmoothScroll: {
+            type: 'boolean',
+            default: true
+        },
+        enableSEOMarkup: {
+            type: 'boolean',
+            default: true
+        },
+        minimizeBox: {
+            type: 'boolean',
+            default: false
+        },
+        showAsCollapsible: {
+            type: 'boolean',
+            default: false
+        },
+        initialCollapseState: {
+            type: 'boolean',
+            default: false
+        },
+        collapseButtonText: {
+            type: 'object',
+            default: {
+                show: __('Show', 'digiblocks'),
+                hide: __('Hide', 'digiblocks')
+            }
+        },
+        align: {
+            type: 'object',
+            default: {
+                desktop: 'left',
+                tablet: 'left',
+                mobile: 'left'
+            }
+        },
+        width: {
+            type: 'object',
+            default: {
+                desktop: { value: 100, unit: '%' },
+                tablet: { value: 100, unit: '%' },
+                mobile: { value: 100, unit: '%' }
+            }
+        },
+        maxWidth: {
+            type: 'object',
+            default: {
+                desktop: { value: '', unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' }
+            }
+        },
+        backgroundColor: {
+            type: 'string',
+            default: '#f8f9fa'
+        },
+        titleColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        textColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        linkColor: {
+            type: 'string',
+            default: '#4a6cf7'
+        },
+        linkHoverColor: {
+            type: 'string',
+            default: '#3a5ce5'
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'solid'
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 25, right: 30, bottom: 25, left: 30, unit: 'px' },
+                tablet: { top: 20, right: 25, bottom: 20, left: 25, unit: 'px' },
+                mobile: { top: 15, right: 20, bottom: 15, left: 20, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+            }
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 5,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+		boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        titleTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 22, tablet: 20, mobile: 18 },
+                fontSizeUnit: 'px',
+                fontWeight: '600',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        typography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: '',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.6, tablet: 1.5, mobile: 1.4 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        listSpacing: {
+			type: 'object',
+			default: {
+				desktop: { value: 15, unit: 'px' },
+				tablet: { value: 12, unit: 'px' },
+				mobile: { value: 10, unit: 'px' }
+			}
+		},
+        animation: {
+            type: 'string',
+            default: 'none'
+        }
+    },
+    example: {
+        attributes: {
+            title: __('Table of Contents', 'digiblocks'),
+            showTitle: true,
+            titleTag: 'h2',
+            headingSelector: 'h2',
+            backgroundColor: '#f8f9fa',
+            titleColor: '#333333',
+            textColor: '#333333',
+            linkColor: '#4a6cf7'
+        }
+    },
+    edit: TableOfContentsEdit,
+    save: TableOfContentsSave,
+});
+
+/**
+ * Register Author Box block
+ */
+registerBlockType('digiblocks/author-box', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['author-box'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['author-box'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['author-box'].description,
+    keywords: [__('author', 'digiblocks'), __('profile', 'digiblocks'), __('bio', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('author-box') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        layout: {
+            type: 'string',
+            default: 'horizontal'
+        },
+        spacing: {
+            type: 'number',
+            default: {
+                desktop: 40,
+                tablet: '',
+                mobile: ''
+            }
+        },
+        avatarSize: {
+            type: 'number',
+            default: {
+                desktop: 100,
+                tablet: '',
+                mobile: ''
+            }
+        },
+        nameColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        nameHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        descriptionColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        backgroundColor: {
+            type: 'string',
+            default: '#f9f9f9'
+        },
+        backgroundHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        avatarBorderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        avatarBorderHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        avatarBorderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        avatarBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 50, right: 50, bottom: 50, left: 50, unit: '%' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: '%' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: '%' }
+            }
+        },
+        socialIconColor: {
+            type: 'string',
+            default: '#555555'
+        },
+        socialIconHoverColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        socialIconBackgroundColor: {
+            type: 'string',
+            default: '#f0f0f0'
+        },
+        socialIconBackgroundHoverColor: {
+            type: 'string',
+            default: '#4a6cf7'
+        },
+        socialButtonSize: {
+            type: 'object',
+            default: {
+                desktop: { value: 36, unit: 'px' },
+                tablet: { value: 32, unit: 'px' },
+                mobile: { value: 28, unit: 'px' }
+            }
+        },
+        socialIconSize: {
+            type: 'object',
+            default: {
+                desktop: { value: 18, unit: 'px' },
+                tablet: { value: 16, unit: 'px' },
+                mobile: { value: 14, unit: 'px' }
+            }
+        },
+        socialIconSpacing: {
+            type: 'object',
+            default: {
+                desktop: { value: 8, unit: 'px' },
+                tablet: { value: 8, unit: 'px' },
+                mobile: { value: 6, unit: 'px' }
+            }
+        },
+        socialIconBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 50, right: 50, bottom: 50, left: 50, unit: '%' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: '%' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: '%' }
+            }
+        },
+        socialIconBorderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+        socialIconBorderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        socialIconBorderColor: {
+            type: 'string',
+            default: ''
+        },
+        socialIconBorderHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' },
+                tablet: { top: 25, right: 25, bottom: 25, left: 25, unit: 'px' },
+                mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 5,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.15)',
+                horizontal: 0,
+                vertical: 5,
+                blur: 15,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'solid'
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        borderHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        titleTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 22, tablet: 20, mobile: 18 },
+                fontSizeUnit: 'px',
+                fontWeight: '600',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        contentTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+        displayAvatar: {
+            type: 'boolean',
+            default: true
+        },
+        displayName: {
+            type: 'boolean',
+            default: true
+        },
+        displayBio: {
+            type: 'boolean',
+            default: true
+        },
+        displaySocial: {
+            type: 'boolean',
+            default: true
+        },
+        socialProfiles: {
+            type: 'object',
+            default: {
+                website: {
+                    enabled: false
+                },
+                facebook: {
+                    enabled: false
+                },
+                twitter: {
+                    enabled: false
+                },
+                instagram: {
+                    enabled: false
+                },
+                linkedin: {
+                    enabled: false
+                },
+                youtube: {
+                    enabled: false
+                },
+                github: {
+                    enabled: false
+                }
+            }
+        }
+    },
+    example: {
+        attributes: {
+            layout: 'horizontal',
+            displayAvatar: true,
+            displayName: true,
+            displayBio: true,
+            displaySocial: true,
+            socialProfiles: {
+                twitter: {
+                    enabled: true
+                },
+                linkedin: {
+                    enabled: true
+                }
+            }
+        }
+    },
+    edit: AuthorBoxEdit,
+    save: AuthorBoxSave,
+});
+
+/**
+ * Register Related Posts block
+ */
+registerBlockType('digiblocks/related-posts', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['related-posts'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['related-posts'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['related-posts'].description,
+    keywords: [__('related', 'digiblocks'), __('posts', 'digiblocks'), __('similar', 'digiblocks'), __('category', 'digiblocks'), __('tag', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('related-posts') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        postsToShow: {
+            type: 'number',
+            default: 3
+        },
+        columns: {
+            type: 'object',
+            default: {
+                desktop: 3,
+                tablet: 2,
+                mobile: 1
+            }
+        },
+        postStyle: {
+            type: 'string',
+            default: 'grid'
+        },
+        displayFeaturedImage: {
+            type: 'boolean',
+            default: true
+        },
+        displayTitle: {
+            type: 'boolean',
+            default: true
+        },
+        displayMeta: {
+            type: 'boolean',
+            default: true
+        },
+        displayExcerpt: {
+            type: 'boolean',
+            default: true
+        },
+        displayReadMoreButton: {
+            type: 'boolean',
+            default: true
+        },
+        metaSettings: {
+            type: 'object',
+            default: {
+                displayAuthor: true,
+                displayDate: true,
+                displayCategories: true,
+                displayComments: false
+            }
+        },
+        excerptLength: {
+            type: 'number',
+            default: 25
+        },
+        readMoreText: {
+            type: 'string',
+            default: __('Read More', 'digiblocks')
+        },
+        relationType: {
+            type: 'string',
+            default: 'category'  // category, tag, both
+        },
+        noRelatedPostsText: {
+            type: 'string',
+            default: __('No related posts found.', 'digiblocks')
+        },
+        headingText: {
+            type: 'string',
+            default: __('Related Posts', 'digiblocks')
+        },
+        displayHeading: {
+            type: 'boolean',
+            default: true
+        },
+        titleColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        titleHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        excerptColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        catBackgroundColor: {
+            type: 'string',
+            default: '#52576b'
+        },
+        catColor: {
+            type: 'string',
+            default: '#fff'
+        },
+        catHoverBackgroundColor: {
+            type: 'string',
+            default: '#3f4a73'
+        },
+        catHoverColor: {
+            type: 'string',
+            default: '#fff'
+        },
+        metaColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        metaHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        buttonBackgroundColor: {
+            type: 'string',
+            default: '#4a6cf7'
+        },
+        buttonTextColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        buttonBackgroundHoverColor: {
+            type: 'string',
+            default: '#3a5ce5'
+        },
+        buttonTextHoverColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        headingColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        imageMargin: {
+            type: 'object',
+            default: {
+                desktop: 15,
+                tablet: 15,
+                mobile: 15
+            }
+        },
+        contentMargin: {
+            type: 'object',
+            default: {
+                desktop: 18,
+                tablet: 15,
+                mobile: 15
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
+                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
+                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+            }
+        },
+        itemSpacing: {
+            type: 'object',
+            default: {
+                desktop: 20,
+                tablet: 15,
+                mobile: 10
+            }
+        },
+        headingTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 24, tablet: 22, mobile: 20 },
+                fontSizeUnit: 'px',
+                fontWeight: '600',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        titleTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 20, tablet: 18, mobile: 16 },
+                fontSizeUnit: 'px',
+                fontWeight: '600',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        textTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 13, tablet: 12, mobile: 11 },
+                fontSizeUnit: 'px',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        contentTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        buttonTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: '500',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        buttonPadding: {
+            type: 'object',
+            default: {
+                desktop: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px' },
+                tablet: { top: 8, right: 16, bottom: 8, left: 16, unit: 'px' },
+                mobile: { top: 6, right: 12, bottom: 6, left: 12, unit: 'px' }
+            }
+        },
+        buttonBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        imageSize: {
+            type: 'string',
+            default: 'medium'
+        },
+        imageBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        cardStyle: {
+            type: 'boolean',
+            default: false
+        },
+        cardBackgroundColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        cardPadding: {
+            type: 'object',
+            default: {
+                desktop: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' },
+                tablet: { top: 15, right: 15, bottom: 15, left: 15, unit: 'px' },
+                mobile: { top: 10, right: 10, bottom: 10, left: 10, unit: 'px' }
+            }
+        },
+        cardBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        cardBorderStyle: {
+            type: 'string',
+            default: 'solid'
+        },
+        cardBorderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        cardBorderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        cardShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        cardShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+    },
+    example: {
+        attributes: {
+            postStyle: 'grid',
+            postsToShow: 3,
+            columns: {
+                desktop: 3,
+                tablet: 2,
+                mobile: 1
+            },
+            displayFeaturedImage: true,
+            displayTitle: true,
+            displayExcerpt: true,
+            displayHeading: true,
+            headingText: 'Related Posts',
+            relationType: 'category'
+        },
+    },
+    edit: RelatedPostsEdit,
+    save: RelatedPostsSave,
+});
+
+/**
+ * Register Post Comments block
+ */
+registerBlockType('digiblocks/post-comments', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['post-comments'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['post-comments'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['post-comments'].description,
+    keywords: [__('comments', 'digiblocks'), __('discussion', 'digiblocks'), __('feedback', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('post-comments') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        showAvatars: {
+            type: 'boolean',
+            default: true
+        },
+        avatarSize: {
+            type: 'object',
+            default: {
+                desktop: 50,
+                tablet: 40,
+                mobile: 30
+            }
+        },
+        commentsPerPage: {
+            type: 'number',
+            default: 20
+        },
+        nestedComments: {
+            type: 'boolean',
+            default: true
+        },
+        commentsOrder: {
+            type: 'string',
+            default: 'asc'
+        },
+        displayTitle: {
+            type: 'boolean',
+            default: true
+        },
+        titleText: {
+            type: 'string',
+            default: __('Comments', 'digiblocks')
+        },
+        customFormTitle: {
+            type: 'boolean',
+            default: false
+        },
+        formTitle: {
+            type: 'string',
+            default: __('Leave a Reply', 'digiblocks')
+        },
+        displayLoggedIn: {
+            type: 'boolean',
+            default: true
+        },
+        loggedInText: {
+            type: 'string',
+            default: ''
+        },
+        displayCookieConsent: {
+            type: 'boolean',
+            default: true
+        },
+        cookieConsentText: {
+            type: 'string',
+            default: ''
+        },
+        displaySubmitButton: {
+            type: 'boolean',
+            default: false
+        },
+        submitButtonText: {
+            type: 'string',
+            default: ''
+        },
+        displayCancelReply: {
+            type: 'boolean',
+            default: false
+        },
+        cancelReplyText: {
+            type: 'string',
+            default: ''
+        },
+        titleColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        linkColor: {
+            type: 'string',
+            default: '#4a6cf7'
+        },
+        linkHoverColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        textColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        metaColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        metaHoverColor: {
+            type: 'string',
+            default: '#4a6cf7'
+        },
+        borderColor: {
+            type: 'string',
+            default: '#e0e0e0'
+        },
+        backgroundColor: {
+            type: 'string',
+            default: ''
+        },
+        commentBackgroundColor: {
+            type: 'string',
+            default: '#ecf0f1'
+        },
+        threadedCommentsBackgroundColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        replyButtonColor: {
+            type: 'string',
+            default: '#4a6cf7'
+        },
+        replyButtonBgColor: {
+            type: 'string',
+            default: 'transparent'
+        },
+        replyButtonHoverColor: {
+            type: 'string',
+            default: '#3a5ce5'
+        },
+        replyButtonBgHoverColor: {
+            type: 'string',
+            default: 'transparent'
+        },
+        formBackgroundColor: {
+            type: 'string',
+            default: '#ecf0f1'
+        },
+        formInputColor: {
+            type: 'string',
+            default: '#333333'
+        },
+        formInputBgColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        formInputBorderColor: {
+            type: 'string',
+            default: '#d1d5db'
+        },
+        formInputFocusBorderColor: {
+            type: 'string',
+            default: '#4a6cf7'
+        },
+        submitButtonTextColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        submitButtonBgColor: {
+            type: 'string',
+            default: '#4a6cf7'
+        },
+        submitButtonTextHoverColor: {
+            type: 'string',
+            default: '#ffffff'
+        },
+        submitButtonBgHoverColor: {
+            type: 'string',
+            default: '#3a5ce5'
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        avatarRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 50, right: 50, bottom: 50, left: 50, unit: '%' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: '%' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: '%' }
+            }
+        },
+        formBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        buttonBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        formPadding: {
+            type: 'object',
+            default: {
+                desktop: { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        buttonPadding: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 16, bottom: 8, left: 16, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        titleTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 24, tablet: 22, mobile: 20 },
+                fontSizeUnit: 'px',
+                fontWeight: '600',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        textTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 14, tablet: 13, mobile: 12 },
+                fontSizeUnit: 'px',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        contentTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSizeUnit: 'px',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.6, tablet: 1.5, mobile: 1.4 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        buttonTypography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 14, tablet: 13, mobile: 12 },
+                fontSizeUnit: 'px',
+                fontWeight: '500',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+        boxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        boxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        commentBoxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 5,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        commentBoxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 5,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        threadedCommentBoxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        threadedCommentBoxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        formBoxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 5,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        formBoxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 5,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        buttonBoxShadow: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.1)',
+                horizontal: 0,
+                vertical: 0,
+                blur: 0,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        buttonBoxShadowHover: {
+            type: 'object',
+            default: {
+                enable: false,
+                color: 'rgba(0, 0, 0, 0.2)',
+                horizontal: 0,
+                vertical: 2,
+                blur: 5,
+                spread: 0,
+                position: 'outset'
+            }
+        },
+        borderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        borderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+        commentBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        commentBorderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        commentBorderStyle: {
+            type: 'string',
+            default: 'solid'
+        },
+        threadedCommentBorderRadius: {
+            type: 'object',
+            default: {
+                desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        threadedCommentBorderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        threadedCommentBorderStyle: {
+            type: 'string',
+            default: 'solid'
+        },
+        formBorderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        formBorderStyle: {
+            type: 'string',
+            default: 'solid'
+        },
+        buttonBorderWidth: {
+            type: 'object',
+            default: {
+                desktop: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        buttonBorderStyle: {
+            type: 'string',
+            default: 'none'
+        },
+        buttonBorderColor: {
+            type: 'string',
+            default: '#4a6cf7'
+        },
+        buttonBorderHoverColor: {
+            type: 'string',
+            default: '#3a5ce5'
+        }
+    },
+    example: {
+        attributes: {
+            layout: 'standard',
+            showAvatars: true,
+            commentsPerPage: 1,
+            nestedComments: true,
+            displayTitle: true,
+            titleText: 'Comments',
+            animation: 'none'
+        },
+    },
+    edit: PostCommentsEdit,
+    save: PostCommentsSave,
+});
+
+/**
+ * Register Copyright block
+ */
+registerBlockType('digiblocks/copyright', {
+    apiVersion: 2,
+    title: digiBlocksData.blocks['copyright'].title,
+    category: 'digiblocks-theme',
+    icon: {
+        src: () => {
+            const { viewbox, path } = digiBlocksData.blocks['copyright'].icon;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${viewbox}`} className="digiblocks-editor-icons">
+                    <path d={path} />
+                </svg>
+            );
+        }
+    },
+    description: digiBlocksData.blocks['copyright'].description,
+    keywords: [__('copyright', 'digiblocks'), __('footer', 'digiblocks'), __('text', 'digiblocks')],
+    supports: {
+        inserter: getBlockActiveStatus('copyright') ? true : false,
+        html: false,
+        className: false,
+        customClassName: false,
+        anchor: false,
+    },
+    attributes: {
+        id: {
+            type: 'string',
+            default: '',
+        },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+		visibility: {
+			type: 'object',
+			default: {
+				desktop: false,
+				tablet: false,
+				mobile: false
+			}
+		},
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
+        copyrightText: {
+            type: 'string',
+            default: __('© {year} {sitename}. All rights reserved.', 'digiblocks')
+        },
+        textAlign: {
+            type: 'object',
+            default: {
+                desktop: 'left',
+                tablet: '',
+                mobile: ''
+            }
+        },
+        textColor: {
+            type: 'string',
+            default: '#666666'
+        },
+        textHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        linkColor: {
+            type: 'string',
+            default: ''
+        },
+        linkHoverColor: {
+            type: 'string',
+            default: ''
+        },
+        typography: {
+            type: 'object',
+            default: {
+                fontFamily: '',
+                fontSize: { desktop: 14, tablet: 13, mobile: 12 },
+                fontSizeUnit: 'px',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeightUnit: 'em',
+                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacingUnit: 'px'
+            }
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        animation: {
+            type: 'string',
+            default: 'none'
+        },
+    },
+    example: {
+        attributes: {
+            copyrightText: '© {year} {sitename}. All rights reserved.',
+            textAlign: {
+                desktop: 'center',
+                tablet: 'center',
+                mobile: 'center'
+            }
+        }
+    },
+    edit: CopyrightEdit,
+    save: CopyrightSave,
 });

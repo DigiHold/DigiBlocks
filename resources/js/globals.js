@@ -268,7 +268,8 @@ import {
     loadGoogleFont,
     initializeGoogleFonts,
     scanForTypographyControls,
-    initializeGoogleFontsOnLoad
+    initializeGoogleFontsOnLoad,
+    injectFontsIntoPreviewIframe
 } from './utils/helpers';
 
 // Import components
@@ -300,6 +301,7 @@ window.digi.utils.loadGoogleFont = loadGoogleFont;
 window.digi.utils.initializeGoogleFonts = initializeGoogleFonts;
 window.digi.utils.scanForTypographyControls = scanForTypographyControls;
 window.digi.utils.initializeGoogleFontsOnLoad = initializeGoogleFontsOnLoad;
+window.digi.utils.injectFontsIntoPreviewIframe = injectFontsIntoPreviewIframe;
 
 // Google fonts
 window.digi.getGoogleFonts = getGoogleFonts;

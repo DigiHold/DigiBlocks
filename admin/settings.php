@@ -17,6 +17,7 @@ $settings = get_option(
 		'content_max_width'    => '90',
 		'recaptcha_site_key'   => '',
 		'recaptcha_secret_key' => '',
+		'newsletter_platform'  => '',
 	)
 );
 ?>
@@ -200,6 +201,318 @@ $settings = get_option(
 										placeholder="<?php esc_attr_e( 'Enter your Map ID', 'digiblocks' ); ?>"
 									>
 									<span class="digiblocks-form-description"><?php esc_html_e( 'Optional. Used to add markers in your maps.', 'digiblocks' ); ?></span>
+								</div>
+							</div>
+						</div>
+
+						<div class="digiblocks-form-section">
+							<h3><?php esc_html_e( 'Newsletter Settings', 'digiblocks' ); ?></h3>
+							<p class="digiblocks-form-section-description">
+								<?php esc_html_e( 'Configure newsletter platform integration for the Newsletter block.', 'digiblocks' ); ?>
+							</p>
+
+							<div class="digiblocks-form-field">
+								<label for="newsletter_platform">
+									<?php esc_html_e( 'Newsletter Platform', 'digiblocks' ); ?>
+								</label>
+								<select id="newsletter_platform" name="newsletter_platform">
+									<option value=""><?php esc_html_e( 'Select Platform', 'digiblocks' ); ?></option>
+									<option value="mailchimp" <?php selected( isset($settings['newsletter_platform']) ? $settings['newsletter_platform'] : '', 'mailchimp' ); ?>><?php esc_html_e( 'MailChimp', 'digiblocks' ); ?></option>
+									<option value="activecampaign" <?php selected( isset($settings['newsletter_platform']) ? $settings['newsletter_platform'] : '', 'activecampaign' ); ?>><?php esc_html_e( 'ActiveCampaign', 'digiblocks' ); ?></option>
+									<option value="brevo" <?php selected( isset($settings['newsletter_platform']) ? $settings['newsletter_platform'] : '', 'brevo' ); ?>><?php esc_html_e( 'Brevo', 'digiblocks' ); ?></option>
+									<option value="klaviyo" <?php selected( isset($settings['newsletter_platform']) ? $settings['newsletter_platform'] : '', 'klaviyo' ); ?>><?php esc_html_e( 'Klaviyo', 'digiblocks' ); ?></option>
+									<option value="convertkit" <?php selected( isset($settings['newsletter_platform']) ? $settings['newsletter_platform'] : '', 'convertkit' ); ?>><?php esc_html_e( 'ConvertKit', 'digiblocks' ); ?></option>
+									<option value="mailerlite" <?php selected( isset($settings['newsletter_platform']) ? $settings['newsletter_platform'] : '', 'mailerlite' ); ?>><?php esc_html_e( 'MailerLite', 'digiblocks' ); ?></option>
+								</select>
+							</div>
+
+							<!-- MailChimp Fields -->
+							<div id="mailchimp-fields" class="newsletter-platform-fields digiblocks-form-row" <?php echo ( isset($settings['newsletter_platform']) && $settings['newsletter_platform'] === 'mailchimp' ) ? '' : 'style="display:none;"'; ?>>
+								<div class="digiblocks-form-flex">
+									<div class="digiblocks-form-field">
+										<label for="mailchimp_api_key">
+											<?php esc_html_e( 'MailChimp API Key', 'digiblocks' ); ?>
+										</label>
+										<div class="digiblocks-input-group">
+											<input 
+												type="password" 
+												id="mailchimp_api_key" 
+												name="mailchimp_api_key" 
+												value="<?php echo esc_attr( isset($settings['mailchimp_api_key']) ? $settings['mailchimp_api_key'] : '' ); ?>" 
+												placeholder="<?php esc_attr_e( 'Enter your MailChimp API key', 'digiblocks' ); ?>"
+											>
+											<button type="button" class="button button-secondary digiblocks-toggle-password">
+												<span class="dashicons dashicons-visibility"></span>
+											</button>
+										</div>
+									</div>
+
+									<div class="digiblocks-form-field">
+										<label for="mailchimp_audience_id">
+											<?php esc_html_e( 'Audience ID', 'digiblocks' ); ?>
+										</label>
+										<input 
+											type="text" 
+											id="mailchimp_audience_id" 
+											name="mailchimp_audience_id" 
+											value="<?php echo esc_attr( isset($settings['mailchimp_audience_id']) ? $settings['mailchimp_audience_id'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'Enter your Audience ID', 'digiblocks' ); ?>"
+										>
+									</div>
+								</div>
+
+								<div class="digiblocks-form-flex">
+									<div class="digiblocks-form-field">
+										<label for="mailchimp_tags">
+											<?php esc_html_e( 'Tags (Optional)', 'digiblocks' ); ?>
+										</label>
+										<input 
+											type="text" 
+											id="mailchimp_tags" 
+											name="mailchimp_tags" 
+											value="<?php echo esc_attr( isset($settings['mailchimp_tags']) ? $settings['mailchimp_tags'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'Enter tags separated by commas', 'digiblocks' ); ?>"
+										>
+									</div>
+
+									<div class="digiblocks-form-field digiblocks-toggle-field">
+										<label class="digiblocks-toggle">
+											<input 
+												type="checkbox" 
+												id="mailchimp_double_optin" 
+												name="mailchimp_double_optin" 
+												class="digiblocks-toggle" 
+												<?php checked(isset($settings['mailchimp_double_optin']) ? $settings['mailchimp_double_optin'] : false); ?>
+											>
+											<span class="digiblocks-toggle-slider"></span>
+										</label>
+										<div class="digiblocks-toggle-caption">
+											<label for="mailchimp_double_optin">
+												<?php esc_html_e('Double Opt-in', 'digiblocks'); ?>
+											</label>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- ActiveCampaign Fields -->
+							<div id="activecampaign-fields" class="newsletter-platform-fields digiblocks-form-row" <?php echo ( isset($settings['newsletter_platform']) && $settings['newsletter_platform'] === 'activecampaign' ) ? '' : 'style="display:none;"'; ?>>
+								<div class="digiblocks-form-flex">
+									<div class="digiblocks-form-field">
+										<label for="activecampaign_api_url">
+											<?php esc_html_e( 'API URL', 'digiblocks' ); ?>
+										</label>
+										<input 
+											type="url" 
+											id="activecampaign_api_url" 
+											name="activecampaign_api_url" 
+											value="<?php echo esc_attr( isset($settings['activecampaign_api_url']) ? $settings['activecampaign_api_url'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'https://youraccountname.api-us1.com', 'digiblocks' ); ?>"
+										>
+									</div>
+
+									<div class="digiblocks-form-field">
+										<label for="activecampaign_api_key">
+											<?php esc_html_e( 'API Key', 'digiblocks' ); ?>
+										</label>
+										<div class="digiblocks-input-group">
+											<input 
+												type="password" 
+												id="activecampaign_api_key" 
+												name="activecampaign_api_key" 
+												value="<?php echo esc_attr( isset($settings['activecampaign_api_key']) ? $settings['activecampaign_api_key'] : '' ); ?>" 
+												placeholder="<?php esc_attr_e( 'Enter your API key', 'digiblocks' ); ?>"
+											>
+											<button type="button" class="button button-secondary digiblocks-toggle-password">
+												<span class="dashicons dashicons-visibility"></span>
+											</button>
+										</div>
+									</div>
+								</div>
+
+								<div class="digiblocks-form-flex">
+									<div class="digiblocks-form-field">
+										<label for="activecampaign_list_id">
+											<?php esc_html_e( 'List ID', 'digiblocks' ); ?>
+										</label>
+										<input 
+											type="text" 
+											id="activecampaign_list_id" 
+											name="activecampaign_list_id" 
+											value="<?php echo esc_attr( isset($settings['activecampaign_list_id']) ? $settings['activecampaign_list_id'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'Enter your List ID', 'digiblocks' ); ?>"
+										>
+									</div>
+
+									<div class="digiblocks-form-field">
+										<label for="activecampaign_tags">
+											<?php esc_html_e( 'Tags (Optional)', 'digiblocks' ); ?>
+										</label>
+										<input 
+											type="text" 
+											id="activecampaign_tags" 
+											name="activecampaign_tags" 
+											value="<?php echo esc_attr( isset($settings['activecampaign_tags']) ? $settings['activecampaign_tags'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'Enter tags separated by commas', 'digiblocks' ); ?>"
+										>
+									</div>
+								</div>
+							</div>
+
+							<!-- Brevo Fields -->
+							<div id="brevo-fields" class="newsletter-platform-fields digiblocks-form-row" <?php echo ( isset($settings['newsletter_platform']) && $settings['newsletter_platform'] === 'brevo' ) ? '' : 'style="display:none;"'; ?>>
+								<div class="digiblocks-form-flex">
+									<div class="digiblocks-form-field">
+										<label for="brevo_api_key">
+											<?php esc_html_e( 'Brevo API Key', 'digiblocks' ); ?>
+										</label>
+										<div class="digiblocks-input-group">
+											<input 
+												type="password" 
+												id="brevo_api_key" 
+												name="brevo_api_key" 
+												value="<?php echo esc_attr( isset($settings['brevo_api_key']) ? $settings['brevo_api_key'] : '' ); ?>" 
+												placeholder="<?php esc_attr_e( 'Enter your Brevo API key', 'digiblocks' ); ?>"
+											>
+											<button type="button" class="button button-secondary digiblocks-toggle-password">
+												<span class="dashicons dashicons-visibility"></span>
+											</button>
+										</div>
+									</div>
+
+									<div class="digiblocks-form-field">
+										<label for="brevo_list_id">
+											<?php esc_html_e( 'List ID', 'digiblocks' ); ?>
+										</label>
+										<input 
+											type="text" 
+											id="brevo_list_id" 
+											name="brevo_list_id" 
+											value="<?php echo esc_attr( isset($settings['brevo_list_id']) ? $settings['brevo_list_id'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'Enter your List ID', 'digiblocks' ); ?>"
+										>
+									</div>
+								</div>
+							</div>
+
+							<!-- Klaviyo Fields -->
+							<div id="klaviyo-fields" class="newsletter-platform-fields digiblocks-form-row" <?php echo ( isset($settings['newsletter_platform']) && $settings['newsletter_platform'] === 'klaviyo' ) ? '' : 'style="display:none;"'; ?>>
+								<div class="digiblocks-form-flex">
+									<div class="digiblocks-form-field">
+										<label for="klaviyo_api_key">
+											<?php esc_html_e( 'Private API Key', 'digiblocks' ); ?>
+										</label>
+										<div class="digiblocks-input-group">
+											<input 
+												type="password" 
+												id="klaviyo_api_key" 
+												name="klaviyo_api_key" 
+												value="<?php echo esc_attr( isset($settings['klaviyo_api_key']) ? $settings['klaviyo_api_key'] : '' ); ?>" 
+												placeholder="<?php esc_attr_e( 'Enter your Private API key', 'digiblocks' ); ?>"
+											>
+											<button type="button" class="button button-secondary digiblocks-toggle-password">
+												<span class="dashicons dashicons-visibility"></span>
+											</button>
+										</div>
+									</div>
+
+									<div class="digiblocks-form-field">
+										<label for="klaviyo_list_id">
+											<?php esc_html_e( 'List ID', 'digiblocks' ); ?>
+										</label>
+										<input 
+											type="text" 
+											id="klaviyo_list_id" 
+											name="klaviyo_list_id" 
+											value="<?php echo esc_attr( isset($settings['klaviyo_list_id']) ? $settings['klaviyo_list_id'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'Enter your List ID', 'digiblocks' ); ?>"
+										>
+									</div>
+								</div>
+							</div>
+
+							<!-- ConvertKit Fields -->
+							<div id="convertkit-fields" class="newsletter-platform-fields digiblocks-form-row" <?php echo ( isset($settings['newsletter_platform']) && $settings['newsletter_platform'] === 'convertkit' ) ? '' : 'style="display:none;"'; ?>>
+								<div class="digiblocks-form-flex">
+									<div class="digiblocks-form-field">
+										<label for="convertkit_api_key">
+											<?php esc_html_e( 'ConvertKit API Key', 'digiblocks' ); ?>
+										</label>
+										<div class="digiblocks-input-group">
+											<input 
+												type="password" 
+												id="convertkit_api_key" 
+												name="convertkit_api_key" 
+												value="<?php echo esc_attr( isset($settings['convertkit_api_key']) ? $settings['convertkit_api_key'] : '' ); ?>" 
+												placeholder="<?php esc_attr_e( 'Enter your API key', 'digiblocks' ); ?>"
+											>
+											<button type="button" class="button button-secondary digiblocks-toggle-password">
+												<span class="dashicons dashicons-visibility"></span>
+											</button>
+										</div>
+									</div>
+
+									<div class="digiblocks-form-field">
+										<label for="convertkit_form_id">
+											<?php esc_html_e( 'Form ID', 'digiblocks' ); ?>
+										</label>
+										<input 
+											type="text" 
+											id="convertkit_form_id" 
+											name="convertkit_form_id" 
+											value="<?php echo esc_attr( isset($settings['convertkit_form_id']) ? $settings['convertkit_form_id'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'Enter your Form ID', 'digiblocks' ); ?>"
+										>
+									</div>
+								</div>
+
+								<div class="digiblocks-form-field">
+									<label for="convertkit_tags">
+										<?php esc_html_e( 'Tags (Optional)', 'digiblocks' ); ?>
+									</label>
+									<input 
+										type="text" 
+										id="convertkit_tags" 
+										name="convertkit_tags" 
+										value="<?php echo esc_attr( isset($settings['convertkit_tags']) ? $settings['convertkit_tags'] : '' ); ?>" 
+										placeholder="<?php esc_attr_e( 'Enter tags separated by commas', 'digiblocks' ); ?>"
+									>
+								</div>
+							</div>
+
+							<!-- MailerLite Fields -->
+							<div id="mailerlite-fields" class="newsletter-platform-fields digiblocks-form-row" <?php echo ( isset($settings['newsletter_platform']) && $settings['newsletter_platform'] === 'mailerlite' ) ? '' : 'style="display:none;"'; ?>>
+								<div class="digiblocks-form-flex">
+									<div class="digiblocks-form-field">
+										<label for="mailerlite_api_key">
+											<?php esc_html_e( 'MailerLite Token', 'digiblocks' ); ?>
+										</label>
+										<div class="digiblocks-input-group">
+											<input 
+												type="password" 
+												id="mailerlite_api_key" 
+												name="mailerlite_api_key" 
+												value="<?php echo esc_attr( isset($settings['mailerlite_api_key']) ? $settings['mailerlite_api_key'] : '' ); ?>" 
+												placeholder="<?php esc_attr_e( 'Enter your token', 'digiblocks' ); ?>"
+											>
+											<button type="button" class="button button-secondary digiblocks-toggle-password">
+												<span class="dashicons dashicons-visibility"></span>
+											</button>
+										</div>
+									</div>
+
+									<div class="digiblocks-form-field">
+										<label for="mailerlite_group_id">
+											<?php esc_html_e( 'Group ID', 'digiblocks' ); ?>
+										</label>
+										<input 
+											type="text" 
+											id="mailerlite_group_id" 
+											name="mailerlite_group_id" 
+											value="<?php echo esc_attr( isset($settings['mailerlite_group_id']) ? $settings['mailerlite_group_id'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'Enter your Group ID', 'digiblocks' ); ?>"
+										>
+									</div>
 								</div>
 							</div>
 						</div>

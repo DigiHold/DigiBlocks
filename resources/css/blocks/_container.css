@@ -5,7 +5,6 @@
 /* Container block */
 .block-editor-block-list__block[data-type="digiblocks/container"] {
     position: relative;
-    min-height: 100px;
     padding: 10px;
     display: flex;
     border: 1px dashed #ddd;

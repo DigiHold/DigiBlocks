@@ -75,6 +75,9 @@ const BoxShadowControl = ({
         
         return (
             <div className="digiblocks-box-shadow-controls">
+				{label && (
+					<h2 className="digiblocks-control-label">{label}</h2>
+				)}
                 {/* Enable/Disable Toggle Button */}
                 <div className="digiblocks-toggle-wrapper" style={{ marginBottom: '16px' }}>
                     <ToggleControl

@@ -409,25 +409,25 @@ export const loadGoogleFont = (fontFamily, fontWeight = '') => {
         const formattedFontFamily = prepareFontForUrl(fontFamily);
         
         // Create the Google Fonts URL
-        const fontUrl = `https://fonts.googleapis.com/css2?family=${formattedFontFamily}:wght@${fontWeight}&display=swap`;
+		const fontUrl = `https://fonts.googleapis.com/css?family=${formattedFontFamily}:${fontWeight}&display=swap`;
         
         // Check if this font is already loaded
         const existingLink = document.querySelector(`link[href*="${formattedFontFamily}"]`);
         if (existingLink) {
             // If already loaded but with different weights, update the href
-            if (!existingLink.href.includes(`wght@${fontWeight}`)) {
-                // Get current weights
-                const weightMatch = existingLink.href.match(/wght@([^&]+)/);
-                if (weightMatch && weightMatch[1]) {
-                    const currentWeights = weightMatch[1].split(';');
-                    if (!currentWeights.includes(fontWeight)) {
-                        // Add new weight to existing weights
-                        currentWeights.push(fontWeight);
-                        const newWeights = currentWeights.join(';');
-                        existingLink.href = existingLink.href.replace(/wght@([^&]+)/, `wght@${newWeights}`);
-                    }
-                }
-            }
+            if (!existingLink.href.includes(`:${fontWeight}`)) {
+				// Get current weights
+				const weightMatch = existingLink.href.match(/:([^&]+)/);
+				if (weightMatch && weightMatch[1]) {
+					const currentWeights = weightMatch[1].split(',');
+					if (!currentWeights.includes(fontWeight)) {
+						// Add new weight to existing weights
+						currentWeights.push(fontWeight);
+						const newWeights = currentWeights.join(',');
+						existingLink.href = existingLink.href.replace(/:([^&]+)/, `:${newWeights}`);
+					}
+				}
+			}
             
             // Mark this font as loaded
             window.digi.loadedFonts[fontKey] = true;
@@ -565,6 +565,259 @@ export const scanForTypographyControls = () => {
 };
 
 /**
+ * Inject Google Fonts into Gutenberg preview iframes
+ * This ensures fonts display correctly in tablet/mobile previews
+ *
+ * @return {void}
+ */
+export const injectFontsIntoPreviewIframe = () => {
+    try {
+        // Only run in editor environment
+        if (!wp || !wp.data) {
+            return;
+        }
+        
+        // Track selected fonts in different views
+        window.digi = window.digi || {};
+        window.digi.deviceFonts = window.digi.deviceFonts || {
+            desktop: {},
+            tablet: {},
+            mobile: {}
+        };
+        
+        // Find the preview iframe and inject fonts
+        const findAndInjectFonts = () => {
+            // Look for the preview iframe
+            const previewIframe = document.querySelector('.edit-post-visual-editor iframe');
+            
+            if (previewIframe && previewIframe.contentDocument) {
+                // Get all Google Font stylesheets from parent document
+                const fontStylesheets = Array.from(document.querySelectorAll('link[href*="fonts.googleapis.com"]'));
+                
+                // Check if iframe already has these stylesheets
+                const iframeDocument = previewIframe.contentDocument;
+                const existingStylesheets = Array.from(iframeDocument.querySelectorAll('link[href*="fonts.googleapis.com"]'))
+                    .map(link => link.href);
+                
+                // Add each missing stylesheet to iframe
+                fontStylesheets.forEach(stylesheet => {
+                    if (!existingStylesheets.includes(stylesheet.href)) {
+                        const newLink = iframeDocument.createElement('link');
+                        newLink.rel = 'stylesheet';
+                        newLink.href = stylesheet.href;
+                        
+                        // Copy data attributes
+                        if (stylesheet.hasAttribute('data-font-family')) {
+                            newLink.setAttribute('data-font-family', stylesheet.getAttribute('data-font-family'));
+                        }
+                        if (stylesheet.hasAttribute('data-font-weight')) {
+                            newLink.setAttribute('data-font-weight', stylesheet.getAttribute('data-font-weight'));
+                        }
+                        
+                        // Add to iframe's head
+                        iframeDocument.head.appendChild(newLink);
+                    }
+                });
+                
+                // Set up a listener for font selection within the iframe
+                if (!iframeDocument._fontSelectionListenerAdded) {
+                    iframeDocument._fontSelectionListenerAdded = true;
+                    
+                    // Listen for clicks on font selection elements
+                    iframeDocument.addEventListener('click', (e) => {
+                        // Check if clicked element is a font control
+                        const isFontControl = e.target.closest('.components-custom-select-control__item') || 
+                                             e.target.closest('.components-custom-select-control__button');
+                        
+                        if (isFontControl) {
+                            // Schedule a check for new fonts after selection
+                            setTimeout(() => {
+                                // Get fonts from iframe
+                                const iframeFontLinks = Array.from(iframeDocument.querySelectorAll('link[href*="fonts.googleapis.com"]'));
+                                
+                                // Copy any new fonts back to parent
+                                iframeFontLinks.forEach(link => {
+                                    const fontExists = document.querySelector(`link[href="${link.href}"]`);
+                                    if (!fontExists) {
+                                        const newLink = document.createElement('link');
+                                        newLink.rel = 'stylesheet';
+                                        newLink.href = link.href;
+                                        
+                                        // Copy data attributes
+                                        if (link.hasAttribute('data-font-family')) {
+                                            newLink.setAttribute('data-font-family', link.getAttribute('data-font-family'));
+                                        }
+                                        if (link.hasAttribute('data-font-weight')) {
+                                            newLink.setAttribute('data-font-weight', link.getAttribute('data-font-weight'));
+                                        }
+                                        
+                                        document.head.appendChild(newLink);
+                                    }
+                                });
+                            }, 500);
+                        }
+                    });
+                }
+            }
+        };
+        
+        // Override the original loadGoogleFont to work in both parent and iframe contexts
+        const originalLoadGoogleFont = window.digi.utils.loadGoogleFont;
+        
+        window.digi.utils.loadGoogleFont = (fontFamily, fontWeight = '') => {
+            // Call original implementation for parent document
+            originalLoadGoogleFont(fontFamily, fontWeight);
+            
+            // Store font in device-specific tracking
+            const currentDevice = window.digi.responsiveState.activeDevice;
+            if (!window.digi.deviceFonts[currentDevice]) {
+                window.digi.deviceFonts[currentDevice] = {};
+            }
+            
+            // Create a unique key for this font+weight combo
+            const fontKey = `${fontFamily}|${fontWeight || '400'}`;
+            window.digi.deviceFonts[currentDevice][fontKey] = true;
+            
+            // Also try to load in iframe if it exists
+            const previewIframe = document.querySelector('.edit-post-visual-editor iframe');
+            if (previewIframe && previewIframe.contentDocument) {
+                const iframeDoc = previewIframe.contentDocument;
+                
+                // Skip if no font family or it's a system font
+                if (!fontFamily || 
+                    fontFamily === '' || 
+                    fontFamily.includes(',') ||
+                    fontFamily === 'system-ui') {
+                    return;
+                }
+                
+                // Replace spaces with plus signs for URL
+                const formattedFontFamily = fontFamily.replace(/\s+/g, '+');
+                
+                // Create the Google Fonts URL with API v1 format
+                const fontUrl = `https://fonts.googleapis.com/css?family=${formattedFontFamily}:${fontWeight || '400'}&display=swap`;
+                
+                // Check if this font is already loaded in iframe
+                const existingLink = iframeDoc.querySelector(`link[href*="${formattedFontFamily}"]`);
+                if (existingLink) {
+                    // If already loaded but with different weights, update the href
+                    if (!existingLink.href.includes(`:${fontWeight}`)) {
+                        const weightMatch = existingLink.href.match(/:([^&]+)/);
+                        if (weightMatch && weightMatch[1]) {
+                            const currentWeights = weightMatch[1].split(',');
+                            if (!currentWeights.includes(fontWeight)) {
+                                currentWeights.push(fontWeight || '400');
+                                const newWeights = currentWeights.join(',');
+                                existingLink.href = existingLink.href.replace(/:([^&]+)/, `:${newWeights}`);
+                            }
+                        }
+                    }
+                    return;
+                }
+                
+                // Create link element for the Google Font in iframe
+                const linkElement = iframeDoc.createElement('link');
+                linkElement.rel = 'stylesheet';
+                linkElement.href = fontUrl;
+                
+                // Add custom attributes for tracking
+                linkElement.setAttribute('data-font-family', fontFamily);
+                linkElement.setAttribute('data-font-weight', fontWeight || '400');
+                linkElement.setAttribute('data-auto-loaded', 'true');
+                
+                // Add to iframe document head
+                iframeDoc.head.appendChild(linkElement);
+            }
+        };
+        
+        // Setup mutation observer to detect when preview iframe changes
+        let previousDevice = null;
+        const observer = new MutationObserver(() => {
+            const currentDevice = window.digi.responsiveState.activeDevice;
+            
+            // Always inject fonts when device changes
+            if (currentDevice !== previousDevice) {
+                previousDevice = currentDevice;
+                
+                // Wait a bit for iframe to fully load
+                setTimeout(findAndInjectFonts, 300);
+                setTimeout(findAndInjectFonts, 1000);
+                
+                // Also load any fonts previously used in this device view
+                if (window.digi.deviceFonts[currentDevice]) {
+                    Object.keys(window.digi.deviceFonts[currentDevice]).forEach(fontKey => {
+                        const [fontFamily, fontWeight] = fontKey.split('|');
+                        originalLoadGoogleFont(fontFamily, fontWeight);
+                    });
+                }
+            }
+            
+            // Also check for iframe insertion/changes
+            const iframe = document.querySelector('.edit-post-visual-editor iframe');
+            if (iframe && iframe.contentDocument) {
+                findAndInjectFonts();
+            }
+        });
+        
+        // Start observing body for changes
+        observer.observe(document.body, { 
+            childList: true,
+            subtree: true,
+            attributes: true
+        });
+        
+        // Watch for font changes in the parent window
+        const fontObserver = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'childList') {
+                    const addedNodes = Array.from(mutation.addedNodes);
+                    const hasNewFontLink = addedNodes.some(node => 
+                        node.nodeName === 'LINK' && 
+                        node.href && 
+                        node.href.includes('fonts.googleapis.com')
+                    );
+                    
+                    if (hasNewFontLink) {
+                        findAndInjectFonts();
+                    }
+                }
+            }
+        });
+        
+        // Observe head for new font links
+        fontObserver.observe(document.head, {
+            childList: true
+        });
+        
+        // Subscribe to device changes to inject fonts
+        if (wp.data && wp.data.subscribe) {
+            wp.data.subscribe(() => {
+                const currentDevice = window.digi.responsiveState.activeDevice;
+                if (currentDevice !== previousDevice) {
+                    previousDevice = currentDevice;
+                    
+                    // Inject fonts after a delay when device changes
+                    setTimeout(findAndInjectFonts, 500);
+                    
+                    // Also load device-specific fonts
+                    if (window.digi.deviceFonts[currentDevice]) {
+                        Object.keys(window.digi.deviceFonts[currentDevice]).forEach(fontKey => {
+                            const [fontFamily, fontWeight] = fontKey.split('|');
+                            originalLoadGoogleFont(fontFamily, fontWeight);
+                        });
+                    }
+                }
+            });
+        }
+        
+        // Initial setup
+        findAndInjectFonts();
+    } catch (error) {
+        console.error('Error setting up font injection for preview:', error);
+    }
+};
+
+/**
  * Initialize Google Fonts when WordPress is fully loaded
  * This sets up event listeners and triggers font loading at the right times
  * 
@@ -578,6 +831,7 @@ export const initializeGoogleFontsOnLoad = () => {
             setTimeout(() => {
                 initializeGoogleFonts();
                 scanForTypographyControls();
+				injectFontsIntoPreviewIframe();
             }, 1000);
         });
     }

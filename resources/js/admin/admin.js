@@ -12,6 +12,7 @@
     let saveBlocksButton;
     let settingsForm;
     let togglePasswordButtons;
+    let newsletterPlatformSelect;
 
     /**
      * Initialize the admin page functionality
@@ -22,6 +23,7 @@
         saveBlocksButton = document.getElementById("digiblocks-save-blocks");
         settingsForm = document.getElementById("digiblocks-settings-form");
         togglePasswordButtons = document.querySelectorAll(".digiblocks-toggle-password");
+        newsletterPlatformSelect = document.getElementById("newsletter_platform");
 
         if (blockCards.length && saveBlocksButton) {
             initBlocksManager();
@@ -33,6 +35,10 @@
 
         if (togglePasswordButtons.length) {
             initPasswordToggle();
+        }
+
+        if (newsletterPlatformSelect) {
+            initNewsletterPlatformToggle();
         }
     }
 
@@ -61,55 +67,55 @@
     /**
      * Save blocks settings via REST API
      */
-    function saveBlocksSettings() {
-        const saveStatus = document.querySelector(".digiblocks-save-status");
-        const activeBlocks = {};
+	function saveBlocksSettings() {
+		const saveStatus = document.querySelector(".digiblocks-save-status");
+		const activeBlocks = {};
 
-        // Show loading status
-        saveStatus.textContent = wp.i18n.__("Saving...", "digiblocks");
-        saveStatus.classList.remove("success", "error");
-        saveStatus.classList.add("visible");
+		// Show loading status
+		saveStatus.textContent = wp.i18n.__("Saving...", "digiblocks");
+		saveStatus.classList.remove("success", "error");
+		saveStatus.classList.add("visible");
 
-        // Collect active blocks
-        blockCards.forEach((card) => {
-            const blockName = card.dataset.blockName;
-            const toggle = card.querySelector('input[type="checkbox"]');
+		// Collect active status for all blocks
+		blockCards.forEach((card) => {
+			const blockName = card.dataset.blockName;
+			const toggle = card.querySelector('input[type="checkbox"]');
 
-            if (blockName && toggle) {
-                activeBlocks[blockName] = toggle.checked;
-            }
-        });
+			if (blockName && toggle) {
+				activeBlocks[blockName] = toggle.checked;
+			}
+		});
 
-        // Send data to REST API
-        fetch(digiBlocksAdmin.apiUrl + "update-blocks", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-WP-Nonce": digiBlocksAdmin.apiNonce,
-            },
-            body: JSON.stringify(activeBlocks),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    saveStatus.textContent = data.message;
-                    saveStatus.classList.add("success");
+		// Send data to REST API
+		fetch(digiBlocksAdmin.apiUrl + "update-blocks", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"X-WP-Nonce": digiBlocksAdmin.apiNonce,
+			},
+			body: JSON.stringify(activeBlocks),
+		})
+			.then((response) => response.json())
+			.then((data) => {
+				if (data.success) {
+					saveStatus.textContent = data.message;
+					saveStatus.classList.add("success");
 
-                    // Hide status after 3 seconds
-                    setTimeout(() => {
-                        saveStatus.classList.remove("visible");
-                    }, 3000);
-                } else {
-                    throw new Error(
-                        data.message || "Error saving blocks settings"
-                    );
-                }
-            })
-            .catch((error) => {
-                saveStatus.textContent = error.message;
-                saveStatus.classList.add("error");
-            });
-    }
+					// Hide status after 3 seconds
+					setTimeout(() => {
+						saveStatus.classList.remove("visible");
+					}, 3000);
+				} else {
+					throw new Error(
+						data.message || "Error saving blocks settings"
+					);
+				}
+			})
+			.catch((error) => {
+				saveStatus.textContent = error.message;
+				saveStatus.classList.add("error");
+			});
+	}
 
     /**
      * Initialize settings form functionality
@@ -136,8 +142,21 @@
 
         // Convert form data to object
         for (const [key, value] of formData.entries()) {
-            settings[key] = value;
+            if (key.endsWith('_double_optin') || key.endsWith('_local')) {
+                // Handle checkboxes - they only appear in FormData if checked
+                settings[key] = true;
+            } else {
+                settings[key] = value;
+            }
         }
+
+        // Handle unchecked checkboxes by explicitly setting them to false
+        const checkboxFields = ['mailchimp_double_optin', 'google_fonts_local'];
+        checkboxFields.forEach(field => {
+            if (!settings.hasOwnProperty(field)) {
+                settings[field] = false;
+            }
+        });
 
         // Send data to REST API
         fetch(digiBlocksAdmin.apiUrl + "update-settings", {
@@ -193,6 +212,43 @@
                     icon.classList.add("dashicons-visibility");
                 }
             });
+        });
+    }
+
+    /**
+     * Initialize newsletter platform toggle functionality
+     */
+    function initNewsletterPlatformToggle() {
+        // Hide all platform fields initially
+        const platformFields = document.querySelectorAll('.newsletter-platform-fields');
+        platformFields.forEach(field => {
+            field.style.display = 'none';
+        });
+
+        // Show current platform fields
+        const currentPlatform = newsletterPlatformSelect.value;
+        if (currentPlatform) {
+            const currentFields = document.getElementById(currentPlatform + '-fields');
+            if (currentFields) {
+                currentFields.style.display = 'flex';
+            }
+        }
+
+        // Add event listener for platform change
+        newsletterPlatformSelect.addEventListener('change', function() {
+            // Hide all platform fields
+            platformFields.forEach(field => {
+                field.style.display = 'none';
+            });
+
+            // Show selected platform fields
+            const selectedPlatform = this.value;
+            if (selectedPlatform) {
+                const selectedFields = document.getElementById(selectedPlatform + '-fields');
+                if (selectedFields) {
+                    selectedFields.style.display = 'flex';
+                }
+            }
         });
     }
 })();

@@ -526,7 +526,7 @@ class DigiBlocks_Fonts {
         $weights_str = implode(',', $weights);
         
         // Create the Google Fonts API URL
-        $fonts_url = "https://fonts.googleapis.com/css2?family={$url_font_family}:wght@{$weights_str}&display=swap";
+		$fonts_url = "https://fonts.googleapis.com/css?family={$url_font_family}:{$weights_str}&display=swap";
         
         // Get the CSS from Google Fonts
         $response = wp_remote_get($fonts_url, array(

@@ -116,6 +116,24 @@ if ( ! function_exists( 'digiblocks_get_css' ) ) {
 	}
 }
 
+if ( ! function_exists( 'digiblocks_get_alignment_css' ) ) {
+    /**
+	 * Generate CSS for alignment.
+	 *
+	 * @param string $alignment Alignment value (flex-start, center, flex-end).
+	 */
+	function digiblocks_get_alignment_css($alignment) {
+		if ($alignment === 'flex-start') {
+			return 'align-items: flex-start; text-align: left;';
+		} elseif ($alignment === 'center') {
+			return 'align-items: center; text-align: center;';
+		} elseif ($alignment === 'flex-end') {
+			return 'align-items: flex-end; text-align: right;';
+		}
+		return '';
+	}
+}
+
 if ( ! function_exists( 'digiblocks_get_gap_css' ) ) {
     /**
 	 * Get gap CSS.

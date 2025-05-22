@@ -84,6 +84,9 @@ class DigiBlocks {
 
 		// Initialize forms handler if needed
 		add_action( 'init', array( $this, 'init_forms_handler' ) );
+
+		// Initialize newsletter handler if needed
+		add_action( 'init', array( $this, 'init_newsletter_handler' ) );
 	}
 
 	/**
@@ -127,16 +130,11 @@ class DigiBlocks {
 			'google_fonts_local'   => false,
 		);
 
-		// Get all blocks and set them to active by default.
-		$blocks        = $this->get_blocks_list();
-		$active_blocks = array();
-
-		foreach ( $blocks as $block ) {
-			$active_blocks[ $block['name'] ] = true;
-		}
-
+		// By default, no blocks are inactive
+		$inactive_blocks = array();
+    
 		add_option( 'digiblocks_settings', $default_settings );
-		add_option( 'digiblocks_active_blocks', $active_blocks );
+		add_option( 'digiblocks_inactive_blocks', $inactive_blocks );
 
 		// Set transient to redirect to the dashboard on activation.
 		set_transient( 'digiblocks_activation_redirect', true, 30 );
@@ -535,6 +533,14 @@ class DigiBlocks {
 				),
 				'description' => __( 'Add beautiful Lottie animations to your content.', 'digiblocks' ),
 			),
+			'newsletter' => array(
+				'title'       => __( 'Newsletter', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '576 512',
+					'path'    => 'M32 208l0 176c0 17.7 14.3 32 32 32l160 0c17.7 0 32-14.3 32-32l0-176c0-61.9-50.1-112-112-112S32 146.1 32 208zm256 0l0 176c0 11.7-3.1 22.6-8.6 32L512 416c17.7 0 32-14.3 32-32l0-176c0-61.9-50.1-112-112-112L234.5 96c32.6 26.4 53.5 66.8 53.5 112zM64 448c-35.3 0-64-28.7-64-64L0 208C0 128.5 64.5 64 144 64l288 0c79.5 0 144 64.5 144 144l0 176c0 35.3-28.7 64-64 64l-288 0L64 448zm48-256l64 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-64 0c-8.8 0-16-7.2-16-16s7.2-16 16-16zm224 0l96 0 56 0c13.3 0 24 10.7 24 24l0 80c0 13.3-10.7 24-24 24l-48 0c-13.3 0-24-10.7-24-24l0-72-80 0c-8.8 0-16-7.2-16-16s7.2-16 16-16zm112 96l32 0 0-64-32 0 0 64z',
+				),
+				'description' => __( 'Add a newsletter subscription form.', 'digiblocks' ),
+			),
 			'posts' => array(
 				'title'       => __( 'Posts', 'digiblocks' ),
 				'icon'        => array(
@@ -625,6 +631,102 @@ class DigiBlocks {
 					'path'    => 'M347.3 267.3c6.2-6.2 6.2-16.4 0-22.6l-128-128c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6L297.4 240 16 240c-8.8 0-16 7.2-16 16s7.2 16 16 16l281.4 0L196.7 372.7c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0l128-128zM336 448c-8.8 0-16 7.2-16 16s7.2 16 16 16l96 0c44.2 0 80-35.8 80-80l0-288c0-44.2-35.8-80-80-80l-96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l96 0c26.5 0 48 21.5 48 48l0 288c0 26.5-21.5 48-48 48l-96 0z',
 				),
 				'description' => __( 'Add a customizable login/account link for your header.', 'digiblocks' ),
+			),
+			'page-title' => array(
+				'title'       => __( 'Page Title', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '448 512',
+					'path'    => 'M0 48c0-8.8 7.2-16 16-16l64 0 64 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L96 64l0 160 256 0 0-160-48 0c-8.8 0-16-7.2-16-16s7.2-16 16-16l64 0 64 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-48 0 0 176 0 208 48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-128 0c-8.8 0-16-7.2-16-16s7.2-16 16-16l48 0 0-192L96 256l0 192 48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L16 480c-8.8 0-16-7.2-16-16s7.2-16 16-16l48 0 0-208L64 64 16 64C7.2 64 0 56.8 0 48z',
+				),
+				'description' => __( 'Display the title of the current page or post.', 'digiblocks' ),
+			),
+			'breadcrumbs' => array(
+				'title'       => __( 'Breadcrumbs', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '320 512',
+					'path'    => 'M267.3 244.7c6.2 6.2 6.2 16.4 0 22.6l-160 160c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6L233.4 256 84.7 107.3c-6.2-6.2-6.2-16.4 0-22.6s16.4-6.2 22.6 0l160 160z',
+				),
+				'description' => __( 'Show navigation path.', 'digiblocks' ),
+			),
+			'featured-image' => array(
+				'title'       => __( 'Featured Image', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '576 512',
+					'path'    => 'M160 64l352 0c17.7 0 32 14.3 32 32l0 105.4L486.6 144c-12.5-12.5-32.8-12.5-45.3 0L304 281.4 230.6 208c-12.5-12.5-32.8-12.5-45.3 0L128 265.4 128 96c0-17.7 14.3-32 32-32zM576 96c0-35.3-28.7-64-64-64L160 32c-35.3 0-64 28.7-64 64l0 208 0 16c0 35.3 28.7 64 64 64l80 0c0 0 0 0 0 0l272 0c35.3 0 64-28.7 64-64l0-80c0 0 0 0 0-.1l0-144zM464 166.6l80 80 0 73.4c0 17.7-14.3 32-32 32l-233.4 0 36.7-36.7L464 166.6zM281.4 304l-48 48L160 352c-17.7 0-32-14.3-32-32l0-9.4 80-80L281.4 304zM32 112c0-8.8-7.2-16-16-16s-16 7.2-16 16L0 352c0 70.7 57.3 128 128 128l336 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-336 0c-53 0-96-43-96-96l0-240zm232 48a24 24 0 1 0 0-48 24 24 0 1 0 0 48z',
+				),
+				'description' => __( 'Display the featured image of the current post.', 'digiblocks' ),
+			),
+			'post-meta' => array(
+				'title'       => __( 'Post Meta', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '448 512',
+					'path'    => 'M320 128a96 96 0 1 0 -192 0 96 96 0 1 0 192 0zM96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM32 480l384 0c-1.2-79.7-66.2-144-146.3-144l-91.4 0c-80 0-145 64.3-146.3 144zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3z',
+				),
+				'description' => __( 'Display the main content of the current post or page.', 'digiblocks' ),
+			),
+			'post-content' => array(
+				'title'       => __( 'Post Content', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '512 512',
+					'path'    => 'M160 64c-17.7 0-32 14.3-32 32l0 320c0 11.7-3.1 22.6-8.6 32L432 448c26.5 0 48-21.5 48-48l0-304c0-17.7-14.3-32-32-32L160 64zM64 480c-35.3 0-64-28.7-64-64L0 160c0-35.3 28.7-64 64-64l0 32c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32s32-14.3 32-32L96 96c0-35.3 28.7-64 64-64l288 0c35.3 0 64 28.7 64 64l0 304c0 44.2-35.8 80-80 80L64 480zM384 112c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16zm0 64c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16zm0 64c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16zM160 304c0-8.8 7.2-16 16-16l256 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-256 0c-8.8 0-16-7.2-16-16zm0 64c0-8.8 7.2-16 16-16l256 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-256 0c-8.8 0-16-7.2-16-16zm32-144l128 0 0-96-128 0 0 96zM160 120c0-13.3 10.7-24 24-24l144 0c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24l-144 0c-13.3 0-24-10.7-24-24l0-112z',
+				),
+				'description' => __( 'Display post metadata like author, date, categories, and tags.', 'digiblocks' ),
+			),
+			'post-navigation' => array(
+				'title'       => __( 'Post Navigation', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '448 512',
+					'path'    => 'M443.3 267.3c6.2-6.2 6.2-16.4 0-22.6l-176-176c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6L393.4 240 16 240c-8.8 0-16 7.2-16 16s7.2 16 16 16l377.4 0L244.7 420.7c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0l176-176z',
+				),
+				'description' => __( 'Add previous/next post navigation links to single posts.', 'digiblocks' ),
+			),
+			'social-share' => array(
+				'title'       => __( 'Social Share', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '512 512',
+					'path'    => 'M296 160c13.3 0 24-10.7 24-24l0-8 0-16 0-48L480 208 320 352l0-48 0-16 0-8c0-13.3-10.7-24-24-24l-8 0-96 0c-70.7 0-128 57.3-128 128c0 8.3 .7 16.1 2 23.2C47.9 383.7 32 350.1 32 304c0-79.5 64.5-144 144-144l112 0 8 0zm-8 144l0 16 0 32c0 12.6 7.4 24.1 19 29.2s25 3 34.4-5.4l160-144c6.7-6.1 10.6-14.7 10.6-23.8s-3.8-17.7-10.6-23.8l-160-144c-9.4-8.5-22.9-10.6-34.4-5.4s-19 16.6-19 29.2l0 32 0 16 0 16-32 0-80 0C78.8 128 0 206.8 0 304C0 417.3 81.5 467.9 100.2 478.1c2.5 1.4 5.3 1.9 8.1 1.9c10.9 0 19.7-8.9 19.7-19.7c0-7.5-4.3-14.4-9.8-19.5C108.8 431.9 96 414.4 96 384c0-53 43-96 96-96l64 0 32 0 0 16z',
+				),
+				'description' => __( 'Add social sharing buttons for various platforms.', 'digiblocks' ),
+			),
+			'table-of-contents' => array(
+				'title'       => __( 'Table of Contents', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '512 512',
+					'path'    => 'M64 64a32 32 0 1 0 0 64 32 32 0 1 0 0-64zM176 80c-8.8 0-16 7.2-16 16s7.2 16 16 16l320 0c8.8 0 16-7.2 16-16s-7.2-16-16-16L176 80zm0 160c-8.8 0-16 7.2-16 16s7.2 16 16 16l320 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-320 0zm0 160c-8.8 0-16 7.2-16 16s7.2 16 16 16l320 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-320 0zM96 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zM64 384a32 32 0 1 0 0 64 32 32 0 1 0 0-64z',
+				),
+				'description' => __( 'Auto-generate a table of contents from page headings.', 'digiblocks' ),
+			),
+			'author-box' => array(
+				'title'       => __( 'Author Box', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '576 512',
+					'path'    => 'M512 64c17.7 0 32 14.3 32 32l0 320c0 17.7-14.3 32-32 32L64 448c-17.7 0-32-14.3-32-32L32 96c0-17.7 14.3-32 32-32l448 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l448 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zm96 160a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm96 0a64 64 0 1 0 -128 0 64 64 0 1 0 128 0zM112 368c0-26.5 21.5-48 48-48l64 0c26.5 0 48 21.5 48 48c0 8.8 7.2 16 16 16s16-7.2 16-16c0-44.2-35.8-80-80-80l-64 0c-44.2 0-80 35.8-80 80c0 8.8 7.2 16 16 16s16-7.2 16-16zM352 160c-8.8 0-16 7.2-16 16s7.2 16 16 16l128 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-128 0zm0 64c-8.8 0-16 7.2-16 16s7.2 16 16 16l128 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-128 0zm0 64c-8.8 0-16 7.2-16 16s7.2 16 16 16l128 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-128 0z',
+				),
+				'description' => __( 'Display author information, bio, avatar and social icons.', 'digiblocks' ),
+			),
+			'related-posts' => array(
+				'title'       => __( 'Related Posts', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '512 512',
+					'path'    => 'M336 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l121.4 0L212.7 276.7c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L480 54.6 480 176c0 8.8 7.2 16 16 16s16-7.2 16-16l0-160c0-8.8-7.2-16-16-16L336 0zM64 32C28.7 32 0 60.7 0 96L0 448c0 35.3 28.7 64 64 64l352 0c35.3 0 64-28.7 64-64l0-144c0-8.8-7.2-16-16-16s-16 7.2-16 16l0 144c0 17.7-14.3 32-32 32L64 480c-17.7 0-32-14.3-32-32L32 96c0-17.7 14.3-32 32-32l144 0c8.8 0 16-7.2 16-16s-7.2-16-16-16L64 32z',
+				),
+				'description' => __( 'Display posts related to the current post.', 'digiblocks' ),
+			),
+			'post-comments' => array(
+				'title'       => __( 'Post Comments', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '512 512',
+					'path'    => 'M256 64C125.8 64 32 148.6 32 240c0 37.1 15.5 70.6 40 100c5.2 6.3 8.4 14.8 7.4 23.9c-3.1 27-11.4 52.5-25.7 76.3c-.5 .9-1.1 1.8-1.6 2.6c11.1-2.9 22.2-7 32.7-11.5L91.2 446l-6.4-14.7c17-7.4 33-16.7 48.4-27.4c8.5-5.9 19.4-7.5 29.2-4.2C193 410.1 224.1 416 256 416c130.2 0 224-84.6 224-176s-93.8-176-224-176zM0 240C0 125.2 114.5 32 256 32s256 93.2 256 208s-114.5 208-256 208c-36 0-70.5-6.7-103.8-17.9c-.2-.1-.5 0-.7 .1c-16.9 11.7-34.7 22.1-53.9 30.5C73.6 471.1 44.7 480 16 480c-6.5 0-12.3-3.9-14.8-9.8s-1.1-12.8 3.4-17.4c8.1-8.2 15.2-18.2 21.7-29c11.7-19.6 18.7-40.6 21.3-63.1c0 0-.1-.1-.1-.2C19.6 327.1 0 286.6 0 240z',
+				),
+				'description' => __( 'Display and customize the comments section.', 'digiblocks' ),
+			),
+			'copyright' => array(
+				'title'       => __( 'Copyright', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '512 512',
+					'path'    => 'M256 32a224 224 0 1 1 0 448 224 224 0 1 1 0-448zm0 480A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm67.9-188.1c-37.5 37.5-98.3 37.5-135.8 0s-37.5-98.3 0-135.8s98.3-37.5 135.8 0c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6c-50-50-131-50-181 0s-50 131 0 181s131 50 181 0c6.2-6.2 6.2-16.4 0-22.6s-16.4-6.2-22.6 0z',
+				),
+				'description' => __( 'Display copyright text with dynamic year, site name and site URL.', 'digiblocks' ),
 			),
 		);
 
@@ -1034,30 +1136,49 @@ class DigiBlocks {
 						true
 					);
 
-					// Forms necessary data
-					if ( $this->has_forms_block( $blocks ) ) {
+					// Check for Forms and Newsletter blocks
+					$has_forms_block = $this->has_forms_block( $blocks );
+					$has_newsletter_block = $this->has_newsletter_block( $blocks );
+
+					if ( $has_forms_block || $has_newsletter_block ) {
 						$settings             = get_option( 'digiblocks_settings', array() );
-						$recaptcha_site_key   = isset( $settings['recaptcha_site_key'] ) ? $settings['recaptcha_site_key'] : '';
-						$recaptcha_secret_key = isset( $settings['recaptcha_secret_key'] ) ? $settings['recaptcha_secret_key'] : '';
 
-						wp_localize_script(
-							'digiblocks-' . $post_id,
-							'digiBlocksFormData',
-							array(
-								'ajax_url'           => admin_url( 'admin-ajax.php' ),
-								'form_nonce'         => wp_create_nonce( 'digiblocks_form_nonce' ),
-								'recaptcha_site_key' => $recaptcha_site_key,
-							)
-						);
+						// Forms data
+						if ( $has_forms_block ) {
+							$recaptcha_site_key   = isset( $settings['recaptcha_site_key'] ) ? $settings['recaptcha_site_key'] : '';
+							$recaptcha_secret_key = isset( $settings['recaptcha_secret_key'] ) ? $settings['recaptcha_secret_key'] : '';
 
-						// Enqueue Google reCAPTCHA if needed.
-						if ( ! empty( $recaptcha_site_key ) && ! empty( $recaptcha_secret_key ) ) {
-							wp_enqueue_script(
-								'google-recaptcha',
-								'https://www.google.com/recaptcha/api.js?render=' . $recaptcha_site_key,
-								array(),
-								null, // phpcs:ignore
-								true
+							// Enqueue Google reCAPTCHA if needed (only once for both blocks)
+							if ( ! empty( $recaptcha_site_key ) && ! empty( $recaptcha_secret_key ) ) {
+								wp_enqueue_script(
+									'google-recaptcha',
+									'https://www.google.com/recaptcha/api.js?render=' . $recaptcha_site_key,
+									array(),
+									null, // phpcs:ignore
+									true
+								);
+							}
+
+							wp_localize_script(
+								'digiblocks-' . $post_id,
+								'digiBlocksFormData',
+								array(
+									'ajax_url'           => admin_url( 'admin-ajax.php' ),
+									'form_nonce'         => wp_create_nonce( 'digiblocks_form_nonce' ),
+									'recaptcha_site_key' => $recaptcha_site_key,
+								)
+							);
+						}
+
+						// Newsletter data
+						if ( $has_newsletter_block ) {
+							wp_localize_script(
+								'digiblocks-' . $post_id,
+								'digiBlocksNewsletterData',
+								array(
+									'ajax_url' => admin_url( 'admin-ajax.php' ),
+									'nonce'    => wp_create_nonce( 'digiblocks_newsletter_nonce' ),
+								)
 							);
 						}
 					}
@@ -1312,7 +1433,7 @@ class DigiBlocks {
 			array(
 				'fontAwesomeIcons'     => $this->get_fa_icons(),
 				'blocks'               => $this->get_block_data(),
-				'activeBlocks'         => get_option( 'digiblocks_active_blocks', array() ),
+				'inactiveBlocks'       => get_option( 'digiblocks_inactive_blocks', array() ),
 				'contentWidth'         => $content_width,
 				'contentMaxWidth'      => $content_max_width,
 				'googleMapsApiKey'     => $google_maps_api_key,
@@ -1484,6 +1605,38 @@ class DigiBlocks {
 			'google_maps_api_key'  => isset( $settings['google_maps_api_key'] ) ? sanitize_text_field( $settings['google_maps_api_key'] ) : $current_settings['google_maps_api_key'],
 			'google_maps_map_id'   => isset( $settings['google_maps_map_id'] ) ? sanitize_text_field( $settings['google_maps_map_id'] ) : $current_settings['google_maps_map_id'],
 			'google_fonts_local'   => $new_use_local_fonts,
+			
+			// Newsletter settings
+			'newsletter_platform'  => isset( $settings['newsletter_platform'] ) ? sanitize_text_field( $settings['newsletter_platform'] ) : ( isset( $current_settings['newsletter_platform'] ) ? $current_settings['newsletter_platform'] : '' ),
+			
+			// MailChimp
+			'mailchimp_api_key'       => isset( $settings['mailchimp_api_key'] ) ? sanitize_text_field( $settings['mailchimp_api_key'] ) : ( isset( $current_settings['mailchimp_api_key'] ) ? $current_settings['mailchimp_api_key'] : '' ),
+			'mailchimp_audience_id'   => isset( $settings['mailchimp_audience_id'] ) ? sanitize_text_field( $settings['mailchimp_audience_id'] ) : ( isset( $current_settings['mailchimp_audience_id'] ) ? $current_settings['mailchimp_audience_id'] : '' ),
+			'mailchimp_tags'          => isset( $settings['mailchimp_tags'] ) ? sanitize_text_field( $settings['mailchimp_tags'] ) : ( isset( $current_settings['mailchimp_tags'] ) ? $current_settings['mailchimp_tags'] : '' ),
+			'mailchimp_double_optin'  => isset( $settings['mailchimp_double_optin'] ) ? (bool) $settings['mailchimp_double_optin'] : ( isset( $current_settings['mailchimp_double_optin'] ) ? $current_settings['mailchimp_double_optin'] : false ),
+			
+			// ActiveCampaign
+			'activecampaign_api_url'  => isset( $settings['activecampaign_api_url'] ) ? esc_url_raw( $settings['activecampaign_api_url'] ) : ( isset( $current_settings['activecampaign_api_url'] ) ? $current_settings['activecampaign_api_url'] : '' ),
+			'activecampaign_api_key'  => isset( $settings['activecampaign_api_key'] ) ? sanitize_text_field( $settings['activecampaign_api_key'] ) : ( isset( $current_settings['activecampaign_api_key'] ) ? $current_settings['activecampaign_api_key'] : '' ),
+			'activecampaign_list_id'  => isset( $settings['activecampaign_list_id'] ) ? sanitize_text_field( $settings['activecampaign_list_id'] ) : ( isset( $current_settings['activecampaign_list_id'] ) ? $current_settings['activecampaign_list_id'] : '' ),
+			'activecampaign_tags'     => isset( $settings['activecampaign_tags'] ) ? sanitize_text_field( $settings['activecampaign_tags'] ) : ( isset( $current_settings['activecampaign_tags'] ) ? $current_settings['activecampaign_tags'] : '' ),
+			
+			// Brevo
+			'brevo_api_key'           => isset( $settings['brevo_api_key'] ) ? sanitize_text_field( $settings['brevo_api_key'] ) : ( isset( $current_settings['brevo_api_key'] ) ? $current_settings['brevo_api_key'] : '' ),
+			'brevo_list_id'           => isset( $settings['brevo_list_id'] ) ? sanitize_text_field( $settings['brevo_list_id'] ) : ( isset( $current_settings['brevo_list_id'] ) ? $current_settings['brevo_list_id'] : '' ),
+			
+			// Klaviyo
+			'klaviyo_api_key'         => isset( $settings['klaviyo_api_key'] ) ? sanitize_text_field( $settings['klaviyo_api_key'] ) : ( isset( $current_settings['klaviyo_api_key'] ) ? $current_settings['klaviyo_api_key'] : '' ),
+			'klaviyo_list_id'         => isset( $settings['klaviyo_list_id'] ) ? sanitize_text_field( $settings['klaviyo_list_id'] ) : ( isset( $current_settings['klaviyo_list_id'] ) ? $current_settings['klaviyo_list_id'] : '' ),
+			
+			// ConvertKit
+			'convertkit_api_key'      => isset( $settings['convertkit_api_key'] ) ? sanitize_text_field( $settings['convertkit_api_key'] ) : ( isset( $current_settings['convertkit_api_key'] ) ? $current_settings['convertkit_api_key'] : '' ),
+			'convertkit_form_id'      => isset( $settings['convertkit_form_id'] ) ? sanitize_text_field( $settings['convertkit_form_id'] ) : ( isset( $current_settings['convertkit_form_id'] ) ? $current_settings['convertkit_form_id'] : '' ),
+			'convertkit_tags'         => isset( $settings['convertkit_tags'] ) ? sanitize_text_field( $settings['convertkit_tags'] ) : ( isset( $current_settings['convertkit_tags'] ) ? $current_settings['convertkit_tags'] : '' ),
+			
+			// MailerLite
+			'mailerlite_api_key'      => isset( $settings['mailerlite_api_key'] ) ? sanitize_text_field( $settings['mailerlite_api_key'] ) : ( isset( $current_settings['mailerlite_api_key'] ) ? $current_settings['mailerlite_api_key'] : '' ),
+			'mailerlite_group_id'     => isset( $settings['mailerlite_group_id'] ) ? sanitize_text_field( $settings['mailerlite_group_id'] ) : ( isset( $current_settings['mailerlite_group_id'] ) ? $current_settings['mailerlite_group_id'] : '' ),
 		);
 
 		update_option( 'digiblocks_settings', $validated_settings );
@@ -1510,8 +1663,18 @@ class DigiBlocks {
 	 * @return WP_REST_Response Response object.
 	 */
 	public function update_active_blocks( $request ) {
-		$active_blocks = $request->get_json_params();
-		update_option( 'digiblocks_active_blocks', $active_blocks );
+		$blocks_status = $request->get_json_params();
+		$inactive_blocks = array();
+		
+		// Find blocks that are set as inactive
+		foreach ( $blocks_status as $block_name => $is_active ) {
+			if ( ! $is_active ) {
+				$inactive_blocks[$block_name] = true;
+			}
+		}
+		
+		// Save only the inactive blocks
+		update_option( 'digiblocks_inactive_blocks', $inactive_blocks );
 
 		return rest_ensure_response(
 			array(
@@ -1519,6 +1682,25 @@ class DigiBlocks {
 				'message' => __( 'Block settings updated successfully.', 'digiblocks' ),
 			)
 		);
+	}
+
+	/**
+	 * Get active status for a block
+	 *
+	 * @param string $block_name Block name
+	 * @return bool Whether the block is active
+	 */
+	private function get_block_active_status( $block_name ) {
+		// Get list of inactive blocks
+		$inactive_blocks = get_option('digiblocks_inactive_blocks', array());
+		
+		// If block is in the inactive list, it's not active
+		if (isset($inactive_blocks[$block_name]) && $inactive_blocks[$block_name] === true) {
+			return false;
+		}
+		
+		// By default, all blocks are active if not explicitly deactivated
+		return true;
 	}
 
 	/**
@@ -1557,8 +1739,7 @@ class DigiBlocks {
 	 */
 	public function init_forms_handler() {
 		// First, check if the forms block is even active in settings
-		$active_blocks = get_option( 'digiblocks_active_blocks', array() );
-		if ( ! isset( $active_blocks['forms'] ) || ! $active_blocks['forms'] ) {
+		if (!$this->get_block_active_status('forms')) {
 			return;
 		}
 
@@ -1601,45 +1782,124 @@ class DigiBlocks {
 	}
 
 	/**
+	 * Initialize newsletter handler if needed.
+	 */
+	public function init_newsletter_handler() {
+		// First, check if the newsletter block is even active in settings
+		if (!$this->get_block_active_status('newsletter')) {
+			return;
+		}
+
+		// Check if it's an AJAX newsletter submission
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$is_newsletter_submission = defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_POST['action'] ) && $_POST['action'] === 'digiblocks_newsletter_subscribe';
+		
+
+		// Case 1: AJAX newsletter submission - load the handler directly
+		if ( $is_newsletter_submission ) {
+			$this->load_newsletter_handler();
+			return;
+		}
+
+		// Case 2: Check if current page contains newsletter block
+		global $post;
+		if ( $post && has_blocks( $post->post_content ) ) {
+			$blocks = parse_blocks( $post->post_content );
+			if ( $this->has_newsletter_block( $blocks ) ) {
+				$this->load_newsletter_handler();
+			}
+		}
+	}
+
+	/**
+	 * Check if blocks array contains any Newsletter blocks.
+	 *
+	 * @param array $blocks Array of parsed blocks.
+	 * @return bool True if Newsletter blocks are found.
+	 */
+	private function has_newsletter_block( $blocks ) {
+		foreach ( $blocks as $block ) {
+			if ( isset( $block['blockName'] ) && $block['blockName'] === 'digiblocks/newsletter' ) {
+				return true;
+			}
+			
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				if ( $this->has_newsletter_block( $block['innerBlocks'] ) ) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Load the newsletter handler file if it hasn't been loaded yet.
+	 */
+	private function load_newsletter_handler() {
+		static $handler_loaded = false;
+
+		// Only load the handler once
+		if ( ! $handler_loaded ) {
+			$handler_file = DIGIBLOCKS_PLUGIN_DIR . 'includes/class-digiblocks-newsletter-handler.php';
+
+			if ( file_exists( $handler_file ) ) {
+				require_once $handler_file;
+				$handler_loaded = true;
+			}
+		}
+	}
+
+	/**
 	 * Register block with render callback
 	 */
 	public function register_blocks() {
-		// Get active blocks
-		$active_blocks = get_option('digiblocks_active_blocks', array());
+		// Create a list of blocks that need server-side rendering
+		$blocks = array(
+			'posts'           => array( $this, 'render_posts_block' ),
+			'navigation'      => array( $this, 'render_navigation_block' ),
+			'login-link'      => array( $this, 'render_login_link_block' ),
+			'page-title'      => array( $this, 'render_page_title_block' ),
+			'breadcrumbs'     => array( $this, 'render_breadcrumbs_block' ),
+			'featured-image'  => array( $this, 'render_featured_image_block' ),
+			'post-meta'       => array( $this, 'render_post_meta_block' ),
+			'post-content'    => array( $this, 'render_post_content_block' ),
+			'post-navigation' => array( $this, 'render_post_navigation_block' ),
+			'author-box'      => array( $this, 'render_author_box_block' ),
+			'related-posts'   => array( $this, 'render_related_posts_block' ),
+			'post-comments'   => array( $this, 'render_post_comments_block' ),
+			'copyright'       => array( $this, 'render_copyright_block' ),
+		);
 
-		// Register posts block if active
-		if (isset($active_blocks['posts']) && $active_blocks['posts']) {
-			register_block_type('digiblocks/posts', array(
-				'render_callback' => array($this, 'render_posts_block'),
-			));
+		foreach ( $blocks as $block_name => $render_callback ) {
+			if ( $this->get_block_active_status( $block_name ) ) {
+				register_block_type(
+					'digiblocks/' . $block_name,
+					array(
+						'render_callback' => $render_callback,
+					)
+				);
+			}
 		}
 
 		// Register DigiCommerce products block if active
-		if (isset($active_blocks['digi-products']) && $active_blocks['digi-products'] && class_exists('DigiCommerce')) {
-			register_block_type('digiblocks/digi-products', array(
-				'render_callback' => array($this, 'render_digi_products_block'),
-			));
+		if ( $this->get_block_active_status( 'digi-products' ) && class_exists( 'DigiCommerce' ) ) {
+			register_block_type(
+				'digiblocks/digi-products',
+				array(
+					'render_callback' => array($this, 'render_digi_products_block'),
+				)
+			);
 		}
 
 		// Register WooCommerce products block if active
-		if ( isset($active_blocks['woo-products']) && $active_blocks['woo-products'] && class_exists( 'WooCommerce' ) ) {
-			register_block_type('digiblocks/woo-products', array(
-				'render_callback' => array($this, 'render_woo_products_block'),
-			));
-		}
-		
-		// Register navigation block if active
-		if (isset($active_blocks['navigation']) && $active_blocks['navigation']) {
-			register_block_type('digiblocks/navigation', array(
-				'render_callback' => array($this, 'render_navigation_block'),
-			));
-		}
-
-		// Register login link block if active
-		if (isset($active_blocks['login-link']) && $active_blocks['login-link']) {
-			register_block_type('digiblocks/login-link', array(
-				'render_callback' => array($this, 'render_login_link_block'),
-			));
+		if ( $this->get_block_active_status( 'woo-products' ) && class_exists( 'WooCommerce' ) ) {
+			register_block_type(
+				'digiblocks/woo-products',
+				array(
+					'render_callback' => array($this, 'render_woo_products_block'),
+				)
+			);
 		}
 	}
 
@@ -1721,7 +1981,7 @@ class DigiBlocks {
 						$query->the_post(); 
 						$post_id = get_the_ID();
 						?>
-						<div class="digiblocks-post-item">
+						<article class="digiblocks-post-item">
 							<?php if ( $display_featured_image && has_post_thumbnail() ) : ?>
 								<div class="digiblocks-post-image">
 									<a href="<?php the_permalink(); ?>">
@@ -1836,7 +2096,7 @@ class DigiBlocks {
 									</div>
 								<?php endif; ?>
 							</div>
-						</div>
+						</article>
 					<?php endwhile; ?>
 				</div>
 				<?php if ($enable_pagination) {
@@ -2421,7 +2681,7 @@ class DigiBlocks {
 		
 		$block_classes = array_filter($block_classes);
 		$block_classes = implode(' ', $block_classes);
-
+	
 		// Get SVG allowed elements
 		$allowed_svg = digiblocks_allow_svg_in_kses();
 		
@@ -2435,11 +2695,11 @@ class DigiBlocks {
 						aria-label="<?php esc_attr_e('Toggle navigation', 'digiblocks'); ?>"
 						data-toggle-target="<?php echo esc_attr($id); ?>">
 					<?php if ($toggleIcon === 'hamburger'): ?>
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-							<line x1="3" y1="12" x2="21" y2="12"></line>
-							<line x1="3" y1="6" x2="21" y2="6"></line>
-							<line x1="3" y1="18" x2="21" y2="18"></line>
-						</svg>
+						<div class="digiblocks-mobile-bars">
+							<span></span>
+							<span></span>
+							<span></span>
+						</div>
 					<?php elseif ($customToggleIcon && !empty($customToggleIcon['svg'])): ?>
 						<span><?php echo wp_kses($customToggleIcon['svg'], $allowed_svg); ?></span>
 					<?php endif; ?>
@@ -2549,37 +2809,1827 @@ class DigiBlocks {
 		$classes = "digiblocks-login-link $id $custom_classes";
 		
 		// Build the link
-		$link = '<a href="' . esc_url($url) . '" class="' . esc_attr($classes) . '"';
-		if (!empty($anchor)) {
-			$link .= ' id="' . esc_attr($anchor) . '"';
-		}
-		if ($new_tab) {
-			$link .= ' target="_blank"';
-			$rel = !empty($rel) ? $rel . ' noopener noreferrer' : 'noopener noreferrer';
-		}
-		if (!empty($rel)) {
-			$link .= ' rel="' . esc_attr($rel) . '"';
-		}
+		$link = '<div class="' . esc_attr($classes) . '"';
+			if (!empty($anchor)) {
+				$link .= ' id="' . esc_attr($anchor) . '"';
+			}
 		$link .= '>';
-		
-		// Add content based on icon position
-		$icon_html = '';
-		if ($icon_value && isset($icon_value['svg'])) {
-			$icon_html = '<span class="digiblocks-login-link-icon">' . $icon_value['svg'] . '</span>';
-		}
-		
-		if ($icon_position === 'left') {
-			$link .= $icon_html;
-		}
-		
-		$link .= '<span class="digiblocks-login-link-text">' . esc_html($text) . '</span>';
-		
-		if ($icon_position === 'right') {
-			$link .= $icon_html;
-		}
-		
-		$link .= '</a>';
+			$link .= '<a href="' . esc_url($url) . '"';
+			if ($new_tab) {
+				$link .= ' target="_blank"';
+				$rel = !empty($rel) ? $rel . ' noopener noreferrer' : 'noopener noreferrer';
+			}
+			if (!empty($rel)) {
+				$link .= ' rel="' . esc_attr($rel) . '"';
+			}
+			$link .= '>';
+			
+			// Add content based on icon position
+			$icon_html = '';
+			if ($icon_value && isset($icon_value['svg'])) {
+				$icon_html = '<span class="digiblocks-login-link-icon">' . $icon_value['svg'] . '</span>';
+			}
+			
+			if ($icon_position === 'left') {
+				$link .= $icon_html;
+			}
+			
+			$link .= '<span class="digiblocks-login-link-text">' . esc_html($text) . '</span>';
+			
+			if ($icon_position === 'right') {
+				$link .= $icon_html;
+			}
+			
+			$link .= '</a>';
+		$link .= '</div>';
 		
 		return $link;
+	}
+
+	/**
+	 * Render callback for page title block
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
+	 */
+	public function render_page_title_block( $attributes, $content, $block ) {
+		// Extract block attributes
+		$id          = isset( $attributes['id'] ) ? $attributes['id'] : 'digi-page-title-' . uniqid();
+		$anchor      = isset( $attributes['anchor'] ) ? $attributes['anchor'] : '';
+		$classes     = isset( $attributes['customClasses'] ) ? $attributes['customClasses'] : '';
+		$headingTag  = isset( $attributes['headingTag'] ) ? $attributes['headingTag'] : 'h2';
+		$animation   = isset( $attributes['animation'] ) ? $attributes['animation'] : 'none';
+		
+		// Build class names
+		$block_classes = "digiblocks-page-title $id";
+		if (!empty($classes)) {
+			$block_classes .= " $classes";
+		}
+		if ($animation !== 'none') {
+			$block_classes .= " animate-$animation";
+		}
+		
+		// Format the ID attribute
+		$id_attr = $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+
+		// Get the current page/post title
+		$title = get_the_title();
+		
+		// If it's the front page or home page, we might want to use the site name instead
+		if (is_front_page() && is_home()) {
+			$title = get_bloginfo('name');
+		}
+		
+		// For search results
+		if (is_search()) {
+			/* translators: %s: search query */
+			$title = sprintf( esc_html__( 'Search Results for: %s', 'digiblocks' ), get_search_query() );
+		}
+		
+		// For archives
+		if (is_archive()) {
+			$title = get_the_archive_title();
+		}
+		
+		// For 404 pages
+		if (is_404()) {
+			$title = esc_html__( 'Page Not Found', 'digiblocks' );
+		}
+		
+		// Render the block
+		ob_start();
+		?>
+		<<?php echo esc_attr( $headingTag ); ?> class="<?php echo esc_attr( $block_classes ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+			<?php echo wp_kses_post( $title ); ?>
+		</<?php echo esc_attr( $headingTag ); ?>>
+		<?php
+		
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render callback for breadcrumbs block
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
+	 */
+	public function render_breadcrumbs_block( $attributes, $content, $block ) {
+		// Extract block attributes
+		$id           = isset( $attributes['id'] ) ? $attributes['id'] : 'digi-breadcrumbs-' . uniqid();
+		$anchor       = isset( $attributes['anchor'] ) ? $attributes['anchor'] : '';
+		$classes      = isset( $attributes['customClasses'] ) ? $attributes['customClasses'] : '';
+		$showHome     = isset( $attributes['showHome'] ) ? $attributes['showHome'] : true;
+		$homeText     = isset( $attributes['homeText'] ) ? $attributes['homeText'] : __( 'Home', 'digiblocks' );
+		$showCurrent  = isset( $attributes['showCurrent'] ) ? $attributes['showCurrent'] : true;
+		$useYoast     = isset( $attributes['useYoast'] ) ? $attributes['useYoast'] : false;
+		$useRankMath  = isset( $attributes['useRankMath'] ) ? $attributes['useRankMath'] : false;
+		$animation    = isset( $attributes['animation'] ) ? $attributes['animation'] : 'none';
+		$useMicrodata = isset( $attributes['useMicrodata'] ) ? $attributes['useMicrodata'] : false;
+		
+		// Build class names
+		$block_classes = "digiblocks-breadcrumbs $id";
+		if (!empty($classes)) {
+			$block_classes .= " $classes";
+		}
+		if ($animation !== 'none') {
+			$block_classes .= " animate-$animation";
+		}
+		
+		// Format the ID attribute
+		$id_attr = $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+		
+		// Check if we should use Yoast SEO's breadcrumbs
+		if ( $useYoast && function_exists( 'yoast_breadcrumb' ) ) {
+			ob_start();
+			?>
+			<div class="<?php echo esc_attr( $block_classes ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+				<?php yoast_breadcrumb( '<nav aria-label="' . esc_attr__( 'Breadcrumb', 'digiblocks' ) . '"><p id="breadcrumbs">', '</p></nav>' ); ?>
+			</div>
+			<?php
+			return ob_get_clean();
+		}
+		
+		// Check if we should use Rank Math's breadcrumbs
+		if ( $useRankMath && function_exists( 'rank_math_the_breadcrumbs' ) ) {
+			ob_start();
+			?>
+			<div class="<?php echo esc_attr( $block_classes ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+				<?php rank_math_the_breadcrumbs(); ?>
+			</div>
+			<?php
+			return ob_get_clean();
+		}
+		
+		// If we've reached here, we need to generate our own breadcrumbs
+		$breadcrumbs = $this->generate_breadcrumbs( $showHome, $homeText, $showCurrent );
+		
+		// Start output buffer
+		ob_start();
+		?>
+		<div class="<?php echo esc_attr( $block_classes ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+			<nav aria-label="<?php echo esc_attr__( 'Breadcrumb', 'digiblocks' ); ?>">
+				<ol class="digiblocks-breadcrumb-list"<?php echo $useMicrodata ? ' itemscope itemtype="https://schema.org/BreadcrumbList"' : ''; ?>>
+					<?php 
+					$position = 1;
+					foreach ( $breadcrumbs as $index => $item ) :
+						// Check if this is the home item and if we should show it
+						if ( $index === 0 && ! $showHome ) {
+							continue;
+						}
+						
+						// Check if this is the last item and if we should show it
+						if ( $index === count( $breadcrumbs ) - 1 && ! $showCurrent ) {
+							continue;
+						}
+						
+						// Determine if this is the current/last item
+						$is_last = ( $index === count( $breadcrumbs ) - 1 );
+						
+						// Get the separator (not for the first item)
+						$separator = $index > 0 ? sprintf(
+							'<span class="digiblocks-breadcrumb-separator" aria-hidden="true">%s</span>',
+							is_rtl() ? 
+								'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="1em" height="1em"><path d="M47 239c-9.4 9.4-9.4 24.6 0 33.9L207 433c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9L97.9 256 241 113c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L47 239z"/></svg>' : 
+								'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="1em" height="1em"><path d="M273 239c9.4 9.4 9.4 24.6 0 33.9L113 433c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l143-143L79 113c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0L273 239z"/></svg>'
+						) : '';
+						
+						// Start the list item
+						echo '<li class="digiblocks-breadcrumb-item"';
+						if ( $useMicrodata ) {
+							echo ' itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"';
+						}
+						echo '>';
+
+						// If this is the last/current item
+						if ( $is_last ) {
+							// For the current page, just show the label without any separator
+							if ( $useMicrodata ) {
+								echo '<span class="digiblocks-breadcrumb-current" itemprop="name">' . esc_html( $item['label'] ) . '</span>';
+								echo '<meta itemprop="position" content="' . esc_attr( $position ) . '" />';
+							} else {
+								echo '<span class="digiblocks-breadcrumb-current">' . esc_html( $item['label'] ) . '</span>';
+							}
+						} else {
+							// For links, show the link followed by a separator
+							if ( $useMicrodata ) {
+								echo '<a href="' . esc_url( $item['url'] ) . '" class="digiblocks-breadcrumb-link" itemprop="item">';
+								echo '<span itemprop="name">' . esc_html( $item['label'] ) . '</span></a>';
+								echo '<meta itemprop="position" content="' . esc_attr( $position ) . '" />';
+							} else {
+								echo '<a href="' . esc_url( $item['url'] ) . '" class="digiblocks-breadcrumb-link">' . esc_html( $item['label'] ) . '</a>';
+							}
+							
+							// Add separator after links
+							echo '<span class="digiblocks-breadcrumb-separator" aria-hidden="true">';
+							echo is_rtl() ? 
+								'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="1em" height="1em"><path d="M47 239c-9.4 9.4-9.4 24.6 0 33.9L207 433c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9L97.9 256 241 113c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L47 239z"/></svg>' : 
+								'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="1em" height="1em"><path d="M273 239c9.4 9.4 9.4 24.6 0 33.9L113 433c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l143-143L79 113c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0L273 239z"/></svg>';
+							echo '</span>';
+						}
+
+						echo '</li>';
+						$position++;
+					endforeach;
+					?>
+				</ol>
+			</nav>
+		</div>
+		<?php
+		
+		// Return the rendered breadcrumb
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render callback for featured image block
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
+	 */
+	public function render_featured_image_block( $attributes, $content, $block ) {
+		// Extract block attributes
+		$id = isset($attributes['id']) ? $attributes['id'] : 'digi-featured-image-' . uniqid();
+		$anchor = isset($attributes['anchor']) ? $attributes['anchor'] : '';
+		$custom_classes = isset($attributes['customClasses']) ? $attributes['customClasses'] : '';
+		$image_size = isset($attributes['imageSize']) ? $attributes['imageSize'] : 'large';
+		$image_crop = isset($attributes['imageCrop']) ? $attributes['imageCrop'] : false;
+		$aspect_ratio = isset($attributes['aspectRatio']) ? $attributes['aspectRatio'] : 'default';
+		$enable_caption = isset($attributes['enableCaption']) ? $attributes['enableCaption'] : false;
+		$link_to_post = isset($attributes['linkToPost']) ? $attributes['linkToPost'] : false;
+		$animation = isset($attributes['animation']) ? $attributes['animation'] : 'none';
+		
+		// Build the class names
+		$classes = "digiblocks-featured-image $id";
+		if ($custom_classes) {
+			$classes .= " $custom_classes";
+		}
+		if ($animation !== 'none') {
+			$classes .= " animate-$animation";
+		}
+		if ($image_crop) {
+			$classes .= " crop-enabled";
+			if ($aspect_ratio !== 'default') {
+				$classes .= " ratio-$aspect_ratio";
+			}
+		}
+		
+		// Additional attributes
+		$attr = '';
+		if ($anchor) {
+			$attr .= ' id="' . esc_attr($anchor) . '"';
+		}
+		
+		// Get the current post
+		$post_id = get_the_ID();
+		
+		// Check if the post has a featured image
+		if (has_post_thumbnail($post_id)) {
+			$image_id = get_post_thumbnail_id($post_id);
+			$image_alt = get_post_meta($image_id, '_wp_attachment_image_alt', true);
+			$image_caption = '';
+			
+			// Get image caption if needed
+			if ($enable_caption) {
+				$attachment = get_post($image_id);
+				if ($attachment) {
+					$image_caption = $attachment->post_excerpt;
+				}
+			}
+			
+			// Get image source
+			if ($image_size === 'custom') {
+				// For custom size, use 'large' but we'll apply custom dimensions via CSS
+				$image_src = wp_get_attachment_image_url($image_id, 'large');
+			} else {
+				$image_src = wp_get_attachment_image_url($image_id, $image_size);
+			}
+			
+			// Start output buffer
+			ob_start();
+			
+			// Render the image with container
+			?>
+			<figure class="<?php echo esc_attr($classes); ?>"<?php echo $attr; ?>>
+				<span>
+					<?php if ($link_to_post): ?>
+						<a href="<?php echo esc_url(get_permalink($post_id)); ?>">
+							<img src="<?php echo esc_url($image_src); ?>" alt="<?php echo esc_attr($image_alt); ?>" />
+						</a>
+					<?php else: ?>
+						<img src="<?php echo esc_url($image_src); ?>" alt="<?php echo esc_attr($image_alt); ?>" />
+					<?php endif; ?>
+					
+					<?php if ($enable_caption && !empty($image_caption)): ?>
+						<figcaption><?php echo wp_kses_post($image_caption); ?></figcaption>
+					<?php endif; ?>
+				</span>
+			</figure>
+			<?php
+			
+			return ob_get_clean();
+		} else {
+			// No featured image found
+			return '<div class="' . esc_attr($classes) . '"' . $attr . '>' . 
+				   '<div class="digiblocks-no-featured-image">' . 
+				   esc_html__('No featured image found', 'digiblocks') . 
+				   '</div></div>';
+		}
+	}
+
+	/**
+	 * Render callback for post meta block
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
+	 */
+	public function render_post_meta_block( $attributes, $content, $block ) {
+		// Extract block attributes
+		$id               = isset( $attributes['id'] ) ? $attributes['id'] : 'digi-post-meta-' . uniqid();
+		$anchor           = isset( $attributes['anchor'] ) ? $attributes['anchor'] : '';
+		$custom_classes   = isset( $attributes['customClasses'] ) ? $attributes['customClasses'] : '';
+		$display_author   = isset( $attributes['displayAuthor'] ) ? $attributes['displayAuthor'] : true;
+		$display_date     = isset( $attributes['displayDate'] ) ? $attributes['displayDate'] : true;
+		$display_categories = isset( $attributes['displayCategories'] ) ? $attributes['displayCategories'] : true;
+		$display_tags     = isset( $attributes['displayTags'] ) ? $attributes['displayTags'] : true;
+		$icon_display     = isset( $attributes['iconDisplay'] ) ? $attributes['iconDisplay'] : true;
+		$layout           = isset( $attributes['layout'] ) ? $attributes['layout'] : 'inline';
+		$separator        = isset( $attributes['separator'] ) ? $attributes['separator'] : 'none';
+		$animation        = isset( $attributes['animation'] ) ? $attributes['animation'] : 'none';
+		
+		// Build class names
+		$block_classes = "digiblocks-post-meta $id";
+		if (!empty($custom_classes)) {
+			$block_classes .= " $custom_classes";
+		}
+		if ($animation !== 'none') {
+			$block_classes .= " animate-$animation";
+		}
+		
+		// Format the ID attribute
+		$id_attr = $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+		
+		// SVG icons for the meta items
+		$author_icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em"><path d="M320 128a96 96 0 1 0 -192 0 96 96 0 1 0 192 0zM96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM32 480l384 0c-1.2-79.7-66.2-144-146.3-144l-91.4 0c-80 0-145 64.3-146.3 144zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3z"/></svg>';
+		$date_icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M480 256A224 224 0 1 1 32 256a224 224 0 1 1 448 0zM0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM240 112l0 144c0 5.3 2.7 10.3 7.1 13.3l96 64c7.4 4.9 17.3 2.9 22.2-4.4s2.9-17.3-4.4-22.2L272 247.4 272 112c0-8.8-7.2-16-16-16s-16 7.2-16 16z"/></svg>';
+		$categories_icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M64 64C46.3 64 32 78.3 32 96l0 320c0 17.7 14.3 32 32 32l384 0c17.7 0 32-14.3 32-32l0-256c0-17.7-14.3-32-32-32l-156.1 0c-17 0-33.3-6.7-45.3-18.7L210.7 73.4c-6-6-14.1-9.4-22.6-9.4L64 64zM0 96C0 60.7 28.7 32 64 32l124.1 0c17 0 33.3 6.7 45.3 18.7l35.9 35.9c6 6 14.1 9.4 22.6 9.4L448 96c35.3 0 64 28.7 64 64l0 256c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96z"/></svg>';
+		$tags_icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em"><path d="M32 229.5L32 80c0-8.8 7.2-16 16-16l149.5 0c8.5 0 16.6 3.4 22.6 9.4l176 176c12.5 12.5 12.5 32.8 0 45.3L262.6 428.1c-12.5 12.5-32.8 12.5-45.3 0l-176-176L18.7 274.7l22.6-22.6c-6-6-9.4-14.1-9.4-22.6zm-32 0c0 17 6.7 33.3 18.7 45.3l176 176c25 25 65.5 25 90.5 0L418.7 317.3c25-25 25-65.5 0-90.5l-176-176c-12-12-28.3-18.7-45.3-18.7L48 32C21.5 32 0 53.5 0 80L0 229.5zM112 168a24 24 0 1 0 0-48 24 24 0 1 0 0 48z"/></svg>';
+		
+		// Start output buffer
+		ob_start();
+		
+		// Check if we're in a singular context
+		$is_singular = is_singular();
+		$post = get_post();
+		
+		// Start rendering
+		?>
+		<div class="<?php echo esc_attr( $block_classes ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+			<ul class="digiblocks-meta-list">
+				<?php if ( $display_author && $post ) : ?>
+					<li class="digiblocks-meta-item">
+						<?php if ( $icon_display ) : ?>
+							<span class="digiblocks-meta-icon"><?php echo wp_kses( $author_icon, digiblocks_allow_svg_in_kses() ); ?></span>
+						<?php endif; ?>
+						
+						<span class="digiblocks-meta-value">
+							<?php 
+							if ( $is_singular ) {
+								$author_id = $post->post_author;
+								$author_name = get_the_author_meta( 'display_name', $author_id );
+								$author_url = get_author_posts_url( $author_id );
+								echo '<a href="' . esc_url( $author_url ) . '">' . esc_html( $author_name ) . '</a>';
+							}
+							?>
+						</span>
+					</li>
+				<?php endif; ?>
+				
+				<?php if ( $display_date && $post ) : ?>
+					<li class="digiblocks-meta-item">
+						<?php if ( $icon_display ) : ?>
+							<span class="digiblocks-meta-icon"><?php echo wp_kses( $date_icon, digiblocks_allow_svg_in_kses() ); ?></span>
+						<?php endif; ?>
+						
+						<span class="digiblocks-meta-value">
+							<?php 
+							if ( $is_singular ) {
+								$post_date = get_the_date( '', $post );
+								echo esc_html( $post_date );
+							} else {
+								echo esc_html( date_i18n( get_option( 'date_format' ) ) );
+							}
+							?>
+						</span>
+					</li>
+				<?php endif; ?>
+				
+				<?php if ( $display_categories && $post ) : ?>
+					<li class="digiblocks-meta-item">
+						<?php if ( $icon_display ) : ?>
+							<span class="digiblocks-meta-icon"><?php echo wp_kses( $categories_icon, digiblocks_allow_svg_in_kses() ); ?></span>
+						<?php endif; ?>
+						
+						<span class="digiblocks-meta-value">
+							<?php 
+							if ( $is_singular && 'post' === get_post_type() ) {
+								$categories = get_the_category( $post->ID );
+								if ( ! empty( $categories ) ) {
+									$category_links = array();
+									foreach ( $categories as $category ) {
+										$category_links[] = '<a href="' . esc_url( get_category_link( $category->term_id ) ) . '">' . esc_html( $category->name ) . '</a>';
+									}
+									echo implode( ', ', $category_links ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								} else {
+									esc_html_e( 'Uncategorized', 'digiblocks' );
+								}
+							}
+							?>
+						</span>
+					</li>
+				<?php endif; ?>
+				
+				<?php if ( $display_tags && $post ) : ?>
+					<li class="digiblocks-meta-item">
+						<?php if ( $icon_display ) : ?>
+							<span class="digiblocks-meta-icon"><?php echo wp_kses( $tags_icon, digiblocks_allow_svg_in_kses() ); ?></span>
+						<?php endif; ?>
+						
+						<span class="digiblocks-meta-value">
+							<?php 
+							if ( $is_singular && 'post' === get_post_type() ) {
+								$tags = get_the_tags( $post->ID );
+								if ( ! empty( $tags ) ) {
+									$tag_links = array();
+									foreach ( $tags as $tag ) {
+										$tag_links[] = '<a href="' . esc_url( get_tag_link( $tag->term_id ) ) . '">' . esc_html( $tag->name ) . '</a>';
+									}
+									echo implode( ', ', $tag_links ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								} else {
+									esc_html_e( 'No Tags', 'digiblocks' );
+								}
+							}
+							?>
+						</span>
+					</li>
+				<?php endif; ?>
+			</ul>
+		</div>
+		<?php
+		
+		// Return the generated HTML
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render callback for post content block
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
+	 */
+	public function render_post_content_block( $attributes, $content, $block ) {
+		// Extract block attributes
+		$id           = isset( $attributes['id'] ) ? $attributes['id'] : 'digi-post-content-' . uniqid();
+		$anchor       = isset( $attributes['anchor'] ) ? $attributes['anchor'] : '';
+		$classes      = isset( $attributes['customClasses'] ) ? $attributes['customClasses'] : '';
+		$animation    = isset( $attributes['animation'] ) ? $attributes['animation'] : 'none';
+		
+		// Build class names
+		$block_classes = "digiblocks-post-content $id";
+		if (!empty($classes)) {
+			$block_classes .= " $classes";
+		}
+		if ($animation !== 'none') {
+			$block_classes .= " animate-$animation";
+		}
+		
+		// Format the ID attribute
+		$id_attr = $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+		
+		// Get the post content
+		$post_content = '';
+		
+		if (is_singular()) {
+			global $post;
+			
+			// Get the raw post content
+			$post_content = apply_filters('the_content', $post->post_content);
+			
+			// Remove any instances of this block to prevent infinite loops
+			$post_content = preg_replace('/<!-- wp:digiblocks\/post-content.*?\/-->/s', '', $post_content);
+		} else {
+			// Fallback for non-singular pages (archive, etc.)
+			$post_content = '<p>' . esc_html__('Post content will be displayed here in single post view.', 'digiblocks') . '</p>';
+		}
+		
+		// Render the block
+		ob_start();
+		?>
+		<div class="<?php echo esc_attr( $block_classes ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+			<?php echo $post_content; ?>
+		</div>
+		<?php
+		
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render callback for post navigation block
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
+	 */
+	public function render_post_navigation_block( $attributes, $content, $block ) {
+		// Extract block attributes
+		$id               = isset( $attributes['id'] ) ? $attributes['id'] : 'digi-post-nav-' . uniqid();
+		$anchor           = isset( $attributes['anchor'] ) ? $attributes['anchor'] : '';
+		$customClasses    = isset( $attributes['customClasses'] ) ? $attributes['customClasses'] : '';
+		$showPostTitle    = isset( $attributes['showPostTitle'] ) ? $attributes['showPostTitle'] : true;
+		$showNavLabels    = isset( $attributes['showNavLabels'] ) ? $attributes['showNavLabels'] : true;
+		$previousLabel    = isset( $attributes['previousLabel'] ) ? $attributes['previousLabel'] : __('Previous', 'digiblocks');
+		$nextLabel        = isset( $attributes['nextLabel'] ) ? $attributes['nextLabel'] : __('Next', 'digiblocks');
+		$showFeaturedImage = isset( $attributes['showFeaturedImage'] ) ? $attributes['showFeaturedImage'] : false;
+		$imageSize        = isset( $attributes['imageSize'] ) ? $attributes['imageSize'] : 'thumbnail';
+		$animation        = isset( $attributes['animation'] ) ? $attributes['animation'] : 'none';
+		
+		// Build the block class
+		$block_class = "digiblocks-post-navigation $id";
+		
+		if ($animation !== 'none') {
+			$block_class .= " animate-$animation";
+		}
+		
+		if ($customClasses) {
+			$block_class .= " $customClasses";
+		}
+		
+		// Format the ID attribute
+		$id_attr = $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+		
+		// Start output buffer
+		ob_start();
+		
+		// Only show navigation on single posts
+		if ( is_single() ) {
+			// Get previous and next post objects
+			$prev_post = get_previous_post();
+			$next_post = get_next_post();
+			
+			if ( $prev_post || $next_post ) {
+				?>
+				<div class="<?php echo esc_attr( $block_class ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+					<div class="digiblocks-post-navigation-links">
+						<?php
+						// Previous post link
+						if ( $prev_post ) {
+							$prev_title = get_the_title( $prev_post );
+							$prev_url = get_permalink( $prev_post );
+							$prev_image = '';
+							
+							if ( $showFeaturedImage && has_post_thumbnail( $prev_post ) ) {
+								$prev_image = get_the_post_thumbnail( $prev_post, $imageSize, array( 'class' => 'digiblocks-post-navigation-image' ) );
+							}
+							?>
+							<a href="<?php echo esc_url( $prev_url ); ?>" class="digiblocks-post-navigation-link digiblocks-post-navigation-prev">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M19 12H5M12 19l-7-7 7-7"/>
+								</svg>
+								
+								<div class="digiblocks-post-navigation-content">
+									<?php if ( $showNavLabels ) : ?>
+										<span class="digiblocks-post-navigation-label"><?php echo esc_html( $previousLabel ); ?></span>
+									<?php endif; ?>
+									
+									<?php if ( $showPostTitle ) : ?>
+										<span class="digiblocks-post-navigation-title"><?php echo esc_html( $prev_title ); ?></span>
+									<?php endif; ?>
+								</div>
+								<?php if ( $showFeaturedImage && $prev_image ) : ?>
+									<?php echo wp_kses_post( $prev_image ); ?>
+								<?php endif; ?>
+							</a>
+							<?php
+						} else {
+							// Empty div to maintain layout
+							echo '<div class="digiblocks-post-navigation-placeholder"></div>';
+						}
+						
+						// Next post link
+						if ( $next_post ) {
+							$next_title = get_the_title( $next_post );
+							$next_url = get_permalink( $next_post );
+							$next_image = '';
+							
+							if ( $showFeaturedImage && has_post_thumbnail( $next_post ) ) {
+								$next_image = get_the_post_thumbnail( $next_post, $imageSize, array( 'class' => 'digiblocks-post-navigation-image' ) );
+							}
+							?>
+							<a href="<?php echo esc_url( $next_url ); ?>" class="digiblocks-post-navigation-link digiblocks-post-navigation-next">
+								<?php if ( $showFeaturedImage && $next_image ) : ?>
+									<?php echo wp_kses_post( $next_image ); ?>
+								<?php endif; ?>
+								<div class="digiblocks-post-navigation-content">
+									<?php if ( $showNavLabels ) : ?>
+										<span class="digiblocks-post-navigation-label"><?php echo esc_html( $nextLabel ); ?></span>
+									<?php endif; ?>
+									
+									<?php if ( $showPostTitle ) : ?>
+										<span class="digiblocks-post-navigation-title"><?php echo esc_html( $next_title ); ?></span>
+									<?php endif; ?>
+								</div>
+								
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M5 12h14M12 5l7 7-7 7"/>
+								</svg>
+							</a>
+							<?php
+						} else {
+							// Empty div to maintain layout
+							echo '<div class="digiblocks-post-navigation-placeholder"></div>';
+						}
+						?>
+					</div>
+				</div>
+				<?php
+			}
+		}
+		
+		// Get the output buffer
+		$output = ob_get_clean();
+		
+		return $output;
+	}
+
+	/**
+	 * Render callback for the Author Box block.
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content    Block content.
+	 * @param WP_Block $block      Block instance.
+	 * @return string  Block content.
+	 */
+	public function render_author_box_block( $attributes, $content, $block ) {
+		// Extract attributes
+		$id              = isset( $attributes['id'] ) ? $attributes['id'] : '';
+		$anchor          = isset( $attributes['anchor'] ) ? $attributes['anchor'] : '';
+		$customClasses   = isset( $attributes['customClasses'] ) ? $attributes['customClasses'] : '';
+		$layout          = isset( $attributes['layout'] ) ? $attributes['layout'] : 'horizontal';
+		$animation       = isset( $attributes['animation'] ) ? $attributes['animation'] : 'none';
+		$displayAvatar   = isset( $attributes['displayAvatar'] ) ? $attributes['displayAvatar'] : true;
+		$displayName     = isset( $attributes['displayName'] ) ? $attributes['displayName'] : true;
+		$displayBio      = isset( $attributes['displayBio'] ) ? $attributes['displayBio'] : true;
+		$displaySocial   = isset( $attributes['displaySocial'] ) ? $attributes['displaySocial'] : true;
+		$avatarSize      = isset( $attributes['avatarSize'] ) ? $attributes['avatarSize'] : [
+			'desktop' => 100,
+			'tablet'  => '',
+			'mobile'  => '',
+		];
+		$socialProfiles   = isset( $attributes['socialProfiles'] ) ? $attributes['socialProfiles'] : [];
+
+		// Build the block class
+		$block_class = "digiblocks-post-navigation $id";
+		
+		if ($animation !== 'none') {
+			$block_class .= " animate-$animation";
+		}
+		
+		if ($customClasses) {
+			$block_class .= " $customClasses";
+		}
+		
+		// Format the ID attribute
+		$id_attr = $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+
+		// Social media platform icons
+		$social_icons = [
+			'website'  => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M352 256c0 22.2-1.2 43.6-3.3 64H163.3c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64H348.7c2.2 20.4 3.3 41.8 3.3 64zm28.8-64H503.9c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64H380.8c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32H376.7c-10-63.9-29.8-117.4-55.3-151.6c78.3 20.7 142 77.5 171.9 151.6zm-149.1 0H167.7c6.1-36.4 15.5-68.6 27-94.7c10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5c11.6 26 20.9 58.2 27 94.7zm-209 0H18.6C48.6 85.9 112.2 29.1 190.6 8.4C165.1 42.6 145.3 96.1 135.3 160zM8.1 192C2.8 212.5 0 233.9 0 256s2.8 43.5 8.1 64H131.2c-2.1-20.6-3.2-42-3.2-64s1.1-43.4 3.2-64zM194.7 446.6c-11.6-26-20.9-58.2-27-94.6H344.3c-6.1 36.4-15.5 68.6-27 94.6c-10.5 23.6-22.2 40.7-33.5 51.5C272.6 508.8 263.3 512 256 512s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6C112.2 482.9 48.6 426.1 18.6 352H135.3zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6c25.5-34.2 45.2-87.7 55.3-151.6H493.4z"/></svg>',
+			'facebook' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor"><path d="M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z"/></svg>',
+			'twitter'  => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/></svg>',
+			'instagram' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>',
+			'linkedin' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor"><path d="M100.3 448H7.4V148.9h92.9zM53.8 108.1C24.1 108.1 0 83.5 0 53.8a53.8 53.8 0 0 1 107.6 0c0 29.7-24.1 54.3-53.8 54.3zM447.9 448h-92.7V302.4c0-34.7-.7-79.2-48.3-79.2-48.3 0-55.7 37.7-55.7 76.7V448h-92.8V148.9h89.1v40.8h1.3c12.4-23.5 42.7-48.3 87.9-48.3 94 0 111.3 61.9 111.3 142.3V448z"/></svg>',
+			'youtube'  => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor"><path d="M549.7 124.1c-6.3-23.7-24.8-42.3-48.3-48.6C458.8 64 288 64 288 64S117.2 64 74.6 75.5c-23.5 6.3-42 24.9-48.3 48.6-11.4 42.9-11.4 132.3-11.4 132.3s0 89.4 11.4 132.3c6.3 23.7 24.8 41.5 48.3 47.8C117.2 448 288 448 288 448s170.8 0 213.4-11.5c23.5-6.3 42-24.2 48.3-47.8 11.4-42.9 11.4-132.3 11.4-132.3s0-89.4-11.4-132.3zm-317.5 213.5V175.2l142.7 81.2-142.7 81.2z"/></svg>',
+			'github'   => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" fill="currentColor"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>',
+		];
+
+		// Get the current post's author
+		global $post;
+		if ( isset( $post->post_author ) ) {
+			$author_id = $post->post_author;
+		} else {
+			// Fallback to the current user if no post is available
+			$author_id = get_current_user_id();
+		}
+		
+		// Get author data
+		$author_name = get_the_author_meta( 'display_name', $author_id );
+		$author_bio = get_the_author_meta( 'description', $author_id );
+		$author_avatar = get_avatar( $author_id, $avatarSize['desktop'] );
+		
+		// Get social media profiles from user meta
+		$author_website = get_the_author_meta( 'url', $author_id );
+		$author_social = array(
+			'facebook'  => get_the_author_meta( 'facebook', $author_id ),
+			'twitter'   => get_the_author_meta( 'twitter', $author_id ),
+			'instagram' => get_the_author_meta( 'instagram', $author_id ),
+			'linkedin'  => get_the_author_meta( 'linkedin', $author_id ),
+			'youtube'   => get_the_author_meta( 'youtube', $author_id ),
+			'github'    => get_the_author_meta( 'github', $author_id ),
+			'website'   => $author_website,
+		);
+
+		// Start output buffer
+		ob_start();
+		?>
+		<div class="<?php echo esc_attr( $block_class ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+			<?php if ( $displayAvatar ) : ?>
+				<div class="digiblocks-author-avatar">
+					<?php echo $author_avatar; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</div>
+			<?php endif; ?>
+			
+			<div class="digiblocks-author-content">
+				<?php if ( $displayName && ! empty( $author_name ) ) : ?>
+					<h3 class="digiblocks-author-name"><?php echo esc_html( $author_name ); ?></h3>
+				<?php endif; ?>
+				
+				<?php if ( $displayBio && ! empty( $author_bio ) ) : ?>
+					<p class="digiblocks-author-description"><?php echo wp_kses_post( $author_bio ); ?></p>
+				<?php endif; ?>
+				
+				<?php if ( $displaySocial && ! empty( $socialProfiles ) ) : ?>
+					<div class="digiblocks-author-social">
+						<?php 
+						// Loop through the enabled social profiles in the block settings
+						foreach ( $socialProfiles as $platform => $profile ) :
+							if ( isset( $profile['enabled'] ) && $profile['enabled'] ) :
+								// Get the platform URL from user meta (if available)
+								$social_url = '';
+								if ( isset( $author_social[$platform] ) && ! empty( $author_social[$platform] ) ) {
+									$social_url = esc_url( $author_social[$platform] );
+								} else {
+									// Skip if we don't have a URL
+									continue;
+								}
+								
+								// If we have a URL, display the icon
+								if ( ! empty( $social_url ) ) :
+									$icon = isset( $social_icons[$platform] ) ? $social_icons[$platform] : '';
+								?>
+									<a href="<?php echo esc_url( $social_url ); ?>" target="_blank" rel="noopener noreferrer">
+										<?php echo $icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+									</a>
+								<?php endif; ?>
+							<?php endif; ?>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
+		
+		// Get the output buffer
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render callback for related posts block
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
+	 * @return string The block content.
+	 */
+	public function render_related_posts_block($attributes, $content, $block) {
+		// Extract block attributes
+		$id                       = isset($attributes['id']) ? $attributes['id'] : 'digi-related-posts-' . uniqid();
+		$anchor                   = isset($attributes['anchor']) ? $attributes['anchor'] : '';
+		$custom_classes           = isset($attributes['customClasses']) ? $attributes['customClasses'] : '';
+		$posts_to_show            = isset($attributes['postsToShow']) ? $attributes['postsToShow'] : 3;
+		$post_style               = isset($attributes['postStyle']) ? $attributes['postStyle'] : 'grid';
+		$display_featured_image   = isset($attributes['displayFeaturedImage']) ? $attributes['displayFeaturedImage'] : true;
+		$display_title            = isset($attributes['displayTitle']) ? $attributes['displayTitle'] : true;
+		$display_meta             = isset($attributes['displayMeta']) ? $attributes['displayMeta'] : true;
+		$display_excerpt          = isset($attributes['displayExcerpt']) ? $attributes['displayExcerpt'] : true;
+		$display_read_more_button = isset($attributes['displayReadMoreButton']) ? $attributes['displayReadMoreButton'] : true;
+		$meta_settings            = isset($attributes['metaSettings']) ? $attributes['metaSettings'] : [
+			'displayAuthor'     => true,
+			'displayDate'       => true,
+			'displayCategories' => true,
+			'displayComments'   => false,
+		];
+		$excerpt_length           = isset($attributes['excerptLength']) ? $attributes['excerptLength'] : 25;
+		$read_more_text           = isset($attributes['readMoreText']) ? $attributes['readMoreText'] : __('Read More', 'digiblocks');
+		$relation_type            = isset($attributes['relationType']) ? $attributes['relationType'] : 'category';
+		$no_related_posts_text    = isset($attributes['noRelatedPostsText']) ? $attributes['noRelatedPostsText'] : __('No related posts found.', 'digiblocks');
+		$heading_text             = isset($attributes['headingText']) ? $attributes['headingText'] : __('Related Posts', 'digiblocks');
+		$display_heading          = isset($attributes['displayHeading']) ? $attributes['displayHeading'] : true;
+		$animation                = isset($attributes['animation']) ? $attributes['animation'] : 'none';
+		$image_size               = isset($attributes['imageSize']) ? $attributes['imageSize'] : 'medium';
+
+		// Get the current responsive state
+		$animation_class = ('none' !== $animation) ? ' animate-' . $animation : '';
+		
+		// Build the block class
+		$block_class = "digiblocks-related-posts $id style-$post_style $custom_classes $animation_class";
+		
+		// Format the ID attribute
+		$id_attr = $anchor ? ' id="' . esc_attr($anchor) . '"' : '';
+
+		// Get the current post ID
+		$current_post_id = get_the_ID();
+		
+		// If we're not on a singular post/page, return early
+		if (!$current_post_id || !is_singular()) {
+			ob_start();
+			?>
+			<div class="<?php echo esc_attr($block_class); ?>"<?php echo wp_kses_post($id_attr); ?>>
+				<p><?php esc_html_e('This block displays related posts and will only show content on single post pages.', 'digiblocks'); ?></p>
+			</div>
+			<?php
+			return ob_get_clean();
+		}
+		
+		// Get the taxonomy terms of the current post based on relation type
+		$term_ids = array();
+		
+		if ($relation_type === 'category' || $relation_type === 'both') {
+			$categories = get_the_category($current_post_id);
+			if (!empty($categories)) {
+				foreach ($categories as $category) {
+					$term_ids[] = $category->term_id;
+				}
+			}
+		}
+		
+		if ($relation_type === 'tag' || $relation_type === 'both') {
+			$tags = get_the_tags($current_post_id);
+			if (!empty($tags)) {
+				foreach ($tags as $tag) {
+					$term_ids[] = $tag->term_id;
+				}
+			}
+		}
+		
+		// If no terms were found, display the no related posts message
+		if (empty($term_ids)) {
+			ob_start();
+			?>
+			<div class="<?php echo esc_attr($block_class); ?>"<?php echo wp_kses_post($id_attr); ?>>
+				<?php if ($display_heading) : ?>
+					<h3 class="digiblocks-related-posts-heading"><?php echo esc_html($heading_text); ?></h3>
+				<?php endif; ?>
+				<p class="digiblocks-posts-no-results"><?php echo esc_html($no_related_posts_text); ?></p>
+			</div>
+			<?php
+			return ob_get_clean();
+		}
+		
+		// Set up the query arguments
+		$args = array(
+			'post_type'           => 'post',
+			'posts_per_page'      => $posts_to_show,
+			'post_status'         => 'publish',
+			'post__not_in'        => array($current_post_id), // Exclude current post
+			'ignore_sticky_posts' => true,
+		);
+		
+		// Add the taxonomy query
+		$tax_query = array('relation' => 'OR');
+		
+		if ($relation_type === 'category' || $relation_type === 'both') {
+			$tax_query[] = array(
+				'taxonomy' => 'category',
+				'field'    => 'term_id',
+				'terms'    => $term_ids,
+			);
+		}
+		
+		if ($relation_type === 'tag' || $relation_type === 'both') {
+			$tax_query[] = array(
+				'taxonomy' => 'post_tag',
+				'field'    => 'term_id',
+				'terms'    => $term_ids,
+			);
+		}
+		
+		$args['tax_query'] = $tax_query;
+		
+		// Get related posts
+		$related_posts = new WP_Query($args);
+		
+		// Start output buffer
+		ob_start();
+		
+		if ($related_posts->have_posts()) :
+			?>
+			<div class="<?php echo esc_attr($block_class); ?>"<?php echo wp_kses_post($id_attr); ?>>
+				<?php if ($display_heading) : ?>
+					<h3 class="digiblocks-related-posts-heading"><?php echo esc_html($heading_text); ?></h3>
+				<?php endif; ?>
+				
+				<div class="digiblocks-posts-container layout-<?php echo esc_attr($post_style); ?>">
+					<?php while ($related_posts->have_posts()) : ?>
+						<?php 
+						$related_posts->the_post(); 
+						$post_id = get_the_ID();
+						?>
+						<article class="digiblocks-post-item">
+							<?php if ($display_featured_image && has_post_thumbnail()) : ?>
+								<div class="digiblocks-post-image">
+									<a href="<?php the_permalink(); ?>">
+										<?php the_post_thumbnail($image_size); ?>
+									</a>
+								</div>
+							<?php endif; ?>
+		
+							<div class="digiblocks-post-content">
+								<?php if ($display_title) : ?>
+									<h3 class="digiblocks-post-title">
+										<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+									</h3>
+								<?php endif; ?>
+		
+								<?php if ($display_excerpt) : ?>
+									<div class="digiblocks-post-excerpt">
+										<?php 
+										// Get the excerpt
+										$excerpt = get_the_excerpt();
+										
+										// Limit by word count
+										$words = explode(' ', $excerpt);
+										if (count($words) > $excerpt_length) {
+											$excerpt = implode(' ', array_slice($words, 0, $excerpt_length)) . '...';
+										}
+										
+										echo wp_kses_post($excerpt);
+										?>
+									</div>
+								<?php endif; ?>
+
+								<?php if ($display_meta): ?>
+									<?php if (isset($meta_settings['displayCategories']) && $meta_settings['displayCategories']) : ?>
+										<?php $categories = get_the_category(); ?>
+										<?php if (!empty($categories)) : ?>
+											<div class="digiblocks-post-categories">
+												<?php
+												$cat_links = array();
+												foreach ($categories as $category) {
+													$cat_links[] = '<a href="' . esc_url(get_category_link($category->term_id)) . '">' . esc_html($category->name) . '</a>';
+												}
+												echo wp_kses_post(implode(' ', $cat_links));
+												?>
+											</div>
+										<?php endif; ?>
+									<?php endif; ?>
+
+									<div class="digiblocks-post-footer-meta">
+										<?php if (isset($meta_settings['displayAuthor']) && $meta_settings['displayAuthor']): ?>
+											<div class="digiblocks-author-avatar">
+												<a href="<?php echo esc_url(get_author_posts_url(get_the_author_meta('ID'))); ?>">
+													<?php echo get_avatar(get_the_author_meta('ID'), 96); ?>
+												</a>
+											</div>
+										<?php endif; ?>
+										
+										<div class="digiblocks-footer-meta-items">
+											<?php if (isset($meta_settings['displayAuthor']) && $meta_settings['displayAuthor']): ?>
+												<span class="digiblocks-posted-by">
+													<span class="digiblocks-meta-prefix"><?php esc_html_e('by', 'digiblocks'); ?></span>
+													<a href="<?php echo esc_url(get_author_posts_url(get_the_author_meta('ID'))); ?>" title="<?php echo esc_attr(get_the_author()); ?>" rel="author">
+														<?php the_author(); ?>
+													</a>
+												</span>
+											<?php endif; ?>
+											
+											<?php if (isset($meta_settings['displayDate']) && $meta_settings['displayDate']): ?>
+												<span class="digiblocks-posted-on">
+													<span class="digiblocks-meta-prefix"><?php esc_html_e('on', 'digiblocks'); ?></span>
+													<time datetime="<?php echo esc_attr(get_the_date('c')); ?>">
+														<?php echo get_the_date(); ?>
+													</time>
+												</span>
+											<?php endif; ?>
+										</div>
+									</div>
+								<?php endif; ?>
+		
+								<?php 
+								if ($display_read_more_button || ($display_meta && isset($meta_settings['displayComments']) && $meta_settings['displayComments'])) : ?>
+									<div class="digiblocks-post-footer-actions">
+										<?php if ($display_read_more_button) : ?>
+											<a href="<?php echo esc_url(get_permalink()); ?>" class="digiblocks-post-read-more">
+												<?php echo esc_html($read_more_text); ?>
+											</a>
+										<?php endif; ?>
+										
+										<?php if ($display_meta && isset($meta_settings['displayComments']) && $meta_settings['displayComments']) : 
+											$comment_count = get_comments_number();
+											$comment_link = get_comments_link();
+											?>
+											<a href="<?php echo esc_url($comment_link); ?>" class="digiblocks-post-comments-count">
+												<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M256 64C125.8 64 32 148.6 32 240c0 37.1 15.5 70.6 40 100c5.2 6.3 8.4 14.8 7.4 23.9c-3.1 27-11.4 52.5-25.7 76.3c-.5 .9-1.1 1.8-1.6 2.6c11.1-2.9 22.2-7 32.7-11.5L91.2 446l-6.4-14.7c17-7.4 33-16.7 48.4-27.4c8.5-5.9 19.4-7.5 29.2-4.2C193 410.1 224.1 416 256 416c130.2 0 224-84.6 224-176s-93.8-176-224-176zM0 240C0 125.2 114.5 32 256 32s256 93.2 256 208s-114.5 208-256 208c-36 0-70.5-6.7-103.8-17.9c-.2-.1-.5 0-.7 .1c-16.9 11.7-34.7 22.1-53.9 30.5C73.6 471.1 44.7 480 16 480c-6.5 0-12.3-3.9-14.8-9.8s-1.1-12.8 3.4-17.4c8.1-8.2 15.2-18.2 21.7-29c11.7-19.6 18.7-40.6 21.3-63.1c0 0-.1-.1-.1-.2C19.6 327.1 0 286.6 0 240z"/></svg>
+												<?php 
+												if ($comment_count == 0) {
+													esc_html_e('Leave a Comment', 'digiblocks');
+												} elseif ($comment_count == 1) {
+													esc_html_e('1 Comment', 'digiblocks');
+												} else {
+													echo esc_html(
+														sprintf(
+															/* translators: %d: number of comments */
+															esc_html__('%d Comments', 'digiblocks'),
+															$comment_count
+														)
+													);
+												}
+												?>
+											</a>
+										<?php endif; ?>
+									</div>
+								<?php endif; ?>
+							</div>
+						</article>
+					<?php endwhile; ?>
+				</div>
+			</div>
+			<?php
+		else :
+			?>
+			<div class="<?php echo esc_attr($block_class); ?>"<?php echo wp_kses_post($id_attr); ?>>
+				<?php if ($display_heading) : ?>
+					<h3 class="digiblocks-related-posts-heading"><?php echo esc_html($heading_text); ?></h3>
+				<?php endif; ?>
+				<p class="digiblocks-posts-no-results"><?php echo esc_html($no_related_posts_text); ?></p>
+			</div>
+			<?php
+		endif;
+		
+		// Reset post data
+		wp_reset_postdata();
+		
+		// Get the output buffer
+		$output = ob_get_clean();
+		
+		return $output;
+	}
+
+	/**
+	 * Render callback for the Post Comments block.
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content    Block content.
+	 * @param WP_Block $block      Block instance.
+	 * @return string  Block content.
+	 */
+	public function render_post_comments_block( $attributes, $content, $block ) {
+		// Extract attributes
+		$id                  = isset( $attributes['id'] ) ? $attributes['id'] : 'digi-comments-' . uniqid();
+		$anchor              = isset( $attributes['anchor'] ) ? $attributes['anchor'] : 'comments';
+		$customClasses       = isset( $attributes['customClasses'] ) ? $attributes['customClasses'] : '';
+		$showAvatars         = isset( $attributes['showAvatars'] ) ? $attributes['showAvatars'] : true;
+		$avatarSize          = isset( $attributes['avatarSize'] ) ? $attributes['avatarSize'] : [
+			'desktop' => 50,
+			'tablet'  => 40,
+			'mobile'  => 30,
+		];
+		$commentsPerPage     = isset( $attributes['commentsPerPage'] ) ? $attributes['commentsPerPage'] : 20;
+		$nestedComments      = isset( $attributes['nestedComments'] ) ? $attributes['nestedComments'] : true;
+		$commentsOrder       = isset( $attributes['commentsOrder'] ) ? $attributes['commentsOrder'] : 'asc';
+		$displayTitle        = isset( $attributes['displayTitle'] ) ? $attributes['displayTitle'] : true;
+		$titleText           = isset( $attributes['titleText'] ) ? $attributes['titleText'] : __('Comments', 'digiblocks');
+		$customFormTitle     = isset( $attributes['customFormTitle'] ) ? $attributes['customFormTitle'] : false;
+		$formTitle           = isset( $attributes['formTitle'] ) ? $attributes['formTitle'] : __('Leave a Reply', 'digiblocks');
+		$displayLoggedIn     = isset( $attributes['displayLoggedIn'] ) ? $attributes['displayLoggedIn'] : true;
+		$loggedInText        = isset( $attributes['loggedInText'] ) ? $attributes['loggedInText'] : '';
+		$displayCookieConsent = isset( $attributes['displayCookieConsent'] ) ? $attributes['displayCookieConsent'] : true;
+		$cookieConsentText   = isset( $attributes['cookieConsentText'] ) ? $attributes['cookieConsentText'] : '';
+		$displaySubmitButton = isset( $attributes['displaySubmitButton'] ) ? $attributes['displaySubmitButton'] : false;
+		$submitButtonText    = isset( $attributes['submitButtonText'] ) ? $attributes['submitButtonText'] : '';
+		$displayCancelReply  = isset( $attributes['displayCancelReply'] ) ? $attributes['displayCancelReply'] : false;
+		$cancelReplyText     = isset( $attributes['cancelReplyText'] ) ? $attributes['cancelReplyText'] : '';
+		$animation           = isset( $attributes['animation'] ) ? $attributes['animation'] : 'none';
+	
+		// Build the block class
+		$block_class = "digiblocks-comments $id";
+		
+		if ($animation !== 'none') {
+			$block_class .= " animate-$animation";
+		}
+		
+		if ($customClasses) {
+			$block_class .= " $customClasses";
+		}
+		
+		// Format the ID attribute
+		$id_attr = $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+	
+		// Start output buffer
+		ob_start();
+	
+		// Make sure we're on a singular post or page
+		if (!is_singular()) {
+			?>
+			<div class="<?php echo esc_attr( $block_class ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+				<p><?php esc_html_e('Comments will be displayed on singular posts and pages.', 'digiblocks'); ?></p>
+			</div>
+			<?php
+			return ob_get_clean();
+		}
+	
+		// Get post ID
+		$post_id = get_the_ID();
+		
+		// Get total comment count
+		$comment_count = get_comments_number($post_id);
+		
+		// Get current page
+		$cpage = get_query_var('cpage');
+		if (!$cpage) {
+			$cpage = isset($_GET['cpage']) ? absint($_GET['cpage']) : 1;
+		}
+		
+		// Set up the comments for display (not using get_comments directly)
+		// Instead, we'll use WordPress's built-in functions that handle pagination correctly
+		
+		// Before output, we need to set comment pagination options
+		if ($commentsPerPage > 0) {
+			// Set these values before we call comments_template
+			add_filter('comments_per_page', function() use ($commentsPerPage) {
+				return $commentsPerPage;
+			}, 999);
+			
+			// Ensure page_comments is enabled
+			add_filter('pre_option_page_comments', '__return_true');
+			
+			// Set comment order
+			add_filter('pre_option_comment_order', function() use ($commentsOrder) {
+				return $commentsOrder;
+			}, 999);
+			
+			// Set default comment page
+			add_filter('pre_option_default_comments_page', function() {
+				return 'oldest'; // This matches typical WordPress behavior
+			}, 999);
+		}
+		
+		// Custom comment callback function
+		$comment_callback = function($comment, $args, $depth) use ($id, $showAvatars, $avatarSize) {
+			$GLOBALS['comment'] = $comment;
+			$avatar_size = $avatarSize['desktop']; // Use desktop size for simplicity
+			
+			// Get comment classes
+			$comment_class = 'digiblocks-comment';
+			if ($comment->comment_parent) {
+				$comment_class .= ' digiblocks-child-comment';
+			}
+			?>
+			<li id="comment-<?php comment_ID(); ?>" class="<?php echo esc_attr($comment_class); ?>">
+				<div class="digiblocks-comment-header">
+					<?php if ($showAvatars) : ?>
+						<div class="digiblocks-comment-avatar">
+							<?php echo get_avatar($comment, $avatar_size); ?>
+						</div>
+					<?php endif; ?>
+					
+					<div class="digiblocks-comment-meta">
+						<h4 class="digiblocks-comment-author">
+							<?php comment_author_link(); ?>
+						</h4>
+						<div class="digiblocks-comment-date">
+							<a href="<?php echo esc_url(get_comment_link()); ?>">
+								<?php
+								printf(
+									/* translators: 1: Comment date, 2: Comment time */
+									esc_html__('%1$s at %2$s', 'digiblocks'),
+									get_comment_date(),
+									get_comment_time()
+								);
+								?>
+							</a>
+							<?php edit_comment_link(__('Edit', 'digiblocks'), ' <span class="digiblocks-edit-link">(', ')</span>'); ?>
+						</div>
+					</div>
+				</div>
+	
+				<div class="digiblocks-comment-content">
+					<?php if ($comment->comment_approved == '0') : ?>
+						<p class="digiblocks-comment-awaiting-moderation">
+							<?php esc_html_e('Your comment is awaiting moderation.', 'digiblocks'); ?>
+						</p>
+					<?php endif; ?>
+					
+					<?php comment_text(); ?>
+				</div>
+	
+				<div class="digiblocks-comment-reply">
+					<?php
+					comment_reply_link(
+						array_merge(
+							$args,
+							array(
+								'add_below' => 'comment',
+								'depth'     => $depth,
+								'max_depth' => $args['max_depth'],
+								'reply_text' => __('Reply', 'digiblocks'),
+								'login_text' => __('Log in to Reply', 'digiblocks')
+							)
+						)
+					);
+					?>
+				</div>
+			<?php
+		};
+	
+		// Begin output
+		?>
+		<div class="<?php echo esc_attr($block_class); ?>"<?php echo wp_kses_post($id_attr); ?>>
+			<?php if ($displayTitle && ($comment_count > 0 || comments_open($post_id))) : ?>
+				<h3 class="digiblocks-comments-title">
+					<?php
+					if ($comment_count === 0) {
+						echo esc_html($titleText);
+					} else {
+						// translators: %1$s: Comments count, %2$s: Post title
+						printf(
+							esc_html(_n(
+								'%1$s Comment on "%2$s"',
+								'%1$s Comments on "%2$s"',
+								$comment_count,
+								'digiblocks'
+							)),
+							number_format_i18n($comment_count),
+							get_the_title()
+						);
+					}
+					?>
+				</h3>
+			<?php endif; ?>
+	
+			<?php
+			// We'll use WordPress's comment listing feature directly,
+			// which handles pagination and threading correctly
+			if ($comment_count > 0) {
+				// Setup the comment listing arguments
+				$list_args = array(
+					'style'       => 'ul',
+					'short_ping'  => true,
+					'avatar_size' => $avatarSize['desktop'],
+					'callback'    => $comment_callback,
+					'per_page'    => $commentsPerPage,
+					'page'        => $cpage,
+					'reverse_top_level' => ($commentsOrder !== 'asc'),
+					'max_depth'   => $nestedComments ? 5 : 1,
+				);
+				
+				// Get all approved comments for this post
+				$all_comments = get_comments(array(
+					'post_id' => $post_id,
+					'status'  => 'approve',
+					'order'   => $commentsOrder,
+				));
+				
+				echo '<ul class="digiblocks-comments-list">';
+				
+				// Use the WordPress function that correctly handles pagination
+				wp_list_comments($list_args, $all_comments);
+				
+				echo '</ul>';
+				
+				// Calculate max pages
+				$max_pages = ceil($comment_count / $commentsPerPage);
+				
+				// Show pagination if needed
+				if ($max_pages > 1) {
+					$pagination_args = array(
+						'base'         => add_query_arg('cpage', '%#%'),
+						'format'       => '',
+						'total'        => $max_pages,
+						'current'      => $cpage,
+						'echo'         => true,
+						'add_fragment' => '#' . $anchor,
+						'prev_text'    => __('&laquo; Previous Comments', 'digiblocks'),
+						'next_text'    => __('Next Comments &raquo;', 'digiblocks'),
+					);
+					
+					echo '<nav class="digiblocks-comments-navigation" role="navigation">';
+					echo paginate_links($pagination_args);
+					echo '</nav>';
+				}
+			}
+			?>
+	
+			<?php if (comments_open($post_id)) : ?>
+				<div class="digiblocks-comment-form">
+					<?php
+					// Define custom comment form args
+					$form_args = array();
+					
+					// Customize comment form title if needed
+					if ($customFormTitle) {
+						$form_args['title_reply'] = $formTitle;
+					}
+					
+					// Customize submit button text if needed
+					if ($displaySubmitButton) {
+						$form_args['label_submit'] = $submitButtonText;
+					}
+					
+					// Customize cancel reply text if needed
+					if ($displayCancelReply) {
+						$form_args['cancel_reply_link'] = $cancelReplyText;
+					}
+					
+					// Customize logged in text if needed
+					if ($displayLoggedIn && !empty($loggedInText)) {
+						$user = wp_get_current_user();
+						$user_identity = $user->exists() ? $user->display_name : '';
+						$form_args['logged_in_as'] = sprintf(
+							$loggedInText,
+							get_edit_user_link(),
+							$user_identity,
+							wp_logout_url(apply_filters('the_permalink', get_permalink()))
+						);
+					}
+					
+					// Customize cookie consent text if needed
+					if ($displayCookieConsent && !empty($cookieConsentText)) {
+						$form_args['cookie_consent_text'] = $cookieConsentText;
+					}
+					
+					comment_form($form_args);
+					?>
+				</div>
+			<?php elseif ($comment_count > 0) : ?>
+				<p class="digiblocks-comments-closed"><?php esc_html_e('Comments are closed.', 'digiblocks'); ?></p>
+			<?php endif; ?>
+		</div>
+		<?php
+	
+		// Remove our temporarily added filters
+		remove_filter('comments_per_page', function() use ($commentsPerPage) {
+			return $commentsPerPage;
+		}, 999);
+		remove_filter('pre_option_page_comments', '__return_true');
+		remove_filter('pre_option_comment_order', function() use ($commentsOrder) {
+			return $commentsOrder;
+		}, 999);
+		remove_filter('pre_option_default_comments_page', function() {
+			return 'oldest';
+		}, 999);
+	
+		// Get the output buffer
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render callback for the Copyright block.
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content    Block content.
+	 * @param WP_Block $block      Block instance.
+	 * @return string  Block content.
+	 */
+	public function render_copyright_block( $attributes, $content, $block ) {
+		// Extract attributes
+		$id              = isset( $attributes['id'] ) ? $attributes['id'] : '';
+		$anchor          = isset( $attributes['anchor'] ) ? $attributes['anchor'] : '';
+		$customClasses   = isset( $attributes['customClasses'] ) ? $attributes['customClasses'] : '';
+		$copyrightText   = isset( $attributes['copyrightText'] ) ? $attributes['copyrightText'] : __( '© {year} {sitename}. All rights reserved.', 'digiblocks' );
+		$animation       = isset( $attributes['animation'] ) ? $attributes['animation'] : 'none';
+
+		// Build the block class
+		$block_class = "digiblocks-copyright $id";
+		
+		if ( $animation !== 'none' ) {
+			$block_class .= " animate-$animation";
+		}
+		
+		if ( $customClasses ) {
+			$block_class .= " $customClasses";
+		}
+		
+		// Format the ID attribute
+		$id_attr = $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+
+		// Process copyright text to replace placeholders
+		$processed_text = $copyrightText;
+		if ( ! empty( $processed_text ) ) {
+			// Get current year, site name and URL
+			$current_year = gmdate( 'Y' );
+			$site_name = get_bloginfo( 'name' );
+			$site_url = home_url();
+
+			// Replace placeholders
+			$processed_text = str_replace( '{year}', $current_year, $processed_text );
+			$processed_text = str_replace( '{sitename}', $site_name, $processed_text );
+			$processed_text = str_replace( 
+				'{siteurl}', 
+				'<a href="' . esc_url( $site_url ) . '">' . esc_html( $site_name ) . '</a>', 
+				$processed_text 
+			);
+		}
+
+		// Start output buffer
+		ob_start();
+		?>
+		<div class="<?php echo esc_attr( $block_class ); ?>"<?php echo wp_kses_post( $id_attr ); ?>>
+			<div class="digiblocks-copyright-text">
+				<?php echo wp_kses_post( $processed_text ); ?>
+			</div>
+		</div>
+		<?php
+		
+		// Get the output buffer
+		return ob_get_clean();
+	}
+
+	/**
+	 * Generate breadcrumbs array
+	 *
+	 * @param bool   $show_home Show home link.
+	 * @param string $home_text Home text.
+	 * @param bool   $show_current Show current page.
+	 * @return array Breadcrumbs array.
+	 */
+	private function generate_breadcrumbs( $show_home = true, $home_text = '', $show_current = true ) {
+		// Initialize breadcrumbs array
+		$breadcrumbs = array();
+		
+		// Get the home URL and add it as the first item
+		$home_url = home_url( '/' );
+		$breadcrumbs[] = array(
+			'label' => ! empty( $home_text ) ? $home_text : __( 'Home', 'digiblocks' ),
+			'url'   => $home_url,
+		);
+		
+		// Front page
+		if ( is_front_page() ) {
+			// We're on the front page, don't add anything else
+			return $breadcrumbs;
+		}
+		
+		// Home page (if different from front page)
+		if ( is_home() ) {
+			$page_for_posts = get_option( 'page_for_posts' );
+			if ( $page_for_posts ) {
+				$breadcrumbs[] = array(
+					'label' => get_the_title( $page_for_posts ),
+					'url'   => get_permalink( $page_for_posts ),
+				);
+			} else {
+				$breadcrumbs[] = array(
+					'label' => __( 'Blog', 'digiblocks' ),
+					'url'   => '',
+				);
+			}
+			return $breadcrumbs;
+		}
+		
+		// Category archives
+		if ( is_category() ) {
+			$category = get_queried_object();
+			
+			// If the category has a parent, add ancestors
+			if ( $category->parent ) {
+				$ancestors = array_reverse( get_ancestors( $category->term_id, 'category' ) );
+				foreach ( $ancestors as $ancestor_id ) {
+					$ancestor = get_term( $ancestor_id, 'category' );
+					$breadcrumbs[] = array(
+						'label' => $ancestor->name,
+						'url'   => get_term_link( $ancestor ),
+					);
+				}
+			}
+			
+			// Add current category
+			$breadcrumbs[] = array(
+				'label' => $category->name,
+				'url'   => '',
+			);
+			return $breadcrumbs;
+		}
+		
+		// Tag archives
+		if ( is_tag() ) {
+			$tag = get_queried_object();
+			$breadcrumbs[] = array(
+				'label' => sprintf( __( 'Tag: %s', 'digiblocks' ), $tag->name ),
+				'url'   => '',
+			);
+			return $breadcrumbs;
+		}
+		
+		// Author archives
+		if ( is_author() ) {
+			$author = get_queried_object();
+			$breadcrumbs[] = array(
+				'label' => sprintf( __( 'Author: %s', 'digiblocks' ), $author->display_name ),
+				'url'   => '',
+			);
+			return $breadcrumbs;
+		}
+		
+		// Date archives
+		if ( is_date() ) {
+			if ( is_year() ) {
+				$breadcrumbs[] = array(
+					'label' => get_the_time( 'Y' ),
+					'url'   => '',
+				);
+			} elseif ( is_month() ) {
+				$breadcrumbs[] = array(
+					'label' => get_the_time( 'Y' ),
+					'url'   => get_year_link( get_the_time( 'Y' ) ),
+				);
+				$breadcrumbs[] = array(
+					'label' => get_the_time( 'F' ),
+					'url'   => '',
+				);
+			} elseif ( is_day() ) {
+				$breadcrumbs[] = array(
+					'label' => get_the_time( 'Y' ),
+					'url'   => get_year_link( get_the_time( 'Y' ) ),
+				);
+				$breadcrumbs[] = array(
+					'label' => get_the_time( 'F' ),
+					'url'   => get_month_link( get_the_time( 'Y' ), get_the_time( 'm' ) ),
+				);
+				$breadcrumbs[] = array(
+					'label' => get_the_time( 'd' ),
+					'url'   => '',
+				);
+			}
+			return $breadcrumbs;
+		}
+		
+		// Search results
+		if ( is_search() ) {
+			$breadcrumbs[] = array(
+				'label' => sprintf( __( 'Search results for: %s', 'digiblocks' ), get_search_query() ),
+				'url'   => '',
+			);
+			return $breadcrumbs;
+		}
+		
+		// 404 page
+		if ( is_404() ) {
+			$breadcrumbs[] = array(
+				'label' => __( 'Page not found', 'digiblocks' ),
+				'url'   => '',
+			);
+			return $breadcrumbs;
+		}
+		
+		// Single post
+		if ( is_singular( 'post' ) ) {
+			// Get post categories
+			$categories = get_the_category();
+			if ( $categories ) {
+				// Get the deepest category
+				$category = $this->get_deepest_category( $categories );
+				
+				// If the category has ancestors, add them to the breadcrumbs
+				if ( $category->parent ) {
+					$ancestors = array_reverse( get_ancestors( $category->term_id, 'category' ) );
+					foreach ( $ancestors as $ancestor_id ) {
+						$ancestor = get_term( $ancestor_id, 'category' );
+						$breadcrumbs[] = array(
+							'label' => $ancestor->name,
+							'url'   => get_term_link( $ancestor ),
+						);
+					}
+				}
+				
+				// Add the category
+				$breadcrumbs[] = array(
+					'label' => $category->name,
+					'url'   => get_term_link( $category ),
+				);
+			}
+			
+			// Add current post title
+			if ( $show_current ) {
+				$breadcrumbs[] = array(
+					'label' => get_the_title(),
+					'url'   => '',
+				);
+			}
+			return $breadcrumbs;
+		}
+		
+		// Custom post types
+		if ( is_singular() && ! is_page() && ! is_attachment() ) {
+			$post_type = get_post_type();
+			$post_type_obj = get_post_type_object( $post_type );
+			
+			// Add post type archive link if available
+			if ( $post_type_obj && $post_type_obj->has_archive ) {
+				$breadcrumbs[] = array(
+					'label' => $post_type_obj->labels->name,
+					'url'   => get_post_type_archive_link( $post_type ),
+				);
+			}
+			
+			// For hierarchical post types, add ancestors
+			if ( is_post_type_hierarchical( $post_type ) ) {
+				$ancestors = array_reverse( get_post_ancestors( get_the_ID() ) );
+				foreach ( $ancestors as $ancestor_id ) {
+					$breadcrumbs[] = array(
+						'label' => get_the_title( $ancestor_id ),
+						'url'   => get_permalink( $ancestor_id ),
+					);
+				}
+			}
+			
+			// Add taxonomy terms for this post type if applicable
+			$taxonomies = get_object_taxonomies( $post_type, 'objects' );
+			foreach ( $taxonomies as $taxonomy ) {
+				if ( $taxonomy->hierarchical && $taxonomy->public ) {
+					$terms = get_the_terms( get_the_ID(), $taxonomy->name );
+					if ( $terms ) {
+						$term = $this->get_deepest_term( $terms, $taxonomy->name );
+						if ( $term ) {
+							// Add term ancestors if any
+							if ( $term->parent ) {
+								$ancestors = array_reverse( get_ancestors( $term->term_id, $taxonomy->name ) );
+								foreach ( $ancestors as $ancestor_id ) {
+									$ancestor = get_term( $ancestor_id, $taxonomy->name );
+									$breadcrumbs[] = array(
+										'label' => $ancestor->name,
+										'url'   => get_term_link( $ancestor ),
+									);
+								}
+							}
+							
+							// Add the term
+							$breadcrumbs[] = array(
+								'label' => $term->name,
+								'url'   => get_term_link( $term ),
+							);
+							break; // Only add one taxonomy's terms
+						}
+					}
+				}
+			}
+			
+			// Add current post title
+			if ( $show_current ) {
+				$breadcrumbs[] = array(
+					'label' => get_the_title(),
+					'url'   => '',
+				);
+			}
+			return $breadcrumbs;
+		}
+		
+		// Pages
+		if ( is_page() ) {
+			// For hierarchical pages, add ancestors
+			$ancestors = array_reverse( get_post_ancestors( get_the_ID() ) );
+			foreach ( $ancestors as $ancestor_id ) {
+				$breadcrumbs[] = array(
+					'label' => get_the_title( $ancestor_id ),
+					'url'   => get_permalink( $ancestor_id ),
+				);
+			}
+			
+			// Add current page title
+			if ( $show_current ) {
+				$breadcrumbs[] = array(
+					'label' => get_the_title(),
+					'url'   => '',
+				);
+			}
+			return $breadcrumbs;
+		}
+		
+		// Attachments
+		if ( is_attachment() ) {
+			// Get parent post
+			$parent_id = get_post()->post_parent;
+			if ( $parent_id ) {
+				$breadcrumbs[] = array(
+					'label' => get_the_title( $parent_id ),
+					'url'   => get_permalink( $parent_id ),
+				);
+			}
+			
+			// Add current attachment title
+			if ( $show_current ) {
+				$breadcrumbs[] = array(
+					'label' => get_the_title(),
+					'url'   => '',
+				);
+			}
+			return $breadcrumbs;
+		}
+		
+		// Custom post type archives
+		if ( is_post_type_archive() ) {
+			$post_type = get_post_type();
+			$post_type_obj = get_post_type_object( $post_type );
+			if ( $post_type_obj ) {
+				$breadcrumbs[] = array(
+					'label' => $post_type_obj->labels->name,
+					'url'   => '',
+				);
+			}
+			return $breadcrumbs;
+		}
+		
+		// Custom taxonomy archives
+		if ( is_tax() ) {
+			$term = get_queried_object();
+			$taxonomy = get_taxonomy( $term->taxonomy );
+			
+			// Add taxonomy name if available
+			if ( $taxonomy ) {
+				$breadcrumbs[] = array(
+					'label' => $taxonomy->labels->name,
+					'url'   => '',
+				);
+			}
+			
+			// If the term has a parent, add ancestors
+			if ( $term->parent ) {
+				$ancestors = array_reverse( get_ancestors( $term->term_id, $term->taxonomy ) );
+				foreach ( $ancestors as $ancestor_id ) {
+					$ancestor = get_term( $ancestor_id, $term->taxonomy );
+					$breadcrumbs[] = array(
+						'label' => $ancestor->name,
+						'url'   => get_term_link( $ancestor ),
+					);
+				}
+			}
+			
+			// Add current term
+			$breadcrumbs[] = array(
+				'label' => $term->name,
+				'url'   => '',
+			);
+			return $breadcrumbs;
+		}
+		
+		// If we've reached here, we don't know what kind of page this is
+		if ( $show_current ) {
+			$breadcrumbs[] = array(
+				'label' => get_the_title(),
+				'url'   => '',
+			);
+		}
+		
+		return $breadcrumbs;
+	}
+
+	/**
+	 * Get the deepest category from an array of categories
+	 *
+	 * @param array $categories Array of categories.
+	 * @return object The deepest category.
+	 */
+	private function get_deepest_category( $categories ) {
+		// Start with the first category
+		$deepest_category = $categories[0];
+		$max_depth = 0;
+		
+		// Loop through categories to find the deepest one
+		foreach ( $categories as $category ) {
+			$depth = count( get_ancestors( $category->term_id, 'category' ) );
+			if ( $depth > $max_depth ) {
+				$max_depth = $depth;
+				$deepest_category = $category;
+			}
+		}
+		
+		return $deepest_category;
+	}
+
+	/**
+	 * Get the deepest term from an array of terms
+	 *
+	 * @param array  $terms Array of terms.
+	 * @param string $taxonomy Taxonomy name.
+	 * @return object The deepest term.
+	 */
+	private function get_deepest_term( $terms, $taxonomy ) {
+		// Start with the first term
+		$deepest_term = $terms[0];
+		$max_depth = 0;
+		
+		// Loop through terms to find the deepest one
+		foreach ( $terms as $term ) {
+			$depth = count( get_ancestors( $term->term_id, $taxonomy ) );
+			if ( $depth > $max_depth ) {
+				$max_depth = $depth;
+				$deepest_term = $term;
+			}
+		}
+		
+		return $deepest_term;
 	}
 }

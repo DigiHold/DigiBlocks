@@ -12,7 +12,7 @@ const HeadingSave = ({ attributes }) => {
         anchor, 
         customClasses, 
         content,
-        level,
+        headingTag,
         align,
         animation,
         highlightText,
@@ -64,8 +64,8 @@ const HeadingSave = ({ attributes }) => {
         }).join('');
     };
 
-    // Create the proper heading tag based on level
-    const HeadingTag = `h${level}`;
+    // Create the proper heading tag
+    const TagName = headingTag;
 
     // Get processed content with highlights
     const processedContent = highlightText && highlightText.trim() !== '' ? 
@@ -81,9 +81,9 @@ const HeadingSave = ({ attributes }) => {
                 rel={linkOpenInNewTab ? "noopener noreferrer" : undefined}
                 {...commonProps}
             >
-                <HeadingTag className="digiblocks-heading-text">
+                <TagName className="digiblocks-heading-text">
                     {processedContent}
-                </HeadingTag>
+                </TagName>
             </a>
         );
     }
@@ -91,9 +91,9 @@ const HeadingSave = ({ attributes }) => {
     // Otherwise, render as a div with the heading inside
     return (
         <div {...commonProps}>
-            <HeadingTag className="digiblocks-heading-text">
+            <TagName className="digiblocks-heading-text">
                 {processedContent}
-            </HeadingTag>
+            </TagName>
         </div>
     );
 };

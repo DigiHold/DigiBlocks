@@ -8,8 +8,6 @@ const {
     InspectorControls,
     PanelColorSettings,
     LinkControl,
-    BlockControls,
-    AlignmentToolbar
 } = wp.blockEditor;
 const {
     SelectControl,
@@ -29,7 +27,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, ResponsiveButtonGroup, ResponsiveRangeControl } = digi.components;
 
 /**
  * Edit function for the Icon Box block
@@ -38,10 +36,14 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
     const {
         id,
         anchor,
+		visibility,
         customClasses,
 		iconSource,
         customSvg,
         iconValue,
+        align,
+		iconLayout,
+		iconContentGap,
 		showTitle,
     	showContent,
         title,
@@ -68,7 +70,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         contentTypography,
         padding,
         margin,
-        align,
         animation,
         boxShadow,
         boxShadowHover,
@@ -127,20 +128,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 		}
 		return "options"; // Default fallback
 	});
-    
-    // Use useEffect to set the ID only once when component mounts and initialize missing attributes
-    useEffect(() => {
-        // Initialize iconMargin if it's null
-        if (!iconMargin) {
-            setAttributes({
-                iconMargin: {
-                    desktop: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' },
-                    tablet: { top: 0, right: 0, bottom: 15, left: 0, unit: 'px' },
-                    mobile: { top: 0, right: 0, bottom: 10, left: 0, unit: 'px' }
-                }
-            });
-        }
-    }, [iconMargin, setAttributes]);
 
     // State to track if global components are loaded
     const [componentsLoaded, setComponentsLoaded] = useState(false);
@@ -266,6 +253,25 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
+
+		// Set alignment properties based on align value
+		let alignCSS = '';
+		if (align[activeDevice] === 'flex-start') {
+			alignCSS = `
+				align-items: flex-start;
+				text-align: left;
+			`;
+		} else if (align[activeDevice] === 'center') {
+			alignCSS = `
+				align-items: center;
+				text-align: center;
+			`;
+		} else if (align[activeDevice] === 'flex-end') {
+			alignCSS = `
+				align-items: flex-end;
+				text-align: right;
+			`;
+		}
         
         // Border styles
         let borderRadiusCSS = getDimensionCSS(borderRadius, 'border-radius', activeDevice);
@@ -452,10 +458,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             // Custom icon margin if set
             if (iconMargin && iconMargin[activeDevice]) {
                 iconMarginCSS = `${getDimensionCSS(iconMargin, 'margin', activeDevice)}`;
-            } else {
-                // Default margins if not set
-                const defaultBottom = activeDevice === 'desktop' ? 20 : activeDevice === 'tablet' ? 15 : 10;
-                iconMarginCSS = `margin: 0px 0px ${defaultBottom}px 0px;`;
             }
         }
         
@@ -535,7 +537,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             buttonCSS = `
                 .${id} .digiblocks-button-wrapper {
                     display: flex;
-                    justify-content: ${align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start'};
+                    justify-content: ${align[activeDevice] === 'center' ? 'center' : align[activeDevice] === 'flex-end' ? 'flex-end' : 'flex-start'};
                     ${buttonMarginCSS}
                 }
                 
@@ -562,12 +564,17 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         return `
             /* Main block styles */
             .${id} {
+				display: flex;
+				${alignCSS}
                 background-color: ${backgroundColor || 'transparent'};
                 ${boxShadowCSS}
                 ${paddingCSS}
                 ${marginCSS}
                 ${borderCSS}
                 ${borderRadiusCSS}
+				${iconLayout[activeDevice] === 'above' ? 'flex-direction: column;' : 'flex-direction: row;'}
+				${iconLayout[activeDevice] === 'after' ? 'flex-direction: row-reverse;' : ''}
+				gap: ${iconContentGap[activeDevice].value}${iconContentGap[activeDevice].unit};
                 transition: all 0.3s ease;
                 ${linkEnabled && linkType === 'box' ? linkCSS : ''}
             }
@@ -613,6 +620,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             /* Title styles */
             .${id} .digiblocks-icon-box-title {
                 color: ${titleColor || 'inherit'};
+				margin-top: 0;
                 margin-bottom: 10px;
                 ${titleTypographyCSS}
                 transition: color 0.3s ease;
@@ -624,9 +632,15 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Content styles */
+            .${id} .digiblocks-icon-box-content {
+                display: flex;
+                flex-direction: column;
+            }
+
             .${id} .digiblocks-icon-box-text {
                 color: ${textColor || 'inherit'};
                 ${contentTypographyCSS}
+				margin: 0;
                 transition: color 0.3s ease;
             }
             
@@ -637,6 +651,31 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* Button styles */
             ${buttonCSS}
+
+			/* Visibility Controls */
+			${visibility.desktop ? `
+				@media (min-width: 992px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
+
+			${visibility.tablet ? `
+				@media (min-width: 768px) and (max-width: 991px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
+
+			${visibility.mobile ? `
+				@media (max-width: 767px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
         `;
     };
 
@@ -871,11 +910,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                             onChange={(value) =>
                                 setAttributes({
                                     iconMargin: {
-                                        ...iconMargin || {
-                                            desktop: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' },
-                                            tablet: { top: 0, right: 0, bottom: 15, left: 0, unit: 'px' },
-                                            mobile: { top: 0, right: 0, bottom: 10, left: 0, unit: 'px' }
-                                        },
+                                        ...iconMargin,
                                         [localActiveDevice]: value,
                                     },
                                 })
@@ -1415,6 +1450,49 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 								)}
 							</div>
 
+							<ResponsiveButtonGroup
+								label={__('Alignment', 'digiblocks')}
+								value={align}
+								onChange={(value) => setAttributes({ align: value })}
+								options={[
+									{ label: __('Left', 'digiblocks'), value: 'flex-start' },
+									{ label: __('Center', 'digiblocks'), value: 'center' },
+									{ label: __('Right', 'digiblocks'), value: 'flex-end' },
+								]}
+							/>
+
+							<ResponsiveButtonGroup
+								label={__('Icon Layout', 'digiblocks')}
+								value={iconLayout}
+								onChange={(value) => setAttributes({ iconLayout: value })}
+								options={[
+									{ label: __('Before', 'digiblocks'), value: 'before' },
+									{ label: __('Above', 'digiblocks'), value: 'above' },
+									{ label: __('After', 'digiblocks'), value: 'after' },
+								]}
+							/>
+
+							<ResponsiveRangeControl
+								label={__("Gap", "digiblocks")}
+								value={iconContentGap}
+								onChange={(value) => setAttributes({ iconContentGap: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' },
+									{ label: 'em', value: 'em' },
+									{ label: 'rem', value: 'rem' },
+								]}
+								defaultUnit="px"
+								min={0}
+								max={100}
+								step={1}
+								defaultValues={{
+									desktop: 20,
+									tablet: 15,
+									mobile: 10
+								}}
+							/>
+
 							{/* Toggle controls for showing/hiding elements */}
 							<ToggleControl
                                 label={__("Show Title", "digiblocks")}
@@ -1865,6 +1943,61 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                 </div>
                             )}
                         </TabPanelBody>
+						
+						<TabPanelBody
+							tab="advanced"
+							name="visibility"
+							title={__('Visibility', 'digiblocks')}
+							initialOpen={false}
+						>
+							<div className="components-base-control__help" style={{ 
+								padding: '12px', 
+								backgroundColor: '#f0f6fc', 
+								border: '1px solid #c3ddfd', 
+								borderRadius: '4px',
+								marginBottom: '16px'
+							}}>
+								<strong>{__('Editor Note:', 'digiblocks')}</strong><br />
+								{__('Hidden elements appear with reduced opacity in the editor for easy editing. Visibility changes only take effect on the frontend.', 'digiblocks')}
+							</div>
+							
+							<ToggleControl
+								label={__('Hide on Desktop', 'digiblocks')}
+								checked={visibility.desktop}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										desktop: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<ToggleControl
+								label={__('Hide on Tablet', 'digiblocks')}
+								checked={visibility.tablet}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										tablet: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<ToggleControl
+								label={__('Hide on Mobile', 'digiblocks')}
+								checked={visibility.mobile}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										mobile: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+						</TabPanelBody>
+						
                         <TabPanelBody
 							tab="advanced"
 							name="additional"
@@ -1939,20 +2072,12 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-icon-box ${id} align-${align} ${customClasses || ''}`,
+        className: `digiblocks-icon-box ${id} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
     });
 
     return (
         <>
-            {/* Add alignment control to the toolbar */}
-            <BlockControls>
-                <AlignmentToolbar
-                    value={align}
-                    onChange={(value) => setAttributes({ align: value })}
-                />
-            </BlockControls>
-
             <InspectorControls>
                 <CustomTabPanel
                     tabs={tabList}
@@ -1967,8 +2092,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             <style dangerouslySetInnerHTML={{ __html: generateCSS() }} />
 
             <div {...blockProps}>
+                {renderIcon()}
                 <div className="digiblocks-icon-box-content">
-                    {renderIcon()}
                     {showTitle && (
 						<RichText
 							tagName="h3"

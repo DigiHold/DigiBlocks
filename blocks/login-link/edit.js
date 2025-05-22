@@ -10,6 +10,7 @@ const {
     LinkControl,
 } = wp.blockEditor;
 const {
+    ToggleControl,
     TextControl,
     RangeControl,
     __experimentalToggleGroupControl: ToggleGroupControl,
@@ -22,7 +23,7 @@ const { useState, useEffect } = wp.element;
  */
 const { useBlockId } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, TypographyControl, CustomTabPanel, TabPanelBody, FontAwesomeControl } = digi.components;
+const { ResponsiveControl, ResponsiveButtonGroup, TypographyControl, CustomTabPanel, TabPanelBody, FontAwesomeControl } = digi.components;
 
 /**
  * Edit function for the Login Link block
@@ -31,6 +32,7 @@ const LoginLinkEdit = ({ attributes, setAttributes, clientId }) => {
     const {
         id,
         anchor,
+		visibility,
         customClasses,
         loginText,
         loginIconValue,
@@ -44,6 +46,7 @@ const LoginLinkEdit = ({ attributes, setAttributes, clientId }) => {
         loggedInUrl,
         loggedInOpenInNewTab,
         loggedInRel,
+		align,
         textColor,
         textHoverColor,
         typography,
@@ -154,11 +157,12 @@ const LoginLinkEdit = ({ attributes, setAttributes, clientId }) => {
             .${id} .digiblocks-login-link-content {
                 display: inline-flex;
                 align-items: center;
+				justify-content: ${align[localActiveDevice]};
                 gap: 8px;
             }
             
             /* Typography */
-            .${id}, 
+            .${id} a, 
             .${id} .digiblocks-login-link-content {
                 ${typography && typography.fontFamily ? `font-family: ${typography.fontFamily};` : ''}
                 ${typography && typography.fontSize && typography.fontSize[localActiveDevice] ? `font-size: ${typography.fontSize[localActiveDevice]}${typography.fontSizeUnit || 'px'};` : ''}
@@ -169,6 +173,31 @@ const LoginLinkEdit = ({ attributes, setAttributes, clientId }) => {
                 ${typography && typography.lineHeight && typography.lineHeight[localActiveDevice] ? `line-height: ${typography.lineHeight[localActiveDevice]}${typography.lineHeightUnit || 'em'};` : ''}
                 ${typography && typography.letterSpacing && typography.letterSpacing[localActiveDevice] ? `letter-spacing: ${typography.letterSpacing[localActiveDevice]}${typography.letterSpacingUnit || 'px'};` : ''}
             }
+
+			/* Visibility Controls */
+			${visibility.desktop ? `
+				@media (min-width: 992px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
+
+			${visibility.tablet ? `
+				@media (min-width: 768px) and (max-width: 991px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
+
+			${visibility.mobile ? `
+				@media (max-width: 767px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
         `;
     };
 
@@ -375,6 +404,24 @@ const LoginLinkEdit = ({ attributes, setAttributes, clientId }) => {
                                 </p>
                             </div>
                         </TabPanelBody>
+
+						<TabPanelBody
+                            tab="options"
+                            name="position-section"
+                            title={__("Position", "digiblocks")}
+                            initialOpen={false}
+                        >
+							<ResponsiveButtonGroup
+                                label={__('Alignment', 'digiblocks')}
+                                value={align}
+                                onChange={(value) => setAttributes({ align: value })}
+                                options={[
+                                    { label: __('Left', 'digiblocks'), value: 'flex-start' },
+                                    { label: __('Center', 'digiblocks'), value: 'center' },
+                                    { label: __('Right', 'digiblocks'), value: 'flex-end' },
+                                ]}
+                            />
+						</TabPanelBody>
                     </>
                 );
                 
@@ -451,6 +498,59 @@ const LoginLinkEdit = ({ attributes, setAttributes, clientId }) => {
             case 'advanced':
                 return (
                     <>
+						<TabPanelBody
+							tab="advanced"
+							name="visibility"
+							title={__('Visibility', 'digiblocks')}
+							initialOpen={false}
+						>
+							<div className="components-base-control__help" style={{ 
+								padding: '12px', 
+								backgroundColor: '#f0f6fc', 
+								border: '1px solid #c3ddfd', 
+								borderRadius: '4px',
+								marginBottom: '16px'
+							}}>
+								<strong>{__('Editor Note:', 'digiblocks')}</strong><br />
+								{__('Hidden elements appear with reduced opacity in the editor for easy editing. Visibility changes only take effect on the frontend.', 'digiblocks')}
+							</div>
+							
+							<ToggleControl
+								label={__('Hide on Desktop', 'digiblocks')}
+								checked={visibility.desktop}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										desktop: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<ToggleControl
+								label={__('Hide on Tablet', 'digiblocks')}
+								checked={visibility.tablet}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										tablet: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<ToggleControl
+								label={__('Hide on Mobile', 'digiblocks')}
+								checked={visibility.mobile}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										mobile: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+						</TabPanelBody>
                         <TabPanelBody
                             tab="advanced"
                             name="additional"

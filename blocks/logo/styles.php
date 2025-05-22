@@ -12,6 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Get block attributes.
 $id                   = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
+$visibility           = isset( $attrs['visibility'] ) ? $attrs['visibility'] : [
+    'desktop' => false,
+    'tablet'  => false,
+    'mobile'  => false,
+];
 $logoType             = isset( $attrs['logoType'] ) ? $attrs['logoType'] : 'image';
 $textColor            = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#333333';
 $textHoverColor       = isset( $attrs['textHoverColor'] ) ? $attrs['textHoverColor'] : '';
@@ -21,7 +26,11 @@ $borderStyle          = isset( $attrs['borderStyle'] ) ? $attrs['borderStyle'] :
 $borderColor          = isset( $attrs['borderColor'] ) ? $attrs['borderColor'] : '#e0e0e0';
 $borderHoverColor     = isset( $attrs['borderHoverColor'] ) ? $attrs['borderHoverColor'] : '';
 $hoverEffect          = isset( $attrs['hoverEffect'] ) ? $attrs['hoverEffect'] : 'none';
-$logoAlignment        = isset( $attrs['logoAlignment'] ) ? $attrs['logoAlignment'] : 'center';
+$logoAlignment        = isset( $attrs['logoAlignment'] ) ? $attrs['logoAlignment'] : [
+    'desktop' => 'flex-start',
+    'tablet'  => '',
+    'mobile'  => '',
+];
 $iconPosition         = isset( $attrs['iconPosition'] ) ? $attrs['iconPosition'] : 'before';
 
 // Get icon sizeo
@@ -132,7 +141,7 @@ ob_start();
 /* Logo Block - <?php echo esc_attr( $id ); ?> */
 .<?php echo esc_attr( $id ); ?> {
 	display: flex;
-	justify-content: <?php echo esc_attr( $logoAlignment ); ?>;
+	justify-content: <?php echo esc_attr( $logoAlignment['desktop'] ); ?>;
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-logo-container {
@@ -288,7 +297,11 @@ ob_start();
 }
 
 /* Tablet Styles */
-@media (max-width: 991px) {	
+@media (max-width: 991px) {
+	.<?php echo esc_attr( $id ); ?> {
+		justify-content: <?php echo esc_attr( $logoAlignment['tablet'] ); ?>;
+	}
+
 	.<?php echo esc_attr( $id ); ?> .digiblocks-logo-container {
 		<?php if ( $borderStyle && $borderStyle !== 'none' ) : ?>
 			<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'tablet' ) ); ?>
@@ -325,7 +338,11 @@ ob_start();
 }
 
 /* Mobile Styles */
-@media (max-width: 767px) {	
+@media (max-width: 767px) {
+	.<?php echo esc_attr( $id ); ?> {
+		justify-content: <?php echo esc_attr( $logoAlignment['mobile'] ); ?>;
+	}
+
 	.<?php echo esc_attr( $id ); ?> .digiblocks-logo-container {
 		<?php if ( $borderStyle && $borderStyle !== 'none' ) : ?>
 			<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'mobile' ) ); ?>
@@ -360,6 +377,31 @@ ob_start();
 		width: <?php echo esc_attr( $iconSize['mobile']['value'] ? $iconSize['mobile']['value'] . $iconSize['mobile']['unit'] : '20px' ); ?>;
 	}
 }
+
+/* Visibility Controls */
+<?php if ( $visibility['desktop'] ) : ?>
+@media (min-width: 992px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['tablet'] ) : ?>
+@media (min-width: 768px) and (max-width: 991px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['mobile'] ) : ?>
+@media (max-width: 767px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
 
 <?php
 $digiblocks_css_output = ob_get_clean();

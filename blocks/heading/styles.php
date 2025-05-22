@@ -12,13 +12,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Get block attributes
 $id                     = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
+$visibility             = isset( $attrs['visibility'] ) ? $attrs['visibility'] : [
+    'desktop' => false,
+    'tablet'  => false,
+    'mobile'  => false,
+];
 $content                = isset( $attrs['content'] ) ? $attrs['content'] : '';
 $level                  = isset( $attrs['level'] ) ? $attrs['level'] : 2;
 $textColor              = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#333333';
 $textHoverColor         = isset( $attrs['textHoverColor'] ) ? $attrs['textHoverColor'] : '';
 $backgroundColor        = isset( $attrs['backgroundColor'] ) ? $attrs['backgroundColor'] : '';
 $backgroundHoverColor   = isset( $attrs['backgroundHoverColor'] ) ? $attrs['backgroundHoverColor'] : '';
-$align                  = isset( $attrs['align'] ) ? $attrs['align'] : 'left';
+$align                  = isset( $attrs['align'] ) ? $attrs['align'] : [
+    'desktop' => 'left',
+    'tablet'  => 'left',
+    'mobile'  => 'left',
+];
 $animation              = isset( $attrs['animation'] ) ? $attrs['animation'] : 'none';
 $highlightText          = isset( $attrs['highlightText'] ) ? $attrs['highlightText'] : '';
 $highlightColor         = isset( $attrs['highlightColor'] ) ? $attrs['highlightColor'] : '#ffde59';
@@ -63,55 +72,9 @@ $textShadow = isset( $attrs['textShadow'] ) ? $attrs['textShadow'] : array(
     'color'      => 'rgba(0,0,0,0.3)',
 );
 
-// Get padding (with fallback)
-$padding = isset( $attrs['padding'] ) ? $attrs['padding'] : array(
-    'desktop' => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 20,
-        'left'   => 0,
-        'unit'   => 'px',
-    ),
-    'tablet'  => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 15,
-        'left'   => 0,
-        'unit'   => 'px',
-    ),
-    'mobile'  => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 10,
-        'left'   => 0,
-        'unit'   => 'px',
-    ),
-);
-
-// Get margin (with fallback)
-$margin = isset( $attrs['margin'] ) ? $attrs['margin'] : array(
-    'desktop' => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 30,
-        'left'   => 0,
-        'unit'   => 'px',
-    ),
-    'tablet'  => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 25,
-        'left'   => 0,
-        'unit'   => 'px',
-    ),
-    'mobile'  => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 20,
-        'left'   => 0,
-        'unit'   => 'px',
-    ),
-);
+// Spacing
+$padding = isset( $attrs['padding'] ) ? $attrs['padding'] : digiblocks_get_default_dimensions('px');
+$margin = isset( $attrs['margin'] ) ? $attrs['margin'] : digiblocks_get_default_dimensions('px');
 
 // Get typography settings with default values
 $typography = isset( $attrs['typography'] ) ? $attrs['typography'] : array(
@@ -148,7 +111,7 @@ ob_start();
     display: flex;
     flex-direction: column;
     position: relative;
-    text-align: <?php echo esc_attr( $align ); ?>;
+    text-align: <?php echo esc_attr( $align['desktop'] ); ?>;
 	<?php if ( $backgroundColor ) : ?>
         background-color: <?php echo esc_attr( $backgroundColor ); ?>;
     <?php endif; ?>
@@ -467,6 +430,7 @@ switch ( $separatorStyle ) :
 /* Tablet Styles */
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
+		text-align: <?php echo esc_attr( $align['tablet'] ); ?>;
 		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
     }
@@ -551,6 +515,7 @@ switch ( $separatorStyle ) :
 /* Mobile Styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
+		text-align: <?php echo esc_attr( $align['mobile'] ); ?>;
 		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?>
     }
@@ -631,5 +596,31 @@ switch ( $separatorStyle ) :
     endswitch; ?>
     <?php endif; ?>
 }
+
+/* Visibility Controls */
+<?php if ( $visibility['desktop'] ) : ?>
+@media (min-width: 992px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['tablet'] ) : ?>
+@media (min-width: 768px) and (max-width: 991px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['mobile'] ) : ?>
+@media (max-width: 767px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
 <?php
 $digiblocks_css_output = ob_get_clean();

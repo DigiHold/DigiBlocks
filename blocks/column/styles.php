@@ -12,6 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Get block attributes.
 $id                       = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-column-' . uniqid();
+$visibility               = isset( $attrs['visibility'] ) ? $attrs['visibility'] : [
+    'desktop' => false,
+    'tablet'  => false,
+    'mobile'  => false,
+];
 $width                    = isset( $attrs['width'] ) ? $attrs['width'] : [
     'desktop' => 100,
     'tablet'  => 100,
@@ -166,6 +171,31 @@ ob_start();
         <?php endif; ?>
     }
 }
+
+/* Visibility Controls */
+<?php if ( $visibility['desktop'] ) : ?>
+@media (min-width: 992px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['tablet'] ) : ?>
+@media (min-width: 768px) and (max-width: 991px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['mobile'] ) : ?>
+@media (max-width: 767px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
 
 <?php
 $digiblocks_css_output = ob_get_clean();

@@ -35,6 +35,7 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
     const {
         id,
         anchor,
+		visibility,
         customClasses,
         items,
         titleColor,
@@ -643,6 +644,31 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
 			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon {
 				color: ${iconActiveColor};
 			}
+
+			/* Visibility Controls */
+			${visibility.desktop ? `
+				@media (min-width: 992px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
+
+			${visibility.tablet ? `
+				@media (min-width: 768px) and (max-width: 991px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
+
+			${visibility.mobile ? `
+				@media (max-width: 767px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
 		`;
 		
 		// Layout-specific styles
@@ -1747,6 +1773,60 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
                                 </div>
                             )}
                         </TabPanelBody>
+						
+						<TabPanelBody
+							tab="advanced"
+							name="visibility"
+							title={__('Visibility', 'digiblocks')}
+							initialOpen={false}
+						>
+							<div className="components-base-control__help" style={{ 
+								padding: '12px', 
+								backgroundColor: '#f0f6fc', 
+								border: '1px solid #c3ddfd', 
+								borderRadius: '4px',
+								marginBottom: '16px'
+							}}>
+								<strong>{__('Editor Note:', 'digiblocks')}</strong><br />
+								{__('Hidden elements appear with reduced opacity in the editor for easy editing. Visibility changes only take effect on the frontend.', 'digiblocks')}
+							</div>
+							
+							<ToggleControl
+								label={__('Hide on Desktop', 'digiblocks')}
+								checked={visibility.desktop}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										desktop: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<ToggleControl
+								label={__('Hide on Tablet', 'digiblocks')}
+								checked={visibility.tablet}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										tablet: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<ToggleControl
+								label={__('Hide on Mobile', 'digiblocks')}
+								checked={visibility.mobile}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										mobile: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+						</TabPanelBody>
                         
                         <TabPanelBody
                             tab="advanced"

@@ -12,6 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Get block attributes.
 $id                              = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-woo-products-' . uniqid();
+$visibility                      = isset( $attrs['visibility'] ) ? $attrs['visibility'] : [
+    'desktop' => false,
+    'tablet'  => false,
+    'mobile'  => false,
+];
 $columns                         = isset( $attrs['columns'] ) ? $attrs['columns'] : [
     'desktop' => 4,
     'tablet'  => 2,
@@ -757,6 +762,31 @@ ob_start();
 		<?php echo esc_attr( digiblocks_get_dimensions( $buttonBorderRadius, 'border-radius', 'mobile' ) ); ?>
     }
 }
+
+/* Visibility Controls */
+<?php if ( $visibility['desktop'] ) : ?>
+@media (min-width: 992px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['tablet'] ) : ?>
+@media (min-width: 768px) and (max-width: 991px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['mobile'] ) : ?>
+@media (max-width: 767px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
 
 <?php
 $digiblocks_css_output = ob_get_clean();

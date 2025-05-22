@@ -16,7 +16,6 @@ const IconBoxSave = ({ attributes }) => {
         showTitle,
         showContent,
         content,
-        align,
         animation,
         hoverEffect,
         anchor,
@@ -33,7 +32,6 @@ const IconBoxSave = ({ attributes }) => {
     const blockClasses = [
         "digiblocks-icon-box",
         id,
-        `align-${align}`,
         animation !== "none" ? `animate-${animation}` : "",
         hoverEffect !== "none" ? `has-hover-${hoverEffect}` : "",
         customClasses || "" // Add custom classes if they exist
@@ -93,7 +91,6 @@ const IconBoxSave = ({ attributes }) => {
     // Box content structure
     const boxContent = (
         <div className="digiblocks-icon-box-content">
-            {renderIcon()}
             {showTitle !== false && (
                 <RichText.Content
                     tagName="h3"
@@ -121,6 +118,7 @@ const IconBoxSave = ({ attributes }) => {
                 target={linkOpenInNewTab ? "_blank" : "_self"}
                 rel={linkOpenInNewTab ? (linkRel || "noopener noreferrer") : linkRel}
             >
+				{renderIcon()}
                 {boxContent}
             </a>
         );
@@ -129,6 +127,7 @@ const IconBoxSave = ({ attributes }) => {
     // Render as a div when no link or button is used
     return (
         <div {...blockProps}>
+			{renderIcon()}
             {boxContent}
         </div>
     );

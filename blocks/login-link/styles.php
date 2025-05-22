@@ -12,6 +12,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Get block attributes.
 $id                    = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
+$visibility            = isset( $attrs['visibility'] ) ? $attrs['visibility'] : [
+    'desktop' => false,
+    'tablet'  => false,
+    'mobile'  => false,
+];
+$align                 = isset( $attrs['align'] ) ? $attrs['align'] : [
+    'desktop' => 'flex-start',
+    'tablet'  => '',
+    'mobile'  => '',
+];
 $custom_classes        = isset( $attrs['customClasses'] ) ? $attrs['customClasses'] : '';
 $text_color            = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '';
 $text_hover_color      = isset( $attrs['textHoverColor'] ) ? $attrs['textHoverColor'] : '';
@@ -28,16 +38,21 @@ ob_start();
 /* Login Link Block - <?php echo esc_attr( $id ); ?> */
 .<?php echo esc_attr( $id ); ?> {
     display: inline-flex;
+	justify-content: <?php echo esc_attr( $align['desktop'] ); ?>;
+}
+
+.<?php echo esc_attr( $id ); ?> a {
+    display: inline-flex;
     align-items: center;
     text-decoration: none;
     transition: all 0.3s ease;
     <?php if ( ! empty( $text_color ) ) : ?>
         color: <?php echo esc_attr( $text_color ); ?>;
     <?php endif; ?>
-    gap: 8px; /* Space between icon and text */
+    gap: 8px;
 }
 
-.<?php echo esc_attr( $id ); ?>:hover {
+.<?php echo esc_attr( $id ); ?> a:hover {
     <?php if ( ! empty( $text_hover_color ) ) : ?>
         color: <?php echo esc_attr( $text_hover_color ); ?>;
     <?php endif; ?>
@@ -57,7 +72,7 @@ ob_start();
 }
 
 /* Typography */
-.<?php echo esc_attr( $id ); ?> {
+.<?php echo esc_attr( $id ); ?> a {
     <?php if ( ! empty( $typography['fontFamily'] ) ) : ?>
         font-family: <?php echo esc_attr( $typography['fontFamily'] ); ?>;
     <?php endif; ?>
@@ -93,7 +108,11 @@ ob_start();
 
 /* Responsive Typography and Icon Size */
 @media (max-width: 991px) {
-    .<?php echo esc_attr( $id ); ?> {
+	.<?php echo esc_attr( $id ); ?> {
+		justify-content: <?php echo esc_attr( $align['tablet'] ); ?>;
+	}
+
+    .<?php echo esc_attr( $id ); ?> a {
         <?php if ( ! empty( $typography['fontSize']['tablet'] ) ) : ?>
             font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
@@ -114,7 +133,11 @@ ob_start();
 }
 
 @media (max-width: 767px) {
-    .<?php echo esc_attr( $id ); ?> {
+	.<?php echo esc_attr( $id ); ?> {
+		justify-content: <?php echo esc_attr( $align['mobile'] ); ?>;
+	}
+
+    .<?php echo esc_attr( $id ); ?> a {
         <?php if ( ! empty( $typography['fontSize']['mobile'] ) ) : ?>
             font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
@@ -133,5 +156,31 @@ ob_start();
         height: <?php echo esc_attr( $icon_size['mobile'] ); ?>px;
     }
 }
+
+/* Visibility Controls */
+<?php if ( $visibility['desktop'] ) : ?>
+@media (min-width: 992px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['tablet'] ) : ?>
+@media (min-width: 768px) and (max-width: 991px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['mobile'] ) : ?>
+@media (max-width: 767px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
 <?php
 $digiblocks_css_output = ob_get_clean();

@@ -5,9 +5,7 @@ const { __ } = wp.i18n;
 const {
     useBlockProps,
     InspectorControls,
-    PanelColorSettings,
-    BlockControls,
-    AlignmentToolbar
+    PanelColorSettings
 } = wp.blockEditor;
 const {
     SelectControl,
@@ -15,21 +13,19 @@ const {
     TabPanel,
     Button,
     ToggleControl,
-    Tooltip,
     TextControl,
     Popover,
-    BaseControl,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
 } = wp.components;
-const { useState, useEffect, useRef, Fragment } = wp.element;
+const { useState, useEffect, useRef } = wp.element;
 
 /**
  * Internal dependencies
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveControl, ResponsiveButtonGroup, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody } = digi.components;
 
 /**
  * Social Icons SVG components
@@ -60,7 +56,9 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
     const {
         id,
         anchor,
+		visibility,
         customClasses,
+        align,
         icons,
         iconSize,
         iconSpacing,
@@ -76,7 +74,6 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
         labelColor,
         labelHoverColor,
         labelSpacing,
-        align,
         padding,
         animation,
         showLabels,
@@ -436,7 +433,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 align-items: center;
                 flex-wrap: wrap;
                 gap: ${currentIconSpacing}px;
-                justify-content: ${align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start'};
+                justify-content: ${align[activeDevice]};
             }
             
             .${id} .digiblocks-social-wrapper {
@@ -582,6 +579,31 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                     height: ${iconSize.mobile || iconSize.tablet || currentIconSize}px;
                 }
             }
+
+			/* Visibility Controls */
+			${visibility.desktop ? `
+				@media (min-width: 992px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
+
+			${visibility.tablet ? `
+				@media (min-width: 768px) and (max-width: 991px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
+
+			${visibility.mobile ? `
+				@media (max-width: 767px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
         `;
     };
 
@@ -814,6 +836,17 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 return (
                     <>
                         <div className="components-panel__body is-opened">
+							<ResponsiveButtonGroup
+								label={__('Alignment', 'digiblocks')}
+								value={align}
+								onChange={(value) => setAttributes({ align: value })}
+								options={[
+									{ label: __('Left', 'digiblocks'), value: 'flex-start' },
+									{ label: __('Center', 'digiblocks'), value: 'center' },
+									{ label: __('Right', 'digiblocks'), value: 'flex-end' },
+								]}
+							/>
+
                             <ToggleControl
                                 label={__('Show Labels', 'digiblocks')}
                                 checked={showLabels}
@@ -891,7 +924,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                                             },
                                         })
                                     }
-                                    min={16}
+                                    min={0}
                                     max={100}
                                     step={1}
                                     __next40pxDefaultSize={true}
@@ -1096,6 +1129,60 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                                 </div>
                             )}
                         </TabPanelBody>
+						
+						<TabPanelBody
+							tab="advanced"
+							name="visibility"
+							title={__('Visibility', 'digiblocks')}
+							initialOpen={false}
+						>
+							<div className="components-base-control__help" style={{ 
+								padding: '12px', 
+								backgroundColor: '#f0f6fc', 
+								border: '1px solid #c3ddfd', 
+								borderRadius: '4px',
+								marginBottom: '16px'
+							}}>
+								<strong>{__('Editor Note:', 'digiblocks')}</strong><br />
+								{__('Hidden elements appear with reduced opacity in the editor for easy editing. Visibility changes only take effect on the frontend.', 'digiblocks')}
+							</div>
+							
+							<ToggleControl
+								label={__('Hide on Desktop', 'digiblocks')}
+								checked={visibility.desktop}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										desktop: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<ToggleControl
+								label={__('Hide on Tablet', 'digiblocks')}
+								checked={visibility.tablet}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										tablet: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<ToggleControl
+								label={__('Hide on Mobile', 'digiblocks')}
+								checked={visibility.mobile}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										mobile: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+						</TabPanelBody>
                         
                         <TabPanelBody
                             tab="advanced"
@@ -1171,7 +1258,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props
     const blockProps = useBlockProps({
-        className: `digiblocks-social-icons ${id} align-${align} ${customClasses || ''}`,
+        className: `digiblocks-social-icons ${id} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
     });
 
@@ -1180,11 +1267,11 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
         const socialIconsList = icons.map((icon, index) => {
             // For the editor, we render interactive icons
             return (
-                <div 
-                    key={icon.id || index} 
-                    className="digiblocks-social-wrapper"
-                    id={`social-icon-${index}`}
-                >
+				<div 
+					key={icon.id || index} 
+					className="digiblocks-social-wrapper"
+					id={`social-icon-${index}`}
+				>
 					<div 
 						className="digiblocks-social-icon"
 						onClick={() => {
@@ -1234,18 +1321,18 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
 							<span className="digiblocks-social-icon-label">{icon.label}</span>
 						)}
 					</div>
-                    
-                    {/* Remove button */}
-                    {icons.length > 1 && (
-                        <Button
-                            className="digiblocks-social-icon-remove"
-                            onClick={() => removeSocialIcon(index)}
-                            icon="no-alt"
-                            isSmall
-                            label={__('Remove', 'digiblocks')}
-                        />
-                    )}
-                </div>
+					
+					{/* Remove button */}
+					{icons.length > 1 && (
+						<Button
+							className="digiblocks-social-icon-remove"
+							onClick={() => removeSocialIcon(index)}
+							icon="no-alt"
+							isSmall
+							label={__('Remove', 'digiblocks')}
+						/>
+					)}
+				</div>
             );
         });
         
@@ -1266,13 +1353,6 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
 
     return (
         <>
-            <BlockControls>
-                <AlignmentToolbar
-                    value={align}
-                    onChange={(value) => setAttributes({ align: value })}
-                />
-            </BlockControls>
-
             <InspectorControls>
                 <CustomTabPanel
                     tabs={tabList}

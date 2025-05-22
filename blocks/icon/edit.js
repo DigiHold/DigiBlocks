@@ -6,11 +6,10 @@ const {
     useBlockProps,
     InspectorControls,
     PanelColorSettings,
-    LinkControl,
-    BlockControls,
-    AlignmentToolbar
+    LinkControl
 } = wp.blockEditor;
 const {
+    ToggleControl,
     SelectControl,
     RangeControl,
     TabPanel,
@@ -26,7 +25,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveControl, ResponsiveButtonGroup, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
 /**
  * Edit function for the Icon block
@@ -35,6 +34,7 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
     const {
         id,
         anchor,
+		visibility,
         customClasses,
 		iconSource,
         customSvg,
@@ -358,7 +358,7 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
             /* Icon Block - ${id} */
             .${id} {
                 display: flex;
-				justify-content: ${align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start'};
+				justify-content: ${align[activeDevice]};
                 align-items: center;
                 background-color: ${backgroundColor || 'transparent'};
                 ${boxShadowCSS}
@@ -423,6 +423,31 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
                 75% { transform: translateX(5px); }
                 100% { transform: translateX(0); }
             }
+
+			/* Visibility Controls */
+			${visibility.desktop ? `
+				@media (min-width: 992px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
+
+			${visibility.tablet ? `
+				@media (min-width: 768px) and (max-width: 991px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
+
+			${visibility.mobile ? `
+				@media (max-width: 767px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
         `;
     };
 
@@ -854,6 +879,17 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
 								)}
 							</div>
 
+							<ResponsiveButtonGroup
+                                label={__('Alignment', 'digiblocks')}
+                                value={align}
+                                onChange={(value) => setAttributes({ align: value })}
+                                options={[
+                                    { label: __('Left', 'digiblocks'), value: 'flex-start' },
+                                    { label: __('Center', 'digiblocks'), value: 'center' },
+                                    { label: __('Right', 'digiblocks'), value: 'flex-end' },
+                                ]}
+                            />
+
                             {/* Icon transform controls */}
                             <div className="icon-transform-controls">
                                 <RangeControl
@@ -1217,6 +1253,60 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
                                 </div>
                             )}
                         </TabPanelBody>
+						
+						<TabPanelBody
+							tab="advanced"
+							name="visibility"
+							title={__('Visibility', 'digiblocks')}
+							initialOpen={false}
+						>
+							<div className="components-base-control__help" style={{ 
+								padding: '12px', 
+								backgroundColor: '#f0f6fc', 
+								border: '1px solid #c3ddfd', 
+								borderRadius: '4px',
+								marginBottom: '16px'
+							}}>
+								<strong>{__('Editor Note:', 'digiblocks')}</strong><br />
+								{__('Hidden elements appear with reduced opacity in the editor for easy editing. Visibility changes only take effect on the frontend.', 'digiblocks')}
+							</div>
+							
+							<ToggleControl
+								label={__('Hide on Desktop', 'digiblocks')}
+								checked={visibility.desktop}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										desktop: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<ToggleControl
+								label={__('Hide on Tablet', 'digiblocks')}
+								checked={visibility.tablet}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										tablet: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<ToggleControl
+								label={__('Hide on Mobile', 'digiblocks')}
+								checked={visibility.mobile}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										mobile: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+						</TabPanelBody>
                         
                         <TabPanelBody
                             tab="advanced"
@@ -1292,20 +1382,12 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-icon ${id} align-${align} ${customClasses || ''}`,
+        className: `digiblocks-icon ${id} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
     });
 
     return (
         <>
-            {/* Add alignment control to the toolbar */}
-            <BlockControls>
-                <AlignmentToolbar
-                    value={align}
-                    onChange={(value) => setAttributes({ align: value })}
-                />
-            </BlockControls>
-
             <InspectorControls>
                 <CustomTabPanel
                     tabs={tabList}

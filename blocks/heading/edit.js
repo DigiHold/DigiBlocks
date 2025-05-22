@@ -28,7 +28,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveControl, ResponsiveButtonGroup, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody } = digi.components;
 
 /**
  * Edit function for the Heading block
@@ -37,9 +37,10 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
     const {
         id,
         anchor,
+		visibility,
         customClasses,
         content,
-        level,
+        headingTag,
         textColor,
         textHoverColor,
         backgroundColor,
@@ -127,14 +128,17 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         })),
     ];
 
-    // Heading level options
-    const headingLevelOptions = [
-        { label: 'H1', value: 1 },
-        { label: 'H2', value: 2 },
-        { label: 'H3', value: 3 },
-        { label: 'H4', value: 4 },
-        { label: 'H5', value: 5 },
-        { label: 'H6', value: 6 },
+    // Heading tags
+    const headingTagOptions = [
+        { label: __('H1', 'digiblocks'), value: 'h1' },
+        { label: __('H2', 'digiblocks'), value: 'h2' },
+        { label: __('H3', 'digiblocks'), value: 'h3' },
+        { label: __('H4', 'digiblocks'), value: 'h4' },
+        { label: __('H5', 'digiblocks'), value: 'h5' },
+        { label: __('H6', 'digiblocks'), value: 'h6' },
+        { label: __('p', 'digiblocks'), value: 'p' },
+        { label: __('div', 'digiblocks'), value: 'div' },
+        { label: __('span', 'digiblocks'), value: 'span' },
     ];
 
     // Highlight type options
@@ -508,7 +512,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 display: flex;
                 flex-direction: column;
                 position: relative;
-                text-align: ${align};
+                text-align: ${align[activeDevice]};
                 ${backgroundColor ? `background-color: ${backgroundColor};` : ''}
                 ${paddingCSS}
                 ${marginCSS}
@@ -542,6 +546,31 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* Link styles */
             ${linkCSS}
+
+			/* Visibility Controls */
+			${visibility.desktop ? `
+				@media (min-width: 992px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
+
+			${visibility.tablet ? `
+				@media (min-width: 768px) and (max-width: 991px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
+
+			${visibility.mobile ? `
+				@media (max-width: 767px) {
+					.${id} {
+						opacity: 0.5 !important;
+					}
+				}
+			` : ''}
         `;
     };
 
@@ -765,12 +794,23 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                             initialOpen={true}
                         >
                             <SelectControl
-                                label={__("Heading Level", "digiblocks")}
-                                value={level}
-                                options={headingLevelOptions}
-                                onChange={(value) => setAttributes({ level: parseInt(value) })}
+                                label={__("Heading Tags", "digiblocks")}
+                                value={headingTag}
+                                options={headingTagOptions}
+                                onChange={(value) => setAttributes({ headingTag: value })}
                                 __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
+                            />
+							
+							<ResponsiveButtonGroup
+                                label={__('Alignment', 'digiblocks')}
+                                value={align}
+                                onChange={(value) => setAttributes({ align: value })}
+                                options={[
+                                    { label: __('Left', 'digiblocks'), value: 'left' },
+                                    { label: __('Center', 'digiblocks'), value: 'center' },
+                                    { label: __('Right', 'digiblocks'), value: 'right' },
+                                ]}
                             />
 
                             {/* Link settings */}
@@ -1292,6 +1332,60 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                 </div>
                             )}
                         </TabPanelBody>
+						
+						<TabPanelBody
+							tab="advanced"
+							name="visibility"
+							title={__('Visibility', 'digiblocks')}
+							initialOpen={false}
+						>
+							<div className="components-base-control__help" style={{ 
+								padding: '12px', 
+								backgroundColor: '#f0f6fc', 
+								border: '1px solid #c3ddfd', 
+								borderRadius: '4px',
+								marginBottom: '16px'
+							}}>
+								<strong>{__('Editor Note:', 'digiblocks')}</strong><br />
+								{__('Hidden elements appear with reduced opacity in the editor for easy editing. Visibility changes only take effect on the frontend.', 'digiblocks')}
+							</div>
+							
+							<ToggleControl
+								label={__('Hide on Desktop', 'digiblocks')}
+								checked={visibility.desktop}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										desktop: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<ToggleControl
+								label={__('Hide on Tablet', 'digiblocks')}
+								checked={visibility.tablet}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										tablet: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<ToggleControl
+								label={__('Hide on Mobile', 'digiblocks')}
+								checked={visibility.mobile}
+								onChange={(value) => setAttributes({
+									visibility: {
+										...visibility,
+										mobile: value
+									}
+								})}
+								__nextHasNoMarginBottom={true}
+							/>
+						</TabPanelBody>
                         
                         <TabPanelBody
                             tab="advanced"
@@ -1367,23 +1461,12 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Block props without any inline styles - we'll use the style tag for everything
     const blockProps = useBlockProps({
-        className: `digiblocks-heading ${id} align-${align} ${customClasses || ''}`,
+        className: `digiblocks-heading ${id} ${customClasses || ''}`,
         id: anchor || null, // Set the anchor as ID if provided
     });
 
-    // Create the proper heading tag based on level
-    const HeadingTag = `h${level}`;
-
     return (
         <>
-            {/* Add alignment control to the toolbar */}
-            <BlockControls>
-                <AlignmentToolbar
-                    value={align}
-                    onChange={(value) => setAttributes({ align: value })}
-                />
-            </BlockControls>
-
             <InspectorControls>
                 <CustomTabPanel
                     tabs={tabList}
@@ -1398,14 +1481,14 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
             <style dangerouslySetInnerHTML={{ __html: generateCSS() }} />
 
             <div {...blockProps}>
-                <HeadingTag className="digiblocks-heading-text">
-                    <RichText
-                        value={content}
-                        onChange={(value) => setAttributes({ content: value })}
-                        placeholder={__("Add Your Heading", "digiblocks")}
-                        allowedFormats={['core/bold', 'core/italic']}
-                    />
-                </HeadingTag>
+				<RichText
+					tagName={headingTag}
+					className="digiblocks-heading-text"
+					value={content}
+					onChange={(value) => setAttributes({ content: value })}
+					placeholder={__("Add Your Heading", "digiblocks")}
+					allowedFormats={['core/bold', 'core/italic']}
+				/>
             </div>
         </>
     );

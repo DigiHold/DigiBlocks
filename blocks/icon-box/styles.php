@@ -12,6 +12,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Get block attributes.
 $id                           = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
+$visibility                   = isset( $attrs['visibility'] ) ? $attrs['visibility'] : [
+    'desktop' => false,
+    'tablet'  => false,
+    'mobile'  => false,
+];
+$iconLayout                   = isset( $attrs['iconLayout'] ) ? $attrs['iconLayout'] : [
+    'desktop' => 'above',
+    'tablet'  => 'above',
+    'mobile'  => 'above',
+];
+$iconContentGap               = isset( $attrs['iconContentGap'] ) ? $attrs['iconContentGap'] : array(
+    'desktop' => array( 'value' => 20, 'unit' => 'px' ),
+    'tablet'  => array( 'value' => 15, 'unit' => 'px' ),
+    'mobile'  => array( 'value' => 10, 'unit' => 'px' ),
+);
 $iconColor                    = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : null;
 $iconBackgroundColor          = isset( $attrs['iconBackgroundColor'] ) ? $attrs['iconBackgroundColor'] : null;
 $iconBorderStyle              = isset( $attrs['iconBorderStyle'] ) ? $attrs['iconBorderStyle'] : 'default';
@@ -41,29 +56,7 @@ $iconBorderWidth              = isset( $attrs['iconBorderWidth'] ) ? $attrs['ico
 $iconBorderRadius             = isset( $attrs['iconBorderRadius'] ) ? $attrs['iconBorderRadius'] : digiblocks_get_default_dimensions('px');
 $iconBorderColor              = isset( $attrs['iconBorderColor'] ) ? $attrs['iconBorderColor'] : null;
 $iconPadding                  = isset( $attrs['iconPadding'] ) ? $attrs['iconPadding'] : digiblocks_get_default_dimensions('px');
-$iconMargin                   = isset( $attrs['iconMargin'] ) ? $attrs['iconMargin'] : array(
-	'desktop' => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 20,
-		'left'   => 0,
-		'unit'   => 'px',
-	),
-	'tablet'  => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 15,
-		'left'   => 0,
-		'unit'   => 'px',
-	),
-	'mobile'  => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 10,
-		'left'   => 0,
-		'unit'   => 'px',
-	),
-);
+$iconMargin                   = isset( $attrs['iconMargin'] ) ? $attrs['iconMargin'] : digiblocks_get_default_dimensions('px');
 $iconHoverColor               = isset( $attrs['iconHoverColor'] ) ? $attrs['iconHoverColor'] : null;
 $iconHoverBackgroundColor     = isset( $attrs['iconHoverBackgroundColor'] ) ? $attrs['iconHoverBackgroundColor'] : null;
 $iconHoverBorderColor         = isset( $attrs['iconHoverBorderColor'] ) ? $attrs['iconHoverBorderColor'] : null;
@@ -305,33 +298,6 @@ $margin = isset( $attrs['margin'] ) ? $attrs['margin'] : array(
 	),
 );
 
-// Get iconMargin (with fallback)
-if ( ! $iconMargin ) {
-	$iconMargin = array(
-		'desktop' => array(
-			'top'    => 0,
-			'right'  => 0,
-			'bottom' => 20,
-			'left'   => 0,
-			'unit'   => 'px',
-		),
-		'tablet'  => array(
-			'top'    => 0,
-			'right'  => 0,
-			'bottom' => 15,
-			'left'   => 0,
-			'unit'   => 'px',
-		),
-		'mobile'  => array(
-			'top'    => 0,
-			'right'  => 0,
-			'bottom' => 10,
-			'left'   => 0,
-			'unit'   => 'px',
-		),
-	);
-}
-
 // Get borderWidth (with responsive fallback)
 $borderWidth = isset( $attrs['borderWidth'] ) ? $attrs['borderWidth'] : array(
 	'desktop' => array(
@@ -435,13 +401,34 @@ $contentTypography = isset( $attrs['contentTypography'] ) ? $attrs['contentTypog
 	'letterSpacingUnit' => 'px',
 );
 
+// Get alignment for each device
+$desktop_align = isset($align['desktop']) ? $align['desktop'] : 'center';
+$tablet_align = isset($align['tablet']) ? $align['tablet'] : $desktop_align;
+$mobile_align = isset($align['mobile']) ? $align['mobile'] : $tablet_align;
+
+$desktop_align_css = digiblocks_get_alignment_css($desktop_align);
+$tablet_align_css = digiblocks_get_alignment_css($tablet_align);
+$mobile_align_css = digiblocks_get_alignment_css($mobile_align);
+
+// Create flex-direction mapping for each device
+$flexDirection = array(
+    'desktop' => $iconLayout['desktop'] === 'above' ? 'column' : 
+                ($iconLayout['desktop'] === 'after' ? 'row-reverse' : 'row'),
+    'tablet'  => $iconLayout['tablet'] === 'above' ? 'column' : 
+                ($iconLayout['tablet'] === 'after' ? 'row-reverse' : 'row'),
+    'mobile'  => $iconLayout['mobile'] === 'above' ? 'column' : 
+                ($iconLayout['mobile'] === 'after' ? 'row-reverse' : 'row'),
+);
+
 // CSS Output
 ob_start();
 ?>
 /* Icon Box Block - <?php echo esc_attr( $id ); ?> */
 .<?php echo esc_attr( $id ); ?> {
 	display: flex;
-	flex-direction: column;
+	<?php echo esc_attr( $desktop_align_css ); ?>
+	<?php echo esc_attr( digiblocks_get_css('flex-direction', $flexDirection, 'desktop') ); ?>
+	gap: <?php echo esc_attr( $iconContentGap['desktop']['value'] . $iconContentGap['desktop']['unit'] ); ?>;
 	background-color: <?php echo esc_attr( $backgroundColor ); ?>;
 	<?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle ) : ?>
 		border-style: <?php echo esc_attr( $borderStyle ); ?>;
@@ -463,7 +450,6 @@ ob_start();
 
 	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
 	<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
-	text-align: <?php echo esc_attr( $align ); ?>;
 	transition: all 0.3s ease;
 	<?php if ( $linkEnabled && 'box' === $linkType ) : ?>
 		cursor: pointer;
@@ -495,11 +481,7 @@ ob_start();
 	<?php if ( $iconMargin && isset( $iconMargin['desktop'] ) ) : ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $iconMargin, 'margin', 'desktop' ) ); ?>
 	<?php endif; ?>
-
 	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-
 	<?php if ( $iconBackgroundColor ) : ?>
 		background-color: <?php echo esc_attr( $iconBackgroundColor ); ?>;
 	<?php endif; ?>
@@ -547,10 +529,17 @@ ob_start();
 	<?php endif; ?>
 }
 
+/* Content */
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-content {
+	display: flex;
+	flex-direction: column;
+}
+
 <?php if ( $showTitle ) : ?>
 /* Title styles */
 .<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-title {
 	color: <?php echo esc_attr( $titleColor ); ?>;
+	margin-top: 0;
 	margin-bottom: 10px;
 
 	<?php if ( ! empty( $titleTypography['fontFamily'] ) ) : ?>
@@ -599,6 +588,7 @@ ob_start();
 <?php if ( $showContent ) : ?>
 /* Content styles */
 .<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-text {
+	margin: 0;
 	color: <?php echo esc_attr( $textColor ); ?>;
 
 	<?php if ( ! empty( $contentTypography['fontFamily'] ) ) : ?>
@@ -648,7 +638,7 @@ ob_start();
 /* Button styles */
 .<?php echo esc_attr( $id ); ?> .digiblocks-button-wrapper {
 	display: flex;
-	justify-content: <?php echo esc_attr( $align === 'center' ? 'center' : ( $align === 'right' ? 'flex-end' : 'flex-start' ) ); ?>;
+	justify-content: <?php echo esc_attr( $align['desktop'] === 'center' ? 'center' : ( $align['desktop'] === 'flex-end' ? 'flex-end' : 'flex-start' ) ); ?>;
 	<?php echo esc_attr( digiblocks_get_dimensions( $buttonMargin, 'margin', 'desktop' ) ); ?>
 }
 
@@ -732,6 +722,9 @@ ob_start();
 /* Tablet Styles */
 @media (max-width: 991px) {
 	.<?php echo esc_attr( $id ); ?> {
+		<?php echo esc_attr( $tablet_align_css ); ?>
+		<?php echo digiblocks_get_css('flex-direction', $flexDirection, 'tablet'); ?>
+		gap: <?php echo esc_attr( $iconContentGap['tablet']['value'] . $iconContentGap['tablet']['unit'] ); ?>;
 		<?php if ( $padding && isset( $padding['tablet'] ) ) : ?>
 			<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
 		<?php endif; ?>
@@ -807,6 +800,7 @@ ob_start();
 	
 	<?php if ( $linkEnabled && 'button' === $linkType ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-button-wrapper {
+			justify-content: <?php echo esc_attr( $align['tablet'] === 'center' ? 'center' : ( $align['tablet'] === 'flex-end' ? 'flex-end' : 'flex-start' ) ); ?>;
 			<?php if ( isset( $buttonMargin['tablet'] ) ) : ?>
 				<?php echo esc_attr( digiblocks_get_dimensions( $buttonMargin, 'margin', 'tablet' ) ); ?>
 			<?php endif; ?>
@@ -843,6 +837,9 @@ ob_start();
 /* Mobile Styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
+		<?php echo esc_attr( $tablet_align_css ); ?>
+		<?php echo digiblocks_get_css('flex-direction', $flexDirection, 'mobile'); ?>
+		gap: <?php echo esc_attr( $iconContentGap['mobile']['value'] . $iconContentGap['mobile']['unit'] ); ?>;
 		<?php if ( $padding && isset( $padding['mobile'] ) ) : ?>
 			<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
 		<?php endif; ?>
@@ -918,6 +915,7 @@ ob_start();
 	
 	<?php if ( $linkEnabled && 'button' === $linkType ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-button-wrapper {
+			justify-content: <?php echo esc_attr( $align['mobile'] === 'center' ? 'center' : ( $align['mobile'] === 'flex-end' ? 'flex-end' : 'flex-start' ) ); ?>;
 			<?php if ( isset( $buttonMargin['mobile'] ) ) : ?>
 				<?php echo esc_attr( digiblocks_get_dimensions( $buttonMargin, 'margin', 'mobile' ) ); ?>
 			<?php endif; ?>
@@ -950,6 +948,31 @@ ob_start();
 		}
 	<?php endif; ?>
 }
+
+/* Visibility Controls */
+<?php if ( $visibility['desktop'] ) : ?>
+@media (min-width: 992px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['tablet'] ) : ?>
+@media (min-width: 768px) and (max-width: 991px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['mobile'] ) : ?>
+@media (max-width: 767px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
 
 <?php
 $digiblocks_css_output = ob_get_clean();

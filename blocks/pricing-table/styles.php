@@ -12,16 +12,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Get block attributes.
 $id                       = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
+$visibility               = isset( $attrs['visibility'] ) ? $attrs['visibility'] : [
+    'desktop' => false,
+    'tablet'  => false,
+    'mobile'  => false,
+];
 $tables                   = isset( $attrs['tables'] ) ? $attrs['tables'] : array();
 $columns                  = isset( $attrs['columns'] ) ? $attrs['columns'] : 2;
-$tableStyle              = isset( $attrs['tableStyle'] ) ? $attrs['tableStyle'] : 'style1';
+$tableStyle               = isset( $attrs['tableStyle'] ) ? $attrs['tableStyle'] : 'style1';
 $align                    = isset( $attrs['align'] ) ? $attrs['align'] : 'center';
 $animation                = isset( $attrs['animation'] ) ? $attrs['animation'] : 'none';
-$titleTypography         = isset( $attrs['titleTypography'] ) ? $attrs['titleTypography'] : null;
-$priceTypography         = isset( $attrs['headingTypography'] ) ? $attrs['headingTypography'] : null;
-$textTypography          = isset( $attrs['textTypography'] ) ? $attrs['textTypography'] : null;
-$contentTypography       = isset( $attrs['contentTypography'] ) ? $attrs['contentTypography'] : null;
-$buttonTypography        = isset( $attrs['buttonTypography'] ) ? $attrs['buttonTypography'] : null;
+$titleTypography          = isset( $attrs['titleTypography'] ) ? $attrs['titleTypography'] : null;
+$priceTypography          = isset( $attrs['headingTypography'] ) ? $attrs['headingTypography'] : null;
+$textTypography           = isset( $attrs['textTypography'] ) ? $attrs['textTypography'] : null;
+$contentTypography        = isset( $attrs['contentTypography'] ) ? $attrs['contentTypography'] : null;
+$buttonTypography         = isset( $attrs['buttonTypography'] ) ? $attrs['buttonTypography'] : null;
 $padding                  = isset( $attrs['padding'] ) ? $attrs['padding'] : digiblocks_get_default_dimensions('px');
 $margin                   = isset( $attrs['margin'] ) ? $attrs['margin'] : array(
 	'desktop' => array(
@@ -1008,6 +1013,31 @@ foreach ( $tables as $index => $table ) {
     }
     <?php endif; ?>
 }
+
+/* Visibility Controls */
+<?php if ( $visibility['desktop'] ) : ?>
+@media (min-width: 992px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['tablet'] ) : ?>
+@media (min-width: 768px) and (max-width: 991px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['mobile'] ) : ?>
+@media (max-width: 767px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
 
 <?php
 $digiblocks_css_output = ob_get_clean();

@@ -12,6 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Get block attributes.
 $id                       = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
+$visibility               = isset( $attrs['visibility'] ) ? $attrs['visibility'] : [
+    'desktop' => false,
+    'tablet'  => false,
+    'mobile'  => false,
+];
 $iconColor                = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : '#1e73be';
 $iconBackgroundColor      = isset( $attrs['iconBackgroundColor'] ) ? $attrs['iconBackgroundColor'] : null;
 $iconBorderStyle          = isset( $attrs['iconBorderStyle'] ) ? $attrs['iconBorderStyle'] : 'default';
@@ -47,7 +52,11 @@ $iconHoverBackgroundColor = isset( $attrs['iconHoverBackgroundColor'] ) ? $attrs
 $iconHoverBorderColor     = isset( $attrs['iconHoverBorderColor'] ) ? $attrs['iconHoverBorderColor'] : '';
 $backgroundColor          = isset( $attrs['backgroundColor'] ) ? $attrs['backgroundColor'] : 'transparent';
 $backgroundHoverColor     = isset( $attrs['backgroundHoverColor'] ) ? $attrs['backgroundHoverColor'] : '';
-$align                    = isset( $attrs['align'] ) ? $attrs['align'] : 'center';
+$align                    = isset( $attrs['align'] ) ? $attrs['align'] : [
+    'desktop' => 'flex-start',
+    'tablet'  => '',
+    'mobile'  => '',
+];
 $animation                = isset( $attrs['animation'] ) ? $attrs['animation'] : 'none';
 $hoverEffect              = isset( $attrs['hoverEffect'] ) ? $attrs['hoverEffect'] : 'none';
 $borderStyle              = isset( $attrs['borderStyle'] ) ? $attrs['borderStyle'] : 'default';
@@ -153,7 +162,7 @@ ob_start();
 /* Icon Block - <?php echo esc_attr( $id ); ?> */
 .<?php echo esc_attr( $id ); ?> {
     display: flex;
-    justify-content: <?php echo $align === 'center' ? 'center' : ($align === 'right' ? 'flex-end' : 'flex-start'); ?>;
+    justify-content: <?php echo esc_attr( $align['desktop'] ); ?>;
     align-items: center;
     background-color: <?php echo esc_attr( $backgroundColor ); ?>;
     <?php if ( $borderStyle && 'default' !== $borderStyle && 'none' !== $borderStyle ) : ?>
@@ -290,6 +299,7 @@ ob_start();
 /* Tablet Styles */
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
+		justify-content: <?php echo esc_attr( $align['tablet'] ); ?>;
         <?php if ( isset( $iconMargin['tablet'] ) ) : ?>
 			<?php echo esc_attr( digiblocks_get_dimensions( $iconMargin, 'margin', 'tablet' ) ); ?>
         <?php endif; ?>
@@ -323,6 +333,7 @@ ob_start();
 /* Mobile Styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
+		justify-content: <?php echo esc_attr( $align['mobile'] ); ?>;
         <?php if ( isset( $iconMargin['mobile'] ) ) : ?>
 			<?php echo esc_attr( digiblocks_get_dimensions( $iconMargin, 'margin', 'mobile' ) ); ?>
         <?php endif; ?>
@@ -352,6 +363,31 @@ ob_start();
 		}
 	<?php endif; ?>
 }
+
+/* Visibility Controls */
+<?php if ( $visibility['desktop'] ) : ?>
+@media (min-width: 992px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['tablet'] ) : ?>
+@media (min-width: 768px) and (max-width: 991px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['mobile'] ) : ?>
+@media (max-width: 767px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
 
 <?php
 $digiblocks_css_output = ob_get_clean();

@@ -12,6 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Get block attributes
 $id                   = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
+$visibility           = isset( $attrs['visibility'] ) ? $attrs['visibility'] : [
+    'desktop' => false,
+    'tablet'  => false,
+    'mobile'  => false,
+];
 $icons                = isset( $attrs['icons'] ) ? $attrs['icons'] : array();
 $iconSize             = isset( $attrs['iconSize'] ) ? $attrs['iconSize'] : array(
     'desktop' => 24,
@@ -61,7 +66,11 @@ $labelSpacing         = isset( $attrs['labelSpacing'] ) ? $attrs['labelSpacing']
     'tablet'  => 5,
     'mobile'  => 5
 );
-$align                = isset( $attrs['align'] ) ? $attrs['align'] : 'left';
+$align                = isset( $attrs['align'] ) ? $attrs['align'] : [
+    'desktop' => 'flex-start',
+    'tablet'  => '',
+    'mobile'  => '',
+];
 $padding              = isset( $attrs['padding'] ) ? $attrs['padding'] : digiblocks_get_default_dimensions('px');
 $animation            = isset( $attrs['animation'] ) ? $attrs['animation'] : 'none';
 $showLabels           = isset( $attrs['showLabels'] ) ? $attrs['showLabels'] : false;
@@ -100,7 +109,7 @@ ob_start();
     display: flex;
     flex-wrap: wrap;
     gap: <?php echo esc_attr( $iconSpacing['desktop'] ); ?>px;
-    justify-content: <?php echo $align === 'center' ? 'center' : ($align === 'right' ? 'flex-end' : 'flex-start'); ?>;
+    justify-content: <?php echo esc_attr( $align['desktop'] ); ?>;
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon {
@@ -225,6 +234,9 @@ ob_start();
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
         gap: <?php echo esc_attr( isset( $iconSpacing['tablet'] ) ? $iconSpacing['tablet'] : $iconSpacing['desktop'] ); ?>px;
+		<?php if ( ! empty( $align['tablet'] ) ) : ?>
+		justify-content: <?php echo esc_attr( $align['tablet'] ); ?>;
+        <?php endif; ?>
     }
 
 	<?php if ( $labelSpacing && isset( $labelSpacing['tablet'] ) ) : ?>
@@ -269,6 +281,9 @@ ob_start();
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
         gap: <?php echo esc_attr( isset( $iconSpacing['mobile'] ) ? $iconSpacing['mobile'] : (isset( $iconSpacing['tablet'] ) ? $iconSpacing['tablet'] : $iconSpacing['desktop']) ); ?>px;
+		<?php if ( ! empty( $align['mobile'] ) ) : ?>
+		justify-content: <?php echo esc_attr( $align['mobile'] ); ?>;
+        <?php endif; ?>
     }
 
 	<?php if ( $labelSpacing && isset( $labelSpacing['mobile'] ) ) : ?>
@@ -308,6 +323,31 @@ ob_start();
     }
     <?php endif; ?>
 }
+
+/* Visibility Controls */
+<?php if ( $visibility['desktop'] ) : ?>
+@media (min-width: 992px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['tablet'] ) : ?>
+@media (min-width: 768px) and (max-width: 991px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
+
+<?php if ( $visibility['mobile'] ) : ?>
+@media (max-width: 767px) {
+    .<?php echo esc_attr( $id ); ?> {
+        display: none !important;
+    }
+}
+<?php endif; ?>
 
 <?php
 $digiblocks_css_output = ob_get_clean();

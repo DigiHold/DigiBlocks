@@ -10,6 +10,17 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// Check if background video exists and has a URL
+$has_background_video = isset( $attrs['backgroundVideo'] ) && 
+                       isset( $attrs['backgroundVideo']['url'] ) && 
+                       ! empty( $attrs['backgroundVideo']['url'] );
+
+// Only generate JavaScript if there's a background video
+if ( ! $has_background_video ) {
+    $digiblocks_js_output = '';
+    return;
+}
+
 // Get block attributes.
 $id = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-container-' . uniqid();
 

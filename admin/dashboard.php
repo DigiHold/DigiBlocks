@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="digiblocks-admin-wrap">
 	<div class="digiblocks-admin-header">
 		<div class="digiblocks-admin-logo">
-			<?php echo wp_kses( $this->get_plugin_logo(), $this->get_allowed_svg() ); ?>
+			<?php echo wp_kses( $this->get_plugin_logo(), digiblocks_allow_svg_in_kses() ); ?>
 		</div>
 		<nav class="digiblocks-admin-tabs">
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=digiblocks' ) ); ?>" class="active">
@@ -35,8 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<div class="digiblocks-blocks-container">
 					<?php
-					$blocks        = $this->get_blocks_list();
-					$active_blocks = get_option( 'digiblocks_active_blocks', array() );
+					$blocks = $this->get_blocks_list();
 
 					if ( empty( $blocks ) ) {
 						echo '<div class="digiblocks-notice"><p>' . esc_html__( 'No blocks found.', 'digiblocks' ) . '</p></div>';
@@ -47,7 +46,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							$block_title       = $block['title'];
 							$block_description = $block['description'];
 							$block_icon        = $block['icon'];
-							$is_active         = isset( $active_blocks[ $block_name ] ) ? $active_blocks[ $block_name ] : true;
+							$is_active         = $this->get_block_active_status( $block_name );
 							?>
 							<div class="digiblocks-block-card<?php echo $is_active ? ' is-active' : ''; ?>" data-block-name="<?php echo esc_attr( $block_name ); ?>">
 								<div class="digiblocks-block-card-header">
@@ -159,7 +158,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<div class="digiblocks-admin-col digiblocks-admin-second">
-			<?php echo wp_kses( $this->get_promo_content(), $this->get_allowed_svg() ); ?>
+			<?php echo wp_kses( $this->get_promo_content(), digiblocks_allow_svg_in_kses() ); ?>
 		</div>
 	</div>
 </div>

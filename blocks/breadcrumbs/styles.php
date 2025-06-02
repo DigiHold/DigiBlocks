@@ -59,22 +59,6 @@ ob_start();
 ?>
 /* Breadcrumbs Block - <?php echo esc_attr( $id ); ?> */
 .<?php echo esc_attr( $id ); ?> {
-    text-align: <?php echo esc_attr( $align['desktop'] ); ?>;
-    <?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
-}
-
-.<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-list {
-    display: inline-flex;
-    flex-wrap: wrap;
-    align-items: center;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-item {
-    display: flex;
-    align-items: center;
     color: <?php echo esc_attr( $textColor ); ?>;
     <?php if ( ! empty( $typography['fontFamily'] ) ) : ?>
     font-family: <?php echo esc_attr( $typography['fontFamily'] ); ?>;
@@ -100,23 +84,57 @@ ob_start();
     <?php if ( ! empty( $typography['letterSpacing']['desktop'] ) ) : ?>
     letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['desktop'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
     <?php endif; ?>
+    text-align: <?php echo esc_attr( $align['desktop'] ); ?>;
+    <?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
 }
 
-.<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-link {
+.<?php echo esc_attr( $id ); ?> p {
+    margin: 0;
+}
+
+.<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-list {
+    display: inline-flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-width: 100%;
+	overflow: hidden;
+}
+
+.<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-item {
+    display: flex;
+    align-items: center;
+	flex-shrink: 0;
+    min-width: 0;
+}
+
+.<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-item:last-child {
+	flex-shrink: 1;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.<?php echo esc_attr( $id ); ?> a {
     color: <?php echo esc_attr( $linkColor ); ?>;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
-.<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-link:hover {
+.<?php echo esc_attr( $id ); ?> a:hover {
     color: <?php echo esc_attr( $linkHoverColor ); ?>;
+}
+
+.<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-separator,
+.<?php echo esc_attr( $id ); ?> .separator {
+    margin: 0 <?php echo esc_attr( $separatorSpacing['desktop'] ); ?>px;
+    color: <?php echo esc_attr( $separatorColor ); ?>;
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-separator {
     display: flex;
     align-items: center;
-    margin: 0 <?php echo esc_attr( $separatorSpacing['desktop'] ); ?>px;
-    color: <?php echo esc_attr( $separatorColor ); ?>;
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-separator svg {
@@ -125,14 +143,16 @@ ob_start();
     fill: currentColor;
 }
 
+.<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-current {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	min-width: 0;
+}
+
 /* Tablet styles */
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
-        text-align: <?php echo esc_attr( $align['tablet'] ); ?>;
-        <?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
-    }
-    
-    .<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-item {
         <?php if ( ! empty( $typography['fontSize']['tablet'] ) ) : ?>
         font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
@@ -142,6 +162,8 @@ ob_start();
         <?php if ( ! empty( $typography['letterSpacing']['tablet'] ) ) : ?>
         letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['tablet'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
+        text-align: <?php echo esc_attr( $align['tablet'] ); ?>;
+        <?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-separator {
@@ -157,11 +179,6 @@ ob_start();
 /* Mobile styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
-        text-align: <?php echo esc_attr( $align['mobile'] ); ?>;
-        <?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?>
-    }
-    
-    .<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-item {
         <?php if ( ! empty( $typography['fontSize']['mobile'] ) ) : ?>
         font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
@@ -171,6 +188,8 @@ ob_start();
         <?php if ( ! empty( $typography['letterSpacing']['mobile'] ) ) : ?>
         letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['mobile'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
+        text-align: <?php echo esc_attr( $align['mobile'] ); ?>;
+        <?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?>
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-breadcrumb-separator {

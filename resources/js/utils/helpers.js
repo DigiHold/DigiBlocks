@@ -458,6 +458,9 @@ export const loadGoogleFont = (fontFamily, fontWeight = '') => {
  * 
  * @return {void}
  */
+/**
+ * Updated initializeGoogleFonts function with dynamic detection
+ */
 export const initializeGoogleFonts = () => {
     // Only run in editor environment
     if (!wp || !wp.data || !wp.data.select) {
@@ -477,34 +480,19 @@ export const initializeGoogleFonts = () => {
         // Function to extract typography settings from block attributes recursively
         const extractFontsFromBlocks = (blocksList) => {
             blocksList.forEach(block => {
-                // Check if the block has attributes with typography settings
+                // Check if the block has attributes
                 if (block.attributes) {
-                    // Common attribute names that might contain typography settings
-                    const typographyAttrs = [
-                        'typography', 
-                        'titleTypography', 
-                        'contentTypography',
-                        'headingTypography',
-                        'textTypography',
-                        'buttonTypography'
-                    ];
+                    // Find all typography attributes dynamically
+                    const typographyAttrs = findTypographyAttributes(block.attributes);
                     
-                    // Check each potential typography attribute
-                    typographyAttrs.forEach(attrName => {
-                        const typoSettings = block.attributes[attrName];
+                    // Process each detected typography attribute
+                    Object.keys(typographyAttrs).forEach(attrName => {
+                        const typoSettings = typographyAttrs[attrName];
                         if (typoSettings && typoSettings.fontFamily) {
                             // Load the font if it's a Google font
                             loadGoogleFont(typoSettings.fontFamily, typoSettings.fontWeight || '');
                         }
                     });
-                    
-                    // Some blocks might store typography inside style object
-                    if (block.attributes.style && block.attributes.style.typography) {
-                        const typoSettings = block.attributes.style.typography;
-                        if (typoSettings.fontFamily) {
-                            loadGoogleFont(typoSettings.fontFamily, typoSettings.fontWeight || '');
-                        }
-                    }
                 }
                 
                 // Recursively process inner blocks
@@ -520,6 +508,78 @@ export const initializeGoogleFonts = () => {
     } catch (error) {
         console.error('Error initializing Google Fonts:', error);
     }
+};
+
+/**
+ * Dynamically find all typography attributes in block attributes.
+ *
+ * @param {Object} attributes Block attributes.
+ * @return {Object} Typography attributes found.
+ */
+const findTypographyAttributes = (attributes) => {
+    const typographyAttrs = {};
+    
+    // Check each attribute in the block
+    Object.keys(attributes).forEach(attrName => {
+        const attrValue = attributes[attrName];
+        
+        // Check if this could be a typography attribute
+        if (isTypographyAttribute(attrName, attrValue)) {
+            typographyAttrs[attrName] = attrValue;
+        }
+    });
+    
+    // Also check for fonts in style object (WordPress core typography support)
+    if (attributes.style && attributes.style.typography) {
+        typographyAttrs['style.typography'] = attributes.style.typography;
+    }
+    
+    return typographyAttrs;
+};
+
+/**
+ * Check if an attribute is a typography attribute.
+ *
+ * @param {string} attrName Attribute name.
+ * @param {*} attrValue Attribute value.
+ * @return {boolean} True if it's a typography attribute.
+ */
+const isTypographyAttribute = (attrName, attrValue) => {
+    // Pattern matching: Check if attribute name suggests typography
+    if (attrName === 'typography' || attrName.includes('Typography')) {
+        // Structure validation: Check if it has typography-like structure
+        return hasTypographyStructure(attrValue);
+    }
+    
+    return false;
+};
+
+/**
+ * Check if a value has typography structure.
+ *
+ * @param {*} value Value to check.
+ * @return {boolean} True if it has typography structure.
+ */
+const hasTypographyStructure = (value) => {
+    // Check if the value is an object with typography properties
+    if (!value || typeof value !== 'object') {
+        return false;
+    }
+    
+    // Common typography properties that indicate this is a typography object
+    const typographyProps = [
+        'fontFamily',
+        'fontSize',
+        'fontWeight',
+        'fontStyle',
+        'textTransform',
+        'textDecoration',
+        'lineHeight',
+        'letterSpacing'
+    ];
+    
+    // Check if at least one typography property exists
+    return typographyProps.some(prop => value.hasOwnProperty(prop));
 };
 
 /**

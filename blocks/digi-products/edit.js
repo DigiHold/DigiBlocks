@@ -487,10 +487,10 @@ const DigiProductsEdit = ({ attributes, setAttributes, clientId }) => {
 
             /* Pagination */
             .${id} .digiblocks-pagination {
-                margin-top: 30px;
+                margin-top: 40px;
                 display: flex;
                 flex-wrap: wrap;
-                gap: 5px;
+                gap: 8px;
                 justify-content: ${paginationAlign};
             }
 
@@ -498,23 +498,27 @@ const DigiProductsEdit = ({ attributes, setAttributes, clientId }) => {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                min-width: 36px;
-                height: 36px;
-                padding: 0 10px;
+                min-width: 42px;
+                height: 42px;
+                padding: 0 12px;
                 background-color: ${paginationBackgroundColor};
                 color: ${paginationTextColor};
-                border-radius: 4px;
+                border-radius: 8px;
                 text-decoration: none;
                 transition: all 0.3s ease;
+                font-weight: 500;
             }
 
             .${id} .digiblocks-pagination .page-numbers.current {
                 background-color: ${paginationActiveBackgroundColor};
                 color: ${paginationActiveTextColor};
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px ${paginationActiveBackgroundColor}40;
             }
 
             .${id} .digiblocks-pagination .page-numbers:hover:not(.current) {
-                background-color: ${paginationActiveBackgroundColor}40;
+                background-color: ${paginationActiveBackgroundColor}20;
+                transform: translateY(-1px);
             }
 
             .${id} .digiblocks-pagination .page-numbers svg {

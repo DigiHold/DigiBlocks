@@ -32,8 +32,6 @@ const ResponsiveButtonGroup = ({
         
         const unsubscribe = window.digi.responsiveState.subscribe((device) => {
             setLocalActiveDevice(device);
-            // THIS IS THE KEY LINE - directly set the attribute on body
-            document.body.setAttribute('data-digiblocks-device', device);
         });
         
         // Cleanup subscription on unmount
@@ -104,8 +102,6 @@ const ResponsiveButtonGroup = ({
             const nextDevice = localActiveDevice === "desktop" ? "tablet" : 
                               localActiveDevice === "tablet" ? "mobile" : "desktop";
             setLocalActiveDevice(nextDevice);
-            // Directly set the attribute on body
-            document.body.setAttribute('data-digiblocks-device', nextDevice);
         }
     };
 

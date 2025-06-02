@@ -65,7 +65,9 @@ class DigiBlocks_Fonts {
         }
 
         // Add hook to enqueue fonts on the frontend
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_fonts'), 15);
+        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_fonts' ), 15 );
+
+
     }
 
     /**
@@ -77,7 +79,7 @@ class DigiBlocks_Fonts {
         add_action('save_post', array($this, 'process_post_fonts'), 10, 3);
         
         // Add hook to clean up fonts when a post is deleted
-        add_action('before_delete_post', array($this, 'cleanup_post_fonts'));
+        add_action('deleted_post', array($this, 'cleanup_post_fonts'));
     }
 
     /**
@@ -325,81 +327,116 @@ class DigiBlocks_Fonts {
         return $detected_fonts;
     }
 
-    /**
-     * Extract fonts from block attributes.
-     *
-     * @param array $attrs Block attributes.
-     * @param array &$detected_fonts Reference to detected fonts array.
-     */
-    private function extract_fonts_from_attributes($attrs, &$detected_fonts) {
-        // Common attribute names that might contain typography settings
-        $typography_attrs = array(
-            'typography',
-            'titleTypography',
-            'contentTypography',
-            'headingTypography',
-            'textTypography',
-            'buttonTypography',
-        );
+	/**
+	 * Updated extract_fonts_from_attributes method with dynamic detection
+	 */
+	private function extract_fonts_from_attributes($attrs, &$detected_fonts) {
+		// Find all typography attributes dynamically
+		$typography_attrs = $this->find_typography_attributes($attrs);
+		
+		// Process each detected typography attribute
+		foreach ($typography_attrs as $attr_name => $typography) {
+			if (!empty($typography['fontFamily'])) {
+				$font_family = $typography['fontFamily'];
 
-        // Check each potential typography attribute
-        foreach ($typography_attrs as $attr_name) {
-            if (isset($attrs[$attr_name])) {
-                $typography = $attrs[$attr_name];
-                if (!empty($typography['fontFamily'])) {
-                    $font_family = $typography['fontFamily'];
+				// Skip system fonts
+				if ($this->is_system_font($font_family)) {
+					continue;
+				}
 
-                    // Skip system fonts
-                    if ($this->is_system_font($font_family)) {
-                        continue;
-                    }
+				// Get font weight
+				$font_weight = isset($typography['fontWeight']) ? $typography['fontWeight'] : '400';
+				
+				// Normalize font weight
+				$font_weight = $this->normalize_font_weight($font_weight);
+				
+				// Add to detected fonts
+				if (!isset($detected_fonts[$font_family])) {
+					$detected_fonts[$font_family] = array();
+				}
+				
+				if (!in_array($font_weight, $detected_fonts[$font_family])) {
+					$detected_fonts[$font_family][] = $font_weight;
+				}
+			}
+		}
+	}
 
-                    // Get font weight
-                    $font_weight = isset($typography['fontWeight']) ? $typography['fontWeight'] : '400';
-                    
-                    // Normalize font weight
-                    $font_weight = $this->normalize_font_weight($font_weight);
-                    
-                    // Add to detected fonts
-                    if (!isset($detected_fonts[$font_family])) {
-                        $detected_fonts[$font_family] = array();
-                    }
-                    
-                    if (!in_array($font_weight, $detected_fonts[$font_family])) {
-                        $detected_fonts[$font_family][] = $font_weight;
-                    }
-                }
-            }
-        }
+	/**
+	 * Dynamically find all typography attributes in block attributes.
+	 *
+	 * @param array $attrs Block attributes.
+	 * @return array Typography attributes found.
+	 */
+	private function find_typography_attributes($attrs) {
+		$typography_attrs = array();
+		
+		// Check each attribute in the block
+		foreach ($attrs as $attr_name => $attr_value) {
+			// Check if this could be a typography attribute
+			if ($this->is_typography_attribute($attr_name, $attr_value)) {
+				$typography_attrs[$attr_name] = $attr_value;
+			}
+		}
+		
+		// Also check for fonts in style object (WordPress core typography support)
+		if (isset($attrs['style']) && isset($attrs['style']['typography'])) {
+			$typography_attrs['style.typography'] = $attrs['style']['typography'];
+		}
+		
+		return $typography_attrs;
+	}
 
-        // Check for fonts in style object
-        if (isset($attrs['style']) && isset($attrs['style']['typography'])) {
-            $typography = $attrs['style']['typography'];
-            if (!empty($typography['fontFamily'])) {
-                $font_family = $typography['fontFamily'];
+	/**
+	 * Check if an attribute is a typography attribute.
+	 *
+	 * @param string $attr_name Attribute name.
+	 * @param mixed $attr_value Attribute value.
+	 * @return bool True if it's a typography attribute.
+	 */
+	private function is_typography_attribute($attr_name, $attr_value) {
+		// Pattern matching: Check if attribute name suggests typography
+		if ($attr_name === 'typography' || strpos($attr_name, 'Typography') !== false) {
+			// Structure validation: Check if it has typography-like structure
+			return $this->has_typography_structure($attr_value);
+		}
+		
+		return false;
+	}
 
-                // Skip system fonts
-                if ($this->is_system_font($font_family)) {
-                    return;
-                }
-
-                // Get font weight
-                $font_weight = isset($typography['fontWeight']) ? $typography['fontWeight'] : '400';
-                
-                // Normalize font weight
-                $font_weight = $this->normalize_font_weight($font_weight);
-                
-                // Add to detected fonts
-                if (!isset($detected_fonts[$font_family])) {
-                    $detected_fonts[$font_family] = array();
-                }
-                
-                if (!in_array($font_weight, $detected_fonts[$font_family])) {
-                    $detected_fonts[$font_family][] = $font_weight;
-                }
-            }
-        }
-    }
+	/**
+	 * Check if a value has typography structure.
+	 *
+	 * @param mixed $value Value to check.
+	 * @return bool True if it has typography structure.
+	 */
+	private function has_typography_structure($value) {
+		// Check if the value is an array with typography properties
+		if (!is_array($value)) {
+			return false;
+		}
+		
+		// Common typography properties that indicate this is a typography object
+		$typography_props = array(
+			'fontFamily',
+			'fontSize',
+			'fontWeight',
+			'fontStyle',
+			'textTransform',
+			'textDecoration',
+			'lineHeight',
+			'letterSpacing'
+		);
+		
+		// Check if at least one typography property exists
+		foreach ($typography_props as $prop) {
+			if (isset($value[$prop])) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
     /**
      * Check if a font family is a system font.

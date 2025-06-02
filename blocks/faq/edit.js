@@ -72,7 +72,6 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
         answerPrefixColor,
         layout,
         itemsSpacing,
-        schemaEnabled,
         schemaType,
         schemaName
     } = attributes;
@@ -1417,36 +1416,24 @@ const FAQEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__("SEO Schema", "digiblocks")}
                             initialOpen={false}
                         >
-                            <ToggleControl
-                                label={__("Enable Schema Markup", "digiblocks")}
-                                checked={schemaEnabled}
-                                onChange={() => setAttributes({ schemaEnabled: !schemaEnabled })}
-                                help={__("Add JSON-LD schema markup for better SEO results.", "digiblocks")}
-                                __nextHasNoMarginBottom={true}
-                            />
-                            
-                            {schemaEnabled && (
-                                <>
-                                    <SelectControl
-                                        label={__("Schema Type", "digiblocks")}
-                                        value={schemaType}
-                                        options={schemaTypeOptions}
-                                        onChange={(value) => setAttributes({ schemaType: value })}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
-                                    
-                                    <TextControl
-                                        label={__("Schema Name", "digiblocks")}
-                                        value={schemaName}
-                                        onChange={(value) => setAttributes({ schemaName: value })}
-                                        placeholder={__("Example: Product FAQ", "digiblocks")}
-                                        help={__("Name for your FAQ schema (e.g., Company FAQ, Product FAQ).", "digiblocks")}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
-                                </>
-                            )}
+							<SelectControl
+								label={__("Schema Type", "digiblocks")}
+								value={schemaType}
+								options={schemaTypeOptions}
+								onChange={(value) => setAttributes({ schemaType: value })}
+								__next40pxDefaultSize={true}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							<TextControl
+								label={__("Schema Name", "digiblocks")}
+								value={schemaName}
+								onChange={(value) => setAttributes({ schemaName: value })}
+								placeholder={__("Example: Product FAQ", "digiblocks")}
+								help={__("Name for your FAQ schema (e.g., Company FAQ, Product FAQ).", "digiblocks")}
+								__next40pxDefaultSize={true}
+								__nextHasNoMarginBottom={true}
+							/>
                         </TabPanelBody>
                         
                         <TabPanelBody

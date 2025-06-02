@@ -774,14 +774,14 @@ const PostNavigationEdit = ({ attributes, setAttributes, clientId }) => {
                             )}
                         </div>
                         {showFeaturedImage && (
-                            <img src="https://picsum.photos/500/500" alt="" className="digiblocks-post-navigation-image" />
+                            <img src="https://picsum.photos/500/500?random=1" alt="" className="digiblocks-post-navigation-image" />
                         )}
                     </a>
                     
                     {/* Next Post Link (placeholder) */}
                     <a href="#" className="digiblocks-post-navigation-link digiblocks-post-navigation-next" onClick={(e) => e.preventDefault()}>
                         {showFeaturedImage && (
-                            <img src="https://picsum.photos/500/500" alt="" className="digiblocks-post-navigation-image" />
+                            <img src="https://picsum.photos/500/500?random=2" alt="" className="digiblocks-post-navigation-image" />
                         )}
                         <div className="digiblocks-post-navigation-content">
                             {showNavLabels && (

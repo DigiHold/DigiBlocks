@@ -19,8 +19,6 @@ const FAQSave = ({ attributes }) => {
         animation,
         allowMultipleOpen,
         iconType,
-        iconPosition,
-        schemaEnabled
     } = attributes;
 
     // Build class names

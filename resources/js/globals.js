@@ -156,9 +156,6 @@ window.digi.responsiveState = {
             if (currentDevice !== lastDevice) {
                 lastDevice = currentDevice;
                 
-                // Update body attribute for CSS
-                document.body.setAttribute('data-digiblocks-device', currentDevice);
-                
                 // Call the callback
                 callback(currentDevice);
                 

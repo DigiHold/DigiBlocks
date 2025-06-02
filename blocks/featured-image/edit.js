@@ -741,7 +741,7 @@ const FeaturedImageEdit = ({ attributes, setAttributes, clientId }) => {
             <div {...blockProps}>
 				<figure>
 					<img 
-						src="https://picsum.photos/1600/900"
+						src="https://picsum.photos/1600/900?random=1"
 						alt={__('Featured Image', 'digiblocks')}
 					/>
 					{enableCaption && (

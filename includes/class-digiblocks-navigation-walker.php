@@ -52,6 +52,10 @@ class DigiBlocks_Navigation_Walker extends Walker_Nav_Menu {
 		
 		$classes = empty($item->classes) ? array() : (array) $item->classes;
 		$classes[] = 'menu-item-' . $item->ID;
+
+		// Get schema markup for navigation links
+		$link_url_schema = digiblocks_get_schema_property('url', 'navigation');
+		$link_name_schema = digiblocks_get_schema_property('name', 'navigation');
 		
 		// Check if the item has children
 		$has_children = false;
@@ -79,6 +83,11 @@ class DigiBlocks_Navigation_Walker extends Walker_Nav_Menu {
 			$atts['rel'] = ($atts['rel'] ? $atts['rel'] . ' ' : '') . 'noopener noreferrer';
 		}
 		$atts['class'] = 'digiblocks-navigation-link';
+
+		// Add schema markup to link attributes if enabled
+		if (!empty($link_url_schema)) {
+			$atts['itemprop'] = 'url';
+		}
 		
 		$atts = apply_filters('nav_menu_link_attributes', $atts, $item, $args, $depth);
 		
@@ -93,6 +102,13 @@ class DigiBlocks_Navigation_Walker extends Walker_Nav_Menu {
 		// Build the link
 		$title = apply_filters('the_title', $item->title, $item->ID);
 		$title = apply_filters('nav_menu_item_title', $title, $item, $args, $depth);
+
+		// Wrap title with schema markup if enabled
+		if (!empty($link_name_schema)) {
+			$title_with_schema = '<span ' . $link_name_schema . '>' . $title . '</span>';
+		} else {
+			$title_with_schema = $title;
+		}
 		
 		// Check if RTL
 		$is_rtl = is_rtl();
@@ -142,7 +158,7 @@ class DigiBlocks_Navigation_Walker extends Walker_Nav_Menu {
 		}
 
 		$item_output .= '<a'. $attributes .'>';
-		$item_output .= $args->link_before . $title . $args->link_after;
+		$item_output .= $args->link_before . $title_with_schema . $args->link_after;
 		
 		// Add the dropdown icon after the text (for desktop)
 		if ($has_children) {

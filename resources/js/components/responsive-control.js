@@ -32,8 +32,6 @@ const ResponsiveControl = ({
         
         const unsubscribe = window.digi.responsiveState.subscribe((device) => {
             setLocalActiveDevice(device);
-            // Apply device attribute for preview
-            document.body.setAttribute('data-digiblocks-device', device);
         });
         
         // Cleanup subscription on unmount
@@ -59,8 +57,6 @@ const ResponsiveControl = ({
             const nextDevice = activeDevice === "desktop" ? "tablet" : 
                                activeDevice === "tablet" ? "mobile" : "desktop";
             setLocalActiveDevice(nextDevice);
-            // Apply device attribute for preview
-            document.body.setAttribute('data-digiblocks-device', nextDevice);
         }
     };
 

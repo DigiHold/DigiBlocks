@@ -351,6 +351,12 @@ const PostsEdit = ({ attributes, setAttributes, clientId }) => {
                 ${cardStyle && cardShadow?.enable ? `box-shadow: ${cardShadow.horizontal}px ${cardShadow.vertical}px ${cardShadow.blur}px ${cardShadow.spread}px ${cardShadow.color};` : ''}
                 transition: all 0.3s ease;
             }
+
+            .${id} .digiblocks-post-item:hover {
+				transform: translateY(-3px);
+                ${cardStyle && cardShadowHover?.enable ? `box-shadow: ${cardShadowHover.horizontal}px ${cardShadowHover.vertical}px ${cardShadowHover.blur}px ${cardShadowHover.spread}px ${cardShadowHover.color};` : ''}
+				border-color: ${cardBorderColor}80;
+            }
             
             /* Featured image */
             .${id} .digiblocks-post-image {
@@ -444,6 +450,8 @@ const PostsEdit = ({ attributes, setAttributes, clientId }) => {
 				${textTypography.fontSize?.[activeDevice] ? `font-size: ${textTypography.fontSize[activeDevice]}${textTypography.fontSizeUnit || 'px'};` : ''}
 				${textTypography.fontWeight ? `font-weight: ${textTypography.fontWeight};` : ''}
 				color: ${metaColor};
+				padding-top: ${contentMargin[activeDevice]}px;
+				border-top: 1px solid ${cardBorderColor}40;
 			}
 
 			.${id} .digiblocks-author-avatar,
@@ -456,8 +464,8 @@ const PostsEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 
 			.${id} .digiblocks-author-avatar img {
-				width: 50px;
-				height: 50px;
+				width: 32px;
+				height: 32px;
 				border-radius: 50%;
 				object-fit: cover;
 			}
@@ -493,6 +501,7 @@ const PostsEdit = ({ attributes, setAttributes, clientId }) => {
 				align-items: center;
 				flex-wrap: wrap;
 				gap: 1rem;
+                margin-top: ${contentMargin[activeDevice]}px;
 			}
             
             /* Read more button */
@@ -542,42 +551,46 @@ const PostsEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 
 			/* Pagination */
-			.${id} .digiblocks-pagination {
-				margin-top: 30px;
-				display: flex;
-				flex-wrap: wrap;
-				gap: 5px;
-				justify-content: ${paginationAlign};
-			}
+            .${id} .digiblocks-pagination {
+                margin-top: 40px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: ${paginationAlign};
+            }
 
-			.${id} .digiblocks-pagination .page-numbers {
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				min-width: 36px;
-				height: 36px;
-				padding: 0 10px;
-				background-color: ${paginationBackgroundColor};
-				color: ${paginationTextColor};
-				border-radius: 4px;
-				text-decoration: none;
-				transition: all 0.3s ease;
-			}
+            .${id} .digiblocks-pagination .page-numbers {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 42px;
+                height: 42px;
+                padding: 0 12px;
+                background-color: ${paginationBackgroundColor};
+                color: ${paginationTextColor};
+                border-radius: 8px;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                font-weight: 500;
+            }
 
-			.${id} .digiblocks-pagination .page-numbers.current {
-				background-color: ${paginationActiveBackgroundColor};
-				color: ${paginationActiveTextColor};
-			}
+            .${id} .digiblocks-pagination .page-numbers.current {
+                background-color: ${paginationActiveBackgroundColor};
+                color: ${paginationActiveTextColor};
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px ${paginationActiveBackgroundColor}40;
+            }
 
-			.${id} .digiblocks-pagination .page-numbers:hover:not(.current) {
-				background-color: ${paginationActiveBackgroundColor}40;
-			}
+            .${id} .digiblocks-pagination .page-numbers:hover:not(.current) {
+                background-color: ${paginationActiveBackgroundColor}20;
+                transform: translateY(-1px);
+            }
 
-			.${id} .digiblocks-pagination .page-numbers svg {
-				width: 1em;
-				height: 1em;
-				fill: currentColor;
-			}
+            .${id} .digiblocks-pagination .page-numbers svg {
+                width: 1em;
+                height: 1em;
+                fill: currentColor;
+            }
             
             /* Animation keyframes */
             ${animationCSS}

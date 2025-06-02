@@ -49,7 +49,6 @@ const BreadcrumbsEdit = ({ attributes, setAttributes, clientId }) => {
         useRankMath,
         separatorSize,
         separatorSpacing,
-        useMicrodata,
     } = attributes;
 
     // Create unique class
@@ -146,18 +145,21 @@ const BreadcrumbsEdit = ({ attributes, setAttributes, clientId }) => {
             
             .${id} .digiblocks-breadcrumb-list {
                 display: inline-flex;
-                flex-wrap: wrap;
-                align-items: center;
-                list-style: none;
-                margin: 0;
-                padding: 0;
+				flex-wrap: nowrap;
+				align-items: center;
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				max-width: 100%;
+				overflow: hidden;
             }
             
             .${id} .digiblocks-breadcrumb-item {
                 display: flex;
                 align-items: center;
+				flex-shrink: 0;
+				min-width: 0;
                 color: ${textColor};
-                /* Typography */
                 ${typography.fontFamily ? `font-family: ${typography.fontFamily};` : ''}
                 ${typography.fontSize?.[activeDevice] ? `font-size: ${typography.fontSize[activeDevice]}${typography.fontSizeUnit || 'px'};` : ''}
                 ${typography.fontWeight ? `font-weight: ${typography.fontWeight};` : ''}
@@ -167,6 +169,12 @@ const BreadcrumbsEdit = ({ attributes, setAttributes, clientId }) => {
                 ${typography.lineHeight?.[activeDevice] ? `line-height: ${typography.lineHeight[activeDevice]}${typography.lineHeightUnit || 'em'};` : ''}
                 ${typography.letterSpacing?.[activeDevice] ? `letter-spacing: ${typography.letterSpacing[activeDevice]}${typography.letterSpacingUnit || 'px'};` : ''}
             }
+
+			.${id} .digiblocks-breadcrumb-item:last-child {
+				flex-shrink: 1;
+				min-width: 0;
+				overflow: hidden;
+			}
             
             .${id} .digiblocks-breadcrumb-link {
                 color: ${linkColor};
@@ -190,6 +198,13 @@ const BreadcrumbsEdit = ({ attributes, setAttributes, clientId }) => {
                 height: ${separatorSize[activeDevice]}px;
                 fill: currentColor;
             }
+
+			.${id} .digiblocks-breadcrumb-current {
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				min-width: 0;
+			}
             
             /* Animation keyframes */
             ${animationCSS}
@@ -274,14 +289,6 @@ const BreadcrumbsEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__('Show Current Page', 'digiblocks')}
                                 checked={showCurrent}
                                 onChange={(value) => setAttributes({ showCurrent: value })}
-                                __nextHasNoMarginBottom={true}
-                            />
-                            
-                            <ToggleControl
-                                label={__('Add Schema Markup (Microdata)', 'digiblocks')}
-                                checked={useMicrodata}
-                                onChange={(value) => setAttributes({ useMicrodata: value })}
-                                help={__('Adds structured data to help search engines understand your content.', 'digiblocks')}
                                 __nextHasNoMarginBottom={true}
                             />
                         </TabPanelBody>

@@ -108,41 +108,41 @@ $textTypography                  = isset( $attrs['textTypography'] ) ? $attrs['t
 ];
 $buttonTypography                = isset( $attrs['buttonTypography'] ) ? $attrs['buttonTypography'] : [
     'fontFamily'        => '',
-    'fontSize'          => ['desktop' => 16, 'tablet' => 15, 'mobile' => 14],
+    'fontSize'          => ['desktop' => 14, 'tablet' => 13, 'mobile' => 12],
     'fontSizeUnit'      => 'px',
     'fontWeight'        => '500',
     'fontStyle'         => 'normal',
     'textTransform'     => 'none',
     'textDecoration'    => 'none',
-    'lineHeight'        => ['desktop' => 1.5, 'tablet' => 1.4, 'mobile' => 1.3],
+    'lineHeight'        => ['desktop' => 1.4, 'tablet' => 1.3, 'mobile' => 1.2],
     'lineHeightUnit'    => 'em',
     'letterSpacing'     => ['desktop' => 0, 'tablet' => 0, 'mobile' => 0],
     'letterSpacingUnit' => 'px',
 ];
 $buttonPadding                   = isset( $attrs['buttonPadding'] ) ? $attrs['buttonPadding'] : [
-    'desktop' => ['top' => 10, 'right' => 20, 'bottom' => 10, 'left' => 20, 'unit' => 'px'],
-    'tablet'  => ['top' => 8, 'right' => 16, 'bottom' => 8, 'left' => 16, 'unit' => 'px'],
+    'desktop' => ['top' => 8, 'right' => 16, 'bottom' => 8, 'left' => 16, 'unit' => 'px'],
+    'tablet'  => ['top' => 7, 'right' => 14, 'bottom' => 7, 'left' => 14, 'unit' => 'px'],
     'mobile'  => ['top' => 6, 'right' => 12, 'bottom' => 6, 'left' => 12, 'unit' => 'px'],
 ];
 $buttonBorderRadius              = isset( $attrs['buttonBorderRadius'] ) ? $attrs['buttonBorderRadius'] : [
-    'desktop' => ['top' => 4, 'right' => 4, 'bottom' => 4, 'left' => 4, 'unit' => 'px'],
+    'desktop' => ['top' => 6, 'right' => 6, 'bottom' => 6, 'left' => 6, 'unit' => 'px'],
     'tablet'  => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px'],
     'mobile'  => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px'],
 ];
 $imageBorderRadius               = isset( $attrs['imageBorderRadius'] ) ? $attrs['imageBorderRadius'] : [
-    'desktop' => ['top' => 8, 'right' => 8, 'bottom' => 8, 'left' => 8, 'unit' => 'px'],
+    'desktop' => ['top' => 12, 'right' => 12, 'bottom' => 12, 'left' => 12, 'unit' => 'px'],
     'tablet'  => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px'],
     'mobile'  => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px'],
 ];
 $cardStyle                       = isset( $attrs['cardStyle'] ) ? $attrs['cardStyle'] : false;
 $cardBackgroundColor             = isset( $attrs['cardBackgroundColor'] ) ? $attrs['cardBackgroundColor'] : '#ffffff';
 $cardPadding                     = isset( $attrs['cardPadding'] ) ? $attrs['cardPadding'] : [
-    'desktop' => ['top' => 20, 'right' => 20, 'bottom' => 20, 'left' => 20, 'unit' => 'px'],
-    'tablet'  => ['top' => 15, 'right' => 15, 'bottom' => 15, 'left' => 15, 'unit' => 'px'],
-    'mobile'  => ['top' => 10, 'right' => 10, 'bottom' => 10, 'left' => 10, 'unit' => 'px'],
+    'desktop' => ['top' => 24, 'right' => 24, 'bottom' => 24, 'left' => 24, 'unit' => 'px'],
+    'tablet'  => ['top' => 20, 'right' => 20, 'bottom' => 20, 'left' => 20, 'unit' => 'px'],
+    'mobile'  => ['top' => 16, 'right' => 16, 'bottom' => 16, 'left' => 16, 'unit' => 'px'],
 ];
 $cardBorderRadius                = isset( $attrs['cardBorderRadius'] ) ? $attrs['cardBorderRadius'] : [
-    'desktop' => ['top' => 8, 'right' => 8, 'bottom' => 8, 'left' => 8, 'unit' => 'px'],
+    'desktop' => ['top' => 16, 'right' => 16, 'bottom' => 16, 'left' => 16, 'unit' => 'px'],
     'tablet'  => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px'],
     'mobile'  => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px'],
 ];
@@ -164,10 +164,10 @@ $cardShadow                      = isset( $attrs['cardShadow'] ) ? $attrs['cardS
 ];
 $cardShadowHover                 = isset( $attrs['cardShadowHover'] ) ? $attrs['cardShadowHover'] : [
     'enable'     => false,
-    'color'      => 'rgba(0, 0, 0, 0.2)',
+    'color'      => 'rgba(74, 108, 247, 0.15)',
     'horizontal' => 0,
-    'vertical'   => 0,
-    'blur'       => 0,
+    'vertical'   => 8,
+    'blur'       => 25,
     'spread'     => 0,
     'position'   => 'outset',
 ];
@@ -424,6 +424,8 @@ ob_start();
     align-items: center;
     gap: 10px;
     color: <?php echo esc_attr( $metaColor ); ?>;
+    padding-top: <?php echo esc_attr( $contentMargin['desktop'] ); ?>px;
+    border-top: 1px solid <?php echo esc_attr( $cardBorderColor ); ?>40;
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-author-avatar,
@@ -436,8 +438,8 @@ ob_start();
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-author-avatar img {
-    width: 50px;
-    height: 50px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     object-fit: cover;
 }
@@ -495,6 +497,7 @@ ob_start();
     align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
+    margin-top: <?php echo esc_attr( $contentMargin['desktop'] ); ?>px;
 }
 
 /* Read more button */
@@ -641,6 +644,10 @@ ob_start();
         <?php endif; ?>
     }
     
+    .<?php echo esc_attr( $id ); ?> .digiblocks-post-footer-meta {
+        padding-top: <?php echo esc_attr( $contentMargin['tablet'] ); ?>px;
+    }
+    
     .<?php echo esc_attr( $id ); ?> .digiblocks-footer-meta-items,
     .<?php echo esc_attr( $id ); ?> .digiblocks-post-comments-count {
         <?php if ( ! empty( $textTypography['fontSize']['tablet'] ) ) : ?>
@@ -652,6 +659,10 @@ ob_start();
         <?php if ( ! empty( $textTypography['letterSpacing']['tablet'] ) ) : ?>
         letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['tablet'] . ( $textTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
+    }
+    
+    .<?php echo esc_attr( $id ); ?> .digiblocks-post-footer-actions {
+        margin-top: <?php echo esc_attr( $contentMargin['tablet'] ); ?>px;
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-post-read-more {
@@ -764,6 +775,10 @@ ob_start();
         <?php endif; ?>
     }
     
+    .<?php echo esc_attr( $id ); ?> .digiblocks-post-footer-meta {
+        padding-top: <?php echo esc_attr( $contentMargin['mobile'] ); ?>px;
+    }
+    
     .<?php echo esc_attr( $id ); ?> .digiblocks-footer-meta-items,
     .<?php echo esc_attr( $id ); ?> .digiblocks-post-comments-count {
         <?php if ( ! empty( $textTypography['fontSize']['mobile'] ) ) : ?>
@@ -775,6 +790,10 @@ ob_start();
         <?php if ( ! empty( $textTypography['letterSpacing']['mobile'] ) ) : ?>
         letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['mobile'] . ( $textTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
+    }
+    
+    .<?php echo esc_attr( $id ); ?> .digiblocks-post-footer-actions {
+        margin-top: <?php echo esc_attr( $contentMargin['mobile'] ); ?>px;
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-post-read-more {

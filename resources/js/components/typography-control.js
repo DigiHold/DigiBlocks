@@ -79,7 +79,6 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
         
         const unsubscribe = window.digi.responsiveState.subscribe((device) => {
             setLocalActiveDevice(device);
-            document.body.setAttribute('data-digiblocks-device', device);
         });
         
         // Cleanup subscription on unmount
@@ -294,8 +293,6 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
             const nextDevice = localActiveDevice === "desktop" ? "tablet" : 
                               localActiveDevice === "tablet" ? "mobile" : "desktop";
             setLocalActiveDevice(nextDevice);
-            // Directly set the attribute on body
-            document.body.setAttribute('data-digiblocks-device', nextDevice);
         }
     };
 

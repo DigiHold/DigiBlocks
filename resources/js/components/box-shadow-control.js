@@ -15,7 +15,7 @@ const BoxShadowControl = ({
     hoverValue = {},
     onNormalChange,
     onHoverChange,
-    label = __('Box Shadow', 'digiblocks')
+    label = null // Changed from default translated string to null
 }) => {
     // Set default values if not provided
     const defaultShadow = {

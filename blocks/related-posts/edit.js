@@ -298,7 +298,9 @@ const RelatedPostsEdit = ({ attributes, setAttributes, clientId }) => {
             }
 
             .${id} .digiblocks-post-item:hover {
+				transform: translateY(-3px);
                 ${cardStyle && cardShadowHover?.enable ? `box-shadow: ${cardShadowHover.horizontal}px ${cardShadowHover.vertical}px ${cardShadowHover.blur}px ${cardShadowHover.spread}px ${cardShadowHover.color};` : ''}
+				border-color: ${cardBorderColor}80;
             }
             
             /* Featured image */
@@ -393,6 +395,8 @@ const RelatedPostsEdit = ({ attributes, setAttributes, clientId }) => {
                 ${textTypography.fontSize?.[activeDevice] ? `font-size: ${textTypography.fontSize[activeDevice]}${textTypography.fontSizeUnit || 'px'};` : ''}
                 ${textTypography.fontWeight ? `font-weight: ${textTypography.fontWeight};` : ''}
                 color: ${metaColor};
+				padding-top: ${contentMargin[activeDevice]}px;
+				border-top: 1px solid ${cardBorderColor}40;
             }
 
             .${id} .digiblocks-author-avatar,
@@ -1450,7 +1454,7 @@ const RelatedPostsEdit = ({ attributes, setAttributes, clientId }) => {
                                 <div className="digiblocks-post-image">
                                     <span>
                                         <img 
-                                            src={`https://picsum.photos/1600/900`}
+                                            src={`https://picsum.photos/1600/900?random=1`}
                                             alt={post.title}
                                         />
                                     </span>

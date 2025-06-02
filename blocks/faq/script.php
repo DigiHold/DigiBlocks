@@ -13,7 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Get block attributes
 $id                = isset( $attrs['id'] ) ? $attrs['id'] : 'digi-block';
 $allowMultipleOpen = isset( $attrs['allowMultipleOpen'] ) ? $attrs['allowMultipleOpen'] : false;
-$schemaEnabled     = isset( $attrs['schemaEnabled'] ) ? (bool) $attrs['schemaEnabled'] : true;
 $schemaType        = isset( $attrs['schemaType'] ) ? $attrs['schemaType'] : 'FAQPage';
 $schemaName        = isset( $attrs['schemaName'] ) ? $attrs['schemaName'] : '';
 $items             = isset( $attrs['items'] ) ? $attrs['items'] : array();
@@ -154,7 +153,7 @@ ob_start();
 
 <?php
 // Generate JSON-LD Schema markup if enabled
-if ( $schemaEnabled && ! empty( $items ) ) :
+if ( digiblocks_is_schema_enabled() && ! empty( $items ) ) :
     // Prepare FAQ schema data
     $schema_data = array();
     
@@ -218,9 +217,11 @@ if ( $schemaEnabled && ! empty( $items ) ) :
 		?>
 		// Add Schema Markup
 		document.addEventListener('DOMContentLoaded', function() {
+			const schemaData = <?php echo wp_json_encode($schema_data); ?>;
 			const schemaScript = document.createElement('script');
+			schemaScript.id = 'digiblocks-faq-schema-<?php echo esc_js($id); ?>';
 			schemaScript.type = 'application/ld+json';
-			schemaScript.innerHTML = <?php echo esc_js(wp_json_encode(wp_json_encode($schema_data))); ?>;
+			schemaScript.textContent = JSON.stringify(schemaData);
 			document.head.appendChild(schemaScript);
 		});
 		<?php

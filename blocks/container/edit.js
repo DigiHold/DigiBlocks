@@ -692,42 +692,6 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                 transform: translateX(-50%) translateY(-50%);
                 object-fit: cover;
             }
-
-			/* Responsive preview */
-			body[data-digiblocks-device="tablet"] .${id} {
-				${heightType['tablet'] === 'custom' ? `min-height: ${minHeight['tablet']}px;` : ''}
-			}
-
-			body[data-digiblocks-device="tablet"] .${id} > .digiblocks-container-inner {
-				flex-wrap: ${flexWrap['tablet']};
-				align-items: ${verticalAlign['tablet']};
-				justify-content: ${horizontalAlign['tablet']};
-				gap: ${getGapValue(rowGap, 'tablet').value}${getGapValue(rowGap, 'tablet').unit} ${getGapValue(columnGap, 'tablet').value}${getGapValue(columnGap, 'tablet').unit};
-				${stackOnTablet ? 'flex-direction: column;' : ''}
-			}
-
-			${stackOnTablet ? `
-				body[data-digiblocks-device="tablet"] .${id} > .digiblocks-container-inner .digiblocks-column {
-					width: 100%;
-				}` : ''}
-
-			body[data-digiblocks-device="mobile"] .${id} {
-				${heightType['mobile'] === 'custom' ? `min-height: ${minHeight['mobile']}px;` : ''}
-			}
-
-			body[data-digiblocks-device="mobile"] .${id} > .digiblocks-container-inner {
-				flex-wrap: ${flexWrap['mobile']};
-				align-items: ${verticalAlign['mobile']};
-				justify-content: ${horizontalAlign['mobile']};
-				gap: ${getGapValue(rowGap, 'mobile').value}${getGapValue(rowGap, 'mobile').unit} ${getGapValue(columnGap, 'mobile').value}${getGapValue(columnGap, 'mobile').unit};
-				${stackOnMobile ? 'flex-direction: column;' : ''}
-				${reverseColumnsMobile ? 'flex-direction: column-reverse;' : ''}
-			}
-
-			${stackOnMobile ? `
-				body[data-digiblocks-device="mobile"] .${id} > .digiblocks-container-inner .digiblocks-column {
-					width: 100%;
-				}` : ''}
             
             /* Tablet styles */
             @media (max-width: 991px) {

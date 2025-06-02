@@ -25,7 +25,7 @@ const { useSelect } = wp.data;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveButtonGroup, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody, FontAwesomeControl } = digi.components;
+const { ResponsiveControl, ResponsiveButtonGroup, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody } = digi.components;
 
 /**
  * Edit function for the Navigation block
@@ -48,12 +48,20 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
         mobileBreakpoint,
         showMobileToggle,
 		mobileAlign,
-        toggleIcon,
-        customToggleIcon,
         toggleIconColor,
         toggleIconHoverColor,
         mobileToggleSize,
-        mobileIconSize,
+		linkBorderStyle,
+		linkBorderWidth,
+		linkBorderColor,
+		linkBorderHoverColor,
+		toggleIconBorderStyle,
+		toggleIconBorderWidth,
+		toggleIconBorderRadius,
+		toggleIconBackgroundColor,
+		toggleIconBackgroundHoverColor,
+		toggleIconBorderColor,
+		toggleIconBorderHoverColor,
         textTypography,
         linkColor,
         linkHoverColor,
@@ -247,12 +255,6 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
         })),
     ];
 
-    // Toggle icon options
-    const toggleIconOptions = [
-        { label: __("Hamburger", "digiblocks"), value: "hamburger" },
-        { label: __("Custom Icon", "digiblocks"), value: "custom" },
-    ];
-
     // Link effect options
     const linkEffectOptions = [
         { label: __("None", "digiblocks"), value: "none" },
@@ -303,6 +305,19 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
             className: 'digiblocks-tab-2 hover'
         }
     ];
+
+	// Border style options
+	const borderStyleOptions = [
+		{ label: __("None", "digiblocks"), value: "none" },
+		{ label: __("Solid", "digiblocks"), value: "solid" },
+		{ label: __("Dotted", "digiblocks"), value: "dotted" },
+		{ label: __("Dashed", "digiblocks"), value: "dashed" },
+		{ label: __("Double", "digiblocks"), value: "double" },
+		{ label: __("Groove", "digiblocks"), value: "groove" },
+		{ label: __("Inset", "digiblocks"), value: "inset" },
+		{ label: __("Outset", "digiblocks"), value: "outset" },
+		{ label: __("Ridge", "digiblocks"), value: "ridge" },
+	];
 
     // Get FontAwesomeControl from the global object
     const FontAwesomeControl = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
@@ -558,6 +573,19 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
                 transition: all 0.3s ease;
                 ${textTypographyCSS}
             }
+
+			/* Link Border Styles */
+			${linkBorderStyle && linkBorderStyle !== 'none' ? `
+				.${id} .digiblocks-navigation-link {
+					border-style: ${linkBorderStyle};
+					border-color: ${linkBorderColor || '#e0e0e0'};
+					${getDimensionCSS(linkBorderWidth, 'border-width', activeDevice)}
+				}
+				
+				.${id} .digiblocks-navigation-link:hover {
+					${linkBorderHoverColor ? `border-color: ${linkBorderHoverColor};` : ''}
+				}
+			` : ''}
             
             .${id} .digiblocks-navigation-link:hover {
                 color: ${linkHoverColor};
@@ -646,77 +674,58 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* Mobile toggle with bars */
             .${id} .digiblocks-mobile-toggle {
-                display: none;
-                height: ${mobileToggleSize[activeDevice]}px;
-                width: ${mobileToggleSize[activeDevice]}px;
-                cursor: pointer;
-                justify-content: center;
-                align-items: center;
-                padding: 0;
-                background: none;
-                border: none;
-                transition: all 0.3s ease;
-            }
-            
-            .${id} .digiblocks-mobile-bars {
-                display: flex;
-                position: relative;
-                z-index: 10;
-                height: ${Math.round(mobileIconSize[activeDevice] * 0.6)}px;
-                width: ${mobileIconSize[activeDevice]}px;
-                cursor: pointer;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            .${id} .digiblocks-mobile-bars span {
-                position: absolute;
-                display: flex;
-                height: ${Math.round(mobileIconSize[activeDevice] * 0.08)}px;
-                width: 100%;
-                border-radius: 0.75rem;
-                background-color: ${toggleIconColor};
-                transition: all 0.3s ease-in-out;
-            }
-            
-            .${id} .digiblocks-mobile-bars span:first-child {
-                top: 0;
-                left: 0;
-            }
-            
-            .${id} .digiblocks-mobile-bars span:nth-child(2) {
-                top: 50%;
-                left: 0;
-                transform: translate(0, -50%);
-            }
-            
-            .${id} .digiblocks-mobile-bars span:nth-child(3) {
-                bottom: 0;
-                left: 0;
-            }
-            
-            /* Mobile menu open animation */
-            .${id} .digiblocks-mobile-toggle.is-open .digiblocks-mobile-bars span:first-child {
-                top: 50%;
-                transform: translateY(-50%) rotate(45deg);
-            }
-            
-            .${id} .digiblocks-mobile-toggle.is-open .digiblocks-mobile-bars span:nth-child(2) {
-                opacity: 0;
-            }
-            
-            .${id} .digiblocks-mobile-toggle.is-open .digiblocks-mobile-bars span:nth-child(3) {
-                bottom: 50%;
-                transform: translateY(50%) rotate(-45deg);
-            }
-            
-            .${id} .digiblocks-mobile-toggle:hover .digiblocks-mobile-bars span {
-                background-color: ${toggleIconHoverColor};
-            }
+				display: none;
+				height: ${mobileToggleSize}px;
+				width: ${mobileToggleSize}px;
+				position: relative;
+				cursor: pointer;
+				justify-content: center;
+				align-items: center;
+				padding: 0;
+				border: none;
+				background-color: ${toggleIconBackgroundColor || 'transparent'};
+				align-self: ${mobileAlign};
+				${toggleIconBorderRadius.top ? `border-radius: ${toggleIconBorderRadius.top}${toggleIconBorderRadius.unit} ${toggleIconBorderRadius.right}${toggleIconBorderRadius.unit} ${toggleIconBorderRadius.bottom}${toggleIconBorderRadius.unit} ${toggleIconBorderRadius.left}${toggleIconBorderRadius.unit};` : ''}
+				transition: all 0.3s ease;
+			}
 
-			.${id} .digiblocks-navigation-submenu .digiblocks-navigation-link {
-				white-space: nowrap;
-				line-height: 1.6;
+			.${id} .digiblocks-mobile-toggle:hover {
+				${toggleIconBackgroundHoverColor ? `background-color: ${toggleIconBackgroundHoverColor};` : ''}
+				${toggleIconBorderHoverColor ? `border-color: ${toggleIconBorderHoverColor};` : ''}
+			}
+
+			${toggleIconBorderStyle !== 'none' ? `
+				.${id} .digiblocks-mobile-toggle {
+					border-style: ${toggleIconBorderStyle};
+					border-color: ${toggleIconBorderColor || '#e0e0e0'};
+					border-width: ${toggleIconBorderWidth.top}${toggleIconBorderWidth.unit} ${toggleIconBorderWidth.right}${toggleIconBorderWidth.unit} ${toggleIconBorderWidth.bottom}${toggleIconBorderWidth.unit} ${toggleIconBorderWidth.left}${toggleIconBorderWidth.unit};
+				}
+			` : ''}
+			
+			.${id} .digiblocks-mobile-toggle span {
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				width: 30px;
+				height: 2px;
+				transform: translateX(-50%);
+				background-color: ${toggleIconColor || '#333333'};
+				border-radius: 0.75rem;
+				transition: all 400ms cubic-bezier(0.84, 0.06, 0.52, 1.8);
+			}
+			
+			.${id} .digiblocks-mobile-toggle:hover span {
+				background-color: ${toggleIconHoverColor};
+			}
+			
+			.${id} .digiblocks-mobile-toggle span:first-child {
+				transform: translate(-50%, -9px);
+				animation-delay: 100ms;
+			}
+			
+			.${id} .digiblocks-mobile-toggle span:nth-child(3) {
+				transform: translate(-50%, 9px);
+				animation-delay: 250ms;
 			}
 
             /* Submenu toggle button styles */
@@ -1159,7 +1168,7 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
     const renderMenuPreview = () => {
         if (menuType === 'wordpress' && selectedMenu) {
             return (
-                <div className="digiblocks-navigation-menu-preview">
+                <div className="digiblocks-navigation-menu-wrapper">
                     <ul className="digiblocks-navigation-menu">
                         {isLoadingMenu ? (
                             <li className="digiblocks-menu-placeholder">
@@ -1184,7 +1193,7 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
         } else if (menuType === 'custom' && customItems.length > 0) {
             // Custom menu items rendering (unchanged)
             return (
-                <div className="digiblocks-navigation-menu-preview">
+                <div className="digiblocks-navigation-menu-wrapper">
                     <ul className="digiblocks-navigation-menu">
                         {customItems.map((item, index) => renderCustomItem(item, index))}
                     </ul>
@@ -1371,73 +1380,16 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
 										/>
 									</ToggleGroupControl>
 
-                                    <SelectControl
-                                        label={__("Toggle Icon", "digiblocks")}
-                                        value={toggleIcon}
-                                        options={toggleIconOptions}
-                                        onChange={(value) => setAttributes({ toggleIcon: value })}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
-                                    
-                                    {toggleIcon === 'custom' && (
-                                        <>
-                                            {!componentsLoaded ? (
-                                                <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                                                    <div className="components-spinner"></div>
-                                                    <p>{__('Loading icon selector...', 'digiblocks')}</p>
-                                                </div>
-                                            ) : (
-                                                <FontAwesomeControl
-                                                    label={__('Custom Toggle Icon', 'digiblocks')}
-                                                    value={customToggleIcon}
-                                                    onChange={(value) => setAttributes({ customToggleIcon: value })}
-                                                />
-                                            )}
-                                        </>
-                                    )}
-
-                                    <ResponsiveControl
+                                    <RangeControl
                                         label={__("Toggle Button Size", "digiblocks")}
-                                    >
-                                        <RangeControl
-                                            value={mobileToggleSize[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    mobileToggleSize: {
-                                                        ...mobileToggleSize,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                            min={32}
-                                            max={80}
-                                            step={2}
-                                            __next40pxDefaultSize={true}
-                                            __nextHasNoMarginBottom={true}
-                                        />
-                                    </ResponsiveControl>
-
-                                    <ResponsiveControl
-                                        label={__("Icon Size", "digiblocks")}
-                                    >
-                                        <RangeControl
-                                            value={mobileIconSize[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    mobileIconSize: {
-                                                        ...mobileIconSize,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                            min={16}
-                                            max={40}
-                                            step={2}
-                                            __next40pxDefaultSize={true}
-                                            __nextHasNoMarginBottom={true}
-                                        />
-                                    </ResponsiveControl>
+										value={mobileToggleSize[localActiveDevice]}
+										onChange={(value) => setAttributes({ mobileToggleSize: value })}
+										min={32}
+										max={80}
+										step={2}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
                                 </>
                             )}
                             
@@ -1447,7 +1399,7 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
                                 onChange={(value) => setAttributes({ mobileBreakpoint: value })}
                                 min={320}
                                 max={1200}
-                                step={10}
+                                step={1}
                                 __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
                             />
@@ -1464,11 +1416,169 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
             case 'style':
                 return (
                     <>
+                    	<TabPanelBody
+                            tab="style"
+                            name="links"
+                            title={__("Links", "digiblocks")}
+                            initialOpen={true}
+                        >
+							<ResponsiveControl
+                                label={__("Padding", "digiblocks")}
+                            >
+                                <DimensionControl
+                                    values={padding[localActiveDevice]}
+                                    onChange={(value) =>
+                                        setAttributes({
+                                            padding: {
+                                                ...padding,
+                                                [localActiveDevice]: value,
+                                            },
+                                        })
+                                    }
+                                />
+                            </ResponsiveControl>
+
+							<SelectControl
+								label={__("Border Style", "digiblocks")}
+								value={linkBorderStyle || 'none'}
+								options={borderStyleOptions}
+								onChange={(value) => {
+									// Initialize border width with defaults when a style is first selected
+									if ((value !== 'none') && 
+										(linkBorderStyle === 'none' || !linkBorderStyle)) {
+										// Set initial border width if not already set
+										if (!linkBorderWidth || Object.keys(linkBorderWidth).length === 0) {
+											setAttributes({
+												linkBorderWidth: {
+													desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+													tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+													mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+												}
+											});
+										}
+									}
+									
+									setAttributes({
+										linkBorderStyle: value,
+									});
+								}}
+								__next40pxDefaultSize={true}
+								__nextHasNoMarginBottom={true}
+							/>
+
+							{/* Show border controls only if a border style is selected */}
+							{linkBorderStyle && linkBorderStyle !== 'none' && (
+								<>
+									{/* Border Color */}
+									<PanelColorSettings
+										title={__(
+											"Border Color",
+											"digiblocks"
+										)}
+										enableAlpha={true}
+										colorSettings={[
+											{
+												value: linkBorderColor,
+												onChange: (value) =>
+													setAttributes({
+														linkBorderColor: value,
+													}),
+												label: __(
+													"Border Color",
+													"digiblocks"
+												),
+											},
+										]}
+									/>
+									
+									{/* Border Width */}
+									<ResponsiveControl
+										label={__("Border Width", "digiblocks")}
+									>
+										<DimensionControl
+											values={linkBorderWidth[localActiveDevice]}
+											onChange={(value) =>
+												setAttributes({
+													linkBorderWidth: {
+														...linkBorderWidth,
+														[localActiveDevice]: value,
+													},
+												})
+											}
+										/>
+									</ResponsiveControl>
+								</>
+							)}
+                            
+                            <ResponsiveControl
+                                label={__("Border Radius", "digiblocks")}
+                            >
+                                <DimensionControl
+                                    values={borderRadius[localActiveDevice]}
+                                    onChange={(value) =>
+                                        setAttributes({
+                                            borderRadius: {
+                                                ...borderRadius,
+                                                [localActiveDevice]: value,
+                                            },
+                                        })
+                                    }
+                                    units={[
+                                        { label: 'px', value: 'px' },
+                                        { label: '%', value: '%' }
+                                    ]}
+                                />
+                            </ResponsiveControl>
+                        </TabPanelBody>
+
+						<TabPanelBody
+							tab="style"
+							name="toggle-icon"
+							title={__("Toggle Icon", "digiblocks")}
+							initialOpen={false}
+						>
+							<SelectControl
+								label={__("Border Style", "digiblocks")}
+								value={toggleIconBorderStyle || 'none'}
+								options={borderStyleOptions}
+								onChange={(value) => {
+									setAttributes({
+										toggleIconBorderStyle: value,
+									});
+								}}
+								__next40pxDefaultSize={true}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							{/* Show border controls only if a border style is selected */}
+							{toggleIconBorderStyle && toggleIconBorderStyle !== 'none' && (
+								<>
+									{/* Border Width */}
+									<DimensionControl
+										label={__("Border Width", "digiblocks")}
+										values={toggleIconBorderWidth}
+										onChange={(value) => setAttributes({ toggleIconBorderWidth: value })}
+									/>
+								</>
+							)}
+							
+							{/* Border Radius */}
+							<DimensionControl
+								label={__("Border Radius", "digiblocks")}
+								values={toggleIconBorderRadius}
+								onChange={(value) => setAttributes({ toggleIconBorderRadius: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' }
+								]}
+							/>
+						</TabPanelBody>
+
                         <TabPanelBody
                             tab="style"
                             name="typography"
                             title={__("Typography", "digiblocks")}
-                            initialOpen={true}
+                            initialOpen={false}
                         >
                             <TypographyControl
                                 label={__("Link Typography", "digiblocks")}
@@ -1547,36 +1657,61 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
                                                     ),
                                                 label: __("Background Color", "digiblocks"),
                                             },
+											...(tab.name === 'hover' && linkBorderStyle && linkBorderStyle !== 'none' ? [{
+												value: linkBorderHoverColor,
+												onChange: (value) => setAttributes({ linkBorderHoverColor: value }),
+												label: __("Border Color", "digiblocks"),
+											}] : []),
                                         ]}
                                     />
                                 )}
                             </TabPanel>
                             
                             <TabPanel
-                                className="digiblocks-control-tabs"
-                                activeClass="active-tab"
-                                tabs={stateTabList}
-                            >
-                                {(tab) => (
-                                    <PanelColorSettings
-                                        title={__("Toggle Icon Colors", "digiblocks")}
-                                        initialOpen={false}
-                                        enableAlpha={true}
-                                        colorSettings={[
-                                            {
-                                                value: tab.name === 'normal' ? toggleIconColor : toggleIconHoverColor,
-                                                onChange: (value) =>
-                                                    setAttributes(
-                                                        tab.name === 'normal'
-                                                            ? { toggleIconColor: value }
-                                                            : { toggleIconHoverColor: value }
-                                                    ),
-                                                label: __("Toggle Icon Color", "digiblocks"),
-                                            },
-                                        ]}
-                                    />
-                                )}
-                            </TabPanel>
+								className="digiblocks-control-tabs"
+								activeClass="active-tab"
+								tabs={stateTabList}
+							>
+								{(tab) => (
+									<PanelColorSettings
+										title={__("Toggle Icon Colors", "digiblocks")}
+										initialOpen={false}
+										enableAlpha={true}
+										colorSettings={[
+											{
+												value: tab.name === 'normal' ? toggleIconColor : toggleIconHoverColor,
+												onChange: (value) =>
+													setAttributes(
+														tab.name === 'normal'
+															? { toggleIconColor: value }
+															: { toggleIconHoverColor: value }
+													),
+												label: __("Toggle Icon Color", "digiblocks"),
+											},
+											{
+												value: tab.name === 'normal' ? toggleIconBackgroundColor : toggleIconBackgroundHoverColor,
+												onChange: (value) =>
+													setAttributes(
+														tab.name === 'normal'
+															? { toggleIconBackgroundColor: value }
+															: { toggleIconBackgroundHoverColor: value }
+													),
+												label: __("Background Color", "digiblocks"),
+											},
+											...(toggleIconBorderStyle && toggleIconBorderStyle !== 'none' ? [{
+												value: tab.name === 'normal' ? toggleIconBorderColor : toggleIconBorderHoverColor,
+												onChange: (value) =>
+													setAttributes(
+														tab.name === 'normal'
+															? { toggleIconBorderColor: value }
+															: { toggleIconBorderHoverColor: value }
+													),
+												label: __("Border Color", "digiblocks"),
+											}] : []),
+										]}
+									/>
+								)}
+							</TabPanel>
                             
                             <PanelColorSettings
                                 title={__("Submenu Colors", "digiblocks")}
@@ -1633,49 +1768,6 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
                                     )}
                                 </TabPanel>
                             )}
-                        </TabPanelBody>
-                        
-                        <TabPanelBody
-                            tab="style"
-                            name="spacing"
-                            title={__("Spacing", "digiblocks")}
-                            initialOpen={false}
-                        >
-                            <ResponsiveControl
-                                label={__("Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={padding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
-                            
-                            <ResponsiveControl
-                                label={__("Border Radius", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={borderRadius[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            borderRadius: {
-                                                ...borderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    units={[
-                                        { label: 'px', value: 'px' },
-                                        { label: '%', value: '%' }
-                                    ]}
-                                />
-                            </ResponsiveControl>
                         </TabPanelBody>
                     </>
                 );
@@ -1849,11 +1941,9 @@ const NavigationEdit = ({ attributes, setAttributes, clientId }) => {
             <div {...blockProps}>
                 {showMobileToggle && (
                     <button className="digiblocks-mobile-toggle">
-                        <div className="digiblocks-mobile-bars">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
+						<span></span>
+						<span></span>
+						<span></span>
                     </button>
                 )}
                 

@@ -426,26 +426,13 @@
       const extractFontsFromBlocks = (blocksList) => {
         blocksList.forEach((block) => {
           if (block.attributes) {
-            const typographyAttrs = [
-              "typography",
-              "titleTypography",
-              "contentTypography",
-              "headingTypography",
-              "textTypography",
-              "buttonTypography"
-            ];
-            typographyAttrs.forEach((attrName) => {
-              const typoSettings = block.attributes[attrName];
+            const typographyAttrs = findTypographyAttributes(block.attributes);
+            Object.keys(typographyAttrs).forEach((attrName) => {
+              const typoSettings = typographyAttrs[attrName];
               if (typoSettings && typoSettings.fontFamily) {
                 loadGoogleFont(typoSettings.fontFamily, typoSettings.fontWeight || "");
               }
             });
-            if (block.attributes.style && block.attributes.style.typography) {
-              const typoSettings = block.attributes.style.typography;
-              if (typoSettings.fontFamily) {
-                loadGoogleFont(typoSettings.fontFamily, typoSettings.fontWeight || "");
-              }
-            }
           }
           if (block.innerBlocks && block.innerBlocks.length > 0) {
             extractFontsFromBlocks(block.innerBlocks);
@@ -456,6 +443,41 @@
     } catch (error) {
       console.error("Error initializing Google Fonts:", error);
     }
+  };
+  var findTypographyAttributes = (attributes) => {
+    const typographyAttrs = {};
+    Object.keys(attributes).forEach((attrName) => {
+      const attrValue = attributes[attrName];
+      if (isTypographyAttribute(attrName, attrValue)) {
+        typographyAttrs[attrName] = attrValue;
+      }
+    });
+    if (attributes.style && attributes.style.typography) {
+      typographyAttrs["style.typography"] = attributes.style.typography;
+    }
+    return typographyAttrs;
+  };
+  var isTypographyAttribute = (attrName, attrValue) => {
+    if (attrName === "typography" || attrName.includes("Typography")) {
+      return hasTypographyStructure(attrValue);
+    }
+    return false;
+  };
+  var hasTypographyStructure = (value) => {
+    if (!value || typeof value !== "object") {
+      return false;
+    }
+    const typographyProps = [
+      "fontFamily",
+      "fontSize",
+      "fontWeight",
+      "fontStyle",
+      "textTransform",
+      "textDecoration",
+      "lineHeight",
+      "letterSpacing"
+    ];
+    return typographyProps.some((prop) => value.hasOwnProperty(prop));
   };
   var scanForTypographyControls = () => {
     try {
@@ -682,7 +704,6 @@
         return;
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
-        document.body.setAttribute("data-digiblocks-device", device);
       });
       return unsubscribe;
     }, []);
@@ -698,7 +719,6 @@
       } else {
         const nextDevice = activeDevice === "desktop" ? "tablet" : activeDevice === "tablet" ? "mobile" : "desktop";
         setLocalActiveDevice(nextDevice);
-        document.body.setAttribute("data-digiblocks-device", nextDevice);
       }
     };
     const getNextDevice = () => {
@@ -1053,7 +1073,6 @@
         return;
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
-        document.body.setAttribute("data-digiblocks-device", device);
       });
       return unsubscribe;
     }, []);
@@ -1200,7 +1219,6 @@
       } else {
         const nextDevice = localActiveDevice === "desktop" ? "tablet" : localActiveDevice === "tablet" ? "mobile" : "desktop";
         setLocalActiveDevice(nextDevice);
-        document.body.setAttribute("data-digiblocks-device", nextDevice);
       }
     };
     return /* @__PURE__ */ wp.element.createElement("div", { className: `digiblocks-typography-options digiblocks-control-popup__options ${isOpen ? "active" : ""}` }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-control-popup__options--action-wrapper" }, /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-control-label" }, label || __3("Typography", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
@@ -1469,7 +1487,6 @@
         return;
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
-        document.body.setAttribute("data-digiblocks-device", device);
       });
       return unsubscribe;
     }, []);
@@ -1534,7 +1551,6 @@
       } else {
         const nextDevice = localActiveDevice === "desktop" ? "tablet" : localActiveDevice === "tablet" ? "mobile" : "desktop";
         setLocalActiveDevice(nextDevice);
-        document.body.setAttribute("data-digiblocks-device", nextDevice);
       }
     };
     const isResetDisabled = () => {
@@ -1661,7 +1677,6 @@
         return;
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
         setLocalActiveDevice(device);
-        document.body.setAttribute("data-digiblocks-device", device);
       });
       return unsubscribe;
     }, []);
@@ -1710,7 +1725,6 @@
       } else {
         const nextDevice = localActiveDevice === "desktop" ? "tablet" : localActiveDevice === "tablet" ? "mobile" : "desktop";
         setLocalActiveDevice(nextDevice);
-        document.body.setAttribute("data-digiblocks-device", nextDevice);
       }
     };
     const getDeviceIcon = (device) => {
@@ -1766,7 +1780,8 @@
     hoverValue = {},
     onNormalChange,
     onHoverChange,
-    label = __6("Box Shadow", "digiblocks")
+    label = null
+    // Changed from default translated string to null
   }) => {
     const defaultShadow = {
       enable: false,
@@ -2339,7 +2354,6 @@
         const currentDevice = this.activeDevice;
         if (currentDevice !== lastDevice) {
           lastDevice = currentDevice;
-          document.body.setAttribute("data-digiblocks-device", currentDevice);
           callback(currentDevice);
           setTimeout(() => {
             try {

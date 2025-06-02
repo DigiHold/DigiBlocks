@@ -1,26 +1,6 @@
 /* Viewport */
 body .editor-styles-wrapper {
-	transition: all 0.3s ease-in-out;
-}
-
-body[data-digiblocks-device="desktop"] .editor-styles-wrapper {
-	width: 100% !important;
-	margin: 0 auto !important;
-}
-
-body[data-digiblocks-device="tablet"] .editor-styles-wrapper {
-	width: 768px !important;
-	margin: 0 auto !important;
-}
-
-body[data-digiblocks-device="mobile"] .editor-styles-wrapper {
-	width: 360px !important;
-	margin: 0 auto !important;
-}
-
-body[data-digiblocks-device="tablet"] .digiblocks-device-tablet svg,
-body[data-digiblocks-device="mobile"] .digiblocks-device-mobile svg {
-	fill: #007cba !important;
+    transition: all 0.3s ease-in-out;
 }
 
 /* Responsive control wrapper */
@@ -36,7 +16,7 @@ body[data-digiblocks-device="mobile"] .digiblocks-device-mobile svg {
 .digiblocks-responsive-label-wrap {
     display: flex;
     align-items: center;
-	gap: .5rem;
+    gap: 0.5rem;
 }
 
 /* Responsive device button */
@@ -62,8 +42,8 @@ body[data-digiblocks-device="mobile"] .digiblocks-device-mobile svg {
 }
 
 .digiblocks-responsive-common-button svg {
-	width: .6rem;
-    height: .6rem;
+    width: 0.6rem;
+    height: 0.6rem;
     fill: currentColor;
 }
 

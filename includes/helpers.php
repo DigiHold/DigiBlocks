@@ -263,6 +263,8 @@ if ( ! function_exists( 'digiblocks_allow_svg_in_kses' ) ) {
 	 * Allow SVG elements in wp_kses.
 	 */
 	function digiblocks_allow_svg_in_kses() {
+		$kses_defaults = wp_kses_allowed_html( 'post' );
+
 		$svg_args = array(
 			'svg'   => array(
 				'class'           => true,
@@ -276,14 +278,23 @@ if ( ! function_exists( 'digiblocks_allow_svg_in_kses' ) ) {
 				'fill'            => true,
 				'stroke'          => true,
 				'stroke-width'    => true,
+				'focusable'       => true,
 			),
-			'g'     => array( 'fill' => true ),
-			'title' => array( 'title' => true ),
-			'path'  => array(
+			'g'       => array(
+				'fill'            => true,
+				'fill-rule'       => true,
+			),
+			'title' => array(
+				'title' => true,
+			),
+			'path'    => array(
 				'd'               => true,
 				'fill'            => true,
+				'fill-rule'       => true,
 				'stroke'          => true,
 				'stroke-width'    => true,
+				'stroke-linecap'  => true,
+				'stroke-linejoin' => true,
 			),
 			'line'  => array(
 				'x1'              => true,
@@ -298,26 +309,33 @@ if ( ! function_exists( 'digiblocks_allow_svg_in_kses' ) ) {
 				'stroke'          => true,
 				'fill'            => true,
 			),
-			'rect'  => array(
+			'polygon' => array(
+				'points'          => true,
+				'fill'            => true,
+				'fill-rule'       => true,
+			),
+			'rect'    => array(
 				'x'               => true,
 				'y'               => true,
 				'width'           => true,
 				'height'          => true,
-				'rx'              => true,
-				'ry'              => true,
 				'fill'            => true,
 				'stroke'          => true,
+				'stroke-width'    => true,
+				'rx'              => true,
+				'ry'              => true,
 			),
-			'circle' => array(
+			'circle'  => array(
 				'cx'              => true,
 				'cy'              => true,
 				'r'               => true,
 				'fill'            => true,
 				'stroke'          => true,
+				'stroke-width'    => true,
 			),
 		);
 		
-		return $svg_args;
+		return array_merge($kses_defaults, $svg_args);
 	}
 }
 

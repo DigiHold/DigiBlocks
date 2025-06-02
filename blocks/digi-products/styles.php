@@ -509,10 +509,10 @@ ob_start();
 
 /* Pagination */
 .<?php echo esc_attr( $id ); ?> .digiblocks-pagination {
-    margin-top: 30px;
+    margin-top: 40px;
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 8px;
     justify-content: <?php echo esc_attr( $paginationAlign ); ?>;
 }
 
@@ -520,23 +520,27 @@ ob_start();
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 36px;
-    height: 36px;
-    padding: 0 10px;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 12px;
     background-color: <?php echo esc_attr( $paginationBackgroundColor ); ?>;
     color: <?php echo esc_attr( $paginationTextColor ); ?>;
-    border-radius: 4px;
+    border-radius: 8px;
     text-decoration: none;
     transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-pagination .page-numbers.current {
     background-color: <?php echo esc_attr( $paginationActiveBackgroundColor ); ?>;
     color: <?php echo esc_attr( $paginationActiveTextColor ); ?>;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px <?php echo esc_attr( $paginationActiveBackgroundColor ); ?>40;
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-pagination .page-numbers:hover:not(.current) {
-    background-color: <?php echo esc_attr( $paginationActiveBackgroundColor ); ?>40;
+    background-color: <?php echo esc_attr( $paginationActiveBackgroundColor ); ?>20;
+    transform: translateY(-1px);
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-pagination .page-numbers svg {

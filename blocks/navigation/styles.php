@@ -42,20 +42,24 @@ $submenuEffect                         = isset( $attrs['submenuEffect'] ) ? $att
 $mobileBreakpoint                      = isset( $attrs['mobileBreakpoint'] ) ? $attrs['mobileBreakpoint'] : 768;
 $showMobileToggle                      = isset( $attrs['showMobileToggle'] ) ? $attrs['showMobileToggle'] : true;
 $mobileAlign                           = isset( $attrs['mobileAlign'] ) ? $attrs['mobileAlign'] : 'flex-end';
-$toggleIcon                            = isset( $attrs['toggleIcon'] ) ? $attrs['toggleIcon'] : 'hamburger';
-$customToggleIcon                      = isset( $attrs['customToggleIcon'] ) ? $attrs['customToggleIcon'] : null;
 $toggleIconColor                       = isset( $attrs['toggleIconColor'] ) ? $attrs['toggleIconColor'] : '#333333';
 $toggleIconHoverColor                  = isset( $attrs['toggleIconHoverColor'] ) ? $attrs['toggleIconHoverColor'] : '#1e73be';
-$mobileToggleSize                      = isset( $attrs['mobileToggleSize'] ) ? $attrs['mobileToggleSize'] : [
-    'desktop' => 48,
-    'tablet'  => 44,
-    'mobile'  => 40,
-];
-$mobileIconSize                        = isset( $attrs['mobileIconSize'] ) ? $attrs['mobileIconSize'] : [
-    'desktop' => 24,
-    'tablet'  => 22,
-    'mobile'  => 20,
-];
+$mobileToggleSize                      = isset( $attrs['mobileToggleSize'] ) ? $attrs['mobileToggleSize'] : 50;
+$linkBorderStyle                       = isset( $attrs['linkBorderStyle'] ) ? $attrs['linkBorderStyle'] : 'none';
+$linkBorderWidth                       = isset( $attrs['linkBorderWidth'] ) ? $attrs['linkBorderWidth'] : digiblocks_get_default_dimensions('px');
+$linkBorderColor                       = isset( $attrs['linkBorderColor'] ) ? $attrs['linkBorderColor'] : '#e0e0e0';
+$linkBorderHoverColor                  = isset( $attrs['linkBorderHoverColor'] ) ? $attrs['linkBorderHoverColor'] : '';
+$toggleIconBorderStyle                 = isset( $attrs['toggleIconBorderStyle'] ) ? $attrs['toggleIconBorderStyle'] : 'none';
+$toggleIconBorderWidth = isset( $attrs['toggleIconBorderWidth'] ) ? $attrs['toggleIconBorderWidth'] : array(
+    'top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px'
+);
+$toggleIconBorderRadius = isset( $attrs['toggleIconBorderRadius'] ) ? $attrs['toggleIconBorderRadius'] : array(
+    'top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px'
+);
+$toggleIconBackgroundColor             = isset( $attrs['toggleIconBackgroundColor'] ) ? $attrs['toggleIconBackgroundColor'] : '';
+$toggleIconBackgroundHoverColor        = isset( $attrs['toggleIconBackgroundHoverColor'] ) ? $attrs['toggleIconBackgroundHoverColor'] : '';
+$toggleIconBorderColor                 = isset( $attrs['toggleIconBorderColor'] ) ? $attrs['toggleIconBorderColor'] : '#e0e0e0';
+$toggleIconBorderHoverColor            = isset( $attrs['toggleIconBorderHoverColor'] ) ? $attrs['toggleIconBorderHoverColor'] : '';
 $linkColor                             = isset( $attrs['linkColor'] ) ? $attrs['linkColor'] : '#333333';
 $linkHoverColor                        = isset( $attrs['linkHoverColor'] ) ? $attrs['linkHoverColor'] : '#1e73be';
 $linkBackgroundColor                   = isset( $attrs['linkBackgroundColor'] ) ? $attrs['linkBackgroundColor'] : 'transparent';
@@ -175,6 +179,11 @@ ob_start();
     transition: all 0.3s ease;
 }
 
+.<?php echo esc_attr( $id ); ?> .digiblocks-navigation-menu-wrapper {
+	display: flex;
+	flex-direction: column;
+}
+
 .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-menu {
     display: flex;
     <?php if ( 'vertical' !== $orientation['desktop'] && $columns['desktop'] > 1 ) : ?>
@@ -243,11 +252,20 @@ ob_start();
     <?php if ( ! empty( $textTypography['letterSpacing']['desktop'] ) ) : ?>
         letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['desktop'] . ( $textTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
     <?php endif; ?>
+
+	<?php if ( $linkBorderStyle && 'none' !== $linkBorderStyle ) : ?>
+		border-style: <?php echo esc_attr( $linkBorderStyle ); ?>;
+		border-color: <?php echo esc_attr( $linkBorderColor ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $linkBorderWidth, 'border-width', 'desktop' ) ); ?>
+	<?php endif; ?>
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-link:hover {
     color: <?php echo esc_attr( $linkHoverColor ); ?>;
     background-color: <?php echo esc_attr( $linkHoverBackgroundColor ); ?>;
+	<?php if ( ! empty( $linkBorderHoverColor ) ) : ?>
+		border-color: <?php echo esc_attr( $linkBorderHoverColor ); ?>;
+	<?php endif; ?>
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-link.is-active {
@@ -270,72 +288,83 @@ ob_start();
 /* Mobile Toggle with bars */
 .<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle {
     display: none;
-    height: <?php echo esc_attr( $mobileToggleSize['desktop'] ); ?>px;
-    width: <?php echo esc_attr( $mobileToggleSize['desktop'] ); ?>px;
+    height: <?php echo esc_attr( $mobileToggleSize ); ?>px;
+    width: <?php echo esc_attr( $mobileToggleSize ); ?>px;
+	position: relative;
     cursor: pointer;
     justify-content: center;
     align-items: center;
     padding: 0;
-    background: none;
-    border: none;
+	<?php if ( ! empty( $toggleIconBackgroundColor ) ) : ?>
+	background-color: <?php echo esc_attr( $toggleIconBackgroundColor ); ?>;
+	<?php else : ?>
+	background-color: transparent;
+	<?php endif; ?>
     align-self: <?php echo esc_attr( $mobileAlign ); ?>;
     transition: all 0.3s ease;
+	<?php if ( $toggleIconBorderRadius['top'] ) : ?>
+    	border-radius: <?php echo esc_attr( $toggleIconBorderRadius['top'] . $toggleIconBorderRadius['unit'] ); ?> <?php echo esc_attr( $toggleIconBorderRadius['right'] . $toggleIconBorderRadius['unit'] ); ?> <?php echo esc_attr( $toggleIconBorderRadius['bottom'] . $toggleIconBorderRadius['unit'] ); ?> <?php echo esc_attr( $toggleIconBorderRadius['left'] . $toggleIconBorderRadius['unit'] ); ?>;
+	<?php endif; ?>
+	<?php if ( $toggleIconBorderStyle && 'none' !== $toggleIconBorderStyle ) : ?>
+		border-style: <?php echo esc_attr( $toggleIconBorderStyle ); ?>;
+		border-color: <?php echo esc_attr( $toggleIconBorderColor ); ?>;
+		border-width: <?php echo esc_attr( $toggleIconBorderWidth['top'] . $toggleIconBorderWidth['unit'] ); ?> <?php echo esc_attr( $toggleIconBorderWidth['right'] . $toggleIconBorderWidth['unit'] ); ?> <?php echo esc_attr( $toggleIconBorderWidth['bottom'] . $toggleIconBorderWidth['unit'] ); ?> <?php echo esc_attr( $toggleIconBorderWidth['left'] . $toggleIconBorderWidth['unit'] ); ?>;
+	<?php else : ?>
+    	border: none;
+	<?php endif; ?>
 }
 
-.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-bars {
-    display: flex;
-    position: relative;
-    z-index: 10;
-    height: <?php echo esc_attr( round( $mobileIconSize['desktop'] * 0.6 ) ); ?>px;
-    width: <?php echo esc_attr( $mobileIconSize['desktop'] ); ?>px;
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
+<?php if ( ! empty( $toggleIconBackgroundHoverColor ) || ! empty( $toggleIconBorderHoverColor ) ) : ?>
+.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle:hover {
+    <?php if ( ! empty( $toggleIconBackgroundHoverColor ) ) : ?>
+    background-color: <?php echo esc_attr( $toggleIconBackgroundHoverColor ); ?>;
+    <?php endif; ?>
+    <?php if ( ! empty( $toggleIconBorderHoverColor ) ) : ?>
+    border-color: <?php echo esc_attr( $toggleIconBorderHoverColor ); ?>;
+    <?php endif; ?>
 }
+<?php endif; ?>
 
-.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-bars span {
-    position: absolute;
-    display: flex;
-    height: <?php echo esc_attr( round( $mobileIconSize['desktop'] * 0.08 ) ); ?>px;
-    width: 100%;
-    border-radius: 0.75rem;
-    background-color: <?php echo esc_attr( $toggleIconColor ); ?>;
-    transition: all 0.3s ease-in-out;
-}
-
-.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-bars span:first-child {
-    top: 0;
-    left: 0;
-}
-
-.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-bars span:nth-child(2) {
+.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle span {
+	position: absolute;
+    left: 50%;
     top: 50%;
-    left: 0;
-    transform: translate(0, -50%);
+    width: 30px;
+    height: 2px;
+    transform: translateX(-50%);
+    background-color: <?php echo esc_attr( $toggleIconColor ); ?>;
+    border-radius: 0.75rem;
+    transition: all 400ms cubic-bezier(0.84, 0.06, 0.52, 1.8);
 }
 
-.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-bars span:nth-child(3) {
-    bottom: 0;
-    left: 0;
+<?php if ( ! empty( $toggleIconHoverColor ) ) : ?>
+.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle:hover span {
+    background-color: <?php echo esc_attr( $toggleIconHoverColor ); ?>;
+}
+<?php endif; ?>
+
+.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle span:first-child {
+    transform: translate(-50%, -9px);
+    animation-delay: 100ms;
+}
+
+.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle span:nth-child(3) {
+    transform: translate(-50%, 9px);
+    animation-delay: 250ms;
 }
 
 /* Mobile menu open animation */
-.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle.is-open .digiblocks-mobile-bars span:first-child {
-    top: 50%;
-    transform: translateY(-50%) rotate(45deg);
+.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle[aria-expanded="true"] span:first-child {
+    transform: translate(-50%, -50%) rotate(45deg);
 }
 
-.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle.is-open .digiblocks-mobile-bars span:nth-child(2) {
+.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle[aria-expanded="true"] span:nth-child(2) {
+    transform: translate(-50%, -50%) scaleX(0);
     opacity: 0;
 }
 
-.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle.is-open .digiblocks-mobile-bars span:nth-child(3) {
-    bottom: 50%;
-    transform: translateY(50%) rotate(-45deg);
-}
-
-.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle:hover .digiblocks-mobile-bars span {
-    background-color: <?php echo esc_attr( $toggleIconHoverColor ); ?>;
+.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle[aria-expanded="true"] span:nth-child(3) {
+    transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 /* Submenu Styles */
@@ -541,7 +570,7 @@ switch ( $submenuEffect ) :
 .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-menu-item:hover > .digiblocks-navigation-submenu {
     opacity: 1;
     visibility: visible;
-    display: block !important;
+    display: block;
 }
     <?php break;
     case 'slide-up': ?>
@@ -555,7 +584,7 @@ switch ( $submenuEffect ) :
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
-    display: block !important;
+    display: block;
 }
     <?php break;
     case 'slide-down': ?>
@@ -569,7 +598,7 @@ switch ( $submenuEffect ) :
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
-    display: block !important;
+    display: block;
 }
     <?php break;
     case 'scale': ?>
@@ -583,7 +612,7 @@ switch ( $submenuEffect ) :
     opacity: 1;
     visibility: visible;
     transform: scale(1);
-    display: block !important;
+    display: block;
 }
     <?php break;
 endswitch;
@@ -622,20 +651,6 @@ endswitch;
             letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['tablet'] . ( $textTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
     }
-    
-    .<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle {
-        height: <?php echo esc_attr( $mobileToggleSize['tablet'] ); ?>px;
-        width: <?php echo esc_attr( $mobileToggleSize['tablet'] ); ?>px;
-    }
-    
-    .<?php echo esc_attr( $id ); ?> .digiblocks-mobile-bars {
-        height: <?php echo esc_attr( round( $mobileIconSize['tablet'] * 0.6 ) ); ?>px;
-        width: <?php echo esc_attr( $mobileIconSize['tablet'] ); ?>px;
-    }
-    
-    .<?php echo esc_attr( $id ); ?> .digiblocks-mobile-bars span {
-        height: <?php echo esc_attr( round( $mobileIconSize['tablet'] * 0.08 ) ); ?>px;
-    }
 }
 
 /* Mobile Styles */
@@ -645,24 +660,46 @@ endswitch;
             width: 100%;
         <?php endif; ?>
     }
-    
-    .<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle {
+
+	<?php if ( $linkBorderStyle && 'none' !== $linkBorderStyle ) : ?>
+	.<?php echo esc_attr( $id ); ?> .digiblocks-navigation-link {
+		<?php echo esc_attr( digiblocks_get_dimensions( $linkBorderWidth, 'border-width', 'tablet' ) ); ?>
+	}
+	<?php endif; ?>
+
+	.<?php echo esc_attr( $id ); ?> .digiblocks-mobile-toggle {
         display: <?php echo $showMobileToggle ? 'flex' : 'none'; ?>;
-        height: <?php echo esc_attr( $mobileToggleSize['mobile'] ); ?>px;
-        width: <?php echo esc_attr( $mobileToggleSize['mobile'] ); ?>px;
     }
+
+	.<?php echo esc_attr( $id ); ?> .digiblocks-navigation-menu-wrapper {
+		<?php if ( $showMobileToggle ) : ?>
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100vw;
+			max-height: 70vh;
+            overflow-y: auto;
+            background-color: <?php echo esc_attr( $submenuBackgroundColor ); ?>;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-bottom-radius: 4px;
+            border: 1px solid <?php echo esc_attr( $submenuBorderColor ); ?>;
+			border-top: 0;
+            gap: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                       visibility 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        <?php endif; ?>
+		z-index: 1000;
+	}
     
-    .<?php echo esc_attr( $id ); ?> .digiblocks-mobile-bars {
-        height: <?php echo esc_attr( round( $mobileIconSize['mobile'] * 0.6 ) ); ?>px;
-        width: <?php echo esc_attr( $mobileIconSize['mobile'] ); ?>px;
-    }
-    
-    .<?php echo esc_attr( $id ); ?> .digiblocks-mobile-bars span {
-        height: <?php echo esc_attr( round( $mobileIconSize['mobile'] * 0.08 ) ); ?>px;
+    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-menu-wrapper.is-open {
+        opacity: 1;
+        visibility: visible;
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-menu {
-        display: <?php echo $showMobileToggle ? 'none' : 'flex'; ?>;
+        display: flex;
         <?php if ( 'vertical' !== $orientation['mobile'] && $columns['mobile'] > 1 ) : ?>
             display: grid;
             grid-template-columns: repeat(<?php echo esc_attr( $columns['mobile'] ); ?>, 1fr);
@@ -674,32 +711,15 @@ endswitch;
         <?php if ( ! empty( $align['mobile'] ) ) : ?>
         justify-content: <?php echo esc_attr( $align['mobile'] ); ?>;
         <?php endif; ?>
-        <?php if ( $showMobileToggle ) : ?>
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: <?php echo esc_attr( $submenuBackgroundColor ); ?>;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 4px;
-            border: 1px solid <?php echo esc_attr( $submenuBorderColor ); ?>;
+		<?php if ( $showMobileToggle ) : ?>
+            border: 0;
             gap: 0;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
         <?php endif; ?>
         z-index: 1000;
     }
     
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-menu.is-open {
-        display: flex;
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-    
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-link {
+    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-link,
+	.<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-navigation-link {
         <?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
         <?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'mobile' ) ); ?>
         
@@ -714,63 +734,77 @@ endswitch;
         <?php if ( ! empty( $textTypography['letterSpacing']['mobile'] ) ) : ?>
             letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['mobile'] . ( $textTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
+		border: 0;
     }
+
+	.<?php echo esc_attr( $id ); ?> .digiblocks-navigation-link::before,
+	.<?php echo esc_attr( $id ); ?> .digiblocks-navigation-link::after {
+		display: none;
+	}
     
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu {
-        position: static;
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu {
+		display: none;
+        position: relative;
         background-color: transparent;
         border-radius: 0;
         box-shadow: none;
         border: none;
         width: 100%;
+        top: 0;
+        transform: none;
+        opacity: 1;
+        visibility: visible;
     }
 
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-navigation-link,
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-submenu-toggle {
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-navigation-link,
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-submenu-toggle {
         background-color: <?php echo esc_attr( $submenuMobileBackgroundColor ); ?>;
         color: <?php echo esc_attr( $submenuMobileLinkColor ); ?>;
     }
 
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-navigation-link:hover,
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-navigation-link-sub:hover > .digiblocks-navigation-link,
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .current-menu-item > .digiblocks-navigation-link {
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-navigation-link:hover,
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-navigation-link-sub:hover > .digiblocks-navigation-link,
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .current-menu-item > .digiblocks-navigation-link {
         background-color: <?php echo esc_attr( $submenuMobileLinkHoverBackgroundColor ); ?>;
         color: <?php echo esc_attr( $submenuMobileLinkHoverColor ); ?>;
     }
 
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-submenu-toggle {
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-submenu-toggle {
         transition: all 0.3s ease;
     }
 
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-submenu-toggle svg {
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-submenu-toggle svg {
         fill: <?php echo esc_attr( $submenuMobileLinkColor ); ?>;
         transition: all 0.3s ease;
     }
 
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-navigation-link-sub:hover > .digiblocks-submenu-toggle {
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-navigation-link-sub:hover > .digiblocks-submenu-toggle {
         background-color: <?php echo esc_attr( $submenuMobileLinkHoverBackgroundColor ); ?>;
     }
 
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-navigation-link-sub:hover > .digiblocks-submenu-toggle svg {
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu .digiblocks-navigation-link-sub:hover > .digiblocks-submenu-toggle svg {
         fill: <?php echo esc_attr( $submenuMobileLinkHoverColor ); ?>;
     }
 
-    .<?php echo esc_attr( $id ); ?> .digiblocks-submenu-toggle {
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-submenu-toggle {
         display: inline-flex;
     }
     
     /* Override hover behavior in mobile */
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-menu-item:hover > .digiblocks-navigation-submenu {
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-menu-item:hover > .digiblocks-navigation-submenu {
         display: none;
     }
     
     /* Only show submenus when explicitly toggled */
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu.is-open {
-        display: block !important;
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu.is-open,
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-menu-item.submenu-open:hover > .digiblocks-navigation-submenu {
+        display: block;
+		left: 0;
+        margin: 0;
     }
     
     /* Hide regular submenu icons in mobile */
-    .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu-icon {
+    body .<?php echo esc_attr( $id ); ?> .digiblocks-navigation-submenu-icon {
         display: none;
     }
 }

@@ -24,7 +24,7 @@ $settings = get_option(
 <div class="digiblocks-admin-wrap">
 	<div class="digiblocks-admin-header">
 		<div class="digiblocks-admin-logo">
-			<?php echo wp_kses( $this->get_plugin_logo(), $this->get_allowed_svg() ); ?>
+			<?php echo wp_kses( $this->get_plugin_logo(), digiblocks_allow_svg_in_kses() ); ?>
 		</div>
 		<nav class="digiblocks-admin-tabs">
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=digiblocks' ) ); ?>">
@@ -38,6 +38,53 @@ $settings = get_option(
 
 	<div class="digiblocks-admin-content">
 		<div class="digiblocks-admin-col digiblocks-admin-first">
+			<div class="digiblocks-admin-section">
+				<div class="digiblocks-section-header">
+					<h2><?php esc_html_e( 'Assets Management', 'digiblocks' ); ?></h2>
+					<p><?php esc_html_e( 'Regenerate all DigiBlocks CSS, JavaScript, and typography files. This will scan all posts and recreate asset files.', 'digiblocks' ); ?></p>
+				</div>
+
+				<div class="digiblocks-form-section">
+					<div class="digiblocks-regenerate-section">
+						<div class="digiblocks-regenerate-action">
+							<button type="button" id="digiblocks-regenerate-assets" class="button button-secondary button-large">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="rotate-icon" width="18" height="18"><path d="M94 187.1C120.8 124.1 183.3 80 256 80c39.7 0 77.8 15.8 105.9 43.9L414.1 176 360 176c-13.3 0-24 10.7-24 24s10.7 24 24 24l112 0c13.3 0 24-10.7 24-24l0-112c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 54.1L395.9 89.9C358.8 52.8 308.5 32 256 32C163.4 32 83.9 88.2 49.8 168.3c-5.2 12.2 .5 26.3 12.7 31.5s26.3-.5 31.5-12.7zm368 157c5.2-12.2-.4-26.3-12.6-31.5s-26.3 .4-31.5 12.6C391 388.1 328.6 432 256 432c-39.7 0-77.8-15.8-105.9-43.9L97.9 336l54.1 0c13.3 0 24-10.7 24-24s-10.7-24-24-24L40 288c-13.3 0-24 10.7-24 24l0 112c0 13.3 10.7 24 24 24s24-10.7 24-24l0-54.1 52.1 52.1C153.2 459.2 203.5 480 256 480c92.5 0 171.8-56 206-135.9z"/></svg>
+								<?php esc_html_e('Regenerate All Assets', 'digiblocks'); ?>
+							</button>
+							
+							<div id="digiblocks-regenerate-progress" class="digiblocks-regenerate-progress" style="display: none;">
+								<div class="digiblocks-progress-bar">
+									<div class="digiblocks-progress-fill"></div>
+								</div>
+								<div class="digiblocks-progress-text">
+									<?php esc_html_e('Regenerating assets...', 'digiblocks'); ?>
+								</div>
+							</div>
+							
+							<div id="digiblocks-regenerate-result" class="digiblocks-regenerate-result"></div>
+						</div>
+
+						<div class="digiblocks-regenerate-info">
+							<h4><?php esc_html_e('When to regenerate assets:', 'digiblocks'); ?></h4>
+							<ul>
+								<li>
+									<span class="check-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"/></svg></span>
+									<span class="text"><?php esc_html_e('After updating the plugin', 'digiblocks'); ?></span>
+								</li>
+								<li>
+									<span class="check-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"/></svg></span>
+									<span class="text"><?php esc_html_e('When switching between local and CDN fonts', 'digiblocks'); ?></span>
+								</li>
+								<li>
+									<span class="check-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"/></svg></span>
+									<span class="text"><?php esc_html_e('If assets appear to be missing or corrupted', 'digiblocks'); ?></span>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div class="digiblocks-admin-section">
 				<div class="digiblocks-section-header">
 					<h2><?php esc_html_e( 'Global Settings', 'digiblocks' ); ?></h2>
@@ -156,6 +203,34 @@ $settings = get_option(
 									</label>
 									<span class="digiblocks-form-description">
 										<?php esc_html_e('When enabled, Google Fonts will be downloaded and served from your server. Default (disabled): Load fonts from Google CDN.', 'digiblocks'); ?>
+									</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="digiblocks-form-section">
+							<h3><?php esc_html_e('Schema Markup Settings', 'digiblocks'); ?></h3>
+							<p class="digiblocks-form-section-description">
+								<?php esc_html_e('Configure schema markup for better SEO. Schema markup helps search engines understand your content better.', 'digiblocks'); ?>
+							</p>
+							
+							<div class="digiblocks-form-field digiblocks-toggle-field">
+								<label class="digiblocks-toggle">
+									<input 
+										type="checkbox" 
+										id="enable_schema_markup" 
+										name="enable_schema_markup" 
+										class="digiblocks-toggle" 
+										<?php checked(isset($settings['enable_schema_markup']) ? $settings['enable_schema_markup'] : true); ?>
+									>
+									<span class="digiblocks-toggle-slider"></span>
+								</label>
+								<div class="digiblocks-toggle-caption">
+									<label for="enable_schema_markup">
+										<?php esc_html_e('Enable Schema Markup', 'digiblocks'); ?>
+									</label>
+									<span class="digiblocks-form-description">
+										<?php esc_html_e('When enabled, appropriate schema markup will be added to your blocks (FAQ, Breadcrumbs, etc.). Disable this if you prefer to handle schema markup manually or through another plugin.', 'digiblocks'); ?>
 									</span>
 								</div>
 							</div>
@@ -529,7 +604,7 @@ $settings = get_option(
 		</div>
 
 		<div class="digiblocks-admin-col digiblocks-admin-second">
-			<?php echo wp_kses( $this->get_promo_content(), $this->get_allowed_svg() ); ?>
+			<?php echo wp_kses( $this->get_promo_content(), digiblocks_allow_svg_in_kses() ); ?>
 		</div>
 	</div>
 </div>

@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import PostsEdit from './edit';
 import PostsSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Posts block
@@ -28,7 +28,7 @@ registerBlockType('digiblocks/posts', {
     description: digiBlocksData.blocks['posts'].description,
     keywords: [__('post', 'digiblocks'), __('blog', 'digiblocks'), __('article', 'digiblocks'), __('grid', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('posts') ? true : false, // Remove the block if disabled
+        inserter: getBlockActiveStatus('posts') ? true : false,
         html: false,
         className: false,
         customClassName: false,

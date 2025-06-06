@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import IconBoxEdit from './edit';
 import IconBoxSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Icon Box block
@@ -29,7 +29,7 @@ registerBlockType('digiblocks/icon-box', {
 	keywords: [__('icon', 'digiblocks'), __('box', 'digiblocks'), __('feature', 'digiblocks'), __('service', 'digiblocks')],
 	// Disable all default controls and settings panels
 	supports: {
-		inserter: getBlockActiveStatus('icon-box') ? true : false, // Remove the block if disabled
+		inserter: getBlockActiveStatus('icon-box') ? true : false,
 		html: false,
 		className: false,
 		customClassName: false,

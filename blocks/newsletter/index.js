@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import NewsletterEdit from './edit';
 import NewsletterSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Newsletter block

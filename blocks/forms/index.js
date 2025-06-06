@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import FormsEdit from './edit';
 import FormsSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Forms block

@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import SeparatorEdit from './edit';
 import SeparatorSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Separator block
@@ -29,7 +29,7 @@ registerBlockType('digiblocks/separator', {
     keywords: [__('separator', 'digiblocks'), __('divider', 'digiblocks'), __('horizontal rule', 'digiblocks'), __('hr', 'digiblocks')],
     // Disable all default controls and settings panels
     supports: {
-        inserter: getBlockActiveStatus('separator') ? true : false, // Remove the block if disabled
+        inserter: getBlockActiveStatus('separator') ? true : false,
         html: false,
         className: false,
         customClassName: false,

@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import ImageEdit from './edit';
 import ImageSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Image block

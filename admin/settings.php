@@ -20,6 +20,9 @@ $settings = get_option(
 		'newsletter_platform'  => '',
 	)
 );
+
+// Check if DigiBlocks Pro is active
+$is_pro_active = defined( 'DIGIBLOCKS_PRO_VERSION' ) || class_exists( 'DigiBlocks_Pro' );
 ?>
 <div class="digiblocks-admin-wrap">
 	<div class="digiblocks-admin-header">
@@ -33,6 +36,11 @@ $settings = get_option(
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=digiblocks-settings' ) ); ?>" class="active">
 				<?php esc_html_e( 'Settings', 'digiblocks' ); ?>
 			</a>
+			<?php if ( $is_pro_active ) : ?>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=digiblocks-updates' ) ); ?>">
+					<?php esc_html_e( 'License', 'digiblocks' ); ?>
+				</a>
+			<?php endif; ?>
 		</nav>
 	</div>
 

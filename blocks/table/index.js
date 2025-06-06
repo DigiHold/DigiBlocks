@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import TableEdit from './edit';
 import TableSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Table block

@@ -52,9 +52,6 @@ class DigiBlocks {
 		// Get blocks data.
 		require_once DIGIBLOCKS_PLUGIN_DIR . 'includes/class-digiblocks-blocks-data.php';
 
-		// Register blocks with server-side rendering.
-		require_once DIGIBLOCKS_PLUGIN_DIR . 'includes/class-digiblocks-register-blocks.php';
-
 		// Review notice
 		require_once DIGIBLOCKS_PLUGIN_DIR . 'includes/class-digiblocks-review-notice.php';
 
@@ -99,37 +96,6 @@ class DigiBlocks {
 
 		// Initialize newsletter handler if needed
 		add_action( 'init', array( $this, 'init_newsletter_handler' ) );
-
-		// Initialize search form handler if needed
-		add_action( 'init', array( $this, 'init_search_handler' ) );
-
-		// AJAX handlers for DigiCommerce Cart Icon block
-		add_action( 'wp_ajax_digiblocks_get_digi_cart_data', array( $this, 'ajax_get_digi_cart_data' ) );
-		add_action( 'wp_ajax_nopriv_digiblocks_get_digi_cart_data', array( $this, 'ajax_get_digi_cart_data' ) );
-
-		add_action( 'wp_ajax_digiblocks_get_digi_cart_items', array( $this, 'ajax_get_digi_cart_items' ) );
-		add_action( 'wp_ajax_nopriv_digiblocks_get_digi_cart_items', array( $this, 'ajax_get_digi_cart_items' ) );
-
-		// AJAX handlers for Woo Cart Icon block
-		add_action( 'wp_ajax_digiblocks_get_cart_data', array( $this, 'ajax_get_cart_data' ) );
-		add_action( 'wp_ajax_nopriv_digiblocks_get_cart_data', array( $this, 'ajax_get_cart_data' ) );
-		
-		add_action( 'wp_ajax_digiblocks_get_cart_items', array( $this, 'ajax_get_cart_items' ) );
-		add_action( 'wp_ajax_nopriv_digiblocks_get_cart_items', array( $this, 'ajax_get_cart_items' ) );
-		
-		add_action( 'wp_ajax_digiblocks_update_cart_item', array( $this, 'ajax_update_cart_item' ) );
-		add_action( 'wp_ajax_nopriv_digiblocks_update_cart_item', array( $this, 'ajax_update_cart_item' ) );
-		
-		add_action( 'wp_ajax_digiblocks_remove_cart_item', array( $this, 'ajax_remove_cart_item' ) );
-		add_action( 'wp_ajax_nopriv_digiblocks_remove_cart_item', array( $this, 'ajax_remove_cart_item' ) );
-
-		// AJAX handler for Woo Add To Cart button
-		add_action( 'wp_ajax_digiblocks_add_to_cart', array( $this, 'ajax_add_to_cart' ) );
-		add_action( 'wp_ajax_nopriv_digiblocks_add_to_cart', array( $this, 'ajax_add_to_cart' ) );
-
-		// AJAX handlers for DigiCommerce Add To Cart button
-		add_action( 'wp_ajax_digiblocks_digi_add_to_cart', array( $this, 'ajax_digi_add_to_cart' ) );
-		add_action( 'wp_ajax_nopriv_digiblocks_digi_add_to_cart', array( $this, 'ajax_digi_add_to_cart' ) );
 	}
 
 	/**
@@ -268,7 +234,37 @@ class DigiBlocks {
 	public function get_promo_content() {
 		ob_start();
 		$install = DigiBlocks_Install::get_instance();
-		?>
+
+		// Check if DigiBlocks Pro is active
+		$is_pro_active = defined( 'DIGIBLOCKS_PRO_VERSION' ) || class_exists( 'DigiBlocks_Pro' );
+		
+		if ( ! $is_pro_active ) : ?>
+			<!-- DigiBlocks Pro Promotion -->
+			<div class="digiblocks-admin-section">
+				<div class="digiblocks-section-header">
+					<h2 class="has-icon">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 491.52 491.52"><path fill="#EBF0F3" d="M488.179,16.371c0.153,1.619,0.29,3.389,0.404,5.288C488.468,19.76,488.334,17.99,488.179,16.371z"></path><path fill="#EBF0F3" d="M487.158,8.204c0.332,2.068,0.701,4.784,1.016,8.103C487.856,12.987,487.491,10.266,487.158,8.204z"></path><path fill="#EBF0F3" d="M486.392,4.091c0.065,0.296,0.153,0.725,0.252,1.225C486.542,4.8,486.458,4.39,486.392,4.091z"></path><path fill="#EBF0F3" d="M486.725,5.738c0.124,0.649,0.261,1.419,0.41,2.333C486.985,7.154,486.85,6.385,486.725,5.738z"></path><path fill="#EBF0F3" d="M486.239,3.419c0,0,0.047,0.201,0.104,0.448C486.279,3.59,486.239,3.419,486.239,3.419z"></path><path fill="#E56353" d="M487.135,8.071c0.008,0.047,0.015,0.085,0.023,0.133C487.15,8.154,487.143,8.12,487.135,8.071z"></path><path fill="#E56353" d="M486.644,5.317c0.026,0.131,0.054,0.276,0.081,0.421C486.695,5.578,486.671,5.46,486.644,5.317z"></path><path fill="#E56353" d="M486.343,3.866c0.012,0.055,0.033,0.157,0.049,0.225C486.369,3.992,486.36,3.942,486.343,3.866z"></path><path fill="#E56353" d="M488.583,21.659c0.006,0.08,0.01,0.157,0.015,0.237C488.594,21.816,488.589,21.739,488.583,21.659z"></path><path fill="#E56353" d="M488.173,16.306c0.002,0.02,0.005,0.044,0.006,0.064C488.177,16.349,488.175,16.327,488.173,16.306z"></path><path fill="#E56353" d="M13.653,281.926c53.632-53.632,140.587-53.632,194.219,0s53.633,140.588,0.001,194.22 c-3.433,3.433-7.011,6.631-10.699,9.625c27.233-6.744,53.069-20.576,74.354-41.861c62.309-62.309,62.31-163.331,0-225.641 c-62.308-62.308-163.331-62.309-225.641,0c-21.285,21.285-35.118,47.122-41.861,74.356C7.021,288.937,10.22,285.359,13.653,281.926 z"></path><path fill="#EBF0F3" d="M486.239,3.419c0,0-113.308-33.293-254.515,107.913c-59.636,59.636-109.74,131.207-127.614,182.576 l91.641,91.641c51.367-17.874,122.94-67.978,182.576-127.614C515.869,120.392,486.239,3.419,486.239,3.419z"></path><path fill="#EBF0F3" d="M482.97,82.981c-0.804,3.543-1.709,7.18-2.723,10.906C481.262,90.159,482.167,86.525,482.97,82.981z"></path><path fill="#EBF0F3" d="M483.091,82.46c5.834-25.975,6.331-46.816,5.508-60.564 C489.409,35.653,488.926,56.507,483.091,82.46z"></path><path fill="#EBF0F3" d="M480.121,94.359c-2.142,7.816-4.765,16.017-7.97,24.567 C475.358,110.373,477.98,102.179,480.121,94.359z"></path><path fill="#E56353" d="M486.239,3.419c0,0-46.167-13.482-116.236,13.383l84.144,84.144 C487.639,39.663,486.239,3.419,486.239,3.419z"></path><path fill="#E56353" d="M480.248,93.887c-0.043,0.159-0.083,0.314-0.126,0.473 C480.165,94.201,480.205,94.046,480.248,93.887z"></path><path fill="#E56353" d="M483.091,82.46c-0.039,0.172-0.081,0.347-0.12,0.52C483.01,82.807,483.051,82.633,483.091,82.46z"></path><path fill="#E56353" d="M472.145,118.943l0.004-0.012L472.145,118.943z"></path><path fill="#D15241" d="M472.151,118.926c3.205-8.549,5.828-16.751,7.97-24.567c0.044-0.158,0.084-0.313,0.126-0.473 c1.013-3.726,1.919-7.363,2.723-10.906c0.04-0.173,0.081-0.348,0.12-0.52c5.835-25.954,6.318-46.808,5.508-60.564 c-0.006-0.08-0.01-0.157-0.015-0.237c-0.114-1.899-0.251-3.669-0.404-5.288c-0.001-0.021-0.004-0.044-0.006-0.064 c-0.315-3.319-0.684-6.035-1.016-8.103c-0.008-0.048-0.014-0.086-0.023-0.133c-0.149-0.914-0.286-1.684-0.41-2.333 c-0.027-0.145-0.055-0.289-0.081-0.421c-0.099-0.501-0.188-0.929-0.252-1.225c-0.016-0.068-0.038-0.17-0.049-0.225 c-0.057-0.247-0.104-0.448-0.104-0.448s1.4,36.244-32.092,97.526l17.998,17.998C472.145,118.943,472.149,118.932,472.151,118.926z"></path><g transform="matrix(0.70711 -0.70711 0.70711 0.70711 1.699 59.07)"><ellipse transform="matrix(-0.7071 -0.7071 0.7071 -0.7071 130.8527 660.7466)" fill="#E56353" cx="202.271" cy="303.273" rx="43.044" ry="43.044"></ellipse><ellipse transform="matrix(-0.7071 -0.7071 0.7071 -0.7071 130.8527 660.7466)" fill="#27A2DB" cx="202.271" cy="303.273" rx="35.077" ry="35.077"></ellipse></g><path fill="#2D93BA" d="M336.486,112.003c12.534-12.534,32.856-12.533,45.389,0c12.173,12.173,12.419,31.631,0.949,44.228 c0.373-0.342,0.799-0.588,1.16-0.949c13.699-13.699,13.7-35.91,0.001-49.609c-13.699-13.699-35.91-13.699-49.609,0.001 c-13.699,13.699-13.7,35.909,0,49.609c0.362,0.362,0.789,0.607,1.161,0.948C324.067,143.634,324.314,124.176,336.486,112.003z"></path><path fill="#E1E6E9" d="M224.138,333.235l26.013,26.013c-3.119,1.848-6.194,3.597-9.256,5.311l-26.013-26.013 c-16.08,9.006-31.354,16.191-45.145,20.989l26.013,26.013c20.727-7.212,44.764-19.739,69.959-35.955l-26.013-26.013 C234.456,326.953,229.257,330.201,224.138,333.235z"></path><path fill="#E1E6E9" d="M265.75,349.568c37.233-23.97,77.016-56.073,112.576-91.633 c50.755-50.755,78.703-98.683,93.819-138.992l-17.998-17.998c-19.586,35.838-51.079,80.222-101.834,130.977 c-32.781,32.781-69.159,62.642-103.816,85.892l26.013,26.013C271.572,345.798,268.658,347.696,265.75,349.568z"></path><polygon fill="#FCD462" points="265.75,349.568 265.709,349.594 265.709,349.594 	"></polygon><path fill="#FCD462" d="M145.83,215.148c-1.979,2.951-3.886,5.879-5.766,8.801l99.632,99.632 c2.922-1.881,5.85-3.787,8.801-5.767L145.83,215.148z"></path><path fill="#F6C358" d="M274.51,343.827l-26.013-26.013c-2.951,1.98-5.879,3.886-8.801,5.767l26.013,26.013 c0.012-0.009,0.027-0.018,0.041-0.026C268.658,347.696,271.572,345.798,274.51,343.827z"></path><path fill="#FCD462" d="M130.409,239.506c-1.848,3.119-3.597,6.194-5.311,9.256l89.785,89.785 c3.062-1.714,6.137-3.463,9.256-5.311L130.409,239.506z"></path><path fill="#F6C358" d="M250.151,359.249l-26.013-26.013c-3.119,1.848-6.194,3.597-9.256,5.311l26.013,26.013 C243.958,362.846,247.033,361.097,250.151,359.249z"></path><polyline fill="#64798A" points="104.109,293.908 78.868,303.978 185.737,410.847 195.808,385.606 "></polyline><path fill="#E56353" d="M147.208,416.133c-10.9,30.999-46.238,40.056-46.238,40.056c8.208-13.205,2.855-34.261,2.855-34.261 c-38.9,43.896-68.69,32.664-68.69,32.664c-6.593-28.006,41.21-65.14,41.21-65.14c-12.848,3.569-26.766-3.926-26.766-3.926 c10.587-34.409,33.736-32.932,37.058-32.533c-5.365-0.696-61.483-6.789-71.675,41.455c0,0,18.558,8.565,36.759,5.353 c0,0-57.101,42.112-48.179,87.436c0,0,37.829,9.279,89.577-46.038c0,0-32.476,40.328-32.476,50.32 C60.642,491.52,133.056,478.632,147.208,416.133z"></path><path fill="#FCD462" d="M147.208,416.133c3.127-8.891,4.247-19.584,1.941-32.391 C150.193,395.8,149.379,406.544,147.208,416.133z"></path><path fill="#FCD462" d="M86.636,352.994c0.271,0.035,0.415,0.057,0.415,0.057S86.898,353.025,86.636,352.994z"></path><path fill="#FCD462" d="M49.579,385.526c0,0,13.918,7.495,26.766,3.926c0,0-47.803,37.134-41.21,65.14 c0,0,29.79,11.232,68.69-32.664c0,0,5.353,21.056-2.855,34.261c0,0,35.339-9.057,46.238-40.056 c2.171-9.589,2.985-20.334,1.941-32.391c-10.349,28.194-29.978,41.398-29.978,41.398c11.063-29.621,3.212-36.759,3.212-36.759 c-21.77,33.904-44.37,27.72-44.37,27.72c-0.117-19.388,25.455-39.497,25.455-39.497c-4.996,3.569-29.978,0.714-29.978,0.714 c0.714-14.989,13.561-24.268,13.561-24.268s-0.144-0.021-0.415-0.057C83.314,352.595,60.166,351.117,49.579,385.526z"></path><ellipse transform="matrix(-0.7071 -0.7071 0.7071 -0.7071 131.4223 638.2308)" fill="#E56353" cx="197.893" cy="291.897" rx="11.541" ry="121.872"></ellipse><path fill="#D15241" d="M195.496,289.501c36.872-36.872,70.442-66.048,85.832-75.269c2.681-4.476,3.761-7.492,2.745-8.508 c-4.507-4.507-46.744,30.421-94.338,78.015c-47.594,47.594-82.523,89.83-78.015,94.338c1.016,1.016,4.032-0.064,8.508-2.745 C129.449,359.943,158.625,326.372,195.496,289.501z"></path></svg>
+						<span><?php esc_html_e( 'Want More Features?', 'digiblocks-pro' ); ?></span>
+					</h2>
+					<p><?php esc_html_e( 'Unlock the full potential of DigiBlocks', 'digiblocks-pro' ); ?></p>
+				</div>
+				
+				<div class="digiblocks-promo-container">
+					<div class="digiblocks-promo-card">
+						<div class="digiblocks-promo-content">
+							<p style="margin: 0 0 1rem;"><?php esc_html_e( 'DigiBlocks Pro supercharges your website with powerful blocks designed specifically for WooCommerce and DigiCommerce. Build stunning product pages, shopping carts, and complete e-commerce experiences with ease. Plus, we\'re constantly adding new blocks and features to keep your site ahead of the curve.', 'digiblocks-pro' ); ?></p>
+							<div class="digiblocks-link-wrapper">
+								<a href="https://digihold.click/digiblocks-pro" target="_blank" rel="noopener noreferrer" class="digiblocks-button digiblocks-pro-button">
+									<span><?php esc_html_e( 'Get DigiBlocks Pro', 'digiblocks-pro' ); ?></span>
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M505 273c9.4-9.4 9.4-24.6 0-33.9L369 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l95 95L24 232c-13.3 0-24 10.7-24 24s10.7 24 24 24l406.1 0-95 95c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0L505 273z"/></svg>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		<?php endif; ?>
+
 		<!-- DigiCommerce Promo -->
 		<div class="digiblocks-admin-section digiblocks-promo-section">
 			<div class="digiblocks-section-header">
@@ -514,32 +510,36 @@ class DigiBlocks {
 	 * @return string Block CSS.
 	 */
 	private function get_block_css( $block_name, $block_id, $attrs ) {
-		$block_css_file = DIGIBLOCKS_PLUGIN_DIR . 'blocks/' . $block_name . '/styles.php';
+		// Get all possible CSS directories (main plugin + pro extensions)
+		$css_directories = array( DIGIBLOCKS_PLUGIN_DIR . 'blocks/' . $block_name . '/styles.php' );
+		$css_directories = apply_filters( 'digiblocks_block_css_directories', $css_directories, $block_name );
+		
+		$css_output = '';
+		
+		foreach ( $css_directories as $block_css_file ) {
+			if ( file_exists( $block_css_file ) ) {
+				// Ensure attrs is always an array
+				if ( ! is_array( $attrs ) ) {
+					$attrs = array();
+				}
 	
-		if ( file_exists( $block_css_file ) ) {
-			// Ensure attrs is always an array
-			if ( ! is_array( $attrs ) ) {
-				$attrs = array();
+				// Create a variable that will be accessible in the included file
+				$digiblocks_css_output = '';
+				
+				// Wrap include in try-catch to handle any errors in the styles file
+				try {
+					// Include the file - it will set $digiblocks_css_output
+					include $block_css_file;
+					$css_output .= $digiblocks_css_output;
+				} catch ( Exception $e ) {
+					continue;
+				} catch ( Error $e ) {
+					continue;
+				}
 			}
-	
-			// Create a variable that will be accessible in the included file
-			$digiblocks_css_output = '';
-			
-			// Wrap include in try-catch to handle any errors in the styles file
-			try {
-				// Include the file - it will set $digiblocks_css_output
-				include $block_css_file;
-			} catch ( Exception $e ) {
-				return '';
-			} catch ( Error $e ) {
-				return '';
-			}
-			
-			// Return the CSS set by the included file
-			return $digiblocks_css_output;
 		}
-	
-		return '';
+		
+		return $css_output;
 	}
 
 	/**
@@ -601,32 +601,36 @@ class DigiBlocks {
 	 * @return string Block JS.
 	 */
 	private function get_block_js( $block_name, $block_id, $attrs ) {
-		$block_js_file = DIGIBLOCKS_PLUGIN_DIR . 'blocks/' . $block_name . '/script.php';
+		// Get all possible JS directories (main plugin + pro extensions)
+		$js_directories = array( DIGIBLOCKS_PLUGIN_DIR . 'blocks/' . $block_name . '/script.php' );
+		$js_directories = apply_filters( 'digiblocks_block_js_directories', $js_directories, $block_name );
+		
+		$js_output = '';
+		
+		foreach ( $js_directories as $block_js_file ) {
+			if ( file_exists( $block_js_file ) ) {
+				// Ensure attrs is always an array
+				if ( ! is_array( $attrs ) ) {
+					$attrs = array();
+				}
 	
-		if ( file_exists( $block_js_file ) ) {
-			// Ensure attrs is always an array
-			if ( ! is_array( $attrs ) ) {
-				$attrs = array();
+				// Create a variable that will be accessible in the included file
+				$digiblocks_js_output = '';
+				
+				// Wrap include in try-catch to handle any errors in the script file
+				try {
+					// Include the file - it will set $digiblocks_js_output
+					include $block_js_file;
+					$js_output .= $digiblocks_js_output;
+				} catch ( Exception $e ) {
+					continue;
+				} catch ( Error $e ) {
+					continue;
+				}
 			}
-	
-			// Create a variable that will be accessible in the included file
-			$digiblocks_js_output = '';
-			
-			// Wrap include in try-catch to handle any errors in the script file
-			try {
-				// Include the file - it will set $digiblocks_js_output
-				include $block_js_file;
-			} catch ( Exception $e ) {
-				return '';
-			} catch ( Error $e ) {
-				return '';
-			}
-			
-			// Return the JS set by the included file
-			return $digiblocks_js_output;
 		}
-	
-		return '';
+		
+		return $js_output;
 	}
 
 	/**
@@ -845,12 +849,12 @@ class DigiBlocks {
 				}
 
 				// Check for Google Map block and enqueue the Google Maps API if needed
-				if ( $this->has_google_map_blocks( $blocks ) ) {
+				if ( $this->has_specific_block( $blocks, 'digiblocks/google-map' ) ) {
 					$this->enqueue_google_maps_api();
 				}
 
 				// Check for Lottie block and enqueue
-				if ( $this->has_lottie_blocks( $blocks ) ) {
+				if ( $this->has_specific_block( $blocks, 'digiblocks/lottie' ) ) {
 					$this->enqueue_lottie_if_needed( $post_id, $blocks );
 				}
 
@@ -904,39 +908,18 @@ class DigiBlocks {
 			);
 		}
 
-		// Check for Search Form blocks
-		if ( $this->has_specific_block( $blocks, 'digiblocks/search-form' ) ) {
-			$consolidated_data['search'] = array(
-				'search_nonce' => wp_create_nonce( 'digiblocks_search_nonce' ),
-				'home_url'     => home_url(),
-			);
-		}
+		// Apply filter to allow pro version to add more script data
+		$consolidated_data = apply_filters( 'digiblocks_consolidated_script_data', $consolidated_data, $blocks, $script_handle );
 
-		// Check for WooCommerce Add to Cart blocks
-		if ( $this->has_specific_block( $blocks, 'digiblocks/woo-product-add-to-cart' ) ) {
-			$consolidated_data['wooAddToCart'] = array(
-				'nonce' => wp_create_nonce( 'digiblocks_add_to_cart' ),
-			);
-		}
-
-		// Check for DigiCommerce Add to Cart blocks
-		if ( $this->has_specific_block( $blocks, 'digiblocks/digi-product-add-to-cart' ) ) {
-			$consolidated_data['digiAddToCart'] = array(
-				'nonce' => wp_create_nonce( 'digiblocks_digi_add_to_cart' ),
-			);
-		}
-
-		// Check for Cart Icon blocks (both WooCommerce and DigiCommerce)
-		if ( $this->has_specific_block( $blocks, 'digiblocks/woo-cart-icon' ) || $this->has_specific_block( $blocks, 'digiblocks/digi-cart-icon' ) ) {
-			$consolidated_data['cart'] = array(
-				'cart_nonce' => wp_create_nonce( 'digiblocks_cart_nonce' ),
-			);
-
-			// Add DigiCommerce specific nonce if DigiCommerce is active
-			if ( class_exists( 'DigiCommerce' ) ) {
-				$consolidated_data['digiCart'] = array(
-					'order_nonce' => wp_create_nonce( 'digicommerce_order_nonce' ),
-				);
+		// NEW: Check if DigiStore Builder is active and needs to add data
+		$builder_data = $this->get_digistore_builder_data();
+		if ( ! empty( $builder_data ) ) {
+			// Merge builder data with consolidated data, avoiding duplicates
+			$consolidated_data = array_merge( $consolidated_data, $builder_data );
+			
+			// Set a flag to prevent DigiStore Builder from adding duplicate data
+			if ( ! defined( 'DIGIBLOCKS_HANDLED_BUILDER_DATA' ) ) {
+				define( 'DIGIBLOCKS_HANDLED_BUILDER_DATA', true );
 			}
 		}
 
@@ -944,6 +927,29 @@ class DigiBlocks {
 		if ( count( $consolidated_data ) > 1 ) {
 			wp_localize_script( $script_handle, 'digiBlocksData', $consolidated_data );
 		}
+	}
+
+	/**
+	 * Get DigiStore Builder data if needed
+	 *
+	 * @return array Builder data array
+	 */
+	private function get_digistore_builder_data() {
+		// Check if DigiStore Builder class exists and is initialized
+		if ( ! class_exists( 'DigiStore_Builder' ) ) {
+			return array();
+		}
+
+		// Get the builder instance
+		$builder = DigiStore_Builder::get_instance();
+		
+		// Check if builder has a method to get required data
+		if ( ! method_exists( $builder, 'get_required_script_data' ) ) {
+			return array();
+		}
+
+		// Get the data from builder
+		return $builder->get_required_script_data();
 	}
 
 	/**
@@ -1078,7 +1084,7 @@ class DigiBlocks {
 			'digiblocks',
 			array( $this, 'render_dashboard_page' ),
 			$icon,
-			58
+			50
 		);
 
 		add_submenu_page(
@@ -1199,6 +1205,32 @@ class DigiBlocks {
 	}
 
 	/**
+	 * Get all available post types for search
+	 * 
+	 * @return array List of post types with labels
+	 */
+	public function get_searchable_post_types() {
+		$post_types = get_post_types( array( 'public' => true ), 'objects' );
+		$searchable_types = array();
+		
+		// Exclude certain post types that shouldn't be searchable
+		$excluded_types = array( 'attachment', 'revision', 'nav_menu_item', 'custom_css', 'customize_changeset', 'oembed_cache', 'user_request', 'wp_block' );
+		
+		foreach ( $post_types as $post_type_slug => $post_type_object ) {
+			if ( in_array( $post_type_slug, $excluded_types ) ) {
+				continue;
+			}
+			
+			$searchable_types[] = array(
+				'label' => $post_type_object->labels->name,
+				'value' => $post_type_slug,
+			);
+		}
+		
+		return $searchable_types;
+	}
+
+	/**
 	 * Get Font Awesome icons.
 	 */
 	public function get_fa_icons() {
@@ -1220,7 +1252,7 @@ class DigiBlocks {
 	 */
 	public function enqueue_admin_scripts( $hook ) {
 		// Load only on DigiBlocks admin pages.
-		if ( 'toplevel_page_digiblocks' === $hook || 'digiblocks_page_digiblocks-settings' === $hook ) {
+		if ( 'toplevel_page_digiblocks' === $hook || 'digiblocks_page_digiblocks-settings' === $hook || 'digiblocks_page_digiblocks-updates' === $hook ) {
 			wp_enqueue_style(
 				'digiblocks-admin',
 				DIGIBLOCKS_PLUGIN_URL . 'assets/css/admin/admin.css',
@@ -1299,7 +1331,7 @@ class DigiBlocks {
 		}
 		
 		// Check if any block has lottie
-		if ($this->has_lottie_blocks($blocks)) {
+		if ($this->has_specific_block( $blocks, 'digiblocks/lottie' )) {
 			wp_enqueue_script(
 				'digiblocks-lottie-player',
 				DIGIBLOCKS_PLUGIN_URL . 'assets/js/lottie.js',
@@ -1526,14 +1558,14 @@ class DigiBlocks {
 
 					$content = $post->post_content;
 
-					// Check if content has any DigiBlocks blocks
+					// Check if content has any DigiBlocks blocks (including Pro blocks)
 					if ( false === strpos( $content, '<!-- wp:digiblocks/' ) ) {
 						// Clean up existing files for posts without DigiBlocks
 						$this->cleanup_block_assets( $post->ID );
 						continue;
 					}
 
-					// Use the existing generate_block_assets method which already works
+					// Use the existing generate_block_assets method which now works with Pro blocks
 					$this->generate_block_assets( $post->ID, $post );
 
 					// Check if files were actually created
@@ -1768,7 +1800,7 @@ class DigiBlocks {
 		global $post;
 		if ( $post && has_blocks( $post->post_content ) ) {
 			$blocks = parse_blocks( $post->post_content );
-			if ( $this->has_forms_block( $blocks ) ) {
+			if ( $this->has_specific_block( $blocks, 'digiblocks/forms' ) ) {
 				$this->load_forms_handler();
 			}
 		}
@@ -1815,7 +1847,7 @@ class DigiBlocks {
 		global $post;
 		if ( $post && has_blocks( $post->post_content ) ) {
 			$blocks = parse_blocks( $post->post_content );
-			if ( $this->has_newsletter_block( $blocks ) ) {
+			if ( $this->has_specific_block( $blocks, 'digiblocks/newsletter' ) ) {
 				$this->load_newsletter_handler();
 			}
 		}
@@ -1835,1071 +1867,6 @@ class DigiBlocks {
 				require_once $handler_file;
 				$handler_loaded = true;
 			}
-		}
-	}
-
-	/**
-	 * Initialize search handler if needed.
-	 */
-	public function init_search_handler() {
-		// First, check if the search form block is even active in settings
-		if ( ! $this->get_block_active_status( 'search-form' ) ) {
-			return;
-		}
-
-		// Check if it's an AJAX search request
-		$is_search_request = defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_POST['action'] ) && $_POST['action'] === 'digiblocks_ajax_search';
-		
-		// Case 1: AJAX search request - load the handler directly
-		if ( $is_search_request ) {
-			$this->load_search_handler();
-			return;
-		}
-
-		// Case 2: Check if current page contains search form block
-		global $post;
-		if ( $post && has_blocks( $post->post_content ) ) {
-			$blocks = parse_blocks( $post->post_content );
-			if ( $this->has_search_form_blocks( $blocks ) ) {
-				$this->load_search_handler();
-			}
-		}
-	}
-
-	/**
-	 * Load the search handler actions if they haven't been loaded yet.
-	 */
-	private function load_search_handler() {
-		static $handler_loaded = false;
-
-		// Only load the handler once
-		if ( ! $handler_loaded ) {
-			add_action( 'wp_ajax_digiblocks_ajax_search', array( $this, 'handle_ajax_search' ) );
-			add_action( 'wp_ajax_nopriv_digiblocks_ajax_search', array( $this, 'handle_ajax_search' ) );
-			$handler_loaded = true;
-		}
-	}
-
-	/**
-	 * Get all available post types for search
-	 * 
-	 * @return array List of post types with labels
-	 */
-	public function get_searchable_post_types() {
-		$post_types = get_post_types( array( 'public' => true ), 'objects' );
-		$searchable_types = array();
-		
-		// Exclude certain post types that shouldn't be searchable
-		$excluded_types = array( 'attachment', 'revision', 'nav_menu_item', 'custom_css', 'customize_changeset', 'oembed_cache', 'user_request', 'wp_block' );
-		
-		foreach ( $post_types as $post_type_slug => $post_type_object ) {
-			if ( in_array( $post_type_slug, $excluded_types ) ) {
-				continue;
-			}
-			
-			$searchable_types[] = array(
-				'label' => $post_type_object->labels->name,
-				'value' => $post_type_slug,
-			);
-		}
-		
-		return $searchable_types;
-	}
-
-	/**
-	 * Handle AJAX search requests
-	 */
-	public function handle_ajax_search() {
-		// Verify nonce
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'digiblocks_search_nonce' ) ) {
-			wp_die( __( 'Security check failed', 'digiblocks' ), 'digiblocks', array( 'response' => 403 ) );
-		}
-
-		$query = sanitize_text_field( $_POST['query'] );
-		$post_type = sanitize_text_field( $_POST['post_type'] );
-		$custom_post_types = isset( $_POST['custom_post_types'] ) ? sanitize_text_field( $_POST['custom_post_types'] ) : '';
-
-		if ( empty( $query ) || strlen( $query ) < 2 ) {
-			wp_send_json_error( __( 'Search query too short', 'digiblocks' ) );
-		}
-
-		// Determine post types to search
-		if ( $post_type === 'all' ) {
-			// Get all public searchable post types
-			$all_post_types = get_post_types( array( 'public' => true ), 'names' );
-			$excluded_types = array( 'attachment', 'revision', 'nav_menu_item', 'custom_css', 'customize_changeset', 'oembed_cache', 'user_request', 'wp_block' );
-			$search_post_types = array_diff( $all_post_types, $excluded_types );
-		} elseif ( $post_type === 'post' ) {
-			$search_post_types = array( 'post' );
-		} elseif ( $post_type === 'page' ) {
-			$search_post_types = array( 'page' );
-		} elseif ( $post_type === 'custom' && ! empty( $custom_post_types ) ) {
-			$search_post_types = explode( ',', $custom_post_types );
-			$search_post_types = array_map( 'trim', $search_post_types );
-			$search_post_types = array_filter( $search_post_types );
-		} else {
-			// Single post type search (including custom post types)
-			$search_post_types = array( $post_type );
-		}
-
-		// Perform search
-		$args = array(
-			's'                   => $query,
-			'post_type'           => $search_post_types,
-			'post_status'         => 'publish',
-			'posts_per_page'      => 10,
-			'ignore_sticky_posts' => true,
-		);
-
-		$search_query = new WP_Query( $args );
-		$results = array();
-
-		if ( $search_query->have_posts() ) {
-			while ( $search_query->have_posts() ) {
-				$search_query->the_post();
-				
-				$post_id = get_the_ID();
-				$post_type_object = get_post_type_object( get_post_type() );
-				
-				$result = array(
-					'id'        => $post_id,
-					'title'     => get_the_title(),
-					'url'       => get_permalink(),
-					'excerpt'   => $this->get_search_excerpt( get_the_content(), $query, 120 ),
-					'post_type' => $post_type_object ? $post_type_object->labels->singular_name : get_post_type(),
-					'date'      => get_the_date(),
-				);
-
-				// Add featured image if available
-				if ( has_post_thumbnail() ) {
-					$result['image'] = get_the_post_thumbnail_url( $post_id, 'thumbnail' );
-				}
-
-				$results[] = $result;
-			}
-			wp_reset_postdata();
-		}
-
-		wp_send_json_success( $results );
-	}
-
-	/**
-	 * Generate search excerpt with highlighted terms
-	 *
-	 * @param string $content The content to extract excerpt from.
-	 * @param string $query The search query.
-	 * @param int    $length Maximum length of excerpt.
-	 * @return string The generated excerpt.
-	 */
-	private function get_search_excerpt( $content, $query, $length = 120 ) {
-		// Strip HTML and shortcodes
-		$content = wp_strip_all_tags( strip_shortcodes( $content ) );
-		
-		if ( empty( $content ) ) {
-			return '';
-		}
-
-		// Find the position of the search term
-		$query_pos = stripos( $content, $query );
-		
-		if ( $query_pos === false ) {
-			// If query not found, return beginning of content
-			return wp_trim_words( $content, 20, '...' );
-		}
-
-		// Calculate start position to center the query
-		$start = max( 0, $query_pos - intval( $length / 2 ) );
-		
-		// Extract excerpt
-		$excerpt = substr( $content, $start, $length );
-		
-		// Trim to word boundaries
-		if ( $start > 0 ) {
-			$space_pos = strpos( $excerpt, ' ' );
-			if ( $space_pos !== false ) {
-				$excerpt = substr( $excerpt, $space_pos + 1 );
-			}
-			$excerpt = '...' . $excerpt;
-		}
-		
-		if ( strlen( $content ) > $start + $length ) {
-			$last_space = strrpos( $excerpt, ' ' );
-			if ( $last_space !== false ) {
-				$excerpt = substr( $excerpt, 0, $last_space );
-			}
-			$excerpt .= '...';
-		}
-
-		return $excerpt;
-	}
-
-	/**
-	 * AJAX handler to get DigiCommerce cart data
-	 */
-	public function ajax_get_digi_cart_data() {
-		try {
-			// Check if DigiCommerce is active
-			if ( ! class_exists( 'DigiCommerce' ) || ! class_exists( 'DigiCommerce_Checkout' ) ) {
-				wp_send_json_error( array( 'message' => __( 'DigiCommerce is not active.', 'digiblocks' ) ) );
-				return;
-			}
-
-			// More lenient nonce check for cart data
-			$nonce_check = check_ajax_referer( 'digiblocks_cart_nonce', 'nonce', false );
-			
-			// Only require nonce verification for logged-in users
-			if ( is_user_logged_in() && ! $nonce_check ) {
-				wp_send_json_error( array( 'message' => __( 'Security check failed', 'digiblocks' ) ) );
-				return;
-			}
-
-			$checkout = DigiCommerce_Checkout::instance();
-			
-			// CRITICAL: Force session initialization for AJAX requests
-			if ( method_exists( $checkout, 'init_session' ) ) {
-				$checkout->init_session();
-			}
-			
-			// For logged-out users, ensure we have a session
-			if ( ! is_user_logged_in() ) {
-				$session_key = $checkout->get_current_session_key();
-				if ( empty( $session_key ) ) {
-					// No session available, return empty cart
-					wp_send_json_success( array(
-						'count' => 0,
-						'total' => '$0.00',
-						'items' => array(),
-					) );
-					return;
-				}
-			}
-
-			// Get cart items
-			$cart_items = array();
-			if ( method_exists( $checkout, 'get_cart_items' ) ) {
-				$cart_items = $checkout->get_cart_items();
-			}
-
-			$cart_count = is_array( $cart_items ) ? count( $cart_items ) : 0;
-			
-			// Calculate total
-			$cart_total = 0;
-			if ( is_array( $cart_items ) ) {
-				foreach ( $cart_items as $item ) {
-					$cart_total += isset( $item['price'] ) ? (float) $item['price'] : 0;
-				}
-			}
-
-			// Format total using DigiCommerce currency settings
-			$formatted_total = '';
-			if ( class_exists( 'DigiCommerce_Product' ) ) {
-				$product_instance = DigiCommerce_Product::instance();
-				$currency_symbol = $product_instance->get_currency_symbol( DigiCommerce()->get_option( 'currency', 'USD' ) );
-				$currency_position = DigiCommerce()->get_option( 'currency_position', 'left' );
-				
-				if ( 'right' === $currency_position ) {
-					$formatted_total = number_format( $cart_total, 2 ) . $currency_symbol;
-				} else {
-					$formatted_total = $currency_symbol . number_format( $cart_total, 2 );
-				}
-			} else {
-				$formatted_total = '$' . number_format( $cart_total, 2 );
-			}
-
-			// Format cart items for frontend
-			$formatted_items = array();
-			if ( is_array( $cart_items ) ) {
-				foreach ( $cart_items as $index => $item ) {
-					$product_id = isset( $item['product_id'] ) ? $item['product_id'] : 0;
-					$product_name = isset( $item['name'] ) ? $item['name'] : '';
-					$product_price = isset( $item['price'] ) ? (float) $item['price'] : 0;
-					$variation_name = isset( $item['variation_name'] ) ? $item['variation_name'] : '';
-					
-					// Get product featured image
-					$product_image_url = '';
-					if ( $product_id ) {
-						$image_id = get_post_thumbnail_id( $product_id );
-						if ( $image_id ) {
-							$product_image_url = wp_get_attachment_image_url( $image_id, 'thumbnail' );
-						}
-					}
-					
-					// Format price using DigiCommerce settings
-					$formatted_price = '';
-					if ( class_exists( 'DigiCommerce_Product' ) ) {
-						$product_instance = DigiCommerce_Product::instance();
-						$currency_symbol = $product_instance->get_currency_symbol( DigiCommerce()->get_option( 'currency', 'USD' ) );
-						$currency_position = DigiCommerce()->get_option( 'currency_position', 'left' );
-						
-						if ( 'right' === $currency_position ) {
-							$formatted_price = number_format( $product_price, 2 ) . $currency_symbol;
-						} else {
-							$formatted_price = $currency_symbol . number_format( $product_price, 2 );
-						}
-					} else {
-						$formatted_price = '$' . number_format( $product_price, 2 );
-					}
-
-					$formatted_items[] = array(
-						'key'           => $index,
-						'name'          => $product_name,
-						'price'         => $formatted_price,
-						'price_raw'     => $product_price,
-						'variation_name' => $variation_name,
-						'image'         => $product_image_url,
-					);
-				}
-			}
-
-			wp_send_json_success( array(
-				'count' => $cart_count,
-				'total' => $formatted_total,
-				'items' => $formatted_items,
-			) );
-
-		} catch ( Exception $e ) {
-			error_log( 'DigiBlocks Get Cart Data Error: ' . $e->getMessage() );
-			wp_send_json_error( array( 'message' => __( 'Error retrieving cart data.', 'digiblocks' ) ) );
-		}
-	}
-
-	/**
-	 * AJAX handler to get DigiCommerce cart items for mini cart
-	 */
-	public function ajax_get_digi_cart_items() {
-		// Use check_ajax_referer with die=false for cart operations
-		$nonce_check = check_ajax_referer( 'digiblocks_cart_nonce', 'nonce', false );
-		
-		// For cart operations, we allow non-logged users but still verify the nonce when possible
-		if ( ! $nonce_check && is_user_logged_in() ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed', 'digiblocks' ) ) );
-			return;
-		}
-
-		// Check if DigiCommerce is active
-		if ( ! class_exists( 'DigiCommerce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'DigiCommerce is not active', 'digiblocks' ) ) );
-			return;
-		}
-
-		$cart_items = array();
-		$cart_count = 0;
-		$cart_total = 0;
-
-		if ( class_exists( 'DigiCommerce_Checkout' ) ) {
-			$checkout_instance = DigiCommerce_Checkout::instance();
-			$raw_cart_items = $checkout_instance->get_cart_items();
-			$cart_count = count( $raw_cart_items );
-			
-			// Process cart items for frontend display
-			foreach ( $raw_cart_items as $index => $cart_item ) {
-				$product_id = isset( $cart_item['product_id'] ) ? $cart_item['product_id'] : 0;
-				$product_name = isset( $cart_item['name'] ) ? $cart_item['name'] : '';
-				$product_price = isset( $cart_item['price'] ) ? (float) $cart_item['price'] : 0;
-				$variation_name = isset( $cart_item['variation_name'] ) && ! empty( $cart_item['variation_name'] ) ? $cart_item['variation_name'] : '';
-				
-				// Get product featured image
-				$product_image_url = '';
-				if ( $product_id ) {
-					$image_id = get_post_thumbnail_id( $product_id );
-					if ( $image_id ) {
-						$product_image_url = wp_get_attachment_image_url( $image_id, 'thumbnail' );
-					}
-				}
-				
-				// Format price using DigiCommerce settings
-				$formatted_price = '';
-				if ( class_exists( 'DigiCommerce_Product' ) ) {
-					$product_instance = DigiCommerce_Product::instance();
-					$currency_symbol = $product_instance->get_currency_symbol( DigiCommerce()->get_option( 'currency', 'USD' ) );
-					$currency_position = DigiCommerce()->get_option( 'currency_position', 'left' );
-					
-					if ( 'right' === $currency_position ) {
-						$formatted_price = number_format( $product_price, 2 ) . $currency_symbol;
-					} else {
-						$formatted_price = $currency_symbol . number_format( $product_price, 2 );
-					}
-				} else {
-					$formatted_price = '$' . number_format( $product_price, 2 );
-				}
-				
-				$cart_items[] = array(
-					'key' => $index,
-					'product_id' => $product_id,
-					'name' => $product_name,
-					'price' => $formatted_price,
-					'price_raw' => $product_price,
-					'variation_name' => $variation_name,
-					'image' => $product_image_url,
-				);
-				
-				$cart_total += $product_price;
-			}
-		}
-
-		// Format cart total
-		$formatted_total = '';
-		if ( class_exists( 'DigiCommerce_Product' ) ) {
-			$product_instance = DigiCommerce_Product::instance();
-			$currency_symbol = $product_instance->get_currency_symbol( DigiCommerce()->get_option( 'currency', 'USD' ) );
-			$currency_position = DigiCommerce()->get_option( 'currency_position', 'left' );
-			
-			if ( 'right' === $currency_position ) {
-				$formatted_total = number_format( $cart_total, 2 ) . $currency_symbol;
-			} else {
-				$formatted_total = $currency_symbol . number_format( $cart_total, 2 );
-			}
-		} else {
-			$formatted_total = '$' . number_format( $cart_total, 2 );
-		}
-
-		wp_send_json_success( array(
-			'items' => $cart_items,
-			'count' => $cart_count,
-			'total' => $formatted_total,
-		) );
-	}
-
-	/**
-	 * AJAX handler to get cart data
-	 */
-	public function ajax_get_cart_data() {
-		// Use check_ajax_referer with die=false for cart operations
-		$nonce_check = check_ajax_referer( 'digiblocks_cart_nonce', 'nonce', false );
-		
-		// For cart operations, we allow non-logged users but still verify the nonce when possible
-		if ( ! $nonce_check && is_user_logged_in() ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed', 'digiblocks' ) ) );
-			return;
-		}
-
-		// Check if WooCommerce is active
-		if ( ! class_exists( 'WooCommerce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'WooCommerce is not active', 'digiblocks' ) ) );
-			return;
-		}
-
-		// Ensure WooCommerce and cart are initialized
-		if ( ! WC() || is_null( WC()->cart ) ) {
-			if ( function_exists( 'wc_load_cart' ) ) {
-				wc_load_cart();
-			}
-		}
-
-		$cart_count = WC()->cart ? WC()->cart->get_cart_contents_count() : 0;
-		
-		// Get clean cart total without HTML tags and entities
-		$cart_total_html = WC()->cart ? WC()->cart->get_cart_total() : wc_price( 0 );
-		$cart_total_clean = html_entity_decode( strip_tags( $cart_total_html ), ENT_QUOTES, 'UTF-8' );
-
-		wp_send_json_success( array(
-			'count' => $cart_count,
-			'total' => $cart_total_clean,
-			'total_html' => $cart_total_html,
-		) );
-	}
-
-	/**
-	 * AJAX handler to get cart items for mini cart
-	 */
-	public function ajax_get_cart_items() {
-		// Use check_ajax_referer with die=false for cart operations
-		$nonce_check = check_ajax_referer( 'digiblocks_cart_nonce', 'nonce', false );
-		
-		// For cart operations, we allow non-logged users but still verify the nonce when possible
-		if ( ! $nonce_check && is_user_logged_in() ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed', 'digiblocks' ) ) );
-			return;
-		}
-
-		// Check if WooCommerce is active
-		if ( ! class_exists( 'WooCommerce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'WooCommerce is not active', 'digiblocks' ) ) );
-			return;
-		}
-
-		// Ensure WooCommerce and cart are initialized
-		if ( ! WC() || is_null( WC()->cart ) ) {
-			if ( function_exists( 'wc_load_cart' ) ) {
-				wc_load_cart();
-			}
-		}
-
-		$cart_items = array();
-
-		if ( WC()->cart && ! WC()->cart->is_empty() ) {
-			foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-				$product = $cart_item['data'];
-				$product_id = $cart_item['product_id'];
-				$quantity = $cart_item['quantity'];
-				
-				if ( ! $product || ! $product->exists() ) {
-					continue;
-				}
-				
-				$product_name = $product->get_name();
-				
-				// Get clean price without HTML tags and entities
-				$product_price_html = WC()->cart->get_product_price( $product );
-				$product_price_clean = html_entity_decode( strip_tags( $product_price_html ), ENT_QUOTES, 'UTF-8' );
-				
-				$product_image_id = $product->get_image_id();
-				$product_image_url = $product_image_id ? wp_get_attachment_image_url( $product_image_id, 'thumbnail' ) : '';
-				$product_permalink = $product->is_visible() ? $product->get_permalink( $cart_item ) : '';
-				
-				$cart_items[] = array(
-					'key' => $cart_item_key,
-					'name' => $product_name,
-					'price' => $product_price_clean,
-					'price_html' => $product_price_html,
-					'quantity' => $quantity,
-					'image' => $product_image_url,
-					'permalink' => $product_permalink,
-				);
-			}
-		}
-
-		// Get clean cart total
-		$cart_total_html = WC()->cart ? WC()->cart->get_cart_total() : wc_price( 0 );
-		$cart_total_clean = html_entity_decode( strip_tags( $cart_total_html ), ENT_QUOTES, 'UTF-8' );
-
-		wp_send_json_success( array(
-			'items' => $cart_items,
-			'count' => WC()->cart ? WC()->cart->get_cart_contents_count() : 0,
-			'total' => $cart_total_clean,
-			'total_html' => $cart_total_html,
-		) );
-	}
-
-	/**
-	 * AJAX handler to update cart item quantity
-	 */
-	public function ajax_update_cart_item() {
-		// Use check_ajax_referer with die=false for cart operations
-		$nonce_check = check_ajax_referer( 'digiblocks_cart_nonce', 'nonce', false );
-		
-		// For cart operations, we allow non-logged users but still verify the nonce when possible
-		if ( ! $nonce_check && is_user_logged_in() ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed', 'digiblocks' ) ) );
-			return;
-		}
-
-		// Check if WooCommerce is active
-		if ( ! class_exists( 'WooCommerce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'WooCommerce is not active', 'digiblocks' ) ) );
-			return;
-		}
-
-		// Ensure WooCommerce and cart are initialized
-		if ( ! WC() || is_null( WC()->cart ) ) {
-			if ( function_exists( 'wc_load_cart' ) ) {
-				wc_load_cart();
-			}
-		}
-
-		$cart_item_key = sanitize_text_field( $_POST['cart_item_key'] );
-		$quantity = intval( $_POST['quantity'] );
-
-		if ( empty( $cart_item_key ) ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid cart item', 'digiblocks' ) ) );
-			return;
-		}
-
-		if ( ! WC()->cart ) {
-			wp_send_json_error( array( 'message' => __( 'Cart not available', 'digiblocks' ) ) );
-			return;
-		}
-
-		// Update cart item quantity
-		if ( $quantity <= 0 ) {
-			WC()->cart->remove_cart_item( $cart_item_key );
-		} else {
-			WC()->cart->set_quantity( $cart_item_key, $quantity );
-		}
-
-		// Get clean cart total
-		$cart_total_html = WC()->cart->get_cart_total();
-		$cart_total_clean = html_entity_decode( strip_tags( $cart_total_html ), ENT_QUOTES, 'UTF-8' );
-
-		wp_send_json_success( array(
-			'message' => __( 'Cart updated', 'digiblocks' ),
-			'count' => WC()->cart->get_cart_contents_count(),
-			'total' => $cart_total_clean,
-			'total_html' => $cart_total_html,
-		) );
-	}
-
-	/**
-	 * AJAX handler to remove cart item
-	 */
-	public function ajax_remove_cart_item() {
-		// Use check_ajax_referer with die=false for cart operations
-		$nonce_check = check_ajax_referer( 'digiblocks_cart_nonce', 'nonce', false );
-		
-		// For cart operations, we allow non-logged users but still verify the nonce when possible
-		if ( ! $nonce_check && is_user_logged_in() ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed', 'digiblocks' ) ) );
-			return;
-		}
-
-		// Check if WooCommerce is active
-		if ( ! class_exists( 'WooCommerce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'WooCommerce is not active', 'digiblocks' ) ) );
-			return;
-		}
-
-		// Ensure WooCommerce and cart are initialized
-		if ( ! WC() || is_null( WC()->cart ) ) {
-			if ( function_exists( 'wc_load_cart' ) ) {
-				wc_load_cart();
-			}
-		}
-
-		$cart_item_key = sanitize_text_field( $_POST['cart_item_key'] );
-
-		if ( empty( $cart_item_key ) ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid cart item', 'digiblocks' ) ) );
-			return;
-		}
-
-		if ( ! WC()->cart ) {
-			wp_send_json_error( array( 'message' => __( 'Cart not available', 'digiblocks' ) ) );
-			return;
-		}
-
-		// Remove cart item
-		WC()->cart->remove_cart_item( $cart_item_key );
-
-		// Get clean cart total
-		$cart_total_html = WC()->cart->get_cart_total();
-		$cart_total_clean = html_entity_decode( strip_tags( $cart_total_html ), ENT_QUOTES, 'UTF-8' );
-
-		wp_send_json_success( array(
-			'message' => __( 'Item removed from cart', 'digiblocks' ),
-			'count' => WC()->cart->get_cart_contents_count(),
-			'total' => $cart_total_clean,
-			'total_html' => $cart_total_html,
-		) );
-	}
-
-	/**
-	 * AJAX Add to Cart Handler
-	 */
-	public function ajax_add_to_cart() {
-		// Verify nonce
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'digiblocks_add_to_cart' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'digiblocks' ) ) );
-		}
-
-		// Check if WooCommerce is active
-		if ( ! class_exists( 'WooCommerce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'WooCommerce is not active.', 'digiblocks' ) ) );
-		}
-
-		$product_id = absint( $_POST['product_id'] );
-		$quantity = isset( $_POST['quantity'] ) ? absint( $_POST['quantity'] ) : 1;
-
-		if ( $product_id <= 0 ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid product.', 'digiblocks' ) ) );
-		}
-
-		$product = wc_get_product( $product_id );
-
-		if ( ! $product ) {
-			wp_send_json_error( array( 'message' => __( 'Product not found.', 'digiblocks' ) ) );
-		}
-
-		// Initialize variables for variations
-		$variation_id = 0;
-		$variation = array();
-
-		// Handle variable products
-		if ( $product->is_type( 'variable' ) || isset( $_POST['variation_id'] ) ) {
-			// Get variation ID if provided
-			if ( isset( $_POST['variation_id'] ) && absint( $_POST['variation_id'] ) > 0 ) {
-				$variation_id = absint( $_POST['variation_id'] );
-				$product = wc_get_product( $variation_id );
-				
-				if ( ! $product ) {
-					wp_send_json_error( array( 'message' => __( 'Product variation not found.', 'digiblocks' ) ) );
-				}
-			}
-
-			// Get variation attributes
-			foreach ( $_POST as $key => $value ) {
-				if ( strpos( $key, 'attribute_' ) === 0 ) {
-					$variation[ sanitize_title( $key ) ] = wc_clean( $value );
-				}
-			}
-
-			// If we have a parent variable product and attributes but no variation ID
-			if ( ! $variation_id && ! empty( $variation ) ) {
-				$parent_product = wc_get_product( $product_id );
-				if ( $parent_product && $parent_product->is_type( 'variable' ) ) {
-					$data_store = WC_Data_Store::load( 'product' );
-					$variation_id = $data_store->find_matching_product_variation( $parent_product, $variation );
-					
-					if ( $variation_id ) {
-						$product = wc_get_product( $variation_id );
-					}
-				}
-			}
-
-			// Validate that we have a valid variation for variable products
-			if ( ! $variation_id && wc_get_product( $product_id )->is_type( 'variable' ) ) {
-				wp_send_json_error( array( 'message' => __( 'Please select product options.', 'digiblocks' ) ) );
-			}
-		}
-
-		// Check if product is purchasable
-		if ( ! $product->is_purchasable() ) {
-			wp_send_json_error( array( 'message' => __( 'This product cannot be purchased.', 'digiblocks' ) ) );
-		}
-
-		// Check stock
-		if ( ! $product->is_in_stock() ) {
-			wp_send_json_error( array( 'message' => __( 'This product is out of stock.', 'digiblocks' ) ) );
-		}
-
-		// Check quantity
-		if ( $quantity <= 0 ) {
-			$quantity = 1;
-		}
-
-		// Validate quantity against stock
-		if ( $product->managing_stock() ) {
-			$stock_quantity = $product->get_stock_quantity();
-			if ( $stock_quantity !== null && $quantity > $stock_quantity ) {
-				wp_send_json_error( array( 
-					'message' => sprintf( 
-						__( 'Sorry, we do not have enough "%s" in stock to fulfill your order (%d available).', 'digiblocks' ), 
-						$product->get_name(), 
-						$stock_quantity 
-					) 
-				) );
-			}
-		}
-
-		// Add to cart
-		try {
-			$cart_item_key = WC()->cart->add_to_cart(
-				$variation_id ? $product_id : $product->get_id(), // Parent ID for variations
-				$quantity,
-				$variation_id, // Variation ID
-				$variation, // Variation data
-				array() // Cart item data
-			);
-
-			if ( $cart_item_key ) {
-				// Force cart calculation
-				WC()->cart->calculate_totals();
-
-				// Get cart fragments for updating UI
-				ob_start();
-				woocommerce_mini_cart();
-				$mini_cart = ob_get_clean();
-
-				// Build fragments array
-				$fragments = array(
-					'div.widget_shopping_cart_content' => '<div class="widget_shopping_cart_content">' . $mini_cart . '</div>',
-					'.cart-contents-count' => WC()->cart->get_cart_contents_count(),
-					'.cart-total' => WC()->cart->get_cart_subtotal(),
-				);
-
-				// Apply WooCommerce filters for theme compatibility
-				$fragments = apply_filters( 'woocommerce_add_to_cart_fragments', $fragments );
-
-				// Get updated cart data
-				$cart_count = WC()->cart->get_cart_contents_count();
-				$cart_total = WC()->cart->get_cart_total();
-				$cart_hash = WC()->cart->get_cart_hash();
-
-				// Trigger action for other plugins
-				do_action( 'woocommerce_ajax_added_to_cart', $product->get_id() );
-
-				// Send success response
-				wp_send_json_success( array(
-					'message' => sprintf( 
-						/* translators: %s: product name */
-						__( '"%s" has been added to your cart.', 'digiblocks' ), 
-						$product->get_name() 
-					),
-					'fragments' => $fragments,
-					'cart_hash' => $cart_hash,
-					'cart_count' => $cart_count,
-					'cart_total' => $cart_total,
-					'product_id' => $product->get_id(),
-					'variation_id' => $variation_id,
-				) );
-
-			} else {
-				// Check for cart errors
-				$notices = wc_get_notices( 'error' );
-				if ( ! empty( $notices ) ) {
-					$error_message = $notices[0]['notice'];
-					wc_clear_notices();
-					wp_send_json_error( array( 'message' => $error_message ) );
-				} else {
-					wp_send_json_error( array( 'message' => __( 'Could not add product to cart.', 'digiblocks' ) ) );
-				}
-			}
-
-		} catch ( Exception $e ) {
-			wp_send_json_error( array( 'message' => $e->getMessage() ) );
-		}
-	}
-
-	/**
-	 * AJAX handler for DigiCommerce add to cart
-	 */
-	public function ajax_digi_add_to_cart() {
-		try {
-			// Check if DigiCommerce is active first
-			if ( ! class_exists( 'DigiCommerce' ) ) {
-				wp_send_json_error( array( 'message' => __( 'DigiCommerce is not active.', 'digiblocks' ) ) );
-				return;
-			}
-
-			// Get DigiCommerce checkout instance
-			if ( ! class_exists( 'DigiCommerce_Checkout' ) ) {
-				wp_send_json_error( array( 'message' => __( 'DigiCommerce checkout not available.', 'digiblocks' ) ) );
-				return;
-			}
-
-			// More lenient nonce check - only require for logged-in users
-			$nonce_check = check_ajax_referer( 'digiblocks_digi_add_to_cart', 'nonce', false );
-			
-			// Only require nonce verification for logged-in users
-			if ( is_user_logged_in() && ! $nonce_check ) {
-				wp_send_json_error( array( 'message' => __( 'Security check failed', 'digiblocks' ) ) );
-				return;
-			}
-
-			// CRITICAL: Initialize checkout and session BEFORE any cart operations
-			$checkout = DigiCommerce_Checkout::instance();
-			
-			// Force session initialization for AJAX requests - especially important for logged-out users
-			if ( method_exists( $checkout, 'init_session' ) ) {
-				$checkout->init_session();
-			}
-
-			// Get product ID
-			$product_id = isset( $_POST['product_id'] ) ? intval( $_POST['product_id'] ) : 0;
-			
-			if ( ! $product_id ) {
-				wp_send_json_error( array( 'message' => __( 'Invalid product ID.', 'digiblocks' ) ) );
-				return;
-			}
-
-			// Verify product exists and is a DigiCommerce product
-			$product = get_post( $product_id );
-			if ( ! $product || 'digi_product' !== $product->post_type ) {
-				wp_send_json_error( array( 'message' => __( 'Invalid product.', 'digiblocks' ) ) );
-				return;
-			}
-
-			// Get variation data if provided
-			$variation_name = isset( $_POST['variation_name'] ) ? sanitize_text_field( $_POST['variation_name'] ) : '';
-			$variation_price = isset( $_POST['variation_price'] ) ? floatval( $_POST['variation_price'] ) : 0;
-			$product_price = isset( $_POST['product_price'] ) ? floatval( $_POST['product_price'] ) : 0;
-
-			// Determine the price to use
-			$price = 0;
-			if ( $variation_price > 0 ) {
-				$price = $variation_price;
-			} elseif ( $product_price > 0 ) {
-				$price = $product_price;
-			} else {
-				// Fallback to product meta
-				$single_price = floatval( get_post_meta( $product_id, 'digi_price', true ) );
-				$sale_price = floatval( get_post_meta( $product_id, 'digi_sale_price', true ) );
-				$price = ( $sale_price && $sale_price < $single_price ) ? $sale_price : $single_price;
-			}
-
-			if ( $price <= 0 ) {
-				wp_send_json_error( array( 'message' => __( 'Invalid product price.', 'digiblocks' ) ) );
-				return;
-			}
-
-			// Get current session key
-			$session_key = $checkout->get_current_session_key();
-			
-			if ( empty( $session_key ) ) {
-				wp_send_json_error( array( 'message' => __( 'Session could not be created.', 'digiblocks' ) ) );
-				return;
-			}
-			
-			// Get or initialize session data
-			$session_data = $checkout->get_session( $session_key );
-			if ( ! $session_data ) {
-				$session_data = array( 'cart' => array() );
-				// CRITICAL: Save initial session for both logged-in and logged-out users
-				$checkout->save_session( $session_key, $session_data );
-			}
-
-			// Ensure cart array exists
-			if ( ! isset( $session_data['cart'] ) || ! is_array( $session_data['cart'] ) ) {
-				$session_data['cart'] = array();
-			}
-
-			$cart_items = $session_data['cart'];
-			$has_variations = ! empty( $variation_name );
-
-			// Process existing cart items - remove same product if it exists
-			$new_cart_items = array();
-			foreach ( $cart_items as $cart_item ) {
-				if ( isset( $cart_item['product_id'] ) && $cart_item['product_id'] === $product_id ) {
-					if ( $has_variations ) {
-						// Skip this product entirely - we'll add the new variation
-						continue;
-					} else {
-						// For non-variation products, if it exists, don't add it again
-						wp_send_json_success( array(
-							'message' => __( 'Product already in cart.', 'digiblocks' ),
-							'cart' => $cart_items,
-						) );
-						return;
-					}
-				}
-				// Keep all other products
-				$new_cart_items[] = $cart_item;
-			}
-
-			// Get subscription details if needed
-			$subscription_data = array();
-			if ( $has_variations ) {
-				// Get variation subscription settings from price variations
-				$price_variations = get_post_meta( $product_id, 'digi_price_variations', true );
-				if ( ! empty( $price_variations ) ) {
-					foreach ( $price_variations as $variation ) {
-						if ( isset( $variation['name'] ) && $variation['name'] === $variation_name ) {
-							$subscription_data = array(
-								'subscription_enabled'    => ! empty( $variation['subscription_enabled'] ),
-								'subscription_period'     => $variation['subscription_period'] ?? 'month',
-								'subscription_free_trial' => $variation['subscription_free_trial'] ?? array(
-									'duration' => 0,
-									'period'   => 'days',
-								),
-								'subscription_signup_fee' => $variation['subscription_signup_fee'] ?? 0,
-							);
-							break;
-						}
-					}
-				}
-			} else {
-				// Get regular product subscription settings
-				$subscription_data = array(
-					'subscription_enabled'    => get_post_meta( $product_id, 'digi_subscription_enabled', true ),
-					'subscription_period'     => get_post_meta( $product_id, 'digi_subscription_period', true ),
-					'subscription_free_trial' => get_post_meta( $product_id, 'digi_subscription_free_trial', true ),
-					'subscription_signup_fee' => get_post_meta( $product_id, 'digi_subscription_signup_fee', true ),
-				);
-			}
-
-			// Create new cart item
-			$new_item = array(
-				'product_id'     => $product_id,
-				'name'           => $product->post_title,
-				'price'          => $price,
-				'variation_name' => $variation_name,
-			);
-
-			// Add subscription data if enabled
-			if ( ! empty( $subscription_data ) && ! empty( $subscription_data['subscription_enabled'] ) ) {
-				$new_item['subscription_enabled']    = $subscription_data['subscription_enabled'];
-				$new_item['subscription_period']     = $subscription_data['subscription_period'];
-				$new_item['subscription_free_trial'] = $subscription_data['subscription_free_trial'];
-				$new_item['subscription_signup_fee'] = $subscription_data['subscription_signup_fee'];
-
-				if ( method_exists( 'DigiCommerce', 'is_paypal_enabled' ) && DigiCommerce()->is_paypal_enabled() ) {
-					$new_item['needs_paypal_plan'] = true;
-				}
-			}
-
-			// Add new item to cart
-			$new_cart_items[] = $new_item;
-
-			// Update session data
-			$session_data['cart'] = $new_cart_items;
-
-			// Save to session
-			$save_result = $checkout->save_session( $session_key, $session_data );
-			
-			if ( false === $save_result ) {
-				error_log( 'DigiBlocks: Failed to save session data for session key: ' . $session_key );
-				wp_send_json_error( array( 'message' => __( 'Could not save cart to session.', 'digiblocks' ) ) );
-				return;
-			}
-
-			// Force session persistence for logged-out users
-			if ( ! is_user_logged_in() ) {
-				// Ensure session cookie is set for guest users
-				if ( method_exists( $checkout, 'set_session_cookie' ) ) {
-					$checkout->set_session_cookie( true, $session_key );
-				}
-				
-				// Additional cookie forcing for AJAX responses
-				$cookie_name = 'digicommerce_session_' . COOKIEHASH;
-				
-				// Force cookie setting for AJAX responses
-				if ( ! headers_sent() ) {
-					$secure = is_ssl();
-					$path = COOKIEPATH ? COOKIEPATH : '/';
-					$domain = COOKIE_DOMAIN;
-					
-					setcookie(
-						$cookie_name,
-						$session_key,
-						array(
-							'expires'  => time() + 30 * DAY_IN_SECONDS,
-							'path'     => $path,
-							'domain'   => $domain,
-							'secure'   => $secure,
-							'httponly' => true,
-							'samesite' => 'Strict',
-						)
-					);
-					
-					// Also set in $_COOKIE for immediate availability
-					$_COOKIE[ $cookie_name ] = $session_key;
-				}
-			}
-
-			// Update the checkout instance's cart_items property
-			if ( method_exists( $checkout, 'get_cart_items' ) ) {
-				// Force refresh of cart items
-				$reflection = new ReflectionClass( $checkout );
-				$cart_property = $reflection->getProperty( 'cart_items' );
-				$cart_property->setAccessible( true );
-				$cart_property->setValue( $checkout, $new_cart_items );
-			}
-
-			// Determine appropriate success message
-			$message = $has_variations 
-				? __( 'Product variation added to cart.', 'digiblocks' )
-				: __( 'Product added to cart.', 'digiblocks' );
-
-			// Get checkout page URL
-			$checkout_url = '';
-			$checkout_page_id = '';
-			if ( method_exists( 'DigiCommerce', 'get_option' ) ) {
-				$checkout_page_id = DigiCommerce()->get_option( 'checkout_page_id', '' );
-			}
-			if ( $checkout_page_id ) {
-				$checkout_url = get_permalink( $checkout_page_id );
-			}
-
-			wp_send_json_success( array(
-				'message'  => $message,
-				'cart'     => $new_cart_items,
-				'redirect' => $checkout_url,
-			) );
-
-		} catch ( Exception $e ) {
-			error_log( 'DigiBlocks Add to Cart Error: ' . $e->getMessage() );
-			wp_send_json_error( array(
-				'message' => __( 'An error occurred while adding the product to cart.', 'digiblocks' ),
-			) );
 		}
 	}
 }

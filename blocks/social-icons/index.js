@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import SocialIconsEdit from './edit';
 import SocialIconsSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Social Icons block
@@ -29,7 +29,7 @@ registerBlockType('digiblocks/social-icons', {
     keywords: [__('social', 'digiblocks'), __('icons', 'digiblocks'), __('networks', 'digiblocks'), __('media', 'digiblocks')],
     // Disable all default controls and settings panels
     supports: {
-        inserter: getBlockActiveStatus('social-icons') ? true : false, // Remove the block if disabled
+        inserter: getBlockActiveStatus('social-icons') ? true : false,
         html: false,
         className: false,
         customClassName: false,

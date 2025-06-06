@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import TeamEdit from './edit';
 import TeamSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Team block

@@ -136,9 +136,6 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         { label: __('H4', 'digiblocks'), value: 'h4' },
         { label: __('H5', 'digiblocks'), value: 'h5' },
         { label: __('H6', 'digiblocks'), value: 'h6' },
-        { label: __('p', 'digiblocks'), value: 'p' },
-        { label: __('div', 'digiblocks'), value: 'div' },
-        { label: __('span', 'digiblocks'), value: 'span' },
     ];
 
     // Highlight type options

@@ -33,8 +33,8 @@ ob_start();
         
         // Add nonce to the form
         const nonceField = form.querySelector('input[name="digiblocks_newsletter_nonce"]');
-        if (nonceField && typeof digiBlocksNewsletterData !== 'undefined') {
-            nonceField.value = digiBlocksNewsletterData.nonce;
+        if (nonceField && typeof digiBlocksData !== 'undefined' && digiBlocksData.newsletter) {
+            nonceField.value = digiBlocksData.newsletter.nonce;
         }
         
         form.addEventListener('submit', function(e) {
@@ -46,8 +46,8 @@ ob_start();
             const errorMessage = newsletterBlock.querySelector('.digiblocks-newsletter-message.error');
             
             // Hide previous messages
-            successMessage.style.display = 'none';
-            errorMessage.style.display = 'none';
+            if (successMessage) successMessage.style.display = 'none';
+            if (errorMessage) errorMessage.style.display = 'none';
             
             // Disable submit button
             submitButton.disabled = true;
@@ -72,7 +72,7 @@ ob_start();
                     params.append(key, data[key]);
                 }
                 
-                fetch(digiBlocksNewsletterData.ajax_url, {
+                fetch(digiBlocksData.ajax_url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -87,22 +87,28 @@ ob_start();
                     
                     if (data.success) {
                         // Show success message
-                        successMessage.style.display = 'block';
+                        if (successMessage) {
+                            successMessage.textContent = data.data.message || '<?php esc_html_e( 'Successfully subscribed!', 'digiblocks' ); ?>';
+                            successMessage.style.display = 'block';
+                        }
                         
                         // Reset form
                         form.reset();
                         
                         // Hide success message after 5 seconds
                         setTimeout(function() {
-                            successMessage.style.display = 'none';
+                            if (successMessage) successMessage.style.display = 'none';
                         }, 5000);
                     } else {
                         // Show error message
-                        errorMessage.style.display = 'block';
+                        if (errorMessage) {
+                            errorMessage.textContent = data.data.message || '<?php esc_html_e( 'Subscription failed. Please try again.', 'digiblocks' ); ?>';
+                            errorMessage.style.display = 'block';
+                        }
                         
                         // Hide error message after 5 seconds
                         setTimeout(function() {
-                            errorMessage.style.display = 'none';
+                            if (errorMessage) errorMessage.style.display = 'none';
                         }, 5000);
                     }
                 })
@@ -114,11 +120,14 @@ ob_start();
                     submitButton.textContent = originalButtonText;
                     
                     // Show error message
-                    errorMessage.style.display = 'block';
+                    if (errorMessage) {
+                        errorMessage.textContent = '<?php esc_html_e( 'Network error. Please check your connection and try again.', 'digiblocks' ); ?>';
+                        errorMessage.style.display = 'block';
+                    }
                     
                     // Hide error message after 5 seconds
                     setTimeout(function() {
-                        errorMessage.style.display = 'none';
+                        if (errorMessage) errorMessage.style.display = 'none';
                     }, 5000);
                 });
             }

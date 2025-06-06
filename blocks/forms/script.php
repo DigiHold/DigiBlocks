@@ -31,6 +31,12 @@ ob_start();
 ?>
 /* Forms Block Script - <?php echo esc_attr( $id ); ?> */
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if we have the localized data
+    if (typeof digiBlocksData === 'undefined' || !digiBlocksData.forms) {
+        console.error('DigiBlocks Forms: Missing AJAX data');
+        return;
+    }
+    
     // Find the form
     const form = document.getElementById('<?php echo esc_attr( $id ); ?>-form');
     
@@ -179,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('action', 'digiblocks_submit_form');
         formData.append('form_id', '<?php echo esc_attr( $id ); ?>');
         formData.append('form_name', '<?php echo esc_js( $formName ); ?>');
-        formData.append('form_nonce', digiBlocksFormData.form_nonce);
+        formData.append('form_nonce', digiBlocksData.forms.form_nonce);
         
         // Add field labels to the form data
         const fieldLabels = {};
@@ -220,9 +226,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add reCAPTCHA token if enabled
         <?php if ( $enableRecaptcha ) : ?>
-        if (typeof grecaptcha !== 'undefined') {
+        if (typeof grecaptcha !== 'undefined' && digiBlocksData.forms.recaptcha_site_key) {
             grecaptcha.ready(function() {
-                grecaptcha.execute(digiBlocksFormData.recaptcha_site_key, {action: 'submit'}).then(function(token) {
+                grecaptcha.execute(digiBlocksData.forms.recaptcha_site_key, {action: 'submit'}).then(function(token) {
                     formData.append('recaptcha_token', token);
                     sendFormData(formData);
                 });
@@ -239,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * Send form data to server
      */
     function sendFormData(formData) {
-        fetch(digiBlocksFormData.ajax_url, {
+        fetch(digiBlocksData.ajax_url, {
             method: 'POST',
             body: formData,
             credentials: 'same-origin'
@@ -315,4 +321,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 <?php
 $digiblocks_js_output = ob_get_clean();
-?>

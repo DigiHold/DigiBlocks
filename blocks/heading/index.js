@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import HeadingEdit from './edit';
 import HeadingSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Heading block
@@ -29,7 +29,7 @@ registerBlockType('digiblocks/heading', {
     keywords: [__('heading', 'digiblocks'), __('title', 'digiblocks'), __('header', 'digiblocks')],
     // Disable default controls and settings panels
     supports: {
-		inserter: getBlockActiveStatus('heading') ? true : false, // Remove the block if disabled
+		inserter: getBlockActiveStatus('heading') ? true : false,
         html: false,
         className: false,
         customClassName: false,

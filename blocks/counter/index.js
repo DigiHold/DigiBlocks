@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import CounterEdit from './edit';
 import CounterSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Counter block

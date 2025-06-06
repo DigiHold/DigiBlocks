@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import AccordionEdit from './edit';
 import AccordionSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Accordion block
@@ -29,7 +29,7 @@ registerBlockType('digiblocks/accordion', {
     keywords: [__('accordion', 'digiblocks'), __('toggle', 'digiblocks'), __('collapse', 'digiblocks'), __('faq', 'digiblocks')],
     // Disable all default controls and settings panels
     supports: {
-		inserter: getBlockActiveStatus('accordion') ? true : false, // Remove the block if disabled
+		inserter: getBlockActiveStatus('accordion') ? true : false,
         html: false,
         className: false,
         customClassName: false,

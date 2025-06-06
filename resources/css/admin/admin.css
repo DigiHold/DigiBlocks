@@ -97,19 +97,31 @@ body.rtl .digiblocks-admin-wrap {
         rgba(82, 107, 254, 0.03),
         rgba(82, 107, 254, 0)
     );
-}
 
-.digiblocks-section-header h2 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #333;
-}
+    h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #333;
 
-.digiblocks-section-header p {
-    margin: 0.5rem 0 0;
-    color: #646970;
-    font-size: 0.875rem;
+        &.has-icon {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            svg {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+        }
+    }
+
+    p {
+        margin: 0.5rem 0 0;
+        color: #646970;
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
 }
 
 /* Block Cards */
@@ -611,46 +623,84 @@ body.rtl .digiblocks-admin-wrap {
     }
 }
 
-.digiblocks-link-wrapper button.digiblocks-button {
+.digiblocks-features {
     display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    background-color: #526bfe;
-    border-color: #526bfe;
-    font-weight: 500;
-    box-shadow: none;
-    outline: none;
-    padding: 0.25rem 1rem;
-    border-radius: 30px;
-    transition: all 0.3s ease;
+    flex-direction: column;
+    gap: 0.375rem;
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
 
-    &[disabled] {
-        background-color: #526bfe !important;
-        border-color: #526bfe !important;
-        color: #fff !important;
+    li {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #475569;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        margin: 0;
+
+        svg {
+            display: flex;
+            width: 10px;
+            height: auto;
+            fill: #10b981;
+        }
+
+        span {
+            flex: 1;
+        }
     }
+}
 
-    &:hover,
-    &:focus {
-        background-color: #394bb6;
-        border-color: #394bb6;
+.digiblocks-link-wrapper {
+    display: inline-flex;
+
+    .digiblocks-button {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        background-color: #526bfe;
         color: #fff;
-        transform: translateX(0.125rem);
+        border-color: #526bfe;
+        line-height: 1;
+        font-weight: 500;
         box-shadow: none;
         outline: none;
-    }
-
-    &:hover svg {
-        transform: translateX(0.125rem);
-    }
-
-    span {
-        flex: 1;
-    }
-
-    svg {
+        padding: 0.7rem 1rem;
+        border-radius: 30px;
+        text-decoration: none;
+        text-shadow: none;
         transition: all 0.3s ease;
-        fill: currentColor;
+
+        &[disabled] {
+            background-color: #526bfe !important;
+            border-color: #526bfe !important;
+            color: #fff !important;
+        }
+
+        &:hover,
+        &:focus {
+            background-color: #394bb6;
+            border-color: #394bb6;
+            color: #fff;
+            transform: translateX(0.125rem);
+            box-shadow: none;
+            outline: none;
+        }
+
+        &:hover svg {
+            transform: translateX(0.125rem);
+        }
+
+        span {
+            flex: 1;
+        }
+
+        svg {
+            transition: all 0.3s ease;
+            fill: currentColor;
+        }
     }
 }
 

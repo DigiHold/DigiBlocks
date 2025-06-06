@@ -264,7 +264,7 @@ if ( ! function_exists( 'digiblocks_allow_svg_in_kses' ) ) {
 	 */
 	function digiblocks_allow_svg_in_kses() {
 		$kses_defaults = wp_kses_allowed_html( 'post' );
-
+	
 		$svg_args = array(
 			'svg'   => array(
 				'class'           => true,
@@ -283,6 +283,7 @@ if ( ! function_exists( 'digiblocks_allow_svg_in_kses' ) ) {
 			'g'       => array(
 				'fill'            => true,
 				'fill-rule'       => true,
+				'transform'       => true,
 			),
 			'title' => array(
 				'title' => true,
@@ -295,6 +296,7 @@ if ( ! function_exists( 'digiblocks_allow_svg_in_kses' ) ) {
 				'stroke-width'    => true,
 				'stroke-linecap'  => true,
 				'stroke-linejoin' => true,
+				'transform'       => true,
 			),
 			'line'  => array(
 				'x1'              => true,
@@ -303,16 +305,19 @@ if ( ! function_exists( 'digiblocks_allow_svg_in_kses' ) ) {
 				'y2'              => true,
 				'stroke'          => true,
 				'stroke-width'    => true,
+				'transform'       => true,
 			),
 			'polyline' => array(
 				'points'          => true,
 				'stroke'          => true,
 				'fill'            => true,
+				'transform'       => true,
 			),
 			'polygon' => array(
 				'points'          => true,
 				'fill'            => true,
 				'fill-rule'       => true,
+				'transform'       => true,
 			),
 			'rect'    => array(
 				'x'               => true,
@@ -324,6 +329,7 @@ if ( ! function_exists( 'digiblocks_allow_svg_in_kses' ) ) {
 				'stroke-width'    => true,
 				'rx'              => true,
 				'ry'              => true,
+				'transform'       => true,
 			),
 			'circle'  => array(
 				'cx'              => true,
@@ -332,6 +338,17 @@ if ( ! function_exists( 'digiblocks_allow_svg_in_kses' ) ) {
 				'fill'            => true,
 				'stroke'          => true,
 				'stroke-width'    => true,
+				'transform'       => true,
+			),
+			'ellipse' => array(
+				'cx'              => true,
+				'cy'              => true,
+				'rx'              => true,
+				'ry'              => true,
+				'fill'            => true,
+				'stroke'          => true,
+				'stroke-width'    => true,
+				'transform'       => true,
 			),
 		);
 		

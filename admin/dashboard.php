@@ -9,6 +9,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+// Check if DigiBlocks Pro is active
+$is_pro_active = defined( 'DIGIBLOCKS_PRO_VERSION' ) || class_exists( 'DigiBlocks_Pro' );
 ?>
 <div class="digiblocks-admin-wrap">
 	<div class="digiblocks-admin-header">
@@ -22,6 +25,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=digiblocks-settings' ) ); ?>">
 				<?php esc_html_e( 'Settings', 'digiblocks' ); ?>
 			</a>
+			<?php if ( $is_pro_active ) : ?>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=digiblocks-updates' ) ); ?>">
+					<?php esc_html_e( 'License', 'digiblocks' ); ?>
+				</a>
+			<?php endif; ?>
 		</nav>
 	</div>
 

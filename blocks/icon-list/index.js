@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import IconListEdit from './edit';
 import IconListSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Icon List block
@@ -29,7 +29,7 @@ registerBlockType('digiblocks/icon-list', {
     keywords: [__('icon', 'digiblocks'), __('list', 'digiblocks'), __('menu', 'digiblocks'), __('feature', 'digiblocks'), __('service', 'digiblocks')],
     // Disable all default controls and settings panels
     supports: {
-        inserter: getBlockActiveStatus('icon-list') ? true : false, // Remove the block if disabled
+        inserter: getBlockActiveStatus('icon-list') ? true : false,
         html: false,
         className: false,
         customClassName: false,

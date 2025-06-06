@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import SpacerEdit from './edit';
 import SpacerSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Spacer block

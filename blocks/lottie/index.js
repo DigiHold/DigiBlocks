@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import LottieEdit from './edit';
 import LottieSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Lottie Animation block
@@ -28,7 +28,7 @@ registerBlockType('digiblocks/lottie', {
     description: digiBlocksData.blocks['lottie'].description,
     keywords: [__('lottie', 'digiblocks'), __('animation', 'digiblocks'), __('dotlottie', 'digiblocks'), __('motion', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('lottie') ? true : false, // Remove the block if disabled
+        inserter: getBlockActiveStatus('lottie') ? true : false,
         html: false,
         className: false,
         customClassName: false,

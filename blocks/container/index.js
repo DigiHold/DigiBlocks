@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import ContainerEdit from './edit';
 import ContainerSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Container block

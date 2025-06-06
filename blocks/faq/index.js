@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import FAQEdit from './edit';
 import FAQSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register FAQ block
@@ -29,7 +29,7 @@ registerBlockType('digiblocks/faq', {
     keywords: [__('faq', 'digiblocks'), __('questions', 'digiblocks'), __('answers', 'digiblocks'), __('schema', 'digiblocks')],
     // Disable all default controls and settings panels
     supports: {
-        inserter: getBlockActiveStatus('faq') ? true : false, // Remove the block if disabled
+        inserter: getBlockActiveStatus('faq') ? true : false,
         html: false,
         className: false,
         customClassName: false,

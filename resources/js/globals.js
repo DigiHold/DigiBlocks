@@ -10,6 +10,32 @@ window.digi.utils = window.digi.utils || {};
 window.digi.components = window.digi.components || {};
 window.digi.icons = window.digi.icons || {};
 
+// Create digiBlocks namespace on wp object
+wp.digiBlocks = wp.digiBlocks || {};
+
+// Add utility functions to wp.digiBlocks
+wp.digiBlocks.getBlockActiveStatus = (blockName) => {
+	if (typeof digiBlocksData !== 'undefined' && 
+		digiBlocksData.inactiveBlocks && 
+		typeof digiBlocksData.inactiveBlocks[blockName] !== 'undefined' && 
+		digiBlocksData.inactiveBlocks[blockName] === true) {
+		return false;
+	}
+	return true;
+};
+
+wp.digiBlocks.isDigiActive = () => {
+	return typeof digiBlocksData !== 'undefined' && digiBlocksData.isDigiActive;
+};
+
+wp.digiBlocks.isDigiProActive = () => {
+	return typeof digiBlocksData !== 'undefined' && digiBlocksData.isDigiProActive;
+};
+
+wp.digiBlocks.isWooActive = () => {
+	return typeof digiBlocksData !== 'undefined' && digiBlocksData.isWooActive;
+};
+
 // Define device icons BEFORE imports to ensure they're available immediately
 window.digi.icons.deviceIcons = {
     desktop: (

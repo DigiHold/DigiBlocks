@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import IconEdit from './edit';
 import IconSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Icon block
@@ -29,7 +29,7 @@ registerBlockType('digiblocks/icon', {
     keywords: [__('icon', 'digiblocks'), __('symbol', 'digiblocks'), __('fontawesome', 'digiblocks')],
     // Disable all default controls and settings panels
     supports: {
-        inserter: getBlockActiveStatus('icon') ? true : false, // Remove the block if disabled
+        inserter: getBlockActiveStatus('icon') ? true : false,
         html: false,
         className: false,
         customClassName: false,

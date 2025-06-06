@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import PricingTableEdit from './edit';
 import PricingTableSave from './save';
-import { getBlockActiveStatus } from '../../resources/js/blocks/utils.js';
+const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Pricing Table block
@@ -29,7 +29,7 @@ registerBlockType('digiblocks/pricing-table', {
     keywords: [__('pricing', 'digiblocks'), __('price', 'digiblocks'), __('table', 'digiblocks'), __('plan', 'digiblocks'), __('subscription', 'digiblocks')],
     // Disable all default controls and settings panels
     supports: {
-        inserter: getBlockActiveStatus('pricing-table') ? true : false, // Remove the block if disabled
+        inserter: getBlockActiveStatus('pricing-table') ? true : false,
         html: false,
         className: false,
         customClassName: false,

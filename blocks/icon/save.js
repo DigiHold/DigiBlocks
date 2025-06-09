@@ -12,7 +12,6 @@ const IconSave = ({ attributes }) => {
 		iconSource,
 		customSvg,
         iconValue, 
-        align, 
         animation, 
         hoverEffect,
         anchor,
@@ -26,7 +25,6 @@ const IconSave = ({ attributes }) => {
     const blockClasses = [
         "digiblocks-icon",
 		id,
-        `align-${align}`,
         animation !== "none" ? `animate-${animation}` : "",
         hoverEffect !== "none" ? `has-hover-${hoverEffect}` : "",
         customClasses || "" // Add custom classes if they exist

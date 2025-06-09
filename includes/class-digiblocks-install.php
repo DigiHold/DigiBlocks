@@ -36,11 +36,11 @@ class DigiBlocks_Install {
 	 * Theme configurations
 	 */
 	private $themes = array(
-		'digistore' => array(
-			'name' => 'DigiStore',
-			'slug' => 'digistore',
-			'repo_slug' => 'digistore',
-			'learn_more_url' => 'https://digihold.click/digistore-site',
+		'digifusion' => array(
+			'name' => 'DigiFusion',
+			'slug' => 'digifusion',
+			'repo_slug' => 'digifusion',
+			'learn_more_url' => 'https://digihold.click/digifusion-site',
 		),
 	);
 

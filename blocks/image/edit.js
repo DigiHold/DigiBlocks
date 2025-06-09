@@ -13,7 +13,7 @@ const {
 } = wp.blockEditor;
 const {
     TabPanel,
-    PanelBody,
+    Notice,
     SelectControl,
     ToggleControl,
     Button,
@@ -25,8 +25,9 @@ const {
     Placeholder,
     TextControl,
     PanelRow,
+    Modal,
 } = wp.components;
-const { useState, useEffect, useRef } = wp.element;
+const { useState, useEffect, useRef, useCallback } = wp.element;
 
 /**
  * Internal dependencies
@@ -88,6 +89,18 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
 
     // States
     const [isEditingURL, setIsEditingURL] = useState(false);
+    
+    // Image search states
+    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [searchPage, setSearchPage] = useState(1);
+    const [hasMoreResults, setHasMoreResults] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
+    
+    // Ref for search timeout
+    const searchTimeoutRef = useRef(null);
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -157,6 +170,129 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
     const handlePreviewClick = () => {
         animationPreview(id, animation, animations, previewTimeoutRef);
     };
+
+    // Debounced search function
+    const debouncedSearch = useCallback((query, page = 1) => {
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+        
+        searchTimeoutRef.current = setTimeout(() => {
+            if (query.trim()) {
+                searchImages(query, page);
+            } else {
+                setSearchResults([]);
+                setHasMoreResults(false);
+            }
+        }, 500); // 500ms delay
+    }, []);
+
+    // Effect for auto-search on query change
+    useEffect(() => {
+        if (isSearchModalOpen && searchQuery) {
+            debouncedSearch(searchQuery, 1);
+        }
+        
+        // Cleanup timeout on unmount
+        return () => {
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current);
+            }
+        };
+    }, [searchQuery, isSearchModalOpen, debouncedSearch]);
+
+    // Search images
+    const searchImages = (query, page = 1) => {
+        if (!query.trim()) return;
+        
+        setIsSearching(true);
+        
+        const formData = new FormData();
+        formData.append('action', 'digiblocks_search_images');
+        formData.append('query', query);
+        formData.append('page', page);
+        formData.append('per_page', 20);
+        formData.append('nonce', digiBlocksData.image_search_nonce || '');
+
+        fetch(digiBlocksData.ajax_url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            setIsSearching(false);
+            if (data.success) {
+                if (page === 1) {
+                    setSearchResults(data.data.images);
+                } else {
+                    setSearchResults(prev => [...prev, ...data.data.images]);
+                }
+                setHasMoreResults(data.data.images.length === 20);
+                setSearchPage(page);
+            } else {
+                console.error('Search error:', data.data);
+                alert(__('Search failed. Please check your API configuration.', 'digiblocks'));
+            }
+        })
+        .catch(error => {
+            setIsSearching(false);
+            console.error('Search error:', error);
+            alert(__('Search failed. Please try again.', 'digiblocks'));
+        });
+    };
+
+    // Download and use image
+    const downloadAndUseImage = (imageData) => {
+        setIsDownloading(true);
+        
+        const formData = new FormData();
+        formData.append('action', 'digiblocks_download_image');
+        formData.append('image_data', JSON.stringify(imageData));
+        formData.append('nonce', digiBlocksData.image_search_nonce || '');
+
+        fetch(digiBlocksData.ajax_url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            setIsDownloading(false);
+            if (data.success) {
+                // Use the downloaded image exactly like a regular upload
+                const media = data.data;
+                setAttributes({
+                    imageUrl: media.url,
+                    imageId: media.id,
+                    altText: media.alt || '',
+                    title: media.title || '',
+                });
+                setIsSearchModalOpen(false);
+                // Reset search state
+                setSearchQuery('');
+                setSearchResults([]);
+                setSearchPage(1);
+                setHasMoreResults(false);
+            } else {
+                console.error('Download error:', data.data);
+                alert(__('Failed to download image. Please try again.', 'digiblocks'));
+            }
+        })
+        .catch(error => {
+            setIsDownloading(false);
+            console.error('Download error:', error);
+            alert(__('Failed to download image. Please try again.', 'digiblocks'));
+        });
+    };
+
+    // Load more results
+    const loadMoreResults = () => {
+        if (!isSearching && hasMoreResults) {
+            searchImages(searchQuery, searchPage + 1);
+        }
+    };
+
+    // Check if image search is available
+    const isImageSearchAvailable = digiBlocksData && digiBlocksData.image_search_available;
 
     // Border style options
     const borderStyleOptions = [
@@ -470,6 +606,207 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
         `;
     };
 
+    // CSS styles for image search modal
+	const imageSearchModalCSS = () => {
+		return `
+			.digiblocks-image-search-modal .components-modal__content {
+				padding: 0 !important;
+				overflow: hidden !important;
+				width: 90vw !important;
+				max-width: 1200px !important;
+				display: flex !important;
+				flex-direction: column !important;
+			}
+
+			.digiblocks-image-search-modal .components-modal__header {
+				flex-shrink: 0;
+			}
+
+			.digiblocks-image-search-modal .components-modal__content > div:nth-child(2) {
+				overflow: auto;
+			}
+
+			.digiblocks-image-search-content {
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+				flex: 1;
+			}
+
+			.digiblocks-search-header {
+				padding: 20px;
+				border-bottom: 1px solid #ddd;
+				background: #f9f9f9;
+				flex-shrink: 0;
+			}
+
+			.digiblocks-search-input-wrapper {
+				display: flex;
+				gap: 10px;
+				align-items: center;
+			}
+
+			.digiblocks-search-input {
+				flex: 1;
+				padding: 8px 12px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				font-size: 14px;
+			}
+
+			.digiblocks-search-input:focus {
+				outline: none;
+				border-color: #007cba;
+				box-shadow: 0 0 0 1px #007cba;
+			}
+
+			.digiblocks-search-results {
+				flex: 1;
+				overflow-y: auto !important;
+				overflow-x: hidden !important;
+				padding: 20px;
+				min-height: 0 !important;
+				max-height: none !important;
+			}
+
+			.digiblocks-image-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+				gap: 16px;
+				margin-bottom: 20px;
+			}
+
+			.digiblocks-image-item {
+				position: relative;
+				aspect-ratio: 4/3;
+				cursor: pointer;
+				border-radius: 8px;
+				overflow: hidden;
+				transition: transform 0.2s ease;
+				background: #f5f5f5;
+			}
+
+			.digiblocks-image-item:hover {
+				transform: scale(1.02);
+			}
+
+			.digiblocks-image-item img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			.digiblocks-image-overlay {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				background: linear-gradient(transparent, rgba(0,0,0,0.8));
+				color: white;
+				padding: 16px;
+				opacity: 0;
+				transition: opacity 0.2s ease;
+			}
+
+			.digiblocks-image-item:hover .digiblocks-image-overlay {
+				opacity: 1;
+			}
+
+			.digiblocks-image-info {
+				margin-bottom: 8px;
+			}
+
+			.digiblocks-image-title {
+				display: block;
+				font-weight: 600;
+				font-size: 14px;
+				margin-bottom: 4px;
+				line-height: 1.2;
+			}
+
+			.digiblocks-image-author {
+				display: block;
+				font-size: 12px;
+				opacity: 0.8;
+			}
+
+			.digiblocks-load-more {
+				text-align: center;
+				margin-top: 20px;
+			}
+
+			.digiblocks-no-results {
+				text-align: center;
+				padding: 40px 20px;
+				color: #666;
+			}
+
+			.digiblocks-image-upload-buttons {
+				display: flex;
+				gap: 12px;
+				align-items: center;
+				flex-wrap: wrap;
+			}
+
+			.digiblocks-image-upload-buttons button {
+				display: flex;
+				gap: 5px;
+				align-items: center;
+			}
+
+			.digiblocks-media-upload-button,
+			.digiblocks-media-search-button {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				width: 100%;
+			}
+
+			.digiblocks-media-controls {
+				display: flex;
+				gap: 8px;
+				align-items: center;
+				margin-top: 12px;
+				flex-wrap: wrap;
+			}
+
+			.digiblocks-media-controls .components-button {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+			}
+
+			.digiblocks-searching-state {
+				text-align: center;
+				padding: 40px 20px;
+				color: #666;
+			}
+
+			.digiblocks-downloading-overlay {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: rgba(0,0,0,0.8);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: white;
+				font-weight: 600;
+				z-index: 10;
+			}
+
+			.digiblocks-typing-indicator {
+				text-align: center;
+				padding: 20px;
+				color: #666;
+				font-style: italic;
+			}
+		`;
+	};
+
     // Define the render function for each tab
     const renderTabContent = () => {
         switch (activeTab) {
@@ -483,42 +820,75 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                             initialOpen={true}
                         >
                             <MediaUploadCheck>
-                                <MediaUpload
-                                    onSelect={onSelectImage}
-                                    allowedTypes={['image']}
-                                    value={imageId}
-                                    render={({ open }) => (
-                                        <div className="digiblocks-media-upload-wrapper">
-                                            {imageUrl ? (
-                                                <div className="digiblocks-media-preview">
-                                                    <img src={imageUrl} alt={altText || ''} />
-                                                    <div className="digiblocks-media-controls">
+                                <div className="digiblocks-image-upload-section">
+                                    {imageUrl ? (
+                                        <div className="digiblocks-media-preview">
+                                            <img src={imageUrl} alt={altText || ''} />
+                                            <div className="digiblocks-media-controls">
+                                                {isImageSearchAvailable && (
+                                                    <Button
+                                                        isPrimary
+                                                        onClick={() => setIsSearchModalOpen(true)}
+                                                        disabled={isDownloading}
+                                                    >
+                                                        <span className="dashicon dashicons dashicons-search"></span>
+                                                    </Button>
+                                                )}
+                                                <MediaUpload
+                                                    onSelect={onSelectImage}
+                                                    allowedTypes={['image']}
+                                                    value={imageId}
+                                                    render={({ open }) => (
                                                         <Button
-                                                            isPrimary
+															isPrimary
                                                             onClick={open}
+                                                            disabled={isDownloading}
                                                         >
                                                             <span className="dashicon dashicons dashicons-edit"></span>
                                                         </Button>
-                                                        <Button 
-                                                            isDestructive
-                                                            onClick={onRemoveImage}
-                                                        >
-                                                            <span className="dashicon dashicons dashicons-trash"></span>
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <Button
-                                                    className="digiblocks-media-upload-button"
-                                                    isPrimary
-                                                    onClick={open}
+                                                    )}
+                                                />
+                                                <Button 
+                                                    isDestructive
+                                                    onClick={onRemoveImage}
+                                                    disabled={isDownloading}
                                                 >
-                                                    {__('Select Image', 'digiblocks')}
+                                                    <span className="dashicon dashicons dashicons-trash"></span>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="digiblocks-image-upload-buttons">
+                                            <MediaUpload
+                                                onSelect={onSelectImage}
+                                                allowedTypes={['image']}
+                                                value={imageId}
+                                                render={({ open }) => (
+                                                    <Button
+                                                        className="digiblocks-media-upload-button"
+                                                        isPrimary
+                                                        onClick={open}
+                                                        disabled={isDownloading}
+                                                    >
+                                                        <span className="dashicon dashicons dashicons-admin-media"></span>
+                                                        {__('Select Image', 'digiblocks')}
+                                                    </Button>
+                                                )}
+                                            />
+                                            {isImageSearchAvailable && (
+                                                <Button
+                                                    className="digiblocks-media-search-button"
+                                                    isSecondary
+                                                    onClick={() => setIsSearchModalOpen(true)}
+                                                    disabled={isDownloading}
+                                                >
+                                                    <span className="dashicon dashicons dashicons-search"></span>
+                                                    {__('Search Images', 'digiblocks')}
                                                 </Button>
                                             )}
                                         </div>
                                     )}
-                                />
+                                </div>
                             </MediaUploadCheck>
                             
                             {imageUrl && (
@@ -581,6 +951,32 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                                     </div>
                                 </div>
                             )}
+
+							 {/* Image Search Notice */}
+							 {!isImageSearchAvailable && (
+								<Notice
+									status="info"
+									isDismissible={false}
+									style={{ marginTop: '16px' }}
+								>
+									<p style={{ margin: '0 0 8px 0' }}>
+										<strong>{__('💡 Enhanced Image Search Available', 'digiblocks')}</strong>
+									</p>
+									<p style={{ margin: '0 0 12px 0' }}>
+										{__('Configure API providers to search and download images directly from Unsplash, Pexels, and Pixabay.', 'digiblocks')}
+									</p>
+									<Button
+										isSecondary
+										isSmall
+										href={`${digiBlocksData.admin_url}admin.php?page=digiblocks-settings#image-providers`}
+										target="_blank"
+										rel="noopener noreferrer"
+										icon="admin-settings"
+									>
+										{__('Configure Image Providers', 'digiblocks')}
+									</Button>
+								</Notice>
+							)}
                         </TabPanelBody>
                     </>
                 );
@@ -1214,6 +1610,9 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
 
             {/* Use dangerouslySetInnerHTML for the style tag */}
             <style dangerouslySetInnerHTML={{ __html: generateCSS() }} />
+            
+            {/* CSS for image search modal */}
+            <style dangerouslySetInnerHTML={{ __html: imageSearchModalCSS() }} />
 
             <div {...blockProps}>
                 <figure>
@@ -1249,25 +1648,140 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                             label={__('Image', 'digiblocks')}
                             instructions={__('Upload an image or select one from your media library.', 'digiblocks')}
                         >
-                            <MediaUploadCheck>
-                                <MediaUpload
-                                    onSelect={onSelectImage}
-                                    allowedTypes={['image']}
-                                    value={imageId}
-                                    render={({ open }) => (
-                                        <Button
-                                            isPrimary
-                                            onClick={open}
-                                        >
-                                            {__('Select Image', 'digiblocks')}
-                                        </Button>
-                                    )}
-                                />
-                            </MediaUploadCheck>
+                            <div className="digiblocks-image-upload-buttons">
+                                <MediaUploadCheck>
+                                    <MediaUpload
+                                        onSelect={onSelectImage}
+                                        allowedTypes={['image']}
+                                        value={imageId}
+                                        render={({ open }) => (
+                                            <Button
+                                                isPrimary
+                                                onClick={open}
+                                                disabled={isDownloading}
+                                            >
+                                                <span className="dashicon dashicons dashicons-admin-media"></span>
+                                                {__('Select Image', 'digiblocks')}
+                                            </Button>
+                                        )}
+                                    />
+                                </MediaUploadCheck>
+                                {isImageSearchAvailable && (
+                                    <Button
+                                        isSecondary
+                                        onClick={() => setIsSearchModalOpen(true)}
+                                        disabled={isDownloading}
+                                    >
+                                        <span className="dashicon dashicons dashicons-search"></span>
+                                        {__('Search Images', 'digiblocks')}
+                                    </Button>
+                                )}
+                            </div>
                         </Placeholder>
                     )}
                 </figure>
             </div>
+
+            {/* Image Search Modal */}
+			{isSearchModalOpen && (
+				<Modal
+					title={__('Search Images', 'digiblocks')}
+					onRequestClose={() => {
+						setIsSearchModalOpen(false);
+						setSearchQuery('');
+						setSearchResults([]);
+						setSearchPage(1);
+						setHasMoreResults(false);
+					}}
+					className="digiblocks-image-search-modal"
+					overlayClassName="digiblocks-modal-overlay"
+					shouldCloseOnClickOutside={false}
+				>
+					<div className="digiblocks-image-search-content">
+						<div className="digiblocks-search-header">
+							<div className="digiblocks-search-input-wrapper">
+								<input
+									type="text"
+									placeholder={__('Search for images...', 'digiblocks')}
+									value={searchQuery}
+									onChange={(e) => setSearchQuery(e.target.value)}
+									className="digiblocks-search-input"
+									autoFocus
+								/>
+								<Button
+									isPrimary
+									onClick={() => searchImages(searchQuery, 1)}
+									disabled={!searchQuery.trim() || isSearching}
+								>
+									{isSearching ? __('Searching...', 'digiblocks') : __('Search', 'digiblocks')}
+								</Button>
+							</div>
+						</div>
+						
+						<div className="digiblocks-search-results">
+                            {isSearching && searchResults.length === 0 && (
+                                <div className="digiblocks-searching-state">
+                                    <Spinner />
+                                    <p>{__('Searching for images...', 'digiblocks')}</p>
+                                </div>
+                            )}
+
+                            {searchQuery && !isSearching && searchResults.length === 0 && (
+                                <div className="digiblocks-typing-indicator">
+                                    <p>{__('Type your search term and wait for results...', 'digiblocks')}</p>
+                                </div>
+                            )}
+                            
+                            {searchResults.length > 0 && (
+                                <div className="digiblocks-image-grid">
+                                    {searchResults.map((image, index) => (
+                                        <div
+                                            key={`${image.id}-${index}`}
+                                            className="digiblocks-image-item"
+                                            onClick={() => downloadAndUseImage(image)}
+                                        >
+                                            <img
+                                                src={image.thumb}
+                                                alt={image.alt}
+                                                loading="lazy"
+                                            />
+                                            <div className="digiblocks-image-overlay">
+                                                <div className="digiblocks-image-info">
+                                                    <span className="digiblocks-image-title">{image.title}</span>
+                                                    <span className="digiblocks-image-author">by {image.author}</span>
+                                                </div>
+                                                <Button
+                                                    isPrimary
+                                                    size="small"
+                                                >
+                                                    {__('Use Image', 'digiblocks')}
+                                                </Button>
+                                            </div>
+                                            {isDownloading && (
+                                                <div className="digiblocks-downloading-overlay">
+                                                    <Spinner />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            
+                            {hasMoreResults && (
+                                <div className="digiblocks-load-more">
+                                    <Button
+                                        isSecondary
+                                        onClick={loadMoreResults}
+                                        disabled={isSearching}
+                                    >
+                                        {isSearching ? __('Loading...', 'digiblocks') : __('Load More', 'digiblocks')}
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+					</div>
+				</Modal>
+			)}
         </>
     );
 };

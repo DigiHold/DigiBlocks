@@ -6,6 +6,7 @@
         "clean": "rm -rf assets/css/admin/* assets/js/admin/* assets/js/blocks/* assets/js/globals.js",
         "clean:ds_store": "find . -name '.DS_Store' -type f -delete",
         "generate:blocks": "node generate-blocks-index.js",
+        "generate:icons": "node generate-icons.js",
         "dev:css-admin": "postcss ./resources/css/admin/admin.css -o ./assets/css/admin/admin.css --watch",
         "build:css-admin": "postcss ./resources/css/admin/admin.css -o ./assets/css/admin/admin.css --env production",
         "dev:css-review-notice": "postcss ./resources/css/admin/review-notice.css -o ./assets/css/admin/review-notice.css --watch",

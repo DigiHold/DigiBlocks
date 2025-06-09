@@ -91,11 +91,12 @@ class DigiBlocks {
 		// Initialize fonts manager
 		$this->init_fonts_manager();
 
-		// Initialize forms handler if needed
-		add_action( 'init', array( $this, 'init_forms_handler' ) );
+		// Initialize conditional handlers
+		add_action( 'init', array( $this, 'init_conditional_handlers' ) );
 
-		// Initialize newsletter handler if needed
-		add_action( 'init', array( $this, 'init_newsletter_handler' ) );
+		// Custom footer
+		add_filter( 'admin_footer_text', array( $this, 'footer_text' ), 99 );
+		add_filter( 'update_footer', array( $this, 'update_footer' ), 99 );
 	}
 
 	/**
@@ -127,6 +128,7 @@ class DigiBlocks {
 			'google_maps_map_id'   => '',
 			'google_fonts_local'   => false,
 			'enable_schema_markup' => true,
+			'image_api_provider'   => '',
 		);
 
 		// By default, no blocks are inactive
@@ -300,24 +302,24 @@ class DigiBlocks {
 
 				<div class="digiblocks-promo-product">
 					<div class="digiblocks-promo-logo">
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1590 350" width="150" height="33"><g><path d="M425.8819,249.9932V108.5933h69.6904c15.7559,0,29.624,2.8628,41.6123,8.585,11.9844,5.7256,21.3418,13.8369,28.0771,24.3408,6.7324,10.5039,10.1006,23.0283,10.1006,37.5718,0,14.6797-3.3682,27.3047-10.1006,37.875-6.7354,10.5732-16.0928,18.7197-28.0771,24.4424-11.9883,5.7256-25.8564,8.585-41.6123,8.585h-69.6904ZM473.5537,212.8252h19.998c6.7324,0,12.625-1.2783,17.6758-3.8379,5.0498-2.5566,8.9883-6.3633,11.8164-11.4131,2.8281-5.0508,4.2422-11.2109,4.2422-18.4834,0-7.1357-1.4141-13.1958-4.2422-18.1797-2.8281-4.9805-6.7666-8.7524-11.8164-11.312-5.0508-2.5566-10.9434-3.8379-17.6758-3.8379h-19.998v67.064Z" fill="#2c3e50"/><path d="M592.7315,249.9932V108.5933h47.6719v141.3999h-47.6719Z" fill="#2c3e50"/><path d="M736.7559,253.2246c-11.4473,0-21.9863-1.7861-31.6133-5.3525-9.6289-3.5664-17.9775-8.6514-25.0479-15.251-7.0693-6.5967-12.5586-14.4082-16.4629-23.4326-3.9072-9.0205-5.8574-18.9873-5.8574-29.8955s1.9502-20.8721,5.8574-29.896c3.9043-9.0205,9.4248-16.832,16.5645-23.4316,7.1357-6.5967,15.585-11.6816,25.3506-15.251,9.7627-3.5669,20.5029-5.353,32.2188-5.353,14.0049,0,26.4941,2.3574,37.4717,7.0698,10.9736,4.7153,20.0293,11.4478,27.1689,20.2002l-30.502,26.8657c-4.4443-5.1162-9.2607-8.9888-14.4434-11.6147-5.1855-2.626-10.9424-3.939-17.2705-3.939-5.252,0-9.999.8076-14.2412,2.4238s-7.8467,3.9736-10.8076,7.0698c-2.9629,3.0996-5.252,6.8018-6.8672,11.1104-1.6162,4.311-2.4248,9.2256-2.4248,14.7456,0,5.252.8086,10.0684,2.4248,14.4434,1.6152,4.377,3.9043,8.1143,6.8672,11.2109,2.9609,3.0986,6.4961,5.4883,10.6055,7.1709,4.1064,1.6855,8.7178,2.5244,13.8369,2.5244,5.3848,0,10.6367-.9082,15.7559-2.7266,5.1162-1.8184,10.5703-4.9492,16.3623-9.3936l26.6641,32.7246c-8.6201,5.792-18.4512,10.2354-29.4922,13.332-11.0439,3.0957-21.75,4.6455-32.1182,4.6455ZM756.9561,229.1865v-53.7314h41.4102v59.792l-41.4102-6.0605Z" fill="#2c3e50"/><path d="M818.7676,249.9932V108.5933h47.6719v141.3999h-47.6719Z" fill="#2c3e50"/><path d="M942.1875,253.2246c-11.8516,0-23.2998-1.3477-34.3398-4.04-11.0439-2.6924-20.1338-6.1924-27.2705-10.5039l15.3516-34.7441c6.7324,3.9082,14.2412,7.0391,22.5234,9.3936,8.2822,2.3574,16.3271,3.5352,24.1387,3.5352,4.5771,0,8.1816-.3037,10.8076-.9092,2.626-.6064,4.5449-1.4805,5.7568-2.626,1.2119-1.1426,1.8184-2.5254,1.8184-4.1416,0-2.5557-1.4141-4.5762-4.2422-6.0596-2.8281-1.4805-6.5654-2.7266-11.2109-3.7373-4.6465-1.0098-9.7314-2.0859-15.251-3.2314-5.5234-1.1426-11.0791-2.6582-16.665-4.5449-5.5898-1.8848-10.7061-4.375-15.3525-7.4746-4.6455-3.0957-8.3828-7.1709-11.2109-12.2207s-4.2422-11.3433-4.2422-18.8867c0-8.7524,2.4561-16.7314,7.373-23.937,4.915-7.2026,12.2529-12.9595,22.0186-17.271,9.7617-4.3081,21.917-6.4639,36.4609-6.4639,9.5605,0,18.9883,1.0098,28.2803,3.0298s17.6396,5.1196,25.0479,9.292l-14.3428,34.542c-7.0029-3.5-13.7705-6.1265-20.3008-7.8779-6.5332-1.7485-12.8965-2.626-19.0889-2.626-4.5801,0-8.2158.4038-10.9082,1.2119-2.6953.8081-4.6143,1.8877-5.7568,3.2319-1.1455,1.3477-1.7168,2.8281-1.7168,4.4443,0,2.4238,1.4141,4.3428,4.2422,5.7568s6.5645,2.5942,11.2109,3.5352c4.6455.9434,9.7617,1.9536,15.3516,3.0298,5.5869,1.0796,11.1416,2.5596,16.665,4.4438,5.5205,1.8877,10.6055,4.3779,15.251,7.4741,4.6465,3.0991,8.3828,7.1392,11.2109,12.1196,2.8281,4.9844,4.2422,11.1797,4.2422,18.584,0,8.6201-2.459,16.5322-7.373,23.7354-4.917,7.2051-12.2207,12.9971-21.917,17.3721-9.6963,4.374-21.8857,6.5645-36.5615,6.5645Z" fill="#2c3e50"/><path d="M1050.8643,249.9932v-104.4341h-41.4102v-36.9658h130.4922v36.9658h-41.4102v104.4341h-47.6719Z" fill="#2c3e50"/><path d="M1224.583,253.2246c-11.583,0-22.2539-1.8174-32.0166-5.4541-9.7656-3.6357-18.2148-8.7861-25.3506-15.4521-7.1396-6.666-12.6953-14.5098-16.665-23.5332-3.9736-9.0205-5.959-18.8525-5.959-29.4922,0-10.772,1.9854-20.6353,5.959-29.5928,3.9697-8.9541,9.5254-16.7661,16.665-23.4321,7.1357-6.666,15.585-11.8169,25.3506-15.4531,9.7627-3.6357,20.3672-5.4536,31.8154-5.4536,11.5801,0,22.2197,1.8179,31.916,5.4536,9.6953,3.6362,18.1104,8.7871,25.25,15.4531,7.1357,6.666,12.6904,14.478,16.6641,23.4321,3.9707,8.9575,5.96,18.8208,5.96,29.5928,0,10.6396-1.9893,20.4717-5.96,29.4922-3.9736,9.0234-9.5283,16.8672-16.6641,23.5332-7.1396,6.666-15.5547,11.8164-25.25,15.4521-9.6963,3.6367-20.2695,5.4541-31.7148,5.4541ZM1224.3819,214.6426c4.4434,0,8.585-.8076,12.4229-2.4238s7.2021-3.9385,10.0996-6.9688c2.8945-3.0303,5.1514-6.7324,6.7676-11.1104,1.6152-4.374,2.4238-9.3232,2.4238-14.8467,0-5.52-.8086-10.4692-2.4238-14.8467-1.6162-4.3745-3.873-8.0801-6.7676-11.1104-2.8975-3.0298-6.2617-5.3525-10.0996-6.9688s-7.9795-2.4238-12.4229-2.4238-8.585.8076-12.4238,2.4238c-3.8379,1.6162-7.2051,3.939-10.0996,6.9688-2.8975,3.0303-5.1514,6.7358-6.7666,11.1104-1.6162,4.3774-2.4248,9.3267-2.4248,14.8467,0,5.5234.8086,10.4727,2.4238,14.8467,1.6152,4.3779,3.8691,8.0801,6.7666,11.1104,2.8945,3.0303,6.2617,5.3525,10.0996,6.9688,3.8389,1.6162,7.9795,2.4238,12.4238,2.4238Z" fill="#2c3e50"/><path d="M1321.542,249.9932V108.5933h68.0742c13.1963,0,24.6094,2.1558,34.2393,6.4639,9.626,4.3115,17.0693,10.4727,22.3213,18.4829,5.252,8.0137,7.8779,17.4731,7.8779,28.3813s-2.626,20.3003-7.8779,28.1782-12.6953,13.9072-22.3213,18.0791c-9.6299,4.1758-21.043,6.2627-34.2393,6.2627h-41.6123l21.21-19.5947v55.1465h-47.6719ZM1369.2139,200.0986l-21.21-21.6133h38.582c6.5967,0,11.4795-1.4805,14.6455-4.4443,3.1621-2.9604,4.7471-7.0005,4.7471-12.1196s-1.585-9.1567-4.7471-12.1201c-3.166-2.9604-8.0488-4.4443-14.6455-4.4443h-38.582l21.21-21.6138v76.3555ZM1406.1807,249.9932l-34.7441-51.5098h50.5l35.1475,51.5098h-50.9033Z" fill="#2c3e50"/><path d="M1518.8955,214.0371h70.7002v35.9561h-117.5645V108.5933h114.9385v35.9561h-68.0742v69.4878ZM1515.6641,161.1133h63.0234v34.3398h-63.0234v-34.3398Z" fill="#2c3e50"/></g><g><circle cx="175.4063" cy="175" r="175" fill="#e74c3c"/><polygon points="246.6483 149.4986 176.2769 149.4986 211.3633 53.5342 104.1643 200.5014 174.5356 200.5014 139.4492 296.4658 246.6483 149.4986" fill="#ffd83b"/></g></svg>
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1693 350" width="150" height="33"><g><path d="M426.4603,249.9932V108.5933h69.6904c15.7559,0,29.624,2.8628,41.6123,8.585,11.9844,5.7256,21.3418,13.8369,28.0771,24.3408,6.7324,10.5039,10.1006,23.0283,10.1006,37.5728,0,14.6797-3.3682,27.3047-10.1006,37.875-6.7354,10.5732-16.0928,18.7197-28.0771,24.4414-11.9883,5.7256-25.8564,8.585-41.6123,8.585h-69.6904ZM474.1322,212.8252h19.998c6.7324,0,12.625-1.2783,17.6758-3.8379,5.0498-2.5566,8.9883-6.3633,11.8164-11.4131s4.2422-11.2109,4.2422-18.4824c0-7.1367-1.4141-13.1968-4.2422-18.1807-2.8281-4.9805-6.7666-8.7524-11.8164-11.312-5.0508-2.5566-10.9434-3.8379-17.6758-3.8379h-19.998v67.064Z" fill="#2c3e50"/><path d="M593.3099,249.9932V108.5933h47.6719v141.3999h-47.6719Z" fill="#2c3e50"/><path d="M737.3344,253.2256c-11.4473,0-21.9863-1.7861-31.6133-5.3535-9.6289-3.5664-17.9775-8.6514-25.0479-15.251-7.0693-6.5967-12.5586-14.4082-16.4629-23.4316-3.9072-9.0205-5.8574-18.9883-5.8574-29.8965s1.9502-20.8721,5.8574-29.896c3.9043-9.0205,9.4248-16.832,16.5645-23.4316,7.1357-6.5967,15.585-11.6816,25.3506-15.251,9.7627-3.5669,20.5029-5.353,32.2188-5.353,14.0049,0,26.4941,2.3574,37.4717,7.0698,10.9736,4.7153,20.0293,11.4478,27.1689,20.2002l-30.502,26.8657c-4.4443-5.1162-9.2607-8.9888-14.4434-11.6147-5.1855-2.626-10.9424-3.939-17.2705-3.939-5.252,0-9.999.8076-14.2412,2.4238s-7.8467,3.9736-10.8076,7.0698c-2.9629,3.0996-5.252,6.8018-6.8672,11.1104-1.6162,4.311-2.4248,9.2256-2.4248,14.7456,0,5.252.8086,10.0693,2.4248,14.4434,1.6152,4.3779,3.9043,8.1152,6.8672,11.2109,2.9609,3.0996,6.4961,5.4893,10.6055,7.1709,4.1064,1.6855,8.7178,2.5254,13.8369,2.5254,5.3848,0,10.6367-.9092,15.7559-2.7275,5.1162-1.8174,10.5703-4.9482,16.3623-9.3926l26.6641,32.7236c-8.6201,5.792-18.4512,10.2363-29.4922,13.332-11.0439,3.0967-21.75,4.6465-32.1182,4.6465ZM757.5346,229.1875v-53.7324h41.4102v59.792l-41.4102-6.0596Z" fill="#2c3e50"/><path d="M819.3461,249.9932V108.5933h47.6719v141.3999h-47.6719Z" fill="#2c3e50"/><path d="M937.7152,249.9932h-47.6719V108.5933h114.9385v35.9561h-67.2666v105.4438ZM934.4838,168.7891h62.2158v35.9561h-62.2158v-35.9561Z" fill="#2c3e50"/><path d="M1087.8012,253.2256c-21.6826,0-38.582-5.8584-50.7012-17.5742-12.1201-11.7158-18.1807-28.1445-18.1807-49.2881v-77.77h47.6719v76.356c0,10.7754,1.9512,18.417,5.8584,22.9268,3.9043,4.5137,9.1562,6.7676,15.7559,6.7676,6.7324,0,12.0195-2.2539,15.8574-6.7676,3.8379-4.5098,5.7568-12.1514,5.7568-22.9268v-76.356h46.8643v77.77c0,21.1436-6.0605,37.5723-18.1807,49.2881s-29.0215,17.5742-50.7021,17.5742Z" fill="#2c3e50"/><path d="M1231.2211,253.2256c-11.8516,0-23.2998-1.3477-34.3398-4.04-11.0439-2.6924-20.1338-6.1924-27.2705-10.5039l15.3516-34.7441c6.7324,3.9072,14.2412,7.0381,22.5234,9.3926,8.2822,2.3584,16.3271,3.5352,24.1387,3.5352,4.5771,0,8.1816-.3027,10.8076-.9092,2.626-.6055,4.5449-1.4795,5.7568-2.626,1.2119-1.1426,1.8184-2.5244,1.8184-4.1406,0-2.5566-1.4141-4.5762-4.2422-6.0596-2.8281-1.4805-6.5654-2.7275-11.2109-3.7373-4.6465-1.0098-9.7314-2.0869-15.251-3.2324-5.5234-1.1426-11.0791-2.6572-16.665-4.5449-5.5898-1.8838-10.7061-4.374-15.3525-7.4736-4.6455-3.0967-8.3828-7.1709-11.2109-12.2217-2.8281-5.0498-4.2422-11.3433-4.2422-18.8867,0-8.7524,2.4561-16.7314,7.373-23.937,4.915-7.2026,12.2529-12.9595,22.0186-17.271,9.7617-4.3081,21.917-6.4639,36.4609-6.4639,9.5605,0,18.9883,1.0098,28.2803,3.0298s17.6396,5.1196,25.0479,9.292l-14.3428,34.542c-7.0029-3.5-13.7705-6.1265-20.3008-7.8779-6.5332-1.7485-12.8965-2.626-19.0889-2.626-4.5801,0-8.2158.4038-10.9082,1.2119-2.6953.8081-4.6143,1.8877-5.7568,3.2319-1.1455,1.3477-1.7168,2.8281-1.7168,4.4443,0,2.4238,1.4141,4.3428,4.2422,5.7568s6.5645,2.5942,11.2109,3.5352c4.6455.9434,9.7617,1.9536,15.3516,3.0298,5.5869,1.0796,11.1416,2.5596,16.665,4.4438,5.5205,1.8877,10.6055,4.3779,15.251,7.4741,4.6465,3.1001,8.3828,7.1401,11.2109,12.1206,2.8281,4.9834,4.2422,11.1787,4.2422,18.584,0,8.6191-2.459,16.5322-7.373,23.7344-4.917,7.2061-12.2207,12.998-21.917,17.3721-9.6963,4.375-21.8857,6.5654-36.5615,6.5654Z" fill="#2c3e50"/><path d="M1311.2123,249.9932V108.5933h47.6719v141.3999h-47.6719Z" fill="#2c3e50"/><path d="M1456.2465,253.2256c-11.583,0-22.2539-1.8184-32.0166-5.4541-9.7656-3.6357-18.2148-8.7871-25.3506-15.4531-7.1396-6.666-12.6953-14.5088-16.665-23.5332-3.9736-9.0205-5.959-18.8516-5.959-29.4922,0-10.772,1.9854-20.6353,5.959-29.5928,3.9697-8.9541,9.5254-16.7661,16.665-23.4321,7.1357-6.666,15.585-11.8169,25.3506-15.4531,9.7627-3.6357,20.3672-5.4536,31.8154-5.4536,11.5801,0,22.2197,1.8179,31.916,5.4536,9.6953,3.6362,18.1104,8.7871,25.25,15.4531,7.1357,6.666,12.6904,14.478,16.6641,23.4321,3.9707,8.9575,5.96,18.8208,5.96,29.5928,0,10.6406-1.9893,20.4717-5.96,29.4922-3.9736,9.0244-9.5283,16.8672-16.6641,23.5332-7.1396,6.666-15.5547,11.8174-25.25,15.4531-9.6963,3.6357-20.2695,5.4541-31.7148,5.4541ZM1456.0453,214.6436c4.4434,0,8.585-.8086,12.4229-2.4238,3.8379-1.6162,7.2021-3.9395,10.0996-6.9697,2.8945-3.0293,5.1514-6.7314,6.7676-11.1094,1.6152-4.375,2.4238-9.3242,2.4238-14.8477,0-5.52-.8086-10.4692-2.4238-14.8467-1.6162-4.3745-3.873-8.0801-6.7676-11.1104-2.8975-3.0298-6.2617-5.3525-10.0996-6.9688s-7.9795-2.4238-12.4229-2.4238-8.585.8076-12.4238,2.4238c-3.8379,1.6162-7.2051,3.939-10.0996,6.9688-2.8975,3.0303-5.1514,6.7358-6.7666,11.1104-1.6162,4.3774-2.4248,9.3267-2.4248,14.8467,0,5.5234.8086,10.4727,2.4248,14.8477,1.6152,4.3779,3.8691,8.0801,6.7666,11.1094,2.8945,3.0303,6.2617,5.3535,10.0996,6.9697,3.8389,1.6152,7.9795,2.4238,12.4238,2.4238Z" fill="#2c3e50"/><path d="M1553.2045,249.9932V108.5933h39.1885l71.9121,86.0522h-18.1807v-86.0522h46.46v141.3999h-39.1875l-71.9121-86.0518h18.1797v86.0518h-46.46Z" fill="#2c3e50"/></g><g><circle cx="175.4613" cy="175" r="175" fill="#e74c3c"/><polygon points="246.7033 149.4986 176.332 149.4986 211.4184 53.5342 104.2193 200.5014 174.5906 200.5014 139.5043 296.4658 246.7033 149.4986" fill="#ffd83b"/></g></svg>
 					</div>
 					<div class="digiblocks-promo-content">
 						<p><?php echo wp_kses_post( __( 'A lightning-fast, ultra-lightweight theme designed specifically for DigiBlocks. Features a powerful site builder that lets you create custom <strong>headers</strong>, <strong>footers</strong>, <strong>archives</strong>, and <strong>page templates</strong> with intelligent display rules. Build beautiful, high-performance websites with minimal configuration and maximum flexibility.', 'digiblocks' ) ); ?></p>
 						<div class="digiblocks-link-wrapper">
 							<?php
-							$digistore_status = $install->get_theme_status( 'digistore' );
-							$button_action = $digistore_status['status'] === 'active' ? 'learn_more' : ($digistore_status['status'] === 'inactive' ? 'activate' : 'install');
+							$digifusion_status = $install->get_theme_status( 'digifusion' );
+							$button_action = $digifusion_status['status'] === 'active' ? 'learn_more' : ($digifusion_status['status'] === 'inactive' ? 'activate' : 'install');
 							?>
 							<button type="button" 
-								class="digiblocks-button digiblocks-plugin-action <?php echo esc_attr( $digistore_status['button_class'] ); ?>"
-								data-theme="digistore" 
+								class="digiblocks-button digiblocks-plugin-action <?php echo esc_attr( $digifusion_status['button_class'] ); ?>"
+								data-theme="digifusion" 
 								data-action="<?php echo esc_attr( $button_action ); ?>"
 								data-type="theme"
-								<?php if ( $digistore_status['status'] === 'active' ) : ?>
-								data-url="<?php echo esc_url( $digistore_status['url'] ); ?>"
+								<?php if ( $digifusion_status['status'] === 'active' ) : ?>
+								data-url="<?php echo esc_url( $digifusion_status['url'] ); ?>"
 								<?php endif; ?>>
-								<span><?php echo esc_html( $digistore_status['button_text'] ); ?></span>
+								<span><?php echo esc_html( $digifusion_status['button_text'] ); ?></span>
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em"><path d="M505 273c9.4-9.4 9.4-24.6 0-33.9L369 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l95 95L24 232c-13.3 0-24 10.7-24 24s10.7 24 24 24l406.1 0-95 95c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0L505 273z"/></svg>
 							</button>
 						</div>
@@ -911,13 +913,13 @@ class DigiBlocks {
 		// Apply filter to allow pro version to add more script data
 		$consolidated_data = apply_filters( 'digiblocks_consolidated_script_data', $consolidated_data, $blocks, $script_handle );
 
-		// NEW: Check if DigiStore Builder is active and needs to add data
-		$builder_data = $this->get_digistore_builder_data();
+		// NEW: Check if DigiFusion Builder is active and needs to add data
+		$builder_data = $this->get_digifusion_builder_data();
 		if ( ! empty( $builder_data ) ) {
 			// Merge builder data with consolidated data, avoiding duplicates
 			$consolidated_data = array_merge( $consolidated_data, $builder_data );
 			
-			// Set a flag to prevent DigiStore Builder from adding duplicate data
+			// Set a flag to prevent DigiFusion Builder from adding duplicate data
 			if ( ! defined( 'DIGIBLOCKS_HANDLED_BUILDER_DATA' ) ) {
 				define( 'DIGIBLOCKS_HANDLED_BUILDER_DATA', true );
 			}
@@ -930,18 +932,18 @@ class DigiBlocks {
 	}
 
 	/**
-	 * Get DigiStore Builder data if needed
+	 * Get DigiFusion Builder data if needed
 	 *
 	 * @return array Builder data array
 	 */
-	private function get_digistore_builder_data() {
-		// Check if DigiStore Builder class exists and is initialized
-		if ( ! class_exists( 'DigiStore_Builder' ) ) {
+	private function get_digifusion_builder_data() {
+		// Check if DigiFusion Builder class exists and is initialized
+		if ( ! class_exists( 'DigiFusion_Builder' ) ) {
 			return array();
 		}
 
 		// Get the builder instance
-		$builder = DigiStore_Builder::get_instance();
+		$builder = DigiFusion_Builder::get_instance();
 		
 		// Check if builder has a method to get required data
 		if ( ! method_exists( $builder, 'get_required_script_data' ) ) {
@@ -1184,22 +1186,26 @@ class DigiBlocks {
 			'digiblocks-globals',
 			'digiBlocksData',
 			array(
-				'fontAwesomeIcons'     => $this->get_fa_icons(),
-				'blocks'               => DigiBlocks_Blocks_Data::get_block_data(),
-				'inactiveBlocks'       => get_option( 'digiblocks_inactive_blocks', array() ),
-				'contentWidth'         => $content_width,
-				'contentMaxWidth'      => $content_max_width,
-				'googleMapsApiKey'     => $google_maps_api_key,
-				'googleMapsMapId'      => $google_maps_map_id,
-				'navigation_nonce'     => wp_create_nonce( 'digiblocks_nav_nonce' ),
-				'isDigiActive'         => class_exists( 'DigiCommerce' ),
-				'isDigiProActive'      => class_exists( 'DigiCommerce_Pro' ),
-				'digiCurrency'         => ( class_exists( 'DigiCommerce' ) && class_exists( 'DigiCommerce_Product' ) ) ? DigiCommerce_Product::instance()->get_currency_symbol( DigiCommerce()->get_option( 'currency', 'USD' ) ) : '$',
-        		'digiCurrencyPosition' => class_exists( 'DigiCommerce' ) ? DigiCommerce()->get_option( 'currency_position', 'left' ) : 'left',
-				'isWooActive'          => class_exists( 'WooCommerce' ),
-				'lottie'               => DIGIBLOCKS_PLUGIN_URL . 'assets/js/lottie.js',
-				'postTypes'            => $this->get_searchable_post_types(),
-				'homeUrl'              => home_url(),
+				'ajax_url'               => admin_url( 'admin-ajax.php' ),
+				'admin_url'              => admin_url(),
+				'fontAwesomeIcons'       => $this->get_fa_icons(),
+				'blocks'                 => DigiBlocks_Blocks_Data::get_block_data(),
+				'inactiveBlocks'         => get_option( 'digiblocks_inactive_blocks', array() ),
+				'contentWidth'           => $content_width,
+				'contentMaxWidth'        => $content_max_width,
+				'googleMapsApiKey'       => $google_maps_api_key,
+				'googleMapsMapId'        => $google_maps_map_id,
+				'navigation_nonce'       => wp_create_nonce( 'digiblocks_nav_nonce' ),
+				'isDigiActive'           => class_exists( 'DigiCommerce' ),
+				'isDigiProActive'        => class_exists( 'DigiCommerce_Pro' ),
+				'digiCurrency'           => ( class_exists( 'DigiCommerce' ) && class_exists( 'DigiCommerce_Product' ) ) ? DigiCommerce_Product::instance()->get_currency_symbol( DigiCommerce()->get_option( 'currency', 'USD' ) ) : '$',
+        		'digiCurrencyPosition'   => class_exists( 'DigiCommerce' ) ? DigiCommerce()->get_option( 'currency_position', 'left' ) : 'left',
+				'isWooActive'            => class_exists( 'WooCommerce' ),
+				'lottie'                 => DIGIBLOCKS_PLUGIN_URL . 'assets/js/lottie.js',
+				'postTypes'              => $this->get_searchable_post_types(),
+				'homeUrl'                => home_url(),
+				'image_search_nonce'     => wp_create_nonce( 'digiblocks_image_search_nonce' ),
+				'image_search_available' => $this->is_image_search_available(),
 			)
 		);
 	}
@@ -1231,18 +1237,123 @@ class DigiBlocks {
 	}
 
 	/**
-	 * Get Font Awesome icons.
+	 * Load icons from single JSON file
+	 */
+	private function load_fa_icons() {
+		$icons_file = DIGIBLOCKS_PLUGIN_DIR . 'includes/icons/all-icons.json';
+		
+		if (!file_exists($icons_file)) {
+			return array();
+		}
+		
+		$file_contents = file_get_contents($icons_file);
+		if ($file_contents === false) {
+			return array();
+		}
+		
+		$data = json_decode($file_contents, true);
+		if (json_last_error() !== JSON_ERROR_NONE) {
+			return array();
+		}
+		
+		// Remove metadata
+		unset($data['_metadata']);
+		
+		// Translate category titles if category list exists
+		if (isset($data['digiblocks_category_list'])) {
+			$data['digiblocks_category_list'] = $this->translate_category_titles($data['digiblocks_category_list']);
+		}
+		
+		return $data;
+	}
+
+	/**
+	 * Translate category titles
+	 */
+	private function translate_category_titles($categories) {
+		$translations = array(
+			// Styles
+			'Solid' => __('Solid', 'digiblocks'),
+			'Regular' => __('Regular', 'digiblocks'),
+			'Brands' => __('Brands', 'digiblocks'),
+			
+			// Custom categories - only the ones actually used in the JSON
+			'Navigation' => __('Navigation', 'digiblocks'),
+			'Social' => __('Social', 'digiblocks'),
+			'E-commerce' => __('E-commerce', 'digiblocks'),
+			'Business' => __('Business', 'digiblocks'),
+			'Users' => __('Users', 'digiblocks'),
+			'Files' => __('Files', 'digiblocks'),
+			'Charts' => __('Charts', 'digiblocks'),
+			
+			// Additional FA categories that might be used
+			'Accessibility' => __('Accessibility', 'digiblocks'),
+			'Animals' => __('Animals', 'digiblocks'),
+			'Automotive' => __('Automotive', 'digiblocks'),
+			'Buildings' => __('Buildings', 'digiblocks'),
+			'Clothing' => __('Clothing', 'digiblocks'),
+			'Communication' => __('Communication', 'digiblocks'),
+			'Computers' => __('Computers', 'digiblocks'),
+			'Design' => __('Design', 'digiblocks'),
+			'Editors' => __('Editors', 'digiblocks'),
+			'Energy' => __('Energy', 'digiblocks'),
+			'Food' => __('Food', 'digiblocks'),
+			'Games' => __('Games', 'digiblocks'),
+			'Hands' => __('Hands', 'digiblocks'),
+			'Health' => __('Health', 'digiblocks'),
+			'Household' => __('Household', 'digiblocks'),
+			'Maps' => __('Maps', 'digiblocks'),
+			'Mathematical' => __('Mathematical', 'digiblocks'),
+			'Media' => __('Media', 'digiblocks'),
+			'Money' => __('Money', 'digiblocks'),
+			'Music' => __('Music', 'digiblocks'),
+			'Nature' => __('Nature', 'digiblocks'),
+			'Objects' => __('Objects', 'digiblocks'),
+			'Religion' => __('Religion', 'digiblocks'),
+			'Science' => __('Science', 'digiblocks'),
+			'Security' => __('Security', 'digiblocks'),
+			'Shapes' => __('Shapes', 'digiblocks'),
+			'Shopping' => __('Shopping', 'digiblocks'),
+			'Sports' => __('Sports', 'digiblocks'),
+			'Technology' => __('Technology', 'digiblocks'),
+			'Time' => __('Time', 'digiblocks'),
+			'Toggle' => __('Toggle', 'digiblocks'),
+			'Transportation' => __('Transportation', 'digiblocks'),
+			'Travel' => __('Travel', 'digiblocks'),
+			'Weather' => __('Weather', 'digiblocks'),
+			'Writing' => __('Writing', 'digiblocks'),
+		);
+		
+		// Translate the titles for categories that exist
+		foreach ($categories as &$category) {
+			if (isset($translations[$category['title']])) {
+				$category['title'] = $translations[$category['title']];
+			}
+		}
+		
+		return $categories;
+	}
+
+	/**
+	 * Get Font Awesome icons with caching
 	 */
 	public function get_fa_icons() {
-		$icons = array_merge(
-			require_once plugin_dir_path( __FILE__ ) . 'icons/v6-0.php',
-			require_once plugin_dir_path( __FILE__ ) . 'icons/v6-1.php',
-			require_once plugin_dir_path( __FILE__ ) . 'icons/v6-2.php',
-			require_once plugin_dir_path( __FILE__ ) . 'icons/v6-3.php',
-		);
-
-		// Allow developers to add custom icons
-		return apply_filters( 'digiblocks_fa_icons', $icons );
+		// Include locale in cache key so each language gets its own cache
+		$locale = get_locale();
+		$cache_key = 'digiblocks_fa_icons_cache_' . DIGIBLOCKS_VERSION . '_' . $locale;
+		$icons = get_transient($cache_key);
+		
+		if ($icons === false) {
+			$icons = $this->load_fa_icons();
+			
+			if (!empty($icons)) {
+				$icons = apply_filters('digiblocks_fa_icons', $icons);
+				// Cache for 1 hour
+				set_transient($cache_key, $icons, 3600);
+			}
+		}
+		
+		return $icons;
 	}
 
 	/**
@@ -1414,6 +1525,19 @@ class DigiBlocks {
 			'google_maps_map_id'   => isset( $settings['google_maps_map_id'] ) ? sanitize_text_field( $settings['google_maps_map_id'] ) : $current_settings['google_maps_map_id'],
 			'google_fonts_local'   => $new_use_local_fonts,
 			'enable_schema_markup' => isset( $settings['enable_schema_markup'] ) ? (bool) $settings['enable_schema_markup'] : $current_settings['enable_schema_markup'],
+			'image_api_provider'  => isset( $settings['image_api_provider'] ) ? sanitize_text_field( $settings['image_api_provider'] ) : ( isset( $current_settings['image_api_provider'] ) ? $current_settings['image_api_provider'] : '' ),
+			
+			// Unsplash
+			'unsplash_application_id' => isset( $settings['unsplash_application_id'] ) ? sanitize_text_field( $settings['unsplash_application_id'] ) : ( isset( $current_settings['unsplash_application_id'] ) ? $current_settings['unsplash_application_id'] : '' ),
+			'unsplash_access_key'     => isset( $settings['unsplash_access_key'] ) ? sanitize_text_field( $settings['unsplash_access_key'] ) : ( isset( $current_settings['unsplash_access_key'] ) ? $current_settings['unsplash_access_key'] : '' ),
+			'unsplash_secret_key'     => isset( $settings['unsplash_secret_key'] ) ? sanitize_text_field( $settings['unsplash_secret_key'] ) : ( isset( $current_settings['unsplash_secret_key'] ) ? $current_settings['unsplash_secret_key'] : '' ),
+			
+			// Pexels  
+			'pexels_api_key'      => isset( $settings['pexels_api_key'] ) ? sanitize_text_field( $settings['pexels_api_key'] ) : ( isset( $current_settings['pexels_api_key'] ) ? $current_settings['pexels_api_key'] : '' ),
+
+			// Pixabay
+			'pixabay_api_key'     => isset( $settings['pixabay_api_key'] ) ? sanitize_text_field( $settings['pixabay_api_key'] ) : ( isset( $current_settings['pixabay_api_key'] ) ? $current_settings['pixabay_api_key'] : '' ),
+
 			
 			// Newsletter settings
 			'newsletter_platform'  => isset( $settings['newsletter_platform'] ) ? sanitize_text_field( $settings['newsletter_platform'] ) : ( isset( $current_settings['newsletter_platform'] ) ? $current_settings['newsletter_platform'] : '' ),
@@ -1535,7 +1659,7 @@ class DigiBlocks {
 			// Get all public post types
 			$post_types = get_post_types( array( 'public' => true ) );
 			
-			// Add DigiStore Builder post type if it exists
+			// Add DigiFusion Builder post type if it exists
 			if ( post_type_exists( 'digi_builder' ) ) {
 				$post_types[] = 'digi_builder';
 			}
@@ -1616,9 +1740,9 @@ class DigiBlocks {
 			// Clean up orphaned files
 			$this->cleanup_orphaned_assets();
 
-			// Clear builder cache if DigiStore Builder exists
-			if ( class_exists( 'DigiStore_Builder' ) ) {
-				$this->clear_digistore_builder_cache();
+			// Clear builder cache if DigiFusion Builder exists
+			if ( class_exists( 'DigiFusion_Builder' ) ) {
+				$this->clear_digifusion_builder_cache();
 			}
 
 			// Regenerate all fonts if local fonts are enabled
@@ -1677,17 +1801,17 @@ class DigiBlocks {
 	}
 
 	/**
-	 * Clear DigiStore Builder cache after regeneration
+	 * Clear DigiFusion Builder cache after regeneration
 	 */
-	private function clear_digistore_builder_cache() {
+	private function clear_digifusion_builder_cache() {
 		// Clear the builder cache so the new assets are loaded
 		global $wpdb;
 		
-		// Delete all DigiStore builder transients
+		// Delete all DigiFusion builder transients
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
-				'_transient_digistore_builders_%'
+				'_transient_digifusion_builders_%'
 			)
 		);
 		
@@ -1695,7 +1819,7 @@ class DigiBlocks {
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
-				'_transient_timeout_digistore_builders_%'
+				'_transient_timeout_digifusion_builders_%'
 			)
 		);
 	}
@@ -1711,7 +1835,7 @@ class DigiBlocks {
 		// Get all existing posts including builders
 		$post_types = get_post_types( array( 'public' => true ) );
 		
-		// Add DigiStore Builder post type if it exists
+		// Add DigiFusion Builder post type if it exists
 		if ( post_type_exists( 'digi_builder' ) ) {
 			$post_types[] = 'digi_builder';
 		}
@@ -1774,6 +1898,20 @@ class DigiBlocks {
 	public function is_schema_markup_enabled() {
 		$settings = get_option( 'digiblocks_settings', array() );
 		return isset( $settings['enable_schema_markup'] ) ? $settings['enable_schema_markup'] : true;
+	}
+
+	/**
+	 * Initialize conditional handlers based on settings and usage.
+	 */
+	public function init_conditional_handlers() {
+		// Initialize forms handler if needed
+		$this->init_forms_handler();
+		
+		// Initialize newsletter handler if needed
+		$this->init_newsletter_handler();
+		
+		// Initialize image API handler if needed
+		$this->init_image_api_handler();
 	}
 
 	/**
@@ -1868,5 +2006,104 @@ class DigiBlocks {
 				$handler_loaded = true;
 			}
 		}
+	}
+
+	/**
+	 * Initialize image API handler if needed.
+	 */
+	private function init_image_api_handler() {
+		// Get settings to check if image API is configured
+		$settings = get_option( 'digiblocks_settings', array() );
+		$image_api_provider = isset( $settings['image_api_provider'] ) ? $settings['image_api_provider'] : '';
+
+		// Only load if provider is configured with required credentials
+		if ( ! empty( $image_api_provider ) ) {
+			$has_credentials = false;
+			
+			switch ( $image_api_provider ) {
+				case 'unsplash':
+					$has_credentials = ! empty( $settings['unsplash_access_key'] );
+					break;
+				case 'pexels':
+					$has_credentials = ! empty( $settings['pexels_api_key'] );
+					break;
+				case 'pixabay':
+					$has_credentials = ! empty( $settings['pixabay_api_key'] );
+					break;
+			}
+			
+			if ( $has_credentials ) {
+				require_once DIGIBLOCKS_PLUGIN_DIR . 'includes/class-digiblocks-image-api-handler.php';
+				new DigiBlocks_Image_API_Handler();
+			}
+		}
+	}
+
+	/**
+	 * Check if image search is available
+	 *
+	 * @return bool Whether image search is available
+	 */
+	private function is_image_search_available() {
+		$settings = get_option( 'digiblocks_settings', array() );
+		$image_api_provider = isset( $settings['image_api_provider'] ) ? $settings['image_api_provider'] : '';
+		
+		if ( empty( $image_api_provider ) ) {
+			return false;
+		}
+		
+		// Check if the selected provider has the required credentials
+		switch ( $image_api_provider ) {
+			case 'unsplash':
+				return ! empty( $settings['unsplash_access_key'] );
+			case 'pexels':
+				return ! empty( $settings['pexels_api_key'] );
+			case 'pixabay':
+				return ! empty( $settings['pixabay_api_key'] );
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * Customize admin footer text
+	 *
+	 * @param string $text Footer text.
+	 * @return string
+	 */
+	public function footer_text( $text ) {
+		$screen = get_current_screen();
+
+		if ( 'toplevel_page_digiblocks' === $screen->id || 'digiblocks_page_digiblocks-settings' === $screen->id ) {
+			$text = sprintf(
+				/* translators: %1$s: Plugin review link */
+				esc_html__( 'Please rate %2$sDigiBlocks%3$s %4$s&#9733;&#9733;&#9733;&#9733;&#9733;%5$s on %6$sWordPress.org%7$s to help us spread the word.', 'digiblocks-pro' ),
+				'https://wordpress.org/support/plugin/digiblocks/reviews/?filter=5#new-post',
+				'<strong>',
+				'</strong>',
+				'<a href="https://wordpress.org/support/plugin/digiblocks/reviews/?filter=5#new-post" target="_blank" rel="noopener noreferrer">',
+				'</a>',
+				'<a href="https://wordpress.org/support/plugin/digiblocks/reviews/?filter=5#new-post" target="_blank" rel="noopener noreferrer">',
+				'</a>'
+			);
+		}
+
+		return $text;
+	}
+
+	/**
+	 * Customize update footer version
+	 *
+	 * @param string $version Version text.
+	 * @return string
+	 */
+	public function update_footer( $version ) {
+		$screen = get_current_screen();
+
+		if ( 'toplevel_page_digiblocks' === $screen->id || 'digiblocks_page_digiblocks-settings' === $screen->id ) {
+			$version .= sprintf( ' | %1$s %2$s', 'DigiBlocks Pro', DIGIBLOCKS_PRO_VERSION );
+		}
+
+		return $version;
 	}
 }

@@ -288,6 +288,176 @@ $is_pro_active = defined( 'DIGIBLOCKS_PRO_VERSION' ) || class_exists( 'DigiBlock
 							</div>
 						</div>
 
+						<div id="image-providers" class="digiblocks-form-section">
+							<h3><?php esc_html_e( 'Image API Settings', 'digiblocks' ); ?></h3>
+							<p class="digiblocks-form-section-description">
+								<?php esc_html_e( 'Configure image API integration for enhanced Image block functionality. This allows to search and insert high-quality images directly from your chosen provider.', 'digiblocks' ); ?>
+							</p>
+
+							<div class="digiblocks-form-field">
+								<label for="image_api_provider">
+									<?php esc_html_e( 'Image API Provider', 'digiblocks' ); ?>
+								</label>
+								<select id="image_api_provider" name="image_api_provider">
+									<option value=""><?php esc_html_e( 'None', 'digiblocks' ); ?></option>
+									<option value="unsplash" <?php selected( isset($settings['image_api_provider']) ? $settings['image_api_provider'] : '', 'unsplash' ); ?>><?php esc_html_e( 'Unsplash', 'digiblocks' ); ?></option>
+									<option value="pexels" <?php selected( isset($settings['image_api_provider']) ? $settings['image_api_provider'] : '', 'pexels' ); ?>><?php esc_html_e( 'Pexels', 'digiblocks' ); ?></option>
+									<option value="pixabay" <?php selected( isset($settings['image_api_provider']) ? $settings['image_api_provider'] : '', 'pixabay' ); ?>><?php esc_html_e( 'Pixabay', 'digiblocks' ); ?></option>
+								</select>
+							</div>
+
+							<!-- Unsplash Fields -->
+							<div id="unsplash-fields" class="image-api-provider-fields digiblocks-form-row" <?php echo ( isset($settings['image_api_provider']) && $settings['image_api_provider'] === 'unsplash' ) ? '' : 'style="display:none;"'; ?>>
+								<div class="digiblocks-form-flex">
+									<div class="digiblocks-form-field">
+										<label for="unsplash_application_id">
+											<?php esc_html_e( 'Application ID', 'digiblocks' ); ?>
+										</label>
+										<input 
+											type="text" 
+											id="unsplash_application_id" 
+											name="unsplash_application_id" 
+											value="<?php echo esc_attr( isset($settings['unsplash_application_id']) ? $settings['unsplash_application_id'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'Enter your Application ID', 'digiblocks' ); ?>"
+										>
+									</div>
+
+									<div class="digiblocks-form-field">
+										<label for="unsplash_access_key">
+											<?php esc_html_e( 'Access Key', 'digiblocks' ); ?>
+										</label>
+										<div class="digiblocks-input-group">
+											<input 
+												type="password" 
+												id="unsplash_access_key" 
+												name="unsplash_access_key" 
+												value="<?php echo esc_attr( isset($settings['unsplash_access_key']) ? $settings['unsplash_access_key'] : '' ); ?>" 
+												placeholder="<?php esc_attr_e( 'Enter your Access Key', 'digiblocks' ); ?>"
+											>
+											<button type="button" class="button button-secondary digiblocks-toggle-password">
+												<span class="dashicons dashicons-visibility"></span>
+											</button>
+										</div>
+									</div>
+								</div>
+
+								<div class="digiblocks-form-field">
+									<label for="unsplash_secret_key">
+										<?php esc_html_e( 'Secret Key', 'digiblocks' ); ?>
+									</label>
+									<div class="digiblocks-input-group">
+										<input 
+											type="password" 
+											id="unsplash_secret_key" 
+											name="unsplash_secret_key" 
+											value="<?php echo esc_attr( isset($settings['unsplash_secret_key']) ? $settings['unsplash_secret_key'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'Enter your Secret Key', 'digiblocks' ); ?>"
+										>
+										<button type="button" class="button button-secondary digiblocks-toggle-password">
+											<span class="dashicons dashicons-visibility"></span>
+										</button>
+									</div>
+									<span class="digiblocks-form-description">
+										<?php esc_html_e( 'Secret key is optional and only needed for advanced features.', 'digiblocks' ); ?>
+									</span>
+								</div>
+
+								<span class="digiblocks-form-description">
+									<?php 
+									echo wp_kses(
+										sprintf(
+											__( 'Get your credentials from <a href="%s" target="_blank" rel="noopener noreferrer">Unsplash Developers</a>. Free tier: 50 requests/hour.', 'digiblocks' ),
+											'https://unsplash.com/developers'
+										),
+										array(
+											'a' => array(
+												'href' => array(),
+												'target' => array(),
+												'rel' => array()
+											)
+										)
+									);
+									?>
+								</span>
+							</div>
+
+							<!-- Pexels Fields -->
+							<div id="pexels-fields" class="image-api-provider-fields digiblocks-form-row" <?php echo ( isset($settings['image_api_provider']) && $settings['image_api_provider'] === 'pexels' ) ? '' : 'style="display:none;"'; ?>>
+								<div class="digiblocks-form-field">
+									<label for="pexels_api_key">
+										<?php esc_html_e( 'Pexels API Key', 'digiblocks' ); ?>
+									</label>
+									<div class="digiblocks-input-group">
+										<input 
+											type="password" 
+											id="pexels_api_key" 
+											name="pexels_api_key" 
+											value="<?php echo esc_attr( isset($settings['pexels_api_key']) ? $settings['pexels_api_key'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'Enter your Pexels API Key', 'digiblocks' ); ?>"
+										>
+										<button type="button" class="button button-secondary digiblocks-toggle-password">
+											<span class="dashicons dashicons-visibility"></span>
+										</button>
+									</div>
+									<span class="digiblocks-form-description">
+										<?php 
+										echo wp_kses(
+											sprintf(
+												__( 'Get your free API Key from <a href="%s" target="_blank" rel="noopener noreferrer">Pexels API</a>. Free tier: 200 requests/hour.', 'digiblocks' ),
+												'https://www.pexels.com/api/'
+											),
+											array(
+												'a' => array(
+													'href' => array(),
+													'target' => array(),
+													'rel' => array()
+												)
+											)
+										);
+										?>
+									</span>
+								</div>
+							</div>
+
+							<!-- Pixabay Fields -->
+							<div id="pixabay-fields" class="image-api-provider-fields digiblocks-form-row" <?php echo ( isset($settings['image_api_provider']) && $settings['image_api_provider'] === 'pixabay' ) ? '' : 'style="display:none;"'; ?>>
+								<div class="digiblocks-form-field">
+									<label for="pixabay_api_key">
+										<?php esc_html_e( 'Pixabay API Key', 'digiblocks' ); ?>
+									</label>
+									<div class="digiblocks-input-group">
+										<input 
+											type="password" 
+											id="pixabay_api_key" 
+											name="pixabay_api_key" 
+											value="<?php echo esc_attr( isset($settings['pixabay_api_key']) ? $settings['pixabay_api_key'] : '' ); ?>" 
+											placeholder="<?php esc_attr_e( 'Enter your Pixabay API Key', 'digiblocks' ); ?>"
+										>
+										<button type="button" class="button button-secondary digiblocks-toggle-password">
+											<span class="dashicons dashicons-visibility"></span>
+										</button>
+									</div>
+									<span class="digiblocks-form-description">
+										<?php 
+										echo wp_kses(
+											sprintf(
+												__( 'Get your free API Key from <a href="%s" target="_blank" rel="noopener noreferrer">Pixabay API</a>. Free tier: 5,000 requests/hour.', 'digiblocks' ),
+												'https://pixabay.com/api/docs/'
+											),
+											array(
+												'a' => array(
+													'href' => array(),
+													'target' => array(),
+													'rel' => array()
+												)
+											)
+										);
+										?>
+									</span>
+								</div>
+							</div>
+						</div>
+
 						<div class="digiblocks-form-section">
 							<h3><?php esc_html_e( 'Newsletter Settings', 'digiblocks' ); ?></h3>
 							<p class="digiblocks-form-section-description">

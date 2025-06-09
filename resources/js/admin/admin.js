@@ -104,6 +104,27 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 
+	// Image API Provider toggle functionality
+	const imageApiProviderSelect = document.getElementById('image_api_provider');
+	if (imageApiProviderSelect) {
+		imageApiProviderSelect.addEventListener('change', function() {
+			// Hide all image API provider fields
+			const imageApiFields = document.querySelectorAll('.image-api-provider-fields');
+			imageApiFields.forEach(function(field) {
+				field.style.display = 'none';
+			});
+
+			// Show selected provider fields
+			const selectedProvider = this.value;
+			if (selectedProvider) {
+				const selectedFields = document.getElementById(selectedProvider + '-fields');
+				if (selectedFields) {
+					selectedFields.style.display = 'block';
+				}
+			}
+		});
+	}
+
 	// Password toggle functionality
 	const passwordToggles = document.querySelectorAll('.digiblocks-toggle-password');
 	passwordToggles.forEach(function(toggle) {

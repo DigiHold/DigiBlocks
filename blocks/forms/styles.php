@@ -401,13 +401,14 @@ ob_start();
 .<?php echo esc_attr( $id ); ?> .digiblocks-form-radio-label {
     display: flex;
     align-items: center;
+	gap: 8px;
     cursor: pointer;
     margin-bottom: 8px;
 }
 
-.<?php echo esc_attr( $id ); ?> .digiblocks-form-checkbox,
-.<?php echo esc_attr( $id ); ?> .digiblocks-form-radio {
-    margin-right: 8px;
+.<?php echo esc_attr( $id ); ?> .digiblocks-form-checkbox-label span,
+.<?php echo esc_attr( $id ); ?> .digiblocks-form-radio-label span {
+    flex: 1;
 }
 
 /* Submit button container */

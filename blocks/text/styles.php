@@ -27,6 +27,11 @@ $align                        = isset( $attrs['align'] ) ? $attrs['align'] : arr
     'tablet'  => 'left',
     'mobile'  => 'left',
 );
+$maxWidth                     = isset( $attrs['maxWidth'] ) ? $attrs['maxWidth'] : array(
+	'desktop' => array( 'value' => '', 'unit' => 'px' ),
+	'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'value' => '', 'unit' => 'px' ),
+);
 $animation                    = isset( $attrs['animation'] ) ? $attrs['animation'] : 'none';
 $hoverEffect                  = isset( $attrs['hoverEffect'] ) ? $attrs['hoverEffect'] : 'none';
 $borderStyle                  = isset( $attrs['borderStyle'] ) ? $attrs['borderStyle'] : 'default';
@@ -212,17 +217,14 @@ ob_start();
         border-style: none;
     <?php endif; ?>
     
-    /* Always apply border radius */
     <?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'desktop' ) ); ?>
 
-    /* Box Shadow */
     <?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
         box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadow ) ); ?>;
     <?php else : ?>
         box-shadow: none;
     <?php endif; ?>
     
-    /* Text Shadow */
     <?php if ( isset( $textShadow['enable'] ) && $textShadow['enable'] ) : ?>
         text-shadow: <?php echo esc_attr( $textShadow['horizontal'] ); ?>px <?php echo esc_attr( $textShadow['vertical'] ); ?>px <?php echo esc_attr( $textShadow['blur'] ); ?>px <?php echo esc_attr( $textShadow['color'] ); ?>;
     <?php endif; ?>
@@ -230,7 +232,6 @@ ob_start();
     <?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
     <?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
     
-    /* Typography */
     <?php if ( ! empty( $typography['fontFamily'] ) ) : ?>
         font-family: <?php echo esc_attr( $typography['fontFamily'] ); ?>;
     <?php endif; ?>
@@ -262,6 +263,12 @@ ob_start();
     <?php if ( ! empty( $typography['letterSpacing']['desktop'] ) ) : ?>
         letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['desktop'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
     <?php endif; ?>
+        
+	<?php if ( ! empty( $maxWidth['desktop']['value'] ) ) : ?>
+		max-width: <?php echo esc_attr( $maxWidth['desktop']['value'] . $maxWidth['desktop']['unit'] ); ?>;
+		margin-left: auto;
+		margin-right: auto;
+	<?php endif; ?>
     
     transition: all 0.3s ease;
     word-wrap: break-word;
@@ -329,6 +336,15 @@ ob_start();
                 letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['tablet'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
         <?php endif; ?>
+
+		<?php if ( ! empty( $maxWidth['tablet']['value'] ) ) : ?>
+			max-width: <?php echo esc_attr( $maxWidth['tablet']['value'] . $maxWidth['tablet']['unit'] ); ?>;
+		<?php endif; ?>
+
+		<?php if ( ! empty( $maxWidth['desktop']['value'] ) || ! empty( $maxWidth['tablet']['value'] ) ) : ?>
+			margin-left: auto;
+			margin-right: auto;
+		<?php endif; ?>
     }
 }
 
@@ -363,6 +379,15 @@ ob_start();
                 letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['mobile'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
         <?php endif; ?>
+
+		<?php if ( ! empty( $maxWidth['mobile']['value'] ) ) : ?>
+			max-width: <?php echo esc_attr( $maxWidth['mobile']['value'] . $maxWidth['mobile']['unit'] ); ?>;
+		<?php endif; ?>
+
+		<?php if ( ! empty( $maxWidth['desktop']['value'] ) || ! empty( $maxWidth['tablet']['value'] ) || ! empty( $maxWidth['mobile']['value'] ) ) : ?>
+			margin-left: auto;
+			margin-right: auto;
+		<?php endif; ?>
     }
 }
 

@@ -36,6 +36,20 @@ class DigiBlocks {
 	private $active_blocks = array();
 
 	/**
+	 * Cache for reusable blocks during request
+	 *
+	 * @var array
+	 */
+	private static $reusable_block_cache = array();
+
+	/**
+	 * Cache for reusable block processing results
+	 *
+	 * @var array
+	 */
+	private static $reusable_processing_cache = array();
+
+	/**
 	 * Creates or returns an instance of this class.
 	 */
 	public static function get_instance() {
@@ -81,6 +95,16 @@ class DigiBlocks {
 
 		// Setup file generation hooks.
 		add_action( 'save_post', array( $this, 'generate_block_assets' ), 10, 3 );
+		
+		// Clear builder cache when builder posts are modified
+		add_action( 'save_post', array( $this, 'clear_builder_cache_on_save' ), 11, 3 );
+		add_action( 'delete_post', array( $this, 'clear_builder_cache_on_delete' ), 10, 1 );
+
+		// Clear reusable block cache when reusable blocks are updated
+		add_action( 'save_post', array( $this, 'clear_reusable_cache_on_save' ), 10, 3 );
+		add_action( 'delete_post', array( $this, 'clear_reusable_cache_on_delete' ), 10, 1 );
+		add_action( 'wp_trash_post', array( $this, 'clear_reusable_cache_on_delete' ), 10, 1 );
+		add_action( 'untrash_post', array( $this, 'clear_reusable_cache_on_save' ), 10, 1 );
 
 		// Enqueue block assets on frontend
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_block_assets' ) );
@@ -97,6 +121,179 @@ class DigiBlocks {
 		// Custom footer
 		add_filter( 'admin_footer_text', array( $this, 'footer_text' ), 99 );
 		add_filter( 'update_footer', array( $this, 'update_footer' ), 99 );
+	}
+
+	/**
+	 * Clear builder cache when builder posts are saved
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post Post object.
+	 * @param bool    $update Whether this is an update.
+	 */
+	public function clear_builder_cache_on_save( $post_id, $post, $update ) {
+		if ( $post->post_type === 'digi_builder' ) {
+			delete_transient( 'digiblocks_active_builders' );
+		}
+	}
+
+	/**
+	 * Clear builder cache when builder posts are deleted
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	public function clear_builder_cache_on_delete( $post_id ) {
+		$post = get_post( $post_id );
+		if ( $post && $post->post_type === 'digi_builder' ) {
+			delete_transient( 'digiblocks_active_builders' );
+		}
+	}
+
+	/**
+	 * Get cached reusable block content
+	 *
+	 * @param int $reusable_block_id Reusable block ID
+	 * @return array|false Parsed blocks or false if not found
+	 */
+	private function get_cached_reusable_block( $reusable_block_id ) {
+		if ( isset( self::$reusable_block_cache[ $reusable_block_id ] ) ) {
+			return self::$reusable_block_cache[ $reusable_block_id ];
+		}
+
+		$reusable_post = get_post( $reusable_block_id );
+		if ( ! $reusable_post || ! $reusable_post->post_content ) {
+			self::$reusable_block_cache[ $reusable_block_id ] = array();
+			return array();
+		}
+
+		$reusable_blocks = parse_blocks( $reusable_post->post_content );
+		self::$reusable_block_cache[ $reusable_block_id ] = $reusable_blocks;
+		
+		return $reusable_blocks;
+	}
+
+	/**
+	 * Clear reusable block cache
+	 *
+	 * @param int|null $reusable_block_id Specific block ID to clear, or null to clear all
+	 */
+	private function clear_reusable_block_cache( $reusable_block_id = null ) {
+		if ( null === $reusable_block_id ) {
+			self::$reusable_block_cache = array();
+			self::$reusable_processing_cache = array();
+		} else {
+			unset( self::$reusable_block_cache[ $reusable_block_id ] );
+			// Clear processing cache entries that might contain this reusable block
+			foreach ( self::$reusable_processing_cache as $key => $value ) {
+				if ( strpos( $key, "reusable_{$reusable_block_id}_" ) !== false ) {
+					unset( self::$reusable_processing_cache[ $key ] );
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Clear reusable block cache when reusable blocks are saved
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post Post object.
+	 * @param bool    $update Whether this is an update.
+	 */
+	public function clear_reusable_cache_on_save( $post_id, $post = null, $update = null ) {
+		// Handle both save_post and untrash_post hooks
+		if ( null === $post ) {
+			$post = get_post( $post_id );
+		}
+		
+		if ( ! $post || $post->post_type !== 'wp_block' ) {
+			return;
+		}
+
+		// Clear cache for this specific reusable block
+		$this->clear_reusable_block_cache( $post_id );
+		
+		// Regenerate assets for all posts that might use this reusable block
+		$this->regenerate_assets_using_reusable_block( $post_id );
+	}
+
+	/**
+	 * Clear reusable block cache when reusable blocks are deleted
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	public function clear_reusable_cache_on_delete( $post_id ) {
+		$post = get_post( $post_id );
+		if ( ! $post || $post->post_type !== 'wp_block' ) {
+			return;
+		}
+
+		// Clear cache for this specific reusable block
+		$this->clear_reusable_block_cache( $post_id );
+		
+		// Regenerate assets for all posts that might use this reusable block
+		$this->regenerate_assets_using_reusable_block( $post_id );
+	}
+
+	/**
+	 * Regenerate assets for posts that use a specific reusable block
+	 *
+	 * @param int $reusable_block_id Reusable block ID
+	 */
+	private function regenerate_assets_using_reusable_block( $reusable_block_id ) {
+		// Search for posts that reference this reusable block
+		global $wpdb;
+		
+		$posts_with_reusable = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT ID, post_content FROM {$wpdb->posts} 
+				WHERE post_status IN ('publish', 'private', 'draft') 
+				AND post_content LIKE %s",
+				'%<!-- wp:block {"ref":' . $reusable_block_id . '} /-->%'
+			)
+		);
+
+		foreach ( $posts_with_reusable as $post_data ) {
+			$post = get_post( $post_data->ID );
+			if ( $post ) {
+				// Regenerate assets for this post
+				$this->generate_block_assets( $post->ID, $post, true );
+			}
+		}
+	}
+
+	/**
+	 * Get cached processing result for reusable block
+	 *
+	 * @param int    $reusable_block_id Reusable block ID
+	 * @param string $type Processing type (css/js/animation/specific_block)
+	 * @param string $block_name Specific block name for specific_block type
+	 * @return mixed|false Cached result or false if not found
+	 */
+	private function get_cached_reusable_processing( $reusable_block_id, $type, $block_name = '' ) {
+		$cache_key = "reusable_{$reusable_block_id}_{$type}";
+		if ( ! empty( $block_name ) ) {
+			$cache_key .= "_{$block_name}";
+		}
+		
+		return isset( self::$reusable_processing_cache[ $cache_key ] ) 
+			? self::$reusable_processing_cache[ $cache_key ] 
+			: false;
+	}
+
+	/**
+	 * Set cached processing result for reusable block
+	 *
+	 * @param int    $reusable_block_id Reusable block ID
+	 * @param string $type Processing type (css/js/animation/specific_block)
+	 * @param mixed  $result Result to cache
+	 * @param string $block_name Specific block name for specific_block type
+	 */
+	private function set_cached_reusable_processing( $reusable_block_id, $type, $result, $block_name = '' ) {
+		$cache_key = "reusable_{$reusable_block_id}_{$type}";
+		if ( ! empty( $block_name ) ) {
+			$cache_key .= "_{$block_name}";
+		}
+		
+		self::$reusable_processing_cache[ $cache_key ] = $result;
 	}
 
 	/**
@@ -413,46 +610,6 @@ class DigiBlocks {
 	}
 
 	/**
-	 * Generate block assets (CSS and JS) for a post.
-	 *
-	 * @param int     $post_id Post ID.
-	 * @param WP_Post $post Post object.
-	 */
-	public function generate_block_assets( $post_id, $post ) {
-		// Skip if this is an autosave, a revision, or a restore.
-		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) || ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) {
-			return;
-		}
-
-		// Skip if post status is 'auto-draft'.
-		if ( 'auto-draft' === $post->post_status ) {
-			return;
-		}
-
-		// Skip if post type doesn't support the block editor.
-		if ( ! use_block_editor_for_post_type( $post->post_type ) ) {
-			return;
-		}
-
-		$content = $post->post_content;
-
-		// Check if content has any DigiBlocks blocks.
-		if ( false === strpos( $content, '<!-- wp:digiblocks/' ) ) {
-			// No DigiBlocks found, clean up existing files.
-			$this->cleanup_block_assets( $post_id );
-			return;
-		}
-
-		// Extract CSS and JS from blocks.
-		$css = $this->extract_block_css( $content, $post_id );
-		$js  = $this->extract_block_js( $content, $post_id );
-
-		// Generate assets.
-		$this->generate_css_file( $post_id, $css );
-		$this->generate_js_file( $post_id, $js );
-	}
-
-	/**
 	 * Extract CSS from blocks.
 	 *
 	 * @param string $content Post content.
@@ -480,6 +637,28 @@ class DigiBlocks {
 		$digiblock_count = 0;
 	
 		foreach ( $blocks as $block ) {
+			// Handle reusable blocks
+			if ( isset( $block['blockName'] ) && $block['blockName'] === 'core/block' ) {
+				if ( isset( $block['attrs']['ref'] ) ) {
+					$reusable_block_id = $block['attrs']['ref'];
+					
+					// Check cache first
+					$cached_css = $this->get_cached_reusable_processing( $reusable_block_id, 'css' );
+					if ( false !== $cached_css ) {
+						$css .= $cached_css;
+						continue;
+					}
+					
+					$reusable_blocks = $this->get_cached_reusable_block( $reusable_block_id );
+					if ( ! empty( $reusable_blocks ) ) {
+						$reusable_css = $this->process_blocks_for_css( $reusable_blocks, $post_id );
+						$this->set_cached_reusable_processing( $reusable_block_id, 'css', $reusable_css );
+						$css .= $reusable_css;
+					}
+				}
+				continue;
+			}
+	
 			// Check if this is a DigiBlocks block.
 			if ( isset( $block['blockName'] ) && 0 === strpos( $block['blockName'], 'digiblocks/' ) ) {
 				$digiblock_count++;
@@ -572,6 +751,28 @@ class DigiBlocks {
 		$js = '';
 	
 		foreach ( $blocks as $block ) {
+			// Handle reusable blocks
+			if ( isset( $block['blockName'] ) && $block['blockName'] === 'core/block' ) {
+				if ( isset( $block['attrs']['ref'] ) ) {
+					$reusable_block_id = $block['attrs']['ref'];
+					
+					// Check cache first
+					$cached_js = $this->get_cached_reusable_processing( $reusable_block_id, 'js' );
+					if ( false !== $cached_js ) {
+						$js .= $cached_js;
+						continue;
+					}
+					
+					$reusable_blocks = $this->get_cached_reusable_block( $reusable_block_id );
+					if ( ! empty( $reusable_blocks ) ) {
+						$reusable_js = $this->process_blocks_for_js( $reusable_blocks, $post_id );
+						$this->set_cached_reusable_processing( $reusable_block_id, 'js', $reusable_js );
+						$js .= $reusable_js;
+					}
+				}
+				continue;
+			}
+	
 			// Check if this is a DigiBlocks block.
 			if ( isset( $block['blockName'] ) && 0 === strpos( $block['blockName'], 'digiblocks/' ) ) {
 				$block_name        = str_replace( 'digiblocks/', '', $block['blockName'] );
@@ -807,63 +1008,258 @@ class DigiBlocks {
 	}
 
 	/**
-	 * Enqueue block assets on front-end.
+	 * Enqueue block assets on front-end
 	 */
 	public function enqueue_block_assets() {
-		global $post;
+		global $wp_query;
+		
+		$post_ids_to_check = array();
+		
+		// Get post IDs to check based on current page type
+		if ( is_singular() ) {
+			// Single post/page/CPT
+			$post_ids_to_check[] = get_the_ID();
+		} else {
+			// Archive pages, home page, search results - get all displayed post IDs
+			if ( isset( $wp_query->posts ) && is_array( $wp_query->posts ) ) {
+				foreach ( $wp_query->posts as $post ) {
+					if ( isset( $post->ID ) ) {
+						$post_ids_to_check[] = $post->ID;
+					}
+				}
+			}
+		}
+		
+		// Add active builder posts if DigiStore Builder is active
+		if ( class_exists( 'DigiStore_Builder' ) ) {
+			$builder_posts = $this->get_active_builder_posts();
+			foreach ( $builder_posts as $builder_post ) {
+				$post_ids_to_check[] = $builder_post->ID;
+			}
+		}
+		
+		// Remove duplicates and invalid IDs
+		$post_ids_to_check = array_unique( array_filter( $post_ids_to_check ) );
+		
+		if ( empty( $post_ids_to_check ) ) {
+			return;
+		}
+		
+		// Track what we've enqueued to avoid duplicates
+		static $enqueued_posts = array();
+		static $global_assets_enqueued = false;
+		
+		$has_any_digiblocks = false;
+		$all_blocks_for_global_assets = array();
+		
+		// Process each post
+		foreach ( $post_ids_to_check as $post_id ) {
+			// Skip if already processed
+			if ( isset( $enqueued_posts[ $post_id ] ) ) {
+				continue;
+			}
+			
+			$css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-' . $post_id . '.css';
+			$js_file  = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-' . $post_id . '.js';
+			$post = null;
+			
+			// If no asset files exist, check content and generate if needed
+			if ( ! file_exists( $css_file ) && ! file_exists( $js_file ) ) {
+				$post = get_post( $post_id );
+				if ( ! $post || ( false === strpos( $post->post_content, '<!-- wp:digiblocks/' ) && false === strpos( $post->post_content, '<!-- wp:block ' ) ) ) {
+					$enqueued_posts[ $post_id ] = false;
+					continue;
+				}
+				// Generate assets
+				$this->generate_block_assets( $post_id, $post, true );
+			}
+			
+			// Final check after potential generation
+			$has_css = file_exists( $css_file );
+			$has_js = file_exists( $js_file );
+			
+			// Skip if still no assets
+			if ( ! $has_css && ! $has_js ) {
+				$enqueued_posts[ $post_id ] = false;
+				continue;
+			}
+			
+			$has_any_digiblocks = true;
+			
+			// Enqueue CSS
+			if ( $has_css ) {
+				wp_enqueue_style(
+					'digiblocks-' . $post_id,
+					DIGIBLOCKS_ASSETS_URL . '/digiblocks-' . $post_id . '.css',
+					array(),
+					filemtime( $css_file )
+				);
+			}
+			
+			// Enqueue JS and add script data
+			if ( $has_js ) {
+				wp_enqueue_script(
+					'digiblocks-' . $post_id,
+					DIGIBLOCKS_ASSETS_URL . '/digiblocks-' . $post_id . '.js',
+					array(),
+					filemtime( $js_file ),
+					true
+				);
+				
+				// Get post if not already loaded
+				if ( ! $post ) {
+					$post = get_post( $post_id );
+				}
+				if ( $post && ! empty( $post->post_content ) ) {
+					$blocks = parse_blocks( $post->post_content );
+					$this->enqueue_consolidated_script_data( 'digiblocks-' . $post_id, $blocks );
+					$all_blocks_for_global_assets = array_merge( $all_blocks_for_global_assets, $blocks );
+				}
+			}
+			
+			// Mark as processed
+			$enqueued_posts[ $post_id ] = true;
+		}
+		
+		// Enqueue global assets only once per page if any DigiBlocks were found
+		if ( $has_any_digiblocks && ! $global_assets_enqueued && ! empty( $all_blocks_for_global_assets ) ) {
+			$this->enqueue_global_digiblocks_assets( $all_blocks_for_global_assets );
+			$global_assets_enqueued = true;
+		}
+	}
 
-		if ( ! is_singular() || empty( $post ) ) {
+	/**
+	 * Enqueue global DigiBlocks assets (Google Maps, Lottie, Animations)
+	 * These should only be loaded once per page regardless of how many blocks use them
+	 *
+	 * @param array $all_blocks All blocks found on the page
+	 */
+	private function enqueue_global_digiblocks_assets( $all_blocks ) {
+		// Google Maps API
+		if ( $this->has_specific_block( $all_blocks, 'digiblocks/google-map' ) ) {
+			$settings = get_option( 'digiblocks_settings', array() );
+			$api_key = isset( $settings['google_maps_api_key'] ) ? $settings['google_maps_api_key'] : '';
+			
+			if ( ! empty( $api_key ) ) {
+				wp_enqueue_script(
+					'google-maps-api',
+					'https://maps.googleapis.com/maps/api/js?key=' . esc_attr( $api_key ) . '&callback=digiblocksGoogleMapsCallback&loading=async',
+					array(),
+					null,
+					true
+				);
+			}
+		}
+		
+		// Lottie Player
+		if ( $this->has_specific_block( $all_blocks, 'digiblocks/lottie' ) ) {
+			wp_enqueue_script(
+				'digiblocks-lottie-player',
+				DIGIBLOCKS_PLUGIN_URL . 'assets/js/lottie.js',
+				array(),
+				DIGIBLOCKS_VERSION,
+				true
+			);
+		}
+		
+		// Animations
+		if ( $this->has_block_animations( $all_blocks ) ) {
+			wp_enqueue_script(
+				'digiblocks-animations',
+				DIGIBLOCKS_PLUGIN_URL . 'assets/js/front-animations.js',
+				array(),
+				DIGIBLOCKS_VERSION,
+				true
+			);
+		}
+	}
+
+	/**
+	 * Get active builder posts (simplified version)
+	 *
+	 * @return array Array of builder post objects
+	 */
+	private function get_active_builder_posts() {
+		// Use transient caching for builder posts since they don't change often
+		$cache_key = 'digiblocks_active_builders';
+		$builder_posts = get_transient( $cache_key );
+		
+		if ( false === $builder_posts ) {
+			$builder_posts = get_posts( array(
+				'post_type'      => 'digi_builder',
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			) );
+			
+			// Convert IDs to post objects
+			$builder_objects = array();
+			foreach ( $builder_posts as $builder_id ) {
+				$post = get_post( $builder_id );
+				if ( $post ) {
+					$builder_objects[] = $post;
+				}
+			}
+			
+			// Cache for 1 hour
+			set_transient( $cache_key, $builder_objects, HOUR_IN_SECONDS );
+			$builder_posts = $builder_objects;
+		}
+		
+		return $builder_posts;
+	}
+
+	/**
+	 * Enhanced generate_block_assets method to ensure clean regeneration
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post Post object.
+	 * @param bool    $force Force regeneration even if post hasn't changed.
+	 */
+	public function generate_block_assets( $post_id, $post, $force = false ) {
+		// Skip if this is an autosave, a revision, or a restore
+		if ( ! $force && ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) || ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) ) {
 			return;
 		}
 
-		$post_id  = $post->ID;
-		$css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-' . $post_id . '.css';
-		$js_file  = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-' . $post_id . '.js';
-
-		// Check if post content has DigiBlocks blocks
-		if ( has_blocks( $post->post_content ) ) {
-			$blocks         = parse_blocks( $post->post_content );
-			$has_digiblocks = $this->has_digiblocks_blocks( $blocks );
-
-			if ( $has_digiblocks ) {
-				// Enqueue the CSS file
-				if ( file_exists( $css_file ) ) {
-					wp_enqueue_style(
-						'digiblocks-' . $post_id,
-						DIGIBLOCKS_ASSETS_URL . '/digiblocks-' . $post_id . '.css',
-						array(),
-						filemtime( $css_file )
-					);
-				}
-
-				// Enqueue the JS file
-				if ( file_exists( $js_file ) ) {
-					wp_enqueue_script(
-						'digiblocks-' . $post_id,
-						DIGIBLOCKS_ASSETS_URL . '/digiblocks-' . $post_id . '.js',
-						array(),
-						filemtime( $js_file ),
-						true
-					);
-
-					// Consolidate all localized data into one call
-					$this->enqueue_consolidated_script_data( 'digiblocks-' . $post_id, $blocks );
-				}
-
-				// Check for Google Map block and enqueue the Google Maps API if needed
-				if ( $this->has_specific_block( $blocks, 'digiblocks/google-map' ) ) {
-					$this->enqueue_google_maps_api();
-				}
-
-				// Check for Lottie block and enqueue
-				if ( $this->has_specific_block( $blocks, 'digiblocks/lottie' ) ) {
-					$this->enqueue_lottie_if_needed( $post_id, $blocks );
-				}
-
-				// Check for blocks with animations and enqueue if needed
-				$this->enqueue_animations_if_needed( $post_id, $blocks );
-			}
+		// Skip if post status is 'auto-draft'
+		if ( ! $force && 'auto-draft' === $post->post_status ) {
+			return;
 		}
+
+		// Skip if post type doesn't support the block editor (except digi_builder)
+		if ( ! $force && $post->post_type !== 'digi_builder' && ! use_block_editor_for_post_type( $post->post_type ) ) {
+			return;
+		}
+
+		$content = $post->post_content;
+
+		// Check if content has any DigiBlocks blocks or reusable blocks
+		if ( false === strpos( $content, '<!-- wp:digiblocks/' ) && false === strpos( $content, '<!-- wp:block ' ) ) {
+			// No DigiBlocks found, clean up existing files
+			$this->cleanup_block_assets( $post_id );
+			return;
+		}
+
+		// Extract CSS and JS from blocks
+		$css = $this->extract_block_css( $content, $post_id );
+		$js  = $this->extract_block_js( $content, $post_id );
+
+		// Generate assets
+		$this->generate_css_file( $post_id, $css );
+		$this->generate_js_file( $post_id, $js );
+		
+		// Clear builder cache if this is a builder post
+		if ( $post->post_type === 'digi_builder' ) {
+			delete_transient( 'digiblocks_active_builders' );
+		}
+	}
+
+	/**
+	 * Clear builder cache when builder posts are modified
+	 */
+	public function clear_builder_cache() {
+		delete_transient( 'digiblocks_active_builders' );
 	}
 
 	/**
@@ -963,6 +1359,32 @@ class DigiBlocks {
 	 */
 	private function has_specific_block( $blocks, $block_name ) {
 		foreach ( $blocks as $block ) {
+			// Handle reusable blocks
+			if ( isset( $block['blockName'] ) && $block['blockName'] === 'core/block' ) {
+				if ( isset( $block['attrs']['ref'] ) ) {
+					$reusable_block_id = $block['attrs']['ref'];
+					
+					// Check cache first
+					$cached_result = $this->get_cached_reusable_processing( $reusable_block_id, 'specific_block', $block_name );
+					if ( false !== $cached_result ) {
+						if ( $cached_result ) {
+							return true;
+						}
+						continue;
+					}
+					
+					$reusable_blocks = $this->get_cached_reusable_block( $reusable_block_id );
+					if ( ! empty( $reusable_blocks ) ) {
+						$has_block = $this->has_specific_block( $reusable_blocks, $block_name );
+						$this->set_cached_reusable_processing( $reusable_block_id, 'specific_block', $has_block, $block_name );
+						if ( $has_block ) {
+							return true;
+						}
+					}
+				}
+				continue;
+			}
+	
 			if ( isset( $block['blockName'] ) && $block['blockName'] === $block_name ) {
 				return true;
 			}
@@ -978,47 +1400,6 @@ class DigiBlocks {
 	}
 
 	/**
-	 * Check if blocks array contains any DigiBlocks blocks.
-	 *
-	 * @param array $blocks Array of parsed blocks.
-	 * @return bool True if DigiBlocks blocks are found.
-	 */
-	private function has_digiblocks_blocks( $blocks ) {
-		foreach ( $blocks as $block ) {
-			if ( isset( $block['blockName'] ) && 0 === strpos( $block['blockName'], 'digiblocks/' ) ) {
-				return true;
-			}
-			
-			if ( ! empty( $block['innerBlocks'] ) ) {
-				if ( $this->has_digiblocks_blocks( $block['innerBlocks'] ) ) {
-					return true;
-				}
-			}
-		}
-		
-		return false;
-	}
-
-	/**
-	 * Enqueue Google Maps API.
-	 */
-	private function enqueue_google_maps_api() {
-		// Get API key from settings
-		$settings = get_option('digiblocks_settings', array());
-		$api_key = isset($settings['google_maps_api_key']) ? $settings['google_maps_api_key'] : '';
-
-		if (!empty($api_key)) {
-			wp_enqueue_script(
-				'google-maps-api',
-				'https://maps.googleapis.com/maps/api/js?key=' . esc_attr($api_key) . '&callback=digiblocksGoogleMapsCallback&loading=async',
-				array(),
-				null, // phpcs:ignore
-				true
-			);
-		}
-	}
-
-	/**
 	 * Check if any DigiBlocks with animations are present on the page.
 	 *
 	 * @param array $blocks Array of parsed blocks.
@@ -1026,6 +1407,32 @@ class DigiBlocks {
 	 */
 	private function has_block_animations( $blocks ) {
 		foreach ( $blocks as $block ) {
+			// Handle reusable blocks
+			if ( isset( $block['blockName'] ) && $block['blockName'] === 'core/block' ) {
+				if ( isset( $block['attrs']['ref'] ) ) {
+					$reusable_block_id = $block['attrs']['ref'];
+					
+					// Check cache first
+					$cached_result = $this->get_cached_reusable_processing( $reusable_block_id, 'animation' );
+					if ( false !== $cached_result ) {
+						if ( $cached_result ) {
+							return true;
+						}
+						continue;
+					}
+					
+					$reusable_blocks = $this->get_cached_reusable_block( $reusable_block_id );
+					if ( ! empty( $reusable_blocks ) ) {
+						$has_animations = $this->has_block_animations( $reusable_blocks );
+						$this->set_cached_reusable_processing( $reusable_block_id, 'animation', $has_animations );
+						if ( $has_animations ) {
+							return true;
+						}
+					}
+				}
+				continue;
+			}
+	
 			// Check if this is a DigiBlocks block with animation attribute
 			if ( isset( $block['blockName'] ) && 
 				0 === strpos( $block['blockName'], 'digiblocks/' ) && 
@@ -1043,34 +1450,6 @@ class DigiBlocks {
 		}
 		
 		return false;
-	}
-
-	/**
-	 * Enqueue animations script if needed.
-	 *
-	 * @param int $post_id Post ID.
-	 * @param array $blocks Parsed blocks from content.
-	 */
-	private function enqueue_animations_if_needed( $post_id, $blocks ) {
-		static $animations_enqueued = false;
-		
-		// Check if animations are already enqueued
-		if ( $animations_enqueued ) {
-			return;
-		}
-		
-		// Check if any block has animations
-		if ( $this->has_block_animations( $blocks ) ) {
-			wp_enqueue_script(
-				'digiblocks-animations',
-				DIGIBLOCKS_PLUGIN_URL . 'assets/js/front-animations.js',
-				array(),
-				DIGIBLOCKS_VERSION,
-				true
-			);
-			
-			$animations_enqueued = true;
-		}
 	}
 
 	/**
@@ -1428,34 +1807,6 @@ class DigiBlocks {
 	}
 
 	/**
-	 * Enqueue lottie script if needed
-	 * 
-	 * @param int $post_id Post ID.
-	 * @param array $blocks Parsed blocks from content.
-	 */
-	private function enqueue_lottie_if_needed($post_id, $blocks) {
-		static $lottie_enqueued = false;
-		
-		// Check if lottie js is already enqueued
-		if ($lottie_enqueued) {
-			return;
-		}
-		
-		// Check if any block has lottie
-		if ($this->has_specific_block( $blocks, 'digiblocks/lottie' )) {
-			wp_enqueue_script(
-				'digiblocks-lottie-player',
-				DIGIBLOCKS_PLUGIN_URL . 'assets/js/lottie.js',
-				array(),
-				DIGIBLOCKS_VERSION,
-				true
-			);
-			
-			$lottie_enqueued = true;
-		}
-	}
-
-	/**
 	 * Register REST API routes.
 	 */
 	public function register_rest_routes() {
@@ -1646,6 +1997,9 @@ class DigiBlocks {
 		// Increase execution time for large sites
 		set_time_limit( 300 );
 
+		// Clear reusable block cache before regeneration
+		$this->clear_reusable_block_cache();
+
 		$regenerated = array(
 			'posts' => 0,
 			'builders' => 0,
@@ -1683,7 +2037,7 @@ class DigiBlocks {
 					$content = $post->post_content;
 
 					// Check if content has any DigiBlocks blocks (including Pro blocks)
-					if ( false === strpos( $content, '<!-- wp:digiblocks/' ) ) {
+					if ( false === strpos( $content, '<!-- wp:digiblocks/' ) && false === strpos( $content, '<!-- wp:block ' ) ) {
 						// Clean up existing files for posts without DigiBlocks
 						$this->cleanup_block_assets( $post->ID );
 						continue;
@@ -2101,7 +2455,7 @@ class DigiBlocks {
 		$screen = get_current_screen();
 
 		if ( 'toplevel_page_digiblocks' === $screen->id || 'digiblocks_page_digiblocks-settings' === $screen->id ) {
-			$version .= sprintf( ' | %1$s %2$s', 'DigiBlocks Pro', DIGIBLOCKS_PRO_VERSION );
+			$version .= sprintf( ' | %1$s %2$s', 'DigiBlocks', DIGIBLOCKS_VERSION );
 		}
 
 		return $version;

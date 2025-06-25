@@ -22,7 +22,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, ResponsiveButtonGroup } = digi.components;
+const { ResponsiveControl, ResponsiveRangeControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, ResponsiveButtonGroup } = digi.components;
 
 /**
  * Edit function for the Text block
@@ -36,6 +36,7 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
         content,
         align,
         htmlTag,
+        maxWidth,
         textColor,
         textHoverColor,
         backgroundColor,
@@ -174,6 +175,27 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
         }
     ];
 
+	// Change data attr in units
+	const getMaxValue = (unit) => {
+		switch(unit) {
+			case '%': return 100;
+			case 'em':
+			case 'rem': return 50;
+			case 'px':
+			default: return 1500;
+		}
+	};
+	
+	const getStepValue = (unit) => {
+		switch(unit) {
+			case '%': return 1;
+			case 'em':
+			case 'rem': return 0.1;
+			case 'px':
+			default: return 1;
+		}
+	};
+
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
@@ -219,6 +241,12 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
         // Padding and margin
         const paddingCSS = `${getDimensionCSS(padding, 'padding', activeDevice)}`;
         const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice)}`;
+		
+		// Content max width CSS
+        let maxWidthCSS = '';
+		if (maxWidth) {
+			maxWidthCSS = `max-width: ${maxWidth[activeDevice].value}${maxWidth[activeDevice].unit};margin-left: auto;margin-right: auto;`;
+		}
 
         // Typography CSS
         let typographyCSS = '';
@@ -288,6 +316,10 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
         return `
             /* Main text block styles */
             .${id} {
+                transition: all 0.3s ease;
+            }
+
+            .${id} ${htmlTag} {
                 ${alignCSS}
                 color: ${textColor || 'inherit'};
                 ${backgroundCSS}
@@ -297,6 +329,7 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
                 ${marginCSS}
                 ${borderCSS}
                 ${borderRadiusCSS}
+                ${maxWidthCSS}
                 ${typographyCSS}
                 transition: all 0.3s ease;
                 word-wrap: break-word;
@@ -304,7 +337,7 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             /* Hover effects */
-            .${id}:hover {
+            .${id}:hover ${htmlTag} {
                 ${textHoverColor ? `color: ${textHoverColor};` : ''}
                 ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
                 ${borderHoverColor ? `border-color: ${borderHoverColor};` : ''}
@@ -314,7 +347,7 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
             /* Visibility Controls */
             ${visibility.desktop ? `
                 @media (min-width: 992px) {
-                    .${id} {
+                    .${id} ${htmlTag} {
                         opacity: 0.5 !important;
                     }
                 }
@@ -322,7 +355,7 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
 
             ${visibility.tablet ? `
                 @media (min-width: 768px) and (max-width: 991px) {
-                    .${id} {
+                    .${id} ${htmlTag} {
                         opacity: 0.5 !important;
                     }
                 }
@@ -330,7 +363,7 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
 
             ${visibility.mobile ? `
                 @media (max-width: 767px) {
-                    .${id} {
+                    .${id} ${htmlTag} {
                         opacity: 0.5 !important;
                     }
                 }
@@ -457,6 +490,22 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
                                     { label: __('Justify', 'digiblocks'), value: 'justify' },
                                 ]}
                             />
+
+							<ResponsiveRangeControl
+								label={__("Max Width", "digiblocks")}
+								value={maxWidth}
+								onChange={(value) => setAttributes({ maxWidth: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' },
+									{ label: 'em', value: 'em' },
+									{ label: 'rem', value: 'rem' },
+								]}
+								defaultUnit="px"
+								min={0}
+								max={getMaxValue(maxWidth?.[localActiveDevice]?.unit)}
+								step={getStepValue(maxWidth?.[localActiveDevice]?.unit)}
+							/>
                         </div>
                     </>
                 );
@@ -881,14 +930,15 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
             {/* Use dangerouslySetInnerHTML for the style tag */}
             <style dangerouslySetInnerHTML={{ __html: generateCSS() }} />
 
-            <RichText
-                {...blockProps}
-                tagName={htmlTag}
-                value={content}
-                onChange={(value) => setAttributes({ content: value })}
-                placeholder={__("Start writing or type / to add blocks", "digiblocks")}
-                allowedFormats={['core/bold', 'core/italic', 'core/link', 'core/strikethrough', 'core/underline', 'core/text-color', 'core/code', 'core/superscript', 'core/subscript']}
-            />
+            <div {...blockProps}>
+				<RichText
+					tagName={htmlTag}
+					value={content}
+					onChange={(value) => setAttributes({ content: value })}
+					placeholder={__("Start writing or type / to add blocks", "digiblocks")}
+					allowedFormats={['core/bold', 'core/italic', 'core/link', 'core/strikethrough', 'core/underline', 'core/text-color', 'core/code', 'core/superscript', 'core/subscript']}
+				/>
+			</div>
         </>
     );
 };

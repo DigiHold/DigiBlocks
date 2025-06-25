@@ -435,7 +435,6 @@ ob_start();
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-content {
 		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
-        padding-top: 0;
     }
 <?php endif; ?>
     
@@ -497,7 +496,6 @@ ob_start();
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-content {
 		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
-        padding-top: 0;
     }
 <?php endif; ?>
     

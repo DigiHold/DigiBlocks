@@ -728,6 +728,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             .${id}.layout-list .digiblocks-team-member-content {
+				flex: 1;
                 text-align: left !important;
             }
 

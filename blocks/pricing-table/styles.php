@@ -164,7 +164,6 @@ $buttonBackgroundHoverColor    = isset( $attrs['buttonBackgroundHoverColor'] ) ?
 $ribbonTextColor        = isset( $attrs['ribbonTextColor'] ) ? $attrs['ribbonTextColor'] : '#ffffff';
 $ribbonBackgroundColor  = isset( $attrs['ribbonBackgroundColor'] ) ? $attrs['ribbonBackgroundColor'] : '#4a6cf7';
 
-// Get typography with default values
 // Title Typography
 if ( ! $titleTypography ) {
     $titleTypography = array(
@@ -343,7 +342,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
-        box-shadow: <?php echo esc_attr( digiblocks_get_boxShadow_css( $boxShadow ) ); ?>;
+        box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadow ) ); ?>;
     <?php else : ?>
         box-shadow: none;
     <?php endif; ?>
@@ -356,7 +355,7 @@ ob_start();
 /* Hover effect */
 .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table:hover {
     <?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
-        box-shadow: <?php echo esc_attr( digiblocks_get_boxShadow_css( $boxShadowHover ) ); ?>;
+        box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadowHover ) ); ?>;
     <?php endif; ?>
 }
 
@@ -420,8 +419,6 @@ ob_start();
 foreach ( $tables as $index => $table ) {
     $table_icon_color = isset( $table['iconColor'] ) ? $table['iconColor'] : '';
     $table_icon_hover_color = isset( $table['iconHoverColor'] ) ? $table['iconHoverColor'] : '';
-    
-    // Now use these variables for each table in the CSS output
     ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table:nth-child(<?php echo esc_attr( $index + 1 ); ?>) .digiblocks-pricing-table-icon svg {
         fill: <?php echo ! empty( $table_icon_color ) ? esc_attr( $table_icon_color ) : esc_attr( $tableTextColor ); ?>;

@@ -48,6 +48,7 @@ DigiBlocks includes a comprehensive collection of blocks designed to address all
 
 = Pro Version Blocks =
 
+* **[Money Back](https://digiblocks.me/block/money-back?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add a customizable money back guarantee.
 * **[Logo](https://digiblocks.me/block/logo?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add a customizable logo for your website header or footer.
 * **[Navigation](https://digiblocks.me/block/navigation?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add a responsive navigation menu with custom or WordPress menus.
 * **[Login Link](https://digiblocks.me/block/login-link?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add a customizable login/account link for your header.
@@ -213,7 +214,6 @@ This plugin uses Google Maps API for the Google Map Block feature.
 8. **Google Map Block**: Embed customizable Google Maps with multiple markers.
 9. **Heading Block**: Create eye-catching headings with separators and highlight options.
 10. **Icon List Block**: Create beautiful lists with custom icons and formatting.
-11. **Team Block**: Showcase team members with images, bios, and social links.
 
 == Changelog ==
 

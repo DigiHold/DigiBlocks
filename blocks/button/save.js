@@ -15,6 +15,8 @@ const ButtonSave = ({ attributes }) => {
         url,
         opensInNewTab,
         rel,
+        iconSource,
+		customSvg,
         iconValue,
         iconPosition,
         size,
@@ -33,24 +35,43 @@ const ButtonSave = ({ attributes }) => {
         .filter(Boolean)
         .join(" ");
 
+	// Render icon
+    const renderIcon = () => {
+		// For library icons
+		if (iconSource === 'library' && iconValue && iconValue.svg && iconValue.svg.trim() !== '') {
+			return (
+				<span 
+					className="digiblocks-button-icon"
+					dangerouslySetInnerHTML={{ __html: iconValue.svg }}
+				/>
+			);
+		}
+		
+		// For custom SVG
+		if (iconSource === 'custom' && customSvg && customSvg.trim() !== '') {
+			return (
+				<span 
+					className="digiblocks-button-icon"
+					dangerouslySetInnerHTML={{ __html: customSvg }}
+				/>
+			);
+		}
+		
+		return null;
+	};
+
     const buttonContent = (
         <>
-            {iconValue && iconValue.svg && iconPosition === 'left' && (
-                <span 
-                    className="digiblocks-button-icon"
-                    dangerouslySetInnerHTML={{ __html: iconValue.svg }}
-                />
+            {iconPosition === 'left' && (
+                renderIcon()
             )}
             {!onlyIcon && (
                 <RichText.Content
                     value={text}
                 />
             )}
-            {iconValue && iconValue.svg && iconPosition === 'right' && (
-                <span 
-                    className="digiblocks-button-icon"
-                    dangerouslySetInnerHTML={{ __html: iconValue.svg }}
-                />
+            {iconPosition === 'right' && (
+                renderIcon()
             )}
         </>
     );

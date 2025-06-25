@@ -72,6 +72,14 @@ registerBlockType('digiblocks/text', {
                 mobile: 'left'
             }
         },
+		maxWidth: {
+			type: 'object',
+			default: {
+				desktop: { value: '', unit: 'px' },
+				tablet: { value: '', unit: 'px' },
+				mobile: { value: '', unit: 'px' }
+			}
+		},
         textColor: {
             type: 'string',
             default: '#333333'

@@ -29,7 +29,6 @@ const HeadingSave = ({ attributes }) => {
     const blockClasses = [
         "digiblocks-heading",
 		id,
-        `align-${align}`,
         animation !== "none" ? `animate-${animation}` : "",
         displaySeparator ? `has-separator separator-${separatorStyle}` : "",
         customClasses || ""

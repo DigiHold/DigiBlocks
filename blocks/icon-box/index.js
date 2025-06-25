@@ -27,7 +27,6 @@ registerBlockType('digiblocks/icon-box', {
 	},
 	description: digiBlocksData.blocks['icon-box'].description,
 	keywords: [__('icon', 'digiblocks'), __('box', 'digiblocks'), __('feature', 'digiblocks'), __('service', 'digiblocks')],
-	// Disable all default controls and settings panels
 	supports: {
 		inserter: getBlockActiveStatus('icon-box') ? true : false,
 		html: false,
@@ -99,6 +98,14 @@ registerBlockType('digiblocks/icon-box', {
 		showContent: {
 			type: 'boolean',
 			default: true
+		},
+		showBadge: {
+			type: 'boolean',
+			default: false
+		},
+		badgeText: {
+			type: 'string',
+			default: __('Popular', 'digiblocks')
 		},
 		title: {
 			type: 'string',
@@ -316,12 +323,112 @@ registerBlockType('digiblocks/icon-box', {
 				letterSpacingUnit: 'px'
 			}
 		},
+		badgeBackgroundColor: {
+			type: 'string',
+			default: '#f59e0b'
+		},
+		badgeBackgroundHoverColor: {
+			type: 'string',
+			default: ''
+		},
+		badgeTextColor: {
+			type: 'string',
+			default: '#ffffff'
+		},
+		badgeTextHoverColor: {
+			type: 'string',
+			default: ''
+		},
+		badgeTypography: {
+			type: 'object',
+			default: {
+				fontFamily: '',
+				fontSize: { desktop: 0.7, tablet: 0.7, mobile: 0.7 },
+				fontSizeUnit: 'rem',
+				fontWeight: '700',
+				fontStyle: 'normal',
+				textTransform: 'uppercase',
+				textDecoration: '',
+				lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+				lineHeightUnit: 'em',
+				letterSpacing: { desktop: 0.05, tablet: 0.05, mobile: 0.05 },
+				letterSpacingUnit: 'em'
+			}
+		},
+		badgePadding: {
+			type: 'object',
+			default: {
+				desktop: { top: 0.25, right: 0.5, bottom: 0.25, left: 0.5, unit: 'rem' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'rem' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'rem' }
+			}
+		},
+		badgeBorderStyle: {
+			type: 'string',
+			default: 'none'
+		},
+		badgeBorderWidth: {
+			type: 'object',
+			default: {
+				desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+			}
+		},
+		badgeBorderRadius: {
+			type: 'object',
+			default: {
+				desktop: { top: 4, right: 4, bottom: 4, left: 4, unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+			}
+		},
+		badgeBorderColor: {
+			type: 'string',
+			default: '#e0e0e0'
+		},
+		badgeBorderHoverColor: {
+			type: 'string',
+			default: ''
+		},
+		badgeBoxShadow: {
+			type: 'object',
+			default: {
+				enable: false,
+				color: 'rgba(0, 0, 0, 0.2)',
+				horizontal: 0,
+				vertical: 0,
+				blur: 0,
+				spread: 0,
+				position: 'outset'
+			}
+		},
+		badgeBoxShadowHover: {
+			type: 'object',
+			default: {
+				enable: false,
+				color: 'rgba(0, 0, 0, 0.2)',
+				horizontal: 0,
+				vertical: 0,
+				blur: 0,
+				spread: 0,
+				position: 'outset'
+			}
+		},
 		iconSize: {
 			type: 'object',
 			default: {
-				desktop: 48,
-				tablet: 40,
-				mobile: 32
+				desktop: { value: '48', unit: 'px' },
+				tablet: { value: '', unit: 'px' },
+				mobile: { value: '', unit: 'px' }
+			}
+		},
+		iconHeight: {
+			type: 'object',
+			default: {
+				desktop: { value: '', unit: 'px' },
+				tablet: { value: '', unit: 'px' },
+				mobile: { value: '', unit: 'px' }
 			}
 		},
 		titleTypography: {
@@ -471,6 +578,10 @@ registerBlockType('digiblocks/icon-box', {
 		borderColor: {
 			type: 'string',
 			default: '#e0e0e0'
+		},
+		borderHoverColor: {
+			type: 'string',
+			default: ''
 		},
 		hoverEffect: {
 			type: 'string',

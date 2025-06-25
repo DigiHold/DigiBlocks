@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Define constants.
 if ( ! defined( 'DIGIBLOCKS_VERSION' ) ) {
-	define( 'DIGIBLOCKS_VERSION', '1.0.1' );
+	define( 'DIGIBLOCKS_VERSION', '1.0.0' );
 }
 if ( ! defined( 'DIGIBLOCKS_PLUGIN_DIR' ) ) {
 	define( 'DIGIBLOCKS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );

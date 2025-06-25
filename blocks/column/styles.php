@@ -29,6 +29,16 @@ $order                    = isset( $attrs['order'] ) ? $attrs['order'] : [
 ];
 $hoverEffect              = isset( $attrs['hoverEffect'] ) ? $attrs['hoverEffect'] : 'none';
 $backgroundColor          = isset( $attrs['backgroundColor'] ) ? $attrs['backgroundColor'] : '';
+$backgroundGradient       = isset( $attrs['backgroundGradient'] ) ? $attrs['backgroundGradient'] : array(
+    'enable' => false,
+    'type' => 'linear',
+    'angle' => 90,
+    'position' => 'center center',
+    'colors' => array(
+        array('color' => '#667eea', 'position' => 0),
+        array('color' => '#764ba2', 'position' => 100)
+    )
+);
 $backgroundImage          = isset( $attrs['backgroundImage'] ) ? $attrs['backgroundImage'] : null;
 $backgroundPosition       = isset( $attrs['backgroundPosition'] ) ? $attrs['backgroundPosition'] : 'center center';
 $backgroundRepeat         = isset( $attrs['backgroundRepeat'] ) ? $attrs['backgroundRepeat'] : 'no-repeat';
@@ -67,11 +77,49 @@ $boxShadowHover = isset( $attrs['boxShadowHover'] ) ? $attrs['boxShadowHover'] :
     'position'   => 'outset',
 );
 
-// Background image CSS
-$backgroundImageCSS = '';
+// Generate gradient CSS
+$gradientCSS = '';
+if (isset($backgroundGradient['enable']) && $backgroundGradient['enable'] && !empty($backgroundGradient['colors'])) {
+    $colorStops = array();
+    foreach ($backgroundGradient['colors'] as $stop) {
+        $colorStops[] = $stop['color'] . ' ' . $stop['position'] . '%';
+    }
+    $colorStopsString = implode(', ', $colorStops);
+    
+    if ($backgroundGradient['type'] === 'radial') {
+        $gradientCSS = "background-image: radial-gradient(circle at {$backgroundGradient['position']}, {$colorStopsString});";
+    } else {
+        $gradientCSS = "background-image: linear-gradient({$backgroundGradient['angle']}deg, {$colorStopsString});";
+    }
+}
+
+// Background styles - priority: gradient > image > color
+$backgroundStyles = '';
+
+// Background color (lowest priority)
+if ( $backgroundColor ) {
+    $backgroundStyles .= "background-color: {$backgroundColor};";
+}
+
+// Background gradient
+if ( $gradientCSS ) {
+    $backgroundStyles .= $gradientCSS;
+}
+
+// Background image (highest priority)
 if ( ! empty( $backgroundImage ) && ! empty( $backgroundImage['url'] ) ) {
-    $backgroundImageCSS = "background-image: url({$backgroundImage['url']});
-    background-position: {$backgroundPosition};
+    $imageCSS = "url({$backgroundImage['url']})";
+    if ( $gradientCSS ) {
+        // Layer image over gradient
+        $backgroundStyles = str_replace(
+            'background-image: ' . substr($gradientCSS, 18, -1), // Remove 'background-image: ' and ';'
+            "background-image: {$imageCSS}, " . substr($gradientCSS, 18, -1),
+            $backgroundStyles
+        );
+    } else {
+        $backgroundStyles .= "background-image: {$imageCSS};";
+    }
+    $backgroundStyles .= "background-position: {$backgroundPosition};
     background-repeat: {$backgroundRepeat};
     background-size: {$backgroundSize};";
 }
@@ -90,10 +138,7 @@ ob_start();
     <?php if ( $order['desktop'] !== 0 ) : ?>
     order: <?php echo esc_attr( $order['desktop'] ); ?>;
     <?php endif; ?>
-    <?php if ( $backgroundColor ) : ?>
-    background-color: <?php echo esc_attr( $backgroundColor ); ?>;
-    <?php endif; ?>
-    <?php echo esc_attr( $backgroundImageCSS ); ?>
+    <?php echo esc_attr( $backgroundStyles ); ?>
     <?php if ( $borderStyle !== 'none' ) : ?>
     border-style: <?php echo esc_attr( $borderStyle ); ?>;
 	<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'desktop' ) ); ?>

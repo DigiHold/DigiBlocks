@@ -25,7 +25,7 @@ const { useSelect, useDispatch } = wp.data;
  */
 const { useBlockId, getDimensionCSS } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody, GradientControl } = digi.components;
 
 /**
  * Column Block Edit Component
@@ -38,6 +38,7 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
         order,
 		hoverEffect,
         backgroundColor,
+        backgroundGradient,
         backgroundImage,
         backgroundPosition,
         backgroundRepeat,
@@ -110,6 +111,23 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
 			},
 		});
 	};
+
+    // Generate gradient CSS
+    const generateGradientCSS = () => {
+        if (!backgroundGradient.enable || !backgroundGradient.colors.length) {
+            return '';
+        }
+
+        const colorStops = backgroundGradient.colors
+            .map(stop => `${stop.color} ${stop.position}%`)
+            .join(', ');
+
+        if (backgroundGradient.type === 'radial') {
+            return `background-image: radial-gradient(circle at ${backgroundGradient.position}, ${colorStops});`;
+        } else {
+            return `background-image: linear-gradient(${backgroundGradient.angle}deg, ${colorStops});`;
+        }
+    };
 
     // Background position options
     const bgPositionOptions = [
@@ -268,11 +286,33 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
 		const tabletPaddingCSS = getColumnPadding(padding, 'tablet');
 		const mobilePaddingCSS = getColumnPadding(padding, 'mobile');
         
-        // Background image CSS
-        let backgroundImageCSS = '';
+        // Background styles - priority: gradient > image > color
+        let backgroundStyles = '';
+        
+        // Background color (lowest priority)
+        if (backgroundColor) {
+            backgroundStyles += `background-color: ${backgroundColor};`;
+        }
+        
+        // Background gradient
+        const gradientCSS = generateGradientCSS();
+        if (gradientCSS) {
+            backgroundStyles += gradientCSS;
+        }
+        
+        // Background image (highest priority)
         if (backgroundImage && backgroundImage.url) {
-            backgroundImageCSS = `background-image: url(${backgroundImage.url});
-            background-position: ${backgroundPosition};
+            // If gradient is enabled, use comma to layer them
+            const imageCSS = `url(${backgroundImage.url})`;
+            if (gradientCSS) {
+                backgroundStyles = backgroundStyles.replace(
+                    /background-image: ([^;]+);/, 
+                    `background-image: ${imageCSS}, $1;`
+                );
+            } else {
+                backgroundStyles += `background-image: ${imageCSS};`;
+            }
+            backgroundStyles += `background-position: ${backgroundPosition};
             background-repeat: ${backgroundRepeat};
             background-size: ${backgroundSize};`;
         }
@@ -336,8 +376,7 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                 display: flex;
                 flex-direction: column;
                 ${order[activeDevice] !== 0 ? `order: ${order[activeDevice]};` : ''}
-                ${backgroundColor ? `background-color: ${backgroundColor};` : ''}
-                ${backgroundImageCSS}
+                ${backgroundStyles}
                 ${borderStyle !== 'none' ? `
 					border-style: ${borderStyle}!important;
 					${getDimensionCSS(borderWidth, 'border-width', activeDevice, true)}
@@ -349,7 +388,7 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* Hover effects */
             .${id}:hover {
-                ${boxShadowHoverCSS}
+                ${hoverCSS}
             }
 
             .${id} > div {
@@ -765,6 +804,18 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                                     />
                                 </>
                             )}
+                        </TabPanelBody>
+
+                        <TabPanelBody
+                            tab="background"
+                            name="gradient"
+                            title={__('Background Gradient', 'digiblocks')}
+                            initialOpen={false}
+                        >
+                            <GradientControl
+                                value={backgroundGradient}
+                                onChange={(value) => setAttributes({ backgroundGradient: value })}
+                            />
                         </TabPanelBody>
                         
                         <TabPanelBody

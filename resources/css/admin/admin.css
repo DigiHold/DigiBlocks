@@ -323,7 +323,7 @@ body.rtl .digiblocks-admin-wrap {
     border: 2px solid #92400e;
     border-top: 2px solid transparent;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: digiblocks-spin 1s linear infinite;
 }
 
 .digiblocks-saved {

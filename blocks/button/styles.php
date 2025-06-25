@@ -17,6 +17,7 @@ $visibility          = isset( $attrs['visibility'] ) ? $attrs['visibility'] : [
     'tablet'  => false,
     'mobile'  => false,
 ];
+$link                = isset( $attrs['url'] ) ? $attrs['url'] : '';
 $size                = isset( $attrs['size'] ) ? $attrs['size'] : 'medium';
 $fill                = isset( $attrs['fill'] ) ? $attrs['fill'] : false;
 $onlyIcon            = isset( $attrs['onlyIcon'] ) ? $attrs['onlyIcon'] : false;
@@ -88,7 +89,6 @@ ob_start();
 	align-items: center;
 	justify-content: center;
 	text-decoration: none;
-	cursor: pointer;
 	line-height: 1;
 	white-space: nowrap;
 	box-sizing: border-box;
@@ -97,6 +97,10 @@ ob_start();
 	
 	color: <?php echo esc_attr( $textColor ); ?>;
 	background-color: <?php echo esc_attr( $backgroundColor ); ?>;
+
+	<?php if ( $link ) : ?>
+		cursor: pointer;
+	<?php endif; ?>
 	
 	<?php if ( $fill ) : ?>
 		width: 100%;

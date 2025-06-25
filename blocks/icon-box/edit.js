@@ -46,6 +46,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 		iconContentGap,
 		showTitle,
     	showContent,
+		showBadge,
+		badgeText,
         title,
         content,
         titleColor,
@@ -55,6 +57,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         backgroundColor,
         backgroundHoverColor,
         iconSize,
+        iconHeight,
         iconColor,
         iconBackgroundColor,
         iconBorderStyle,
@@ -77,6 +80,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         borderWidth,
         borderRadius,
         borderColor,
+        borderHoverColor,
         hoverEffect,
         linkEnabled,
         linkType,
@@ -98,6 +102,19 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         buttonPadding,
         buttonMargin,
         buttonTypography,
+		badgeBackgroundColor,
+		badgeBackgroundHoverColor,
+		badgeTextColor,
+		badgeTextHoverColor,
+		badgeTypography,
+		badgePadding,
+		badgeBorderStyle,
+		badgeBorderWidth,
+		badgeBorderRadius,
+		badgeBorderColor,
+		badgeBorderHoverColor,
+		badgeBoxShadow,
+		badgeBoxShadowHover,
     } = attributes;
 
 	// Create unique class
@@ -404,6 +421,42 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 buttonTypographyCSS += `letter-spacing: ${buttonTypography.letterSpacing[activeDevice]}${buttonTypography.letterSpacingUnit || 'px'};`;
             }
         }
+
+		// Badge typography CSS
+		let badgeTypographyCSS = '';
+		if (badgeTypography) {
+			if (badgeTypography.fontFamily) {
+				badgeTypographyCSS += `font-family: ${badgeTypography.fontFamily};`;
+			}
+			
+			if (badgeTypography.fontSize && badgeTypography.fontSize[activeDevice]) {
+				badgeTypographyCSS += `font-size: ${badgeTypography.fontSize[activeDevice]}${badgeTypography.fontSizeUnit || 'rem'};`;
+			}
+			
+			if (badgeTypography.fontWeight) {
+				badgeTypographyCSS += `font-weight: ${badgeTypography.fontWeight};`;
+			}
+			
+			if (badgeTypography.fontStyle) {
+				badgeTypographyCSS += `font-style: ${badgeTypography.fontStyle};`;
+			}
+			
+			if (badgeTypography.textTransform) {
+				badgeTypographyCSS += `text-transform: ${badgeTypography.textTransform};`;
+			}
+			
+			if (badgeTypography.textDecoration) {
+				badgeTypographyCSS += `text-decoration: ${badgeTypography.textDecoration};`;
+			}
+			
+			if (badgeTypography.lineHeight && badgeTypography.lineHeight[activeDevice]) {
+				badgeTypographyCSS += `line-height: ${badgeTypography.lineHeight[activeDevice]}${badgeTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			if (badgeTypography.letterSpacing && badgeTypography.letterSpacing[activeDevice]) {
+				badgeTypographyCSS += `letter-spacing: ${badgeTypography.letterSpacing[activeDevice]}${badgeTypography.letterSpacingUnit || 'em'};`;
+			}
+		}
         
         // Icon styles - only apply if an icon exists
         let iconCSS = '';
@@ -468,6 +521,11 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         if (boxShadowHover && boxShadowHover.enable) {
             const insetHover = boxShadowHover.position === 'inset' ? 'inset ' : '';
             hoverCSS += `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
+        }
+        
+        // Border hover
+        if (borderHoverColor) {
+            hoverCSS += `border-color: ${borderHoverColor};`;
         }
         
         // Additional hover effects
@@ -559,12 +617,80 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             `;
         }
+
+		// Badge styles
+		let badgeCSS = '';
+		
+		if (showBadge) {
+			// Badge border styles
+			let badgeBorderCSS = '';
+			if (badgeBorderStyle && badgeBorderStyle !== 'default' && badgeBorderStyle !== 'none') {
+				badgeBorderCSS = `
+					border-style: ${badgeBorderStyle};
+					border-color: ${badgeBorderColor || '#e0e0e0'};
+					${getDimensionCSS(badgeBorderWidth, 'border-width', activeDevice)}
+				`;
+			} else {
+				badgeBorderCSS = 'border-style: none;';
+			}
+			
+			// Badge box shadow
+			let badgeBoxShadowCSS = 'box-shadow: none;';
+			if (badgeBoxShadow && badgeBoxShadow.enable) {
+				const inset = badgeBoxShadow.position === 'inset' ? 'inset ' : '';
+				badgeBoxShadowCSS = `box-shadow: ${inset}${badgeBoxShadow.horizontal}px ${badgeBoxShadow.vertical}px ${badgeBoxShadow.blur}px ${badgeBoxShadow.spread}px ${badgeBoxShadow.color};`;
+			}
+			
+			// Badge padding
+			const badgePaddingCSS = `${getDimensionCSS(badgePadding, 'padding', activeDevice)}`;
+			
+			// Badge hover styles
+			let badgeHoverCSS = '';
+			if (badgeBoxShadowHover && badgeBoxShadowHover.enable) {
+				const insetHover = badgeBoxShadowHover.position === 'inset' ? 'inset ' : '';
+				badgeHoverCSS += `box-shadow: ${insetHover}${badgeBoxShadowHover.horizontal}px ${badgeBoxShadowHover.vertical}px ${badgeBoxShadowHover.blur}px ${badgeBoxShadowHover.spread}px ${badgeBoxShadowHover.color};`;
+			}
+			
+			if (badgeBackgroundHoverColor) {
+				badgeHoverCSS += `background-color: ${badgeBackgroundHoverColor};`;
+			}
+			
+			if (badgeTextHoverColor) {
+				badgeHoverCSS += `color: ${badgeTextHoverColor};`;
+			}
+			
+			if (badgeBorderHoverColor) {
+				badgeHoverCSS += `border-color: ${badgeBorderHoverColor};`;
+			}
+			
+			badgeCSS = `
+				.${id} .digiblocks-icon-box-badge {
+					position: absolute;
+					top: 8px;
+					right: 8px;
+					background-color: ${badgeBackgroundColor};
+					color: ${badgeTextColor};
+					${badgePaddingCSS}
+					${badgeBorderCSS}
+					${getDimensionCSS(badgeBorderRadius, 'border-radius', activeDevice)}
+					${badgeBoxShadowCSS}
+					${badgeTypographyCSS}
+					transition: all 0.3s ease;
+					z-index: 1;
+				}
+				
+				.${id}:hover .digiblocks-icon-box-badge {
+					${badgeHoverCSS}
+				}
+			`;
+		}
         
         // Set base styles for the block
         return `
             /* Main block styles */
             .${id} {
 				display: flex;
+				position: relative;
 				${alignCSS}
                 background-color: ${backgroundColor || 'transparent'};
                 ${boxShadowCSS}
@@ -601,8 +727,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 				}
 
 				.${id} .digiblocks-icon-box-icon svg {
-					width: ${iconSize[activeDevice]}px;
-					height: 100%;
+					width: ${iconSize[activeDevice].value}${iconSize[activeDevice].unit};
+					height: ${iconHeight[activeDevice].value ? `${iconHeight[activeDevice].value}${iconHeight[activeDevice].unit}` : '100%'};
 					fill: ${iconColor || 'inherit'};
 					transition: all 0.3s ease;
 				}
@@ -652,6 +778,9 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             /* Button styles */
             ${buttonCSS}
 
+			/* Badge styles */
+			${badgeCSS}
+
 			/* Visibility Controls */
 			${visibility.desktop ? `
 				@media (min-width: 992px) {
@@ -678,6 +807,27 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 			` : ''}
         `;
     };
+
+	// Change data attr in units
+	const getMaxValue = (unit) => {
+		switch(unit) {
+			case '%': return 100;
+			case 'em':
+			case 'rem': return 50;
+			case 'px':
+			default: return 1500;
+		}
+	};
+	
+	const getStepValue = (unit) => {
+		switch(unit) {
+			case '%': return 1;
+			case 'em':
+			case 'rem': return 0.1;
+			case 'px':
+			default: return 1;
+		}
+	};
 
     // Get FontAwesomeControl from the global object
     const FontAwesomeControl = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
@@ -724,6 +874,19 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 		}
 		
 		return null;
+	};
+
+	// Render badge
+	const renderBadge = () => {
+		if (!showBadge) {
+			return null;
+		}
+		
+		return (
+			<span className="digiblocks-icon-box-badge">
+				{badgeText || __('Popular', 'digiblocks')}
+			</span>
+		);
 	};
     
     // Render button if needed
@@ -1066,6 +1229,17 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                     "digiblocks"
                                 ),
                             },
+                            {
+                                value: borderHoverColor,
+                                onChange: (value) =>
+                                    setAttributes({
+                                        borderHoverColor: value,
+                                    }),
+                                label: __(
+                                    "Border Color",
+                                    "digiblocks"
+                                ),
+                            },
                         ]}
                     />
                 </>
@@ -1291,17 +1465,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                     "digiblocks"
                                 ),
                             },
-                            {
-                                value: buttonBorderHoverColor,
-                                onChange: (value) =>
-                                    setAttributes({
-                                        buttonBorderHoverColor: value,
-                                    }),
-                                label: __(
-                                    "Border Color",
-                                    "digiblocks"
-                                ),
-                            },
                         ]}
                     />
                 </>
@@ -1310,6 +1473,231 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         
         return null;
     };
+
+	// Render badge tab content based on active tab
+	const renderBadgeTabContent = (tabName) => {
+		if (tabName === 'normal') {
+			return (
+				<>
+					<PanelColorSettings
+						title={__(
+							"Badge Colors",
+							"digiblocks"
+						)}
+						initialOpen={true}
+						enableAlpha={true}
+						colorSettings={[
+							{
+								value: badgeTextColor,
+								onChange: (value) =>
+									setAttributes({
+										badgeTextColor: value,
+									}),
+								label: __(
+									"Text Color",
+									"digiblocks"
+								),
+							},
+							{
+								value: badgeBackgroundColor,
+								onChange: (value) =>
+									setAttributes({
+										badgeBackgroundColor: value,
+									}),
+								label: __(
+									"Background Color",
+									"digiblocks"
+								),
+							},
+						]}
+					/>
+					
+					{/* Badge Border Controls */}
+					<SelectControl
+						label={__("Border Style", "digiblocks")}
+						value={badgeBorderStyle || 'none'}
+						options={borderStyleOptions}
+						onChange={(value) => {
+							// Initialize border width when a style is first selected
+							if ((value !== 'default' && value !== 'none') && 
+								(badgeBorderStyle === 'default' || badgeBorderStyle === 'none' || !badgeBorderStyle)) {
+								// Set initial border width if not already set
+								if (!badgeBorderWidth || Object.keys(badgeBorderWidth).length === 0) {
+									setAttributes({
+										badgeBorderWidth: {
+											desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: 'px' },
+											tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+											mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+										}
+									});
+								}
+							}
+							
+							setAttributes({
+								badgeBorderStyle: value,
+							});
+						}}
+						__next40pxDefaultSize={true}
+						__nextHasNoMarginBottom={true}
+					/>
+					
+					{/* Show border width controls only if a border style is selected */}
+					{badgeBorderStyle && badgeBorderStyle !== 'default' && badgeBorderStyle !== 'none' && (
+						<>
+							{/* Border Color */}
+							<PanelColorSettings
+								title={__(
+									"Border Color",
+									"digiblocks"
+								)}
+								enableAlpha={true}
+								colorSettings={[
+									{
+										value: badgeBorderColor,
+										onChange: (value) =>
+											setAttributes({
+												badgeBorderColor: value,
+											}),
+										label: __(
+											"Border Color",
+											"digiblocks"
+										),
+									},
+								]}
+							/>
+							
+							{/* Border Width */}
+							<ResponsiveControl
+								label={__("Border Width", "digiblocks")}
+							>
+								<DimensionControl
+									values={badgeBorderWidth[localActiveDevice]}
+									onChange={(value) =>
+										setAttributes({
+											badgeBorderWidth: {
+												...badgeBorderWidth,
+												[localActiveDevice]: value,
+											},
+										})
+									}
+								/>
+							</ResponsiveControl>
+						</>
+					)}
+					
+					{/* Badge Border Radius */}
+					<ResponsiveControl
+						label={__("Border Radius", "digiblocks")}
+					>
+						<DimensionControl
+							values={badgeBorderRadius[localActiveDevice]}
+							onChange={(value) =>
+								setAttributes({
+									badgeBorderRadius: {
+										...badgeBorderRadius,
+										[localActiveDevice]: value,
+									},
+								})
+							}
+							units={[
+								{ label: 'px', value: 'px' },
+								{ label: '%', value: '%' }
+							]}
+						/>
+					</ResponsiveControl>
+					
+					{/* Badge Padding */}
+					<ResponsiveControl
+						label={__("Padding", "digiblocks")}
+					>
+						<DimensionControl
+							values={badgePadding[localActiveDevice]}
+							onChange={(value) =>
+								setAttributes({
+									badgePadding: {
+										...badgePadding,
+										[localActiveDevice]: value,
+									},
+								})
+							}
+							units={[
+								{ label: 'px', value: 'px' },
+								{ label: 'rem', value: 'rem' },
+								{ label: 'em', value: 'em' },
+								{ label: '%', value: '%' }
+							]}
+						/>
+					</ResponsiveControl>
+					
+					{/* Badge Box Shadow */}
+					<BoxShadowControl
+						normalValue={badgeBoxShadow}
+						hoverValue={badgeBoxShadowHover}
+						onNormalChange={(value) =>
+							setAttributes({
+								badgeBoxShadow: value,
+							})
+						}
+						onHoverChange={(value) =>
+							setAttributes({
+								badgeBoxShadowHover: value,
+							})
+						}
+					/>
+				</>
+			);
+		} else if (tabName === 'hover') {
+			return (
+				<>
+					<PanelColorSettings
+						title={__(
+							"Badge Hover Colors",
+							"digiblocks"
+						)}
+						initialOpen={true}
+						enableAlpha={true}
+						colorSettings={[
+							{
+								value: badgeTextHoverColor,
+								onChange: (value) =>
+									setAttributes({
+										badgeTextHoverColor: value,
+									}),
+								label: __(
+									"Text Color",
+									"digiblocks"
+								),
+							},
+							{
+								value: badgeBackgroundHoverColor,
+								onChange: (value) =>
+									setAttributes({
+										badgeBackgroundHoverColor: value,
+									}),
+								label: __(
+									"Background Color",
+									"digiblocks"
+								),
+							},
+							{
+								value: badgeBorderHoverColor,
+								onChange: (value) =>
+									setAttributes({
+										badgeBorderHoverColor: value,
+									}),
+								label: __(
+									"Border Color",
+									"digiblocks"
+								),
+							},
+						]}
+					/>
+				</>
+			);
+		}
+		
+		return null;
+	};
     
     // Render typography tab content for the button
     const renderButtonTypographyContent = () => {
@@ -1334,6 +1722,34 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             />
         );
     };
+
+	// Render typography tab content for the badge
+	const renderBadgeTypographyContent = () => {
+		return (
+			<TypographyControl
+				label={__(
+					"Badge Typography",
+					"digiblocks"
+				)}
+				value={badgeTypography}
+				onChange={(value) =>
+					setAttributes({
+						badgeTypography: value,
+					})
+				}
+				defaults={{
+					fontSize: { desktop: 0.7, tablet: 0.7, mobile: 0.7 },
+					fontSizeUnit: 'rem',
+					fontWeight: '700',
+					textTransform: 'uppercase',
+					lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+					lineHeightUnit: 'em',
+					letterSpacing: { desktop: 0.05, tablet: 0.05, mobile: 0.05 },
+					letterSpacingUnit: 'em',
+				}}
+			/>
+		);
+	};
 
     // Render tab content based on the active tab
     const renderTabContent = () => {
@@ -1508,6 +1924,24 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                 __nextHasNoMarginBottom={true}
                             />
 
+							<ToggleControl
+								label={__("Show Badge", "digiblocks")}
+								checked={showBadge}
+								onChange={(value) => setAttributes({ showBadge: value })}
+								__nextHasNoMarginBottom={true}
+							/>
+
+							{showBadge && (
+								<TextControl
+									label={__("Badge Text", "digiblocks")}
+									value={badgeText}
+									onChange={(value) => setAttributes({ badgeText: value })}
+									placeholder={__('Popular', 'digiblocks')}
+									__next40pxDefaultSize={true}
+									__nextHasNoMarginBottom={true}
+								/>
+							)}
+
                             {/* Link settings */}
                             {!linkEnabled ? (
                                 <div className="components-base-control">
@@ -1659,6 +2093,10 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                             {linkEnabled && linkType === "button" && 
                                 renderButtonTypographyContent()
                             }
+
+							{showBadge && 
+								renderBadgeTypographyContent()
+							}
                         </TabPanelBody>
                         <TabPanelBody 
 							tab="style"
@@ -1666,30 +2104,38 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__("Icon", "digiblocks")}
                             initialOpen={false}
                         >
-                            {/* Icon Size - Moved outside the tabs */}
-                            <ResponsiveControl
-                                label={__(
-                                    "Icon Size",
-                                    "digiblocks"
-                                )}
-                            >
-                                <RangeControl
-                                    value={iconSize[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            iconSize: {
-                                                ...iconSize,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    min={16}
-                                    max={500}
-                                    step={1}
-                                    __next40pxDefaultSize={true}
-                                    __nextHasNoMarginBottom={true}
-                                />
-                            </ResponsiveControl>
+                            {/* Icon Size */}
+							<ResponsiveRangeControl
+								label={__("Icon Width", "digiblocks")}
+								value={iconSize}
+								onChange={(value) => setAttributes({ iconSize: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' },
+									{ label: 'em', value: 'em' },
+									{ label: 'rem', value: 'rem' },
+								]}
+								defaultUnit="px"
+								min={0}
+								max={getMaxValue(iconSize?.[localActiveDevice]?.unit)}
+								step={getStepValue(iconSize?.[localActiveDevice]?.unit)}
+							/>
+
+							<ResponsiveRangeControl
+								label={__("Icon Height", "digiblocks")}
+								value={iconHeight}
+								onChange={(value) => setAttributes({ iconHeight: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' },
+									{ label: 'em', value: 'em' },
+									{ label: 'rem', value: 'rem' },
+								]}
+								defaultUnit="px"
+								min={0}
+								max={getMaxValue(iconHeight?.[localActiveDevice]?.unit)}
+								step={getStepValue(iconHeight?.[localActiveDevice]?.unit)}
+							/>
 
                             <TabPanel
                                 className="digiblocks-control-tabs"
@@ -1843,6 +2289,22 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                 </TabPanel>
                             </TabPanelBody>
                         )}
+						{showBadge && (
+							<TabPanelBody
+								tab="style"
+								name="badge"
+								title={__("Badge", "digiblocks")}
+								initialOpen={false}
+							>
+								<TabPanel
+									className="digiblocks-control-tabs"
+									activeClass="active-tab"
+									tabs={stateTabList}
+								>
+									{(tab) => renderBadgeTabContent(tab.name)}
+								</TabPanel>
+							</TabPanelBody>
+						)}
                         <TabPanelBody
 							tab="style"
 							name="shadow"
@@ -2092,6 +2554,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             <style dangerouslySetInnerHTML={{ __html: generateCSS() }} />
 
             <div {...blockProps}>
+				{renderBadge()}
                 {renderIcon()}
                 <div className="digiblocks-icon-box-content">
                     {showTitle && (

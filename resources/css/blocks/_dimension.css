@@ -118,6 +118,7 @@ body .components-button.is-secondary.digiblocks-reset.is-small {
     border-radius: 0;
     box-shadow: none !important;
     height: 30px;
+    max-width: 50px;
     margin: 0 -1px 0 0;
     padding-right: 1px;
     flex: 1;

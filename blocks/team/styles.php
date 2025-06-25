@@ -381,6 +381,7 @@ ob_start();
 }
 
 .<?php echo esc_attr( $id ); ?>.layout-list .digiblocks-team-member-content {
+	flex: 1;
 	text-align: left !important;
 }
 

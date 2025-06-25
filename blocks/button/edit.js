@@ -13,6 +13,7 @@ const {
     SelectControl,
     TabPanel,
     ToggleControl,
+	Spinner,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
 } = wp.components;
@@ -38,6 +39,8 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         url,
         opensInNewTab,
         rel,
+		iconSource,
+        customSvg,
         iconValue,
         iconPosition,
         size,
@@ -80,6 +83,11 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
 	
 	// State to track if global components are loaded
     const [componentsLoaded, setComponentsLoaded] = useState(false);
+
+	// Set the icon value
+    const setIconValue = (newIcon) => {
+        setAttributes({ iconValue: newIcon });
+    };
 
     // Check if the global components are loaded
     useEffect(() => {
@@ -169,7 +177,7 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         }
     ];
 
-    // Get FontAwesomeControl from the global object
+	// Get FontAwesomeControl from the global object
     const FontAwesomeControl = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
 
     // Generate CSS for button styling
@@ -334,15 +342,40 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         `;
     };
 
+    // Render icon
+    const renderIcon = () => {
+		// For library icons, use the existing approach
+		if (iconSource === 'library' && iconValue && iconValue.svg && iconValue.svg.trim() !== '') {
+			return (
+				<span
+					key="icon"
+					className="digiblocks-button-icon"
+					dangerouslySetInnerHTML={{
+						__html: iconValue.svg,
+					}}
+				/>
+			);
+		}
+		
+		// For custom SVG
+		if (iconSource === 'custom' && customSvg && customSvg.trim() !== '') {
+			return (
+				<span
+					key="icon"
+					className="digiblocks-button-icon"
+					dangerouslySetInnerHTML={{
+						__html: customSvg,
+					}}
+				/>
+			);
+		}
+		
+		return null;
+	};
+
     // Render button content
     const renderButtonContent = () => {
-		const iconElement = iconValue && iconValue.svg ? (
-			<span 
-				key="icon"
-				className="digiblocks-button-icon"
-				dangerouslySetInnerHTML={{ __html: iconValue.svg }}
-			/>
-		) : null;
+		const iconElement = renderIcon();
 		
 		const textElement = !onlyIcon ? (
 			<RichText
@@ -375,18 +408,113 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                             title={__("Icon", "digiblocks")}
                             initialOpen={true}
                         >
-                            {!componentsLoaded ? (
-								<div style={{ textAlign: 'center', padding: '20px 0' }}>
-									<div className="components-spinner"></div>
-									<p>{__('Loading icon selector...', 'digiblocks')}</p>
-								</div>
-							) : (
-								<FontAwesomeControl
-									label={__('Select Icon', 'digiblocks')}
-									value={iconValue}
-									onChange={(value) => setAttributes({ iconValue: value })}
-								/>
-							)}
+                           	{/* Icon select box display */}
+							<div style={{ marginBottom: '2rem' }}>
+								<ToggleGroupControl
+									label={__("Icon Source", "digiblocks")}
+									value={iconSource || 'library'}
+									onChange={(value) => setAttributes({ iconSource: value })}
+									isBlock
+									__next40pxDefaultSize={true}
+									__nextHasNoMarginBottom={true}
+								>
+									<ToggleGroupControlOption 
+										value="library" 
+										label={__("Library", "digiblocks")} 
+									/>
+									<ToggleGroupControlOption 
+										value="custom" 
+										label={__("Custom", "digiblocks")} 
+									/>
+								</ToggleGroupControl>
+
+								{/* Show library picker if 'library' is selected */}
+								{iconSource === 'library' && (
+									<>
+										{!componentsLoaded ? (
+											<div style={{ textAlign: 'center', padding: '20px 0' }}>
+												<Spinner />
+												<p>{__('Loading icon selector...', 'digiblocks')}</p>
+											</div>
+										) : (
+											<FontAwesomeControl
+												label={__('Select Icon', 'digiblocks')}
+												value={iconValue}
+												onChange={setIconValue}
+											/>
+										)}
+										
+										{iconValue && componentsLoaded && (
+											<>
+												{/* Show info about selected icon */}
+												<div style={{ marginTop: '15px', marginBottom: '15px', padding: '10px', background: '#f0f0f1', borderRadius: '3px' }}>
+													<p style={{ margin: '0 0 5px 0' }}>
+														<strong>{__('Selected Icon:', 'digiblocks')}</strong> {iconValue.name}
+													</p>
+													<p style={{ margin: '0 0 5px 0' }}>
+														<strong>{__('Style:', 'digiblocks')}</strong> {iconValue.style}
+													</p>
+													{iconValue.categories && iconValue.categories.length > 0 && (
+														<p style={{ margin: '0' }}>
+															<strong>{__('Categories:', 'digiblocks')}</strong> {iconValue.categories.join(', ')}
+														</p>
+													)}
+												</div>
+											</>
+										)}
+									</>
+								)}
+
+								{/* Show custom SVG textarea if 'custom' is selected */}
+								{iconSource === 'custom' && (
+									<div style={{ marginTop: '15px' }}>
+										<div className="components-base-control">
+											<label className="components-base-control__label" htmlFor="custom-svg-input">
+												{__('Custom SVG Code', 'digiblocks')}
+											</label>
+											<textarea
+												id="custom-svg-input"
+												className="components-textarea-control__input"
+												value={customSvg || ''}
+												onChange={(e) => {
+													const newSvg = e.target.value;
+													
+													// Create an iconValue object with the custom SVG
+													const newIconValue = {
+														id: 'custom-svg',
+														name: 'Custom SVG',
+														svg: newSvg,
+														style: 'custom',
+														categories: ['custom']
+													};
+													
+													// Update both the customSvg attribute and the iconValue
+													setAttributes({ 
+														customSvg: newSvg,
+														iconValue: newIconValue
+													});
+												}}
+												placeholder={__('Paste your SVG code here...', 'digiblocks')}
+												rows={10}
+												style={{ width: '100%', marginTop: '8px' }}
+											/>
+											<p className="components-base-control__help">
+												{__('Paste your SVG code here. Make sure it only contains valid SVG markup. For security reasons, scripts and external references will be removed.', 'digiblocks')}
+											</p>
+										</div>
+										
+										{/* Preview of custom SVG */}
+										{customSvg && (
+											<div style={{ marginTop: '15px', marginBottom: '15px' }}>
+												<p><strong>{__('Preview:', 'digiblocks')}</strong></p>
+												<div style={{ padding: '20px', background: '#f0f0f1', borderRadius: '3px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+													<div className="digiblocks-custom-svg-preview" style={{ width: '50px', height: '50px' }} dangerouslySetInnerHTML={{ __html: customSvg }}></div>
+												</div>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
                             
                             {iconValue && (
                                 <>

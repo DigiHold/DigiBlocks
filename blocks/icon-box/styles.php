@@ -62,6 +62,8 @@ $iconHoverBackgroundColor     = isset( $attrs['iconHoverBackgroundColor'] ) ? $a
 $iconHoverBorderColor         = isset( $attrs['iconHoverBorderColor'] ) ? $attrs['iconHoverBorderColor'] : null;
 $showTitle                    = isset( $attrs['showTitle'] ) ? $attrs['showTitle'] : true;
 $showContent                  = isset( $attrs['showContent'] ) ? $attrs['showContent'] : true;
+$showBadge                    = isset( $attrs['showBadge'] ) ? $attrs['showBadge'] : false;
+$badgeText                    = isset( $attrs['badgeText'] ) ? $attrs['badgeText'] : __('Popular', 'digiblocks');
 $titleColor                   = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '#333333';
 $titleHoverColor              = isset( $attrs['titleHoverColor'] ) ? $attrs['titleHoverColor'] : '';
 $textColor                    = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#666666';
@@ -73,6 +75,7 @@ $animation                    = isset( $attrs['animation'] ) ? $attrs['animation
 $hoverEffect                  = isset( $attrs['hoverEffect'] ) ? $attrs['hoverEffect'] : 'none';
 $borderStyle                  = isset( $attrs['borderStyle'] ) ? $attrs['borderStyle'] : 'default';
 $borderColor                  = isset( $attrs['borderColor'] ) ? $attrs['borderColor'] : '#e0e0e0';
+$borderHoverColor             = isset( $attrs['borderHoverColor'] ) ? $attrs['borderHoverColor'] : '';
 $linkEnabled                  = isset( $attrs['linkEnabled'] ) ? $attrs['linkEnabled'] : false;
 $linkType                     = isset( $attrs['linkType'] ) ? $attrs['linkType'] : 'box';
 
@@ -221,6 +224,127 @@ $buttonTypography             = isset( $attrs['buttonTypography'] ) ? $attrs['bu
 	'letterSpacingUnit' => 'px',
 );
 
+// Badge specific attributes
+$badgeBackgroundColor         = isset( $attrs['badgeBackgroundColor'] ) ? $attrs['badgeBackgroundColor'] : '#f59e0b';
+$badgeBackgroundHoverColor    = isset( $attrs['badgeBackgroundHoverColor'] ) ? $attrs['badgeBackgroundHoverColor'] : '';
+$badgeTextColor               = isset( $attrs['badgeTextColor'] ) ? $attrs['badgeTextColor'] : '#ffffff';
+$badgeTextHoverColor          = isset( $attrs['badgeTextHoverColor'] ) ? $attrs['badgeTextHoverColor'] : '';
+$badgeTypography              = isset( $attrs['badgeTypography'] ) ? $attrs['badgeTypography'] : array(
+	'fontFamily'        => '',
+	'fontSize'          => array(
+		'desktop' => 0.7,
+		'tablet'  => 0.7,
+		'mobile'  => 0.7,
+	),
+	'fontSizeUnit'      => 'rem',
+	'fontWeight'        => '700',
+	'fontStyle'         => 'normal',
+	'textTransform'     => 'uppercase',
+	'textDecoration'    => '',
+	'lineHeight'        => array(
+		'desktop' => 1.2,
+		'tablet'  => 1.2,
+		'mobile'  => 1.2,
+	),
+	'lineHeightUnit'    => 'em',
+	'letterSpacing'     => array(
+		'desktop' => 0.05,
+		'tablet'  => 0.05,
+		'mobile'  => 0.05,
+	),
+	'letterSpacingUnit' => 'em',
+);
+$badgePadding                 = isset( $attrs['badgePadding'] ) ? $attrs['badgePadding'] : array(
+	'desktop' => array(
+		'top'    => 0.25,
+		'right'  => 0.5,
+		'bottom' => 0.25,
+		'left'   => 0.5,
+		'unit'   => 'rem',
+	),
+	'tablet'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'rem',
+	),
+	'mobile'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'rem',
+	),
+);
+$badgeBorderStyle             = isset( $attrs['badgeBorderStyle'] ) ? $attrs['badgeBorderStyle'] : 'none';
+$badgeBorderWidth             = isset( $attrs['badgeBorderWidth'] ) ? $attrs['badgeBorderWidth'] : array(
+	'desktop' => array(
+		'top'    => 1,
+		'right'  => 1,
+		'bottom' => 1,
+		'left'   => 1,
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+);
+$badgeBorderRadius            = isset( $attrs['badgeBorderRadius'] ) ? $attrs['badgeBorderRadius'] : array(
+	'desktop' => array(
+		'top'    => 4,
+		'right'  => 4,
+		'bottom' => 4,
+		'left'   => 4,
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+);
+$badgeBorderColor             = isset( $attrs['badgeBorderColor'] ) ? $attrs['badgeBorderColor'] : '#e0e0e0';
+$badgeBorderHoverColor        = isset( $attrs['badgeBorderHoverColor'] ) ? $attrs['badgeBorderHoverColor'] : '';
+$badgeBoxShadow               = isset( $attrs['badgeBoxShadow'] ) ? $attrs['badgeBoxShadow'] : array(
+	'enable'     => false,
+	'color'      => 'rgba(0, 0, 0, 0.2)',
+	'horizontal' => 0,
+	'vertical'   => 0,
+	'blur'       => 0,
+	'spread'     => 0,
+	'position'   => 'outset',
+);
+$badgeBoxShadowHover          = isset( $attrs['badgeBoxShadowHover'] ) ? $attrs['badgeBoxShadowHover'] : array(
+	'enable'     => false,
+	'color'      => 'rgba(0, 0, 0, 0.2)',
+	'horizontal' => 0,
+	'vertical'   => 0,
+	'blur'       => 0,
+	'spread'     => 0,
+	'position'   => 'outset',
+);
+
 $boxShadow = isset( $attrs['boxShadow'] ) ? $attrs['boxShadow'] : array(
 	'enable'     => false,
 	'color'      => 'rgba(0, 0, 0, 0.2)',
@@ -243,9 +367,14 @@ $boxShadowHover = isset( $attrs['boxShadowHover'] ) ? $attrs['boxShadowHover'] :
 
 // Get icon size (with fallback)
 $iconSize = isset( $attrs['iconSize'] ) ? $attrs['iconSize'] : array(
-	'desktop' => 48,
-	'tablet'  => 40,
-	'mobile'  => 32,
+	'desktop' => array( 'value' => '48', 'unit' => 'px' ),
+	'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'value' => '', 'unit' => 'px' ),
+);
+$iconHeight = isset( $attrs['iconHeight'] ) ? $attrs['iconHeight'] : array(
+	'desktop' => array( 'value' => '', 'unit' => 'px' ),
+	'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'value' => '', 'unit' => 'px' ),
 );
 
 // Get padding (with fallback)
@@ -426,6 +555,7 @@ ob_start();
 /* Icon Box Block - <?php echo esc_attr( $id ); ?> */
 .<?php echo esc_attr( $id ); ?> {
 	display: flex;
+	position: relative;
 	<?php echo esc_attr( $desktop_align_css ); ?>
 	<?php echo esc_attr( digiblocks_get_css('flex-direction', $flexDirection, 'desktop') ); ?>
 	gap: <?php echo esc_attr( $iconContentGap['desktop']['value'] . $iconContentGap['desktop']['unit'] ); ?>;
@@ -474,6 +604,10 @@ ob_start();
 	<?php elseif ( 'glow' === $hoverEffect ) : ?>
 		filter: brightness(1.1);
 	<?php endif; ?>
+
+	<?php if ( 'none' !== $borderStyle && $borderHoverColor ) : ?>
+		border-color: <?php echo esc_attr( $borderHoverColor ); ?>;
+	<?php endif; ?>
 }
 
 /* Icon styles */
@@ -505,8 +639,15 @@ ob_start();
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon svg {
-	width: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
-	height: 100%;
+	<?php if ( ! empty( $iconSize['desktop']['value'] ) ) : ?>
+		width: <?php echo esc_attr( $iconSize['desktop']['value'] . $iconSize['desktop']['unit'] ); ?>;
+	<?php endif; ?>
+
+	<?php if ( ! empty( $iconHeight['desktop']['value'] ) ) : ?>
+		height: <?php echo esc_attr( $iconHeight['desktop']['value'] . $iconHeight['desktop']['unit'] ); ?>;
+	<?php else: ?>
+		height: 100%;
+	<?php endif; ?>
 	fill: <?php echo esc_attr( $iconColor ); ?>;
 	transition: all 0.3s ease;
 }
@@ -719,6 +860,87 @@ ob_start();
 }
 <?php endif; ?>
 
+<?php if ( $showBadge ) : ?>
+/* Badge styles */
+.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-badge {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	background-color: <?php echo esc_attr( $badgeBackgroundColor ); ?>;
+	color: <?php echo esc_attr( $badgeTextColor ); ?>;
+	<?php echo esc_attr( digiblocks_get_dimensions( $badgePadding, 'padding', 'desktop' ) ); ?>
+	
+	<?php if ( $badgeBorderStyle && 'default' !== $badgeBorderStyle && 'none' !== $badgeBorderStyle ) : ?>
+		border-style: <?php echo esc_attr( $badgeBorderStyle ); ?>;
+		border-color: <?php echo esc_attr( $badgeBorderColor ); ?>;
+		<?php echo esc_attr( digiblocks_get_dimensions( $badgeBorderWidth, 'border-width', 'desktop' ) ); ?>
+	<?php else : ?>
+		border-style: none;
+	<?php endif; ?>
+	
+	<?php echo esc_attr( digiblocks_get_dimensions( $badgeBorderRadius, 'border-radius', 'desktop' ) ); ?>
+	
+	<?php if ( isset( $badgeBoxShadow['enable'] ) && $badgeBoxShadow['enable'] ) : ?>
+		box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $badgeBoxShadow ) ); ?>;
+	<?php else : ?>
+		box-shadow: none;
+	<?php endif; ?>
+	
+	<?php if ( ! empty( $badgeTypography['fontFamily'] ) ) : ?>
+		font-family: <?php echo esc_attr( $badgeTypography['fontFamily'] ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( ! empty( $badgeTypography['fontSize']['desktop'] ) ) : ?>
+		font-size: <?php echo esc_attr( $badgeTypography['fontSize']['desktop'] . ( $badgeTypography['fontSizeUnit'] ?: 'rem' ) ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( ! empty( $badgeTypography['fontWeight'] ) ) : ?>
+		font-weight: <?php echo esc_attr( $badgeTypography['fontWeight'] ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( ! empty( $badgeTypography['fontStyle'] ) ) : ?>
+		font-style: <?php echo esc_attr( $badgeTypography['fontStyle'] ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( ! empty( $badgeTypography['textTransform'] ) ) : ?>
+		text-transform: <?php echo esc_attr( $badgeTypography['textTransform'] ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( ! empty( $badgeTypography['textDecoration'] ) ) : ?>
+		text-decoration: <?php echo esc_attr( $badgeTypography['textDecoration'] ); ?>;
+	<?php endif; ?>
+
+	<?php if ( ! empty( $badgeTypography['lineHeight']['desktop'] ) ) : ?>
+		line-height: <?php echo esc_attr( $badgeTypography['lineHeight']['desktop'] . ( $badgeTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+	<?php endif; ?>
+		
+	<?php if ( ! empty( $badgeTypography['letterSpacing']['desktop'] ) ) : ?>
+		letter-spacing: <?php echo esc_attr( $badgeTypography['letterSpacing']['desktop'] . ( $badgeTypography['letterSpacingUnit'] ?: 'em' ) ); ?>;
+	<?php endif; ?>
+	
+	transition: all 0.3s ease;
+	z-index: 1;
+}
+
+.<?php echo esc_attr( $id ); ?>:hover .digiblocks-icon-box-badge {
+	<?php if ( $badgeBackgroundHoverColor ) : ?>
+		background-color: <?php echo esc_attr( $badgeBackgroundHoverColor ); ?>;
+	<?php endif; ?>
+	
+	<?php if ( $badgeTextHoverColor ) : ?>
+		color: <?php echo esc_attr( $badgeTextHoverColor ); ?>;
+	<?php endif; ?>
+	
+	<?php if ( $badgeBorderHoverColor ) : ?>
+		border-color: <?php echo esc_attr( $badgeBorderHoverColor ); ?>;
+	<?php endif; ?>
+	
+	<?php if ( isset( $badgeBoxShadowHover['enable'] ) && $badgeBoxShadowHover['enable'] ) : ?>
+		box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $badgeBoxShadowHover ) ); ?>;
+	<?php endif; ?>
+}
+<?php endif; ?>
+
 /* Tablet Styles */
 @media (max-width: 991px) {
 	.<?php echo esc_attr( $id ); ?> {
@@ -741,9 +963,15 @@ ob_start();
 		<?php endif; ?>
 	}
 
-	<?php if ( isset( $iconSize['tablet'] ) ) : ?>
+	<?php if ( isset( $iconSize['tablet']['value'] ) ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon svg {
-			width: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
+			<?php if ( ! empty( $iconSize['tablet']['value'] ) ) : ?>
+				width: <?php echo esc_attr( $iconSize['tablet']['value'] . $iconSize['tablet']['unit'] ); ?>;
+			<?php endif; ?>
+
+			<?php if ( ! empty( $iconHeight['tablet']['value'] ) ) : ?>
+				height: <?php echo esc_attr( $iconHeight['tablet']['value'] . $iconHeight['tablet']['unit'] ); ?>;
+			<?php endif; ?>
 		}
 	<?php endif; ?>
 		
@@ -832,12 +1060,46 @@ ob_start();
 			<?php endif; ?>
 		}
 	<?php endif; ?>
+
+	<?php if ( $showBadge ) : ?>
+		<?php if ( isset( $badgePadding['tablet'] ) && ! empty( $badgePadding['tablet']['top'] ) ) : ?>
+			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-badge {
+				<?php echo esc_attr( digiblocks_get_dimensions( $badgePadding, 'padding', 'tablet' ) ); ?>
+			}
+		<?php endif; ?>
+		
+		<?php if ( $badgeBorderStyle && 'default' !== $badgeBorderStyle && 'none' !== $badgeBorderStyle && isset( $badgeBorderWidth['tablet'] ) && ! empty( $badgeBorderWidth['tablet']['top'] ) ) : ?>
+			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-badge {
+				<?php echo esc_attr( digiblocks_get_dimensions( $badgeBorderWidth, 'border-width', 'tablet' ) ); ?>
+			}
+		<?php endif; ?>
+		
+		<?php if ( isset( $badgeBorderRadius['tablet'] ) && ! empty( $badgeBorderRadius['tablet']['top'] ) ) : ?>
+			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-badge {
+				<?php echo esc_attr( digiblocks_get_dimensions( $badgeBorderRadius, 'border-radius', 'tablet' ) ); ?>
+			}
+		<?php endif; ?>
+		
+		<?php if ( isset( $badgeTypography['fontSize']['tablet'] ) || isset( $badgeTypography['lineHeight']['tablet'] ) || isset( $badgeTypography['letterSpacing']['tablet'] ) ) : ?>
+			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-badge {
+				<?php if ( isset( $badgeTypography['fontSize']['tablet'] ) ) : ?>
+					font-size: <?php echo esc_attr( $badgeTypography['fontSize']['tablet'] . ( $badgeTypography['fontSizeUnit'] ?: 'rem' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $badgeTypography['lineHeight']['tablet'] ) ) : ?>
+					line-height: <?php echo esc_attr( $badgeTypography['lineHeight']['tablet'] . ( $badgeTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $badgeTypography['letterSpacing']['tablet'] ) ) : ?>
+					letter-spacing: <?php echo esc_attr( $badgeTypography['letterSpacing']['tablet'] . ( $badgeTypography['letterSpacingUnit'] ?: 'em' ) ); ?>;
+				<?php endif; ?>
+			}
+		<?php endif; ?>
+	<?php endif; ?>
 }
 
 /* Mobile Styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
-		<?php echo esc_attr( $tablet_align_css ); ?>
+		<?php echo esc_attr( $mobile_align_css ); ?>
 		<?php echo digiblocks_get_css('flex-direction', $flexDirection, 'mobile'); ?>
 		gap: <?php echo esc_attr( $iconContentGap['mobile']['value'] . $iconContentGap['mobile']['unit'] ); ?>;
 		<?php if ( $padding && isset( $padding['mobile'] ) ) : ?>
@@ -856,9 +1118,15 @@ ob_start();
 		<?php endif; ?>
     }
     
-	<?php if ( isset( $iconSize['mobile'] ) ) : ?>
+	<?php if ( isset( $iconSize['mobile']['value'] ) ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon svg {
-			width: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
+			<?php if ( ! empty( $iconSize['mobile']['value'] ) ) : ?>
+				width: <?php echo esc_attr( $iconSize['mobile']['value'] . $iconSize['mobile']['unit'] ); ?>;
+			<?php endif; ?>
+
+			<?php if ( ! empty( $iconHeight['mobile']['value'] ) ) : ?>
+				height: <?php echo esc_attr( $iconHeight['mobile']['value'] . $iconHeight['mobile']['unit'] ); ?>;
+			<?php endif; ?>
 		}
 	<?php endif; ?>
 		
@@ -946,6 +1214,40 @@ ob_start();
 				<?php endif; ?>
 			<?php endif; ?>
 		}
+	<?php endif; ?>
+
+	<?php if ( $showBadge ) : ?>
+		<?php if ( isset( $badgePadding['mobile'] ) && ! empty( $badgePadding['mobile']['top'] ) ) : ?>
+			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-badge {
+				<?php echo esc_attr( digiblocks_get_dimensions( $badgePadding, 'padding', 'mobile' ) ); ?>
+			}
+		<?php endif; ?>
+		
+		<?php if ( $badgeBorderStyle && 'default' !== $badgeBorderStyle && 'none' !== $badgeBorderStyle && isset( $badgeBorderWidth['mobile'] ) && ! empty( $badgeBorderWidth['mobile']['top'] ) ) : ?>
+			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-badge {
+				<?php echo esc_attr( digiblocks_get_dimensions( $badgeBorderWidth, 'border-width', 'mobile' ) ); ?>
+			}
+		<?php endif; ?>
+		
+		<?php if ( isset( $badgeBorderRadius['mobile'] ) && ! empty( $badgeBorderRadius['mobile']['top'] ) ) : ?>
+			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-badge {
+				<?php echo esc_attr( digiblocks_get_dimensions( $badgeBorderRadius, 'border-radius', 'mobile' ) ); ?>
+			}
+		<?php endif; ?>
+		
+		<?php if ( isset( $badgeTypography['fontSize']['mobile'] ) || isset( $badgeTypography['lineHeight']['mobile'] ) || isset( $badgeTypography['letterSpacing']['mobile'] ) ) : ?>
+			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-badge {
+				<?php if ( isset( $badgeTypography['fontSize']['mobile'] ) ) : ?>
+					font-size: <?php echo esc_attr( $badgeTypography['fontSize']['mobile'] . ( $badgeTypography['fontSizeUnit'] ?: 'rem' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $badgeTypography['lineHeight']['mobile'] ) ) : ?>
+					line-height: <?php echo esc_attr( $badgeTypography['lineHeight']['mobile'] . ( $badgeTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+				<?php endif; ?>
+				<?php if ( isset( $badgeTypography['letterSpacing']['mobile'] ) ) : ?>
+					letter-spacing: <?php echo esc_attr( $badgeTypography['letterSpacing']['mobile'] . ( $badgeTypography['letterSpacingUnit'] ?: 'em' ) ); ?>;
+				<?php endif; ?>
+			}
+		<?php endif; ?>
 	<?php endif; ?>
 }
 

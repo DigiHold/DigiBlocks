@@ -18,7 +18,16 @@ $visibility    = isset( $attrs['visibility'] ) ? $attrs['visibility'] : [
     'mobile'  => false,
 ];
 $layout        = isset( $attrs['layout'] ) ? $attrs['layout'] : 'horizontal';
-$align         = isset( $attrs['align'] ) ? $attrs['align'] : 'flex-start';
+$horizontalAlign = isset( $attrs['horizontalAlign'] ) ? $attrs['horizontalAlign'] : [
+    'desktop' => 'center',
+    'tablet'  => 'center',
+    'mobile'  => 'center',
+];
+$verticalAlign = isset( $attrs['verticalAlign'] ) ? $attrs['verticalAlign'] : [
+    'desktop' => 'flex-start',
+    'tablet'  => 'flex-start',
+    'mobile'  => 'flex-start',
+];
 $buttonSpacing = isset( $attrs['buttonSpacing'] ) ? $attrs['buttonSpacing'] : ['desktop' => 10, 'tablet' => 8, 'mobile' => 6];
 
 // CSS Output
@@ -28,7 +37,8 @@ ob_start();
 .<?php echo esc_attr( $id ); ?> {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: <?php echo esc_attr( $align ); ?>;
+	<?php echo esc_attr( digiblocks_get_css( 'align-items', $verticalAlign, 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_css( 'justify-content', $horizontalAlign, 'desktop' ) ); ?>
 	gap: <?php echo esc_attr( $buttonSpacing['desktop'] ); ?>px;
 	<?php if ( 'vertical' === $layout ) : ?>
 		flex-direction: column;
@@ -39,12 +49,16 @@ ob_start();
 /* Responsive styles */
 @media (max-width: 991px) {
 	.<?php echo esc_attr( $id ); ?> {
+		<?php echo esc_attr( digiblocks_get_css( 'align-items', $verticalAlign, 'tablet' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_css( 'justify-content', $horizontalAlign, 'tablet' ) ); ?>
 		gap: <?php echo esc_attr( $buttonSpacing['tablet'] ); ?>px;
 	}
 }
 
 @media (max-width: 767px) {
 	.<?php echo esc_attr( $id ); ?> {
+		<?php echo esc_attr( digiblocks_get_css( 'align-items', $verticalAlign, 'mobile' ) ); ?>
+		<?php echo esc_attr( digiblocks_get_css( 'justify-content', $horizontalAlign, 'mobile' ) ); ?>
 		gap: <?php echo esc_attr( $buttonSpacing['mobile'] ); ?>px;
 	}
 }

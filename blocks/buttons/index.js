@@ -59,10 +59,22 @@ registerBlockType('digiblocks/buttons', {
             type: 'string',
             default: 'horizontal'
         },
-        align: {
-            type: 'string',
-            default: 'flex-start'
-        },
+		horizontalAlign: {
+			type: 'object',
+			default: {
+				desktop: 'center',
+				tablet: 'center',
+				mobile: 'center'
+			}
+		},
+		verticalAlign: {
+			type: 'object',
+			default: {
+				desktop: 'flex-start',
+				tablet: 'flex-start',
+				mobile: 'flex-start'
+			}
+		},
         buttonSpacing: {
             type: 'object',
             default: {

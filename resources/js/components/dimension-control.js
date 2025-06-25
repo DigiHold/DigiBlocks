@@ -20,7 +20,7 @@ const { useState, useEffect } = wp.element;
  */
 const DimensionControl = ({
     label,
-    values = { top: '', right: '', bottom: '', left: '', unit: 'px' },
+    values = { top: '', right: '', bottom: '', left: '', unit: 'px', isLinked: true },
     onChange,
     allowNegative = false,
     isResponsive = false,
@@ -37,8 +37,8 @@ const DimensionControl = ({
         { value: "%", label: "%" },
     ]
 }) => {
-    // Linked state
-    const [isLinked, setIsLinked] = useState(true);
+    // Use the isLinked value from props, with fallback to true
+    const [isLinked, setIsLinked] = useState(values.isLinked !== undefined ? values.isLinked : true);
     
     // Track if values are at default
     const [isDefault, setIsDefault] = useState(true);
@@ -57,6 +57,13 @@ const DimensionControl = ({
             return unsubscribe;
         }
     }, [isResponsive]);
+    
+    // Update local isLinked state when values.isLinked changes
+    useEffect(() => {
+        if (values.isLinked !== undefined && values.isLinked !== isLinked) {
+            setIsLinked(values.isLinked);
+        }
+    }, [values.isLinked]);
     
     // Check if values are at default (all empty)
     useEffect(() => {
@@ -100,6 +107,9 @@ const DimensionControl = ({
             });
         }
 
+        // Always include the isLinked state
+        newValues.isLinked = isLinked;
+
         onChange(newValues);
     };
 
@@ -108,6 +118,7 @@ const DimensionControl = ({
         onChange({
             ...values,
             unit,
+            isLinked, // Include current isLinked state
         });
     };
 
@@ -145,13 +156,16 @@ const DimensionControl = ({
 
     // Reset values to empty
     const resetValues = () => {
-        onChange({
+        const newValues = {
             top: '',
             right: '',
             bottom: '',
             left: '',
             unit: values.unit,
-        });
+            isLinked: true, // Reset to linked state
+        };
+        onChange(newValues);
+        setIsLinked(true); // Also update local state
     };
 
     // Use deviceIcon and toggleDevice from props if provided (from ResponsiveControl)
@@ -186,6 +200,17 @@ const DimensionControl = ({
                 handleValueChange(key, numValue);
             }
         }
+    };
+
+    // Handle link toggle
+    const handleLinkToggle = () => {
+        const newLinkedState = !isLinked;
+        setIsLinked(newLinkedState);
+        // Save the linked state to attributes
+        onChange({
+            ...values,
+            isLinked: newLinkedState
+        });
     };
 
     return (
@@ -282,13 +307,13 @@ const DimensionControl = ({
                     } dashicons ${
                         isLinked ? "dashicons-admin-links" : "dashicons-editor-unlink"
                     }`}
-                    onClick={() => setIsLinked(!isLinked)}
+                    onClick={handleLinkToggle}
                     title={isLinked ? __("Unlink values", "digiblocks") : __("Link values", "digiblocks")}
                     role="button"
                     tabIndex="0"
                     onKeyPress={(event) => {
                         if (event.key === 'Enter' || event.key === ' ') {
-                            setIsLinked(!isLinked);
+                            handleLinkToggle();
                         }
                     }}
                 ></span>

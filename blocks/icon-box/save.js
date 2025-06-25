@@ -15,6 +15,8 @@ const IconBoxSave = ({ attributes }) => {
         title,
         showTitle,
         showContent,
+		showBadge,
+		badgeText,
         content,
         animation,
         hoverEffect,
@@ -67,6 +69,19 @@ const IconBoxSave = ({ attributes }) => {
         
         return null;
     };
+
+	// Render badge
+	const renderBadge = () => {
+		if (!showBadge) {
+			return null;
+		}
+		
+		return (
+			<span className="digiblocks-icon-box-badge">
+				{badgeText || 'Popular'}
+			</span>
+		);
+	};
     
     // Render button if needed
     const renderButton = () => {
@@ -90,23 +105,27 @@ const IconBoxSave = ({ attributes }) => {
 
     // Box content structure
     const boxContent = (
-        <div className="digiblocks-icon-box-content">
-            {showTitle !== false && (
-                <RichText.Content
-                    tagName="h3"
-                    className="digiblocks-icon-box-title"
-                    value={title}
-                />
-            )}
-            {showContent !== false && (
-                <RichText.Content
-                    tagName="p"
-                    className="digiblocks-icon-box-text"
-                    value={content}
-                />
-            )}
-            {renderButton()}
-        </div>
+        <>
+			{renderBadge()}
+            {renderIcon()}
+            <div className="digiblocks-icon-box-content">
+                {showTitle !== false && (
+                    <RichText.Content
+                        tagName="h3"
+                        className="digiblocks-icon-box-title"
+                        value={title}
+                    />
+                )}
+                {showContent !== false && (
+                    <RichText.Content
+                        tagName="p"
+                        className="digiblocks-icon-box-text"
+                        value={content}
+                    />
+                )}
+                {renderButton()}
+            </div>
+        </>
     );
 
     // Different markup based on link type
@@ -118,7 +137,6 @@ const IconBoxSave = ({ attributes }) => {
                 target={linkOpenInNewTab ? "_blank" : "_self"}
                 rel={linkOpenInNewTab ? (linkRel || "noopener noreferrer") : linkRel}
             >
-				{renderIcon()}
                 {boxContent}
             </a>
         );
@@ -127,7 +145,6 @@ const IconBoxSave = ({ attributes }) => {
     // Render as a div when no link or button is used
     return (
         <div {...blockProps}>
-			{renderIcon()}
             {boxContent}
         </div>
     );

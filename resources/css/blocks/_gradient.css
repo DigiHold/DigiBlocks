@@ -1,0 +1,194 @@
+.digiblocks-gradient-control {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.digiblocks-gradient-preview {
+    margin: 12px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.digiblocks-gradient-preview-inner {
+    width: 100%;
+    height: 60px;
+    position: relative;
+}
+
+.digiblocks-gradient-colors {
+    margin-top: 16px;
+}
+
+.digiblocks-gradient-colors-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.digiblocks-gradient-colors-header strong {
+    font-weight: 600;
+    color: #1e1e1e;
+}
+
+.digiblocks-gradient-color-stops {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.digiblocks-gradient-color-stop {
+    display: grid;
+    grid-template-columns: 40px 1fr 36px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.digiblocks-gradient-color-stop:hover {
+    background: #f1f3f4;
+    border-color: #d0d7de;
+}
+
+/* Color picker button */
+.digiblocks-color-indicator-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    padding: 0;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+
+    .component-color-indicator {
+        box-shadow: none;
+    }
+}
+
+.digiblocks-color-indicator-button:hover {
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.2),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.digiblocks-color-indicator-button:focus {
+    box-shadow: 0 0 0 2px #007cba;
+    outline: none;
+}
+
+/* Hide the default color indicator since we're using the button background */
+.digiblocks-color-indicator-button .components-color-indicator {
+    display: none;
+}
+
+/* Color dropdown positioning */
+.digiblocks-color-dropdown {
+    position: relative;
+}
+
+.digiblocks-color-dropdown-content {
+    z-index: 999999 !important;
+    margin-top: 8px;
+}
+
+/* Range control styling */
+.digiblocks-gradient-color-stop-position {
+    position: relative;
+}
+
+.digiblocks-gradient-color-stop-position .components-range-control {
+    margin-bottom: 0 !important;
+}
+
+.digiblocks-gradient-color-stop-position .components-range-control__wrapper {
+    margin-bottom: 0 !important;
+}
+
+.digiblocks-gradient-color-stop-position .components-base-control__field {
+    margin-bottom: 0 !important;
+}
+
+.digiblocks-gradient-color-stop-position .components-input-control__container {
+    min-height: 36px;
+}
+
+/* Remove button styling */
+.digiblocks-gradient-color-stop-remove {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.digiblocks-gradient-color-stop-remove .components-button {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.digiblocks-gradient-color-stop-remove .components-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Add color button styling */
+.digiblocks-gradient-colors-header .components-button {
+    height: 32px;
+    padding: 0 12px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+/* Toggle group control spacing */
+.digiblocks-gradient-control .components-toggle-group-control {
+    margin-bottom: 16px;
+}
+
+/* Range control spacing */
+.digiblocks-gradient-control .components-range-control {
+    margin-bottom: 16px;
+}
+
+/* Select control spacing */
+.digiblocks-gradient-control .components-select-control {
+    margin-bottom: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .digiblocks-gradient-color-stop {
+        grid-template-columns: 36px 1fr 32px;
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .digiblocks-color-indicator-button {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+    }
+
+    .digiblocks-gradient-color-stop-remove .components-button {
+        min-width: 28px;
+        height: 28px;
+    }
+}

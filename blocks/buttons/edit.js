@@ -22,7 +22,7 @@ const { useState, useEffect } = wp.element;
  */
 const { useBlockId, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveControl,ResponsiveButtonGroup, CustomTabPanel, TabPanelBody } = digi.components;
 
 /**
  * Edit function for the Buttons block
@@ -34,7 +34,8 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
 		visibility,
         customClasses,
         layout,
-        align,
+        horizontalAlign,
+        verticalAlign,
         buttonSpacing,
         animation,
     } = attributes;
@@ -100,7 +101,8 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
                 display: flex;
                 flex-wrap: wrap;
                 ${layout === 'vertical' ? 'flex-direction: column;' : ''}
-                align-items: ${align};
+                align-items: ${verticalAlign[activeDevice]};
+    			justify-content: ${horizontalAlign[activeDevice]};
                 gap: ${buttonSpacing[activeDevice]}px;
                 transition: all 0.3s ease;
             }
@@ -165,27 +167,28 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
                                 />
                             </ToggleGroupControl>
                             
-                            <ToggleGroupControl
-                                label={__("Alignment", "digiblocks")}
-                                value={align}
-                                onChange={(value) => setAttributes({ align: value })}
-                                isBlock
-                                __next40pxDefaultSize={true}
-                                __nextHasNoMarginBottom={true}
-                            >
-                                <ToggleGroupControlOption 
-                                    value="flex-start" 
-                                    label={layout === 'horizontal' ? __("Top", "digiblocks") : __("Left", "digiblocks")}
-                                />
-                                <ToggleGroupControlOption 
-                                    value="center" 
-                                    label={__("Center", "digiblocks")}
-                                />
-                                <ToggleGroupControlOption 
-                                    value="flex-end" 
-                                    label={layout === 'horizontal' ? __("Bottom", "digiblocks") : __("Right", "digiblocks")}
-                                />
-                            </ToggleGroupControl>
+                            <ResponsiveButtonGroup
+								label={__("Horizontal Align", "digiblocks")}
+								value={horizontalAlign}
+								onChange={(value) => setAttributes({ horizontalAlign: value })}
+								options={[
+									{ label: __("Left", "digiblocks"), value: "flex-start" },
+									{ label: __("Center", "digiblocks"), value: "center" },
+									{ label: __("Right", "digiblocks"), value: "flex-end" },
+									{ label: __("Space", "digiblocks"), value: "space-between" }
+								]}
+							/>
+
+							<ResponsiveButtonGroup
+								label={__("Vertical Align", "digiblocks")}
+								value={verticalAlign}
+								onChange={(value) => setAttributes({ verticalAlign: value })}
+								options={[
+									{ label: __("Top", "digiblocks"), value: "flex-start" },
+									{ label: __("Middle", "digiblocks"), value: "center" },
+									{ label: __("Bottom", "digiblocks"), value: "flex-end" }
+								]}
+							/>
                             
                             <ResponsiveControl
                                 label={__("Button Spacing", "digiblocks")}

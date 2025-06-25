@@ -67,6 +67,14 @@ registerBlockType('digiblocks/button', {
             type: 'boolean',
             default: false
         },
+		iconSource: {
+			type: 'string',
+			default: 'library'
+		},
+		customSvg: {
+			type: 'string',
+			default: ''
+		},
         iconValue: {
             type: 'object',
             default: null

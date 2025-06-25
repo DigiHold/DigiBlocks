@@ -163,6 +163,19 @@ registerBlockType('digiblocks/container', {
             type: 'string',
             default: ''
         },
+        backgroundGradient: {
+            type: 'object',
+            default: {
+                enable: false,
+                type: 'linear',
+                angle: 90,
+                position: 'center center',
+                colors: [
+                    { color: '#667eea', position: 0 },
+                    { color: '#764ba2', position: 100 }
+                ]
+            }
+        },
         backgroundImage: {
             type: 'object',
             default: {

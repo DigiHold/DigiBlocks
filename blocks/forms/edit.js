@@ -597,13 +597,14 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
             .${id} .digiblocks-form-radio-label {
                 display: flex;
                 align-items: center;
+				gap: 8px;
                 cursor: pointer;
                 margin-bottom: 8px;
             }
             
-            .${id} .digiblocks-form-checkbox,
-            .${id} .digiblocks-form-radio {
-                margin-right: 8px;
+            .${id} .digiblocks-form-checkbox-label span,
+            .${id} .digiblocks-form-radio-label span {
+                flex: 1;
             }
             
             /* Submit button container */

@@ -1,5 +1,5 @@
-=== DigiBlocks ===
-Contributors: digicommercewp, digihold
+=== DigiBlocks - Professional Gutenberg Block Collection ===
+Contributors: digihold
 Tags: blocks, gutenberg, editor, page builder, gutenberg blocks
 Requires at least: 5.8
 Tested up to: 6.8
@@ -204,16 +204,8 @@ This plugin uses Google Maps API for the Google Map Block feature.
 
 == Screenshots ==
 
-1. **Dashboard Plugin Settings**: Configure your DigiBlocks settings and block options.
-2. **Accordion Block**: Create collapsible content sections with customizable styling.
-3. **Buttons Block**: Design beautiful call-to-action buttons with multiple styling options.
-4. **Call-to-Action Block**: Create high-converting CTA sections with customizable layouts.
-5. **Countdown Block**: Add dynamic countdown timers for events or promotions.
-6. **Counter Block**: Display animated number counters with icons and descriptions.
-7. **FAQ Block**: Create beautiful FAQ sections with schema markup for SEO.
-8. **Google Map Block**: Embed customizable Google Maps with multiple markers.
-9. **Heading Block**: Create eye-catching headings with separators and highlight options.
-10. **Icon List Block**: Create beautiful lists with custom icons and formatting.
+1. **Dashboard**: Add or remove blocks.
+2. **Settings**: Configure what you need.
 
 == Changelog ==
 

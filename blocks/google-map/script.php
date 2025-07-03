@@ -41,13 +41,9 @@ ob_start();
     };
     
     // Function to initialize Google Maps
-    async function initDigiGoogleMaps() {
-        console.log("DigiBlocks - Initializing Google Maps");
-        
+    async function initDigiGoogleMaps() {        
         // Find all map blocks
         const mapBlocks = document.querySelectorAll('.digiblocks-google-map');
-        
-        console.log("DigiBlocks Map Count:", mapBlocks.length);
         
         if (!mapBlocks.length) return;
 
@@ -56,8 +52,6 @@ ob_start();
         
         // Initialize each map
         mapBlocks.forEach(async function(mapBlock) {
-            console.log("Processing map:", mapBlock.className);
-            
             const mapContainer = mapBlock.querySelector('.digiblocks-google-map-container');
             const markersContainer = mapBlock.querySelector('.digiblocks-google-map-markers');
             const addressElement = mapBlock.querySelector('.digiblocks-google-map-address');
@@ -73,9 +67,6 @@ ob_start();
             const enableFullscreen = mapBlock.getAttribute('data-enable-fullscreen') !== 'false';
             const enableStreetView = mapBlock.getAttribute('data-enable-streetview') !== 'false';
             const enableMapType = mapBlock.getAttribute('data-enable-maptype') !== 'false';
-            
-            console.log("Map ID from data attribute:", mapId);
-            console.log("Markers container exists:", !!markersContainer);
             
             // Get map style options from data attributes
             const mapStyle = mapBlock.getAttribute('data-map-style') || 'default';
@@ -103,13 +94,11 @@ ob_start();
             if (markersContainer) {
                 markerElements = markersContainer.querySelectorAll('.digiblocks-google-map-marker');
                 hasMarkers = markerElements.length > 0;
-                console.log("Marker count:", markerElements.length);
             }
             
             // Add Map ID if provided
             if (mapId) {
                 mapOptions.mapId = mapId;
-                console.log("Applied Map ID:", mapId);
             }
             
             // Only apply map styles if we don't have a Map ID (they can't be used together)
@@ -260,8 +249,6 @@ ob_start();
             
             // Process markers if we have any
             if (hasMarkers) {
-                console.log("Processing markers - Map ID:", mapId);
-                
                 // Array to collect all markers
                 const markers = [];
                 
@@ -278,8 +265,6 @@ ob_start();
                             const lng = parseFloat(markerElement.getAttribute('data-lng'));
                             const title = markerElement.getAttribute('data-title') || '';
                             const description = markerElement.getAttribute('data-description') || '';
-                            
-                            console.log("Processing marker with lat/lng:", lat, lng);
                             
                             if (!isNaN(lat) && !isNaN(lng)) {
                                 const position = { lat: lat, lng: lng };
@@ -347,7 +332,6 @@ ob_start();
                     }
                 } else {
                     // No Map ID, use basic markers
-                    console.log("No Map ID available, using basic markers");
                     createBasicMarkers();
                 }
                 

@@ -11,6 +11,8 @@ const CounterSave = ({ attributes }) => {
         id, 
         anchor, 
         customClasses,
+        iconSource,
+        customSvg,
         iconValue,
         startNumber,
         endNumber,
@@ -33,7 +35,7 @@ const CounterSave = ({ attributes }) => {
     // Build class names
     const blockClasses = [
         "digiblocks-counter",
-		id,
+        id,
         `align-${align || 'center'}`,
         `layout-${layoutStyle || 'stacked'}`,
         animation !== "none" ? `animate-${animation}` : "",
@@ -57,16 +59,25 @@ const CounterSave = ({ attributes }) => {
 
     // Render icon if provided
     const renderIcon = () => {
-        // Make sure we only try to display an icon if the iconValue exists and has a non-empty svg property
-        if (!displayIcon || !iconValue || !iconValue.svg || iconValue.svg.trim() === '') {
-            return null;
+        // For library icons
+        if (iconSource === 'library' && iconValue && iconValue.svg && iconValue.svg.trim() !== '') {
+            return (
+                <div className="digiblocks-counter-icon">
+                    <span dangerouslySetInnerHTML={{ __html: iconValue.svg }} />
+                </div>
+            );
         }
         
-        return (
-            <div className="digiblocks-counter-icon">
-                <span dangerouslySetInnerHTML={{ __html: iconValue.svg }} />
-            </div>
-        );
+        // For custom SVG
+        if (iconSource === 'custom' && customSvg && customSvg.trim() !== '') {
+            return (
+                <div className="digiblocks-counter-icon">
+                    <span dangerouslySetInnerHTML={{ __html: customSvg }} />
+                </div>
+            );
+        }
+        
+        return null;
     };
 
     return (

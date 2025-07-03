@@ -55,6 +55,18 @@ registerBlockType('digiblocks/counter', {
             type: 'string',
             default: ''
         },
+        displayIcon: {
+            type: 'boolean',
+            default: false
+        },
+		iconSource: {
+			type: 'string',
+			default: 'library'
+		},
+		customSvg: {
+			type: 'string',
+			default: ''
+		},
         iconValue: {
             type: 'object',
             default: null
@@ -414,10 +426,6 @@ registerBlockType('digiblocks/counter', {
         verticalSpacing: {
             type: 'number',
             default: 15
-        },
-        displayIcon: {
-            type: 'boolean',
-            default: false
         },
         numberWithCommas: {
             type: 'boolean',

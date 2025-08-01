@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import CounterEdit from './edit';
 import CounterSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Counter block
@@ -28,7 +28,6 @@ registerBlockType('digiblocks/counter', {
     description: digiBlocksData.blocks['counter'].description,
     keywords: [__('counter', 'digiblocks'), __('number', 'digiblocks'), __('stats', 'digiblocks'), __('count up', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('counter') ? true : false,
         html: false,
         className: false,
         customClassName: false,
@@ -105,7 +104,7 @@ registerBlockType('digiblocks/counter', {
         },
         counterColor: {
             type: 'string',
-            default: '#333333'
+            default: ''
         },
         counterHoverColor: {
             type: 'string',
@@ -113,7 +112,7 @@ registerBlockType('digiblocks/counter', {
         },
         titleColor: {
             type: 'string',
-            default: '#333333'
+            default: ''
         },
         titleHoverColor: {
             type: 'string',

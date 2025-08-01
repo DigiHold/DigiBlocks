@@ -166,6 +166,14 @@ class DigiBlocks_Blocks_Data {
 				),
 				'description' => __( 'Create beautiful pricing tables with multiple plans and features.', 'digiblocks' ),
 			),
+			'row' => array(
+				'title'       => __( 'Row', 'digiblocks' ),
+				'icon'        => array(
+					'viewbox' => '580 512',
+					'path'    => 'M264.53,48v416c0,4.4-1.8,8.4-4.7,11.3-2.9,2.9-6.9,4.7-11.3,4.7H50c-8.8,0-16-7.2-16-16,0-4.4,1.8-8.4,4.7-11.3,2.9-2.9,6.9-4.7,11.3-4.7h182.53V64H50c-8.8,0-16-7.2-16-16,0-4.4,1.8-8.4,4.7-11.3,2.9-2.9,6.9-4.7,11.3-4.7h198.53c4.4,0,8.4,1.8,11.3,4.7s4.7,6.9,4.7,11.3ZM530,448h-182.53V64h182.53c8.8,0,16-7.2,16-16,0-4.4-1.8-8.4-4.7-11.3-2.9-2.9-6.9-4.7-11.3-4.7h-198.53c-4.4,0-8.4,1.8-11.3,4.7-2.9,2.9-4.7,6.9-4.7,11.3v416c0,4.4,1.8,8.4,4.7,11.3s6.9,4.7,11.3,4.7h198.53c8.8,0,16-7.2,16-16,0-4.4-1.8-8.4-4.7-11.3s-6.9-4.7-11.3-4.7Z',
+				),
+				'description' => __( 'Create horizontal layouts with flexible alignment and spacing controls.', 'digiblocks' ),
+			),
 			'separator' => array(
 				'title'       => __( 'Separator', 'digiblocks' ),
 				'icon'        => array(

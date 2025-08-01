@@ -420,7 +420,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
             /* Accordion title */
             .${id} .digiblocks-accordion-title {
                 margin: 0;
-                color: ${titleColor || '#333333'};
+                color: ${titleColor};
                 flex: 1;
                 ${titleTypographyCSS}
                 transition: color 0.3s ease;
@@ -445,7 +445,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* SVG icon fill color */
             .${id} .digiblocks-accordion-icon svg {
-                fill: ${iconColor || '#333333'};
+                fill: ${iconColor};
                 width: ${iconSize[activeDevice]}px;
                 height: ${iconSize[activeDevice]}px;
                 transition: transform 0.3s ease, fill 0.3s ease;

@@ -25,7 +25,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveButtonGroup, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveControl, ResponsiveButtonGroup, ResponsiveRangeControl, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody } = digi.components;
 
 /**
  * Social Icons SVG components
@@ -60,8 +60,9 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
         customClasses,
         align,
         icons,
-        iconSize,
-        iconSpacing,
+        iconWidth,
+		iconHeight,
+		iconSpacing,
         iconColor,
         iconHoverColor,
         iconBackground,
@@ -152,6 +153,26 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
 	// Button click handler
 	const handlePreviewClick = () => {
 		animationPreview(id, animation, animations, previewTimeoutRef);
+	};
+
+	const getMaxValue = (unit) => {
+		switch(unit) {
+			case '%': return 100;
+			case 'em':
+			case 'rem': return 10;
+			case 'px':
+			default: return 100;
+		}
+	};
+	
+	const getStepValue = (unit) => {
+		switch(unit) {
+			case '%': return 1;
+			case 'em':
+			case 'rem': return 0.1;
+			case 'px':
+			default: return 1;
+		}
 	};
 
     // Border style options
@@ -324,14 +345,15 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
     const generateCSS = () => {
         const activeDevice = localActiveDevice;
         
-        // Icon size
-        const currentIconSize = iconSize[activeDevice] || 24;
-        
-        // Icon spacing
-        const currentIconSpacing = iconSpacing[activeDevice] || 10;
+        // Icon dimensions
+		const currentIconWidth = iconWidth[activeDevice]?.value ? `${iconWidth[activeDevice].value}${iconWidth[activeDevice].unit}` : '1rem';
+		const currentIconHeight = iconHeight[activeDevice]?.value ? `${iconHeight[activeDevice].value}${iconHeight[activeDevice].unit}` : '1rem';
+
+		// Icon spacing
+		const currentIconSpacing = iconSpacing[activeDevice]?.value ? `${iconSpacing[activeDevice].value}${iconSpacing[activeDevice].unit}` : '0.8rem';
         
         // Label spacing
-        const currentLabelSpacing = labelSpacing[activeDevice] || 5;
+        const currentLabelSpacing = labelSpacing[activeDevice]?.value ? `${labelSpacing[activeDevice].value}${labelSpacing[activeDevice].unit}` : '0.8rem';
         
         // Border styles
         let borderCSS = '';
@@ -432,7 +454,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 display: flex;
                 align-items: center;
                 flex-wrap: wrap;
-                gap: ${currentIconSpacing}px;
+                gap: ${currentIconSpacing};
                 justify-content: ${align[activeDevice]};
             }
             
@@ -445,7 +467,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 display: flex;
                 align-items: center;
                 text-decoration: none;
-                gap: ${currentLabelSpacing}px;
+                gap: ${currentLabelSpacing};
             }
             
             .${id} .digiblocks-social-icon-icon {
@@ -467,8 +489,8 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             .${id} .digiblocks-social-icon-icon svg {
-                width: ${currentIconSize}px;
-                height: ${currentIconSize}px;
+                width: ${currentIconWidth};
+    			height: ${currentIconHeight};
                 fill: currentColor;
                 transition: all 0.3s ease;
             }
@@ -492,18 +514,23 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
             /* Editor-specific styles */
             .${id} .digiblocks-social-icon-remove {
                 position: absolute;
-                top: -18px;
-                right: -10px;
-                background-color: #fff;
-                border-radius: 50%;
-                padding: 2px;
-                display: none;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-                z-index: 10;
+				top: -18px;
+				right: -10px;
+				display: none;
+				align-items: center;
+				justify-content: center;
+				width: 20px;
+				height: 20px;
+				line-height: 1;
+				background-color: #fff;
+				border-radius: 50%;
+				padding: 2px;
+				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+				z-index: 10;
             }
             
             .${id} .digiblocks-social-wrapper:hover .digiblocks-social-icon-remove {
-                display: block;
+                display: flex;
             }
             
             .${id} .digiblocks-social-icon.add-social {
@@ -530,17 +557,17 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
             /* Responsive styles */
             @media (max-width: 991px) {
                 .${id} {
-                    gap: ${iconSpacing.tablet || currentIconSpacing}px;
-                }
-                
-                .${id} .digiblocks-social-icon {
-                    gap: ${labelSpacing.tablet || currentLabelSpacing}px;
-                }
-                
-                .${id} .digiblocks-social-icon-icon svg {
-                    width: ${iconSize.tablet || currentIconSize}px;
-                    height: ${iconSize.tablet || currentIconSize}px;
-                }
+					gap: ${iconSpacing.tablet?.value ? `${iconSpacing.tablet.value}${iconSpacing.tablet.unit}` : currentIconSpacing};
+				}
+				
+				.${id} .digiblocks-social-icon {
+					gap: ${labelSpacing.tablet?.value ? `${labelSpacing.tablet.value}${labelSpacing.tablet.unit}` : currentLabelSpacing};
+				}
+				
+				.${id} .digiblocks-social-icon-icon svg {
+					width: ${iconWidth.tablet?.value ? `${iconWidth.tablet.value}${iconWidth.tablet.unit}` : currentIconWidth};
+					height: ${iconHeight.tablet?.value ? `${iconHeight.tablet.value}${iconHeight.tablet.unit}` : currentIconHeight};
+				}
                 
                 ${textTypography && textTypography.fontSize && textTypography.fontSize.tablet ? `
                 .${id} .digiblocks-social-icon-label {
@@ -549,24 +576,24 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 ` : ''}
                 
                 .${id} .digiblocks-social-icon.add-social {
-                    width: ${iconSize.tablet || currentIconSize}px;
-                    height: ${iconSize.tablet || currentIconSize}px;
+					width: ${iconWidth.tablet?.value ? `${iconWidth.tablet.value}${iconWidth.tablet.unit}` : currentIconWidth};
+					height: ${iconHeight.tablet?.value ? `${iconHeight.tablet.value}${iconHeight.tablet.unit}` : currentIconHeight};
                 }
             }
             
             @media (max-width: 767px) {
                 .${id} {
-                    gap: ${iconSpacing.mobile || iconSpacing.tablet || currentIconSpacing}px;
-                }
-                
-                .${id} .digiblocks-social-icon {
-                    gap: ${labelSpacing.mobile || labelSpacing.tablet || currentLabelSpacing}px;
-                }
-                
-                .${id} .digiblocks-social-icon-icon svg {
-                    width: ${iconSize.mobile || iconSize.tablet || currentIconSize}px;
-                    height: ${iconSize.mobile || iconSize.tablet || currentIconSize}px;
-                }
+					gap: ${iconSpacing.mobile?.value ? `${iconSpacing.mobile.value}${iconSpacing.mobile.unit}` : (iconSpacing.tablet?.value ? `${iconSpacing.tablet.value}${iconSpacing.tablet.unit}` : currentIconSpacing)};
+				}
+				
+				.${id} .digiblocks-social-icon {
+					gap: ${labelSpacing.mobile?.value ? `${labelSpacing.mobile.value}${labelSpacing.mobile.unit}` : currentLabelSpacing};
+				}
+				
+				.${id} .digiblocks-social-icon-icon svg {
+					width: ${iconWidth.mobile?.value ? `${iconWidth.mobile.value}${iconWidth.mobile.unit}` : (iconWidth.tablet?.value ? `${iconWidth.tablet.value}${iconWidth.tablet.unit}` : currentIconWidth)};
+					height: ${iconHeight.mobile?.value ? `${iconHeight.mobile.value}${iconHeight.mobile.unit}` : (iconHeight.tablet?.value ? `${iconHeight.tablet.value}${iconHeight.tablet.unit}` : currentIconHeight)};
+				}
                 
                 ${textTypography && textTypography.fontSize && textTypography.fontSize.mobile ? `
                 .${id} .digiblocks-social-icon-label {
@@ -575,8 +602,8 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 ` : ''}
                 
                 .${id} .digiblocks-social-icon.add-social {
-                    width: ${iconSize.mobile || iconSize.tablet || currentIconSize}px;
-                    height: ${iconSize.mobile || iconSize.tablet || currentIconSize}px;
+					width: ${iconWidth.mobile?.value ? `${iconWidth.mobile.value}${iconWidth.mobile.unit}` : (iconWidth.tablet?.value ? `${iconWidth.tablet.value}${iconWidth.tablet.unit}` : currentIconWidth)};
+					height: ${iconHeight.mobile?.value ? `${iconHeight.mobile.value}${iconHeight.mobile.unit}` : (iconHeight.tablet?.value ? `${iconHeight.tablet.value}${iconHeight.tablet.unit}` : currentIconHeight)};
                 }
             }
 
@@ -908,78 +935,90 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__("Size & Shape", "digiblocks")}
                             initialOpen={false}
                         >
-                            <ResponsiveControl
-                                label={__(
-                                    "Icon Size",
-                                    "digiblocks"
-                                )}
-                            >
-                                <RangeControl
-                                    value={iconSize[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            iconSize: {
-                                                ...iconSize,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    min={0}
-                                    max={100}
-                                    step={1}
-                                    __next40pxDefaultSize={true}
-                                    __nextHasNoMarginBottom={true}
-                                />
-                            </ResponsiveControl>
-                            
-                            <ResponsiveControl
-                                label={__(
-                                    "Icon Spacing",
-                                    "digiblocks"
-                                )}
-                            >
-                                <RangeControl
-                                    value={iconSpacing[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            iconSpacing: {
-                                                ...iconSpacing,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    min={0}
-                                    max={100}
-                                    step={1}
-                                    __next40pxDefaultSize={true}
-                                    __nextHasNoMarginBottom={true}
-                                />
-                            </ResponsiveControl>
+                            <ResponsiveRangeControl
+								label={__("Icon Width", "digiblocks")}
+								value={iconWidth}
+								onChange={(value) => setAttributes({ iconWidth: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: 'rem', value: 'rem' },
+									{ label: 'em', value: 'em' },
+									{ label: '%', value: '%' }
+								]}
+								defaultUnit="rem"
+								min={0}
+								max={getMaxValue(iconWidth?.[localActiveDevice]?.unit)}
+								step={getStepValue(iconWidth?.[localActiveDevice]?.unit)}
+								defaultValues={{
+									desktop: 1,
+									tablet: '',
+									mobile: ''
+								}}
+							/>
+
+							<ResponsiveRangeControl
+								label={__("Icon Height", "digiblocks")}
+								value={iconHeight}
+								onChange={(value) => setAttributes({ iconHeight: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: 'rem', value: 'rem' },
+									{ label: 'em', value: 'em' },
+									{ label: '%', value: '%' }
+								]}
+								defaultUnit="rem"
+								min={0}
+								max={getMaxValue(iconHeight?.[localActiveDevice]?.unit)}
+								step={getStepValue(iconHeight?.[localActiveDevice]?.unit)}
+								defaultValues={{
+									desktop: '',
+										tablet: '',
+										mobile: ''
+									}}
+								/>
+
+								<ResponsiveRangeControl
+									label={__("Icon Spacing", "digiblocks")}
+									value={iconSpacing}
+									onChange={(value) => setAttributes({ iconSpacing: value })}
+									units={[
+										{ label: 'px', value: 'px' },
+										{ label: 'rem', value: 'rem' },
+										{ label: 'em', value: 'em' },
+										{ label: '%', value: '%' }
+									]}
+									defaultUnit="rem"
+									min={0}
+									max={getMaxValue(iconSpacing?.[localActiveDevice]?.unit)}
+									step={getStepValue(iconSpacing?.[localActiveDevice]?.unit)}
+									defaultValues={{
+										desktop: 0.8,
+										tablet: '',
+										mobile: ''
+									}}
+								/>
                             
                             {showLabels && (
-                                <ResponsiveControl
-                                    label={__(
-                                        "Label Spacing",
-                                        "digiblocks"
-                                    )}
-                                >
-                                    <RangeControl
-                                        value={labelSpacing[localActiveDevice]}
-                                        onChange={(value) =>
-                                            setAttributes({
-                                                labelSpacing: {
-                                                    ...labelSpacing,
-                                                    [localActiveDevice]: value,
-                                                },
-                                            })
-                                        }
-                                        min={0}
-                                        max={100}
-                                        step={1}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
-                                </ResponsiveControl>
+                                <ResponsiveRangeControl
+									label={__("Label Spacing", "digiblocks")}
+									value={labelSpacing}
+									onChange={(value) => setAttributes({ labelSpacing: value })}
+									units={[
+										{ label: 'px', value: 'px' },
+										{ label: 'rem', value: 'rem' },
+										{ label: 'em', value: 'em' },
+										{ label: '%', value: '%' }
+									]}
+									defaultUnit="rem"
+									min={0}
+									max={getMaxValue(labelSpacing?.[localActiveDevice]?.unit)}
+									step={getStepValue(labelSpacing?.[localActiveDevice]?.unit)}
+									defaultValues={{
+										desktop: 0.8,
+										tablet: '',
+										mobile: ''
+									}}
+								/>
                             )}
                             
                             <SelectControl
@@ -1327,10 +1366,11 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
 						<Button
 							className="digiblocks-social-icon-remove"
 							onClick={() => removeSocialIcon(index)}
-							icon="no-alt"
 							isSmall
 							label={__('Remove', 'digiblocks')}
-						/>
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="13" height="13" fill="currentColor"><path d="M135.5 169C126.1 159.6 126.1 144.4 135.5 135.1C144.9 125.8 160.1 125.7 169.4 135.1L320.4 286.1L471.4 135.1C480.8 125.7 496 125.7 505.3 135.1C514.6 144.5 514.7 159.7 505.3 169L354.3 320L505.3 471C514.7 480.4 514.7 495.6 505.3 504.9C495.9 514.2 480.7 514.3 471.4 504.9L320.4 353.9L169.4 504.9C160 514.3 144.8 514.3 135.5 504.9C126.2 495.5 126.1 480.3 135.5 471L286.5 320L135.5 169z"/></svg>
+						</Button>
 					)}
 				</div>
             );

@@ -492,6 +492,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                 display: flex;
 				flex-direction: ${listLayout === 'horizontal' ? 'row' : 'column'};
 				flex-wrap: wrap;
+				justify-content: ${listAlign === 'center' ? 'center' : (listAlign === 'right' ? 'flex-end' : 'flex-start')};
 				gap: ${itemSpace[activeDevice] !== undefined ? itemSpace[activeDevice] : 16}px;
             }
             
@@ -530,7 +531,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* Text content */
             .${id} .digiblocks-icon-list-content {
-                color: ${textColor || "#333333"};
+                color: ${textColor};
                 ${contentTypographyCSS}
                 transition: color 0.3s ease;
             }

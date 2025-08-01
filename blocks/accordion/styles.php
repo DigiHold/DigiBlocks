@@ -18,7 +18,7 @@ $visibility             = isset( $attrs['visibility'] ) ? $attrs['visibility'] :
     'mobile'  => false,
 ];
 $items                  = isset( $attrs['items'] ) ? $attrs['items'] : array();
-$titleColor             = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '#333333';
+$titleColor             = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '';
 $titleHoverColor        = isset( $attrs['titleHoverColor'] ) ? $attrs['titleHoverColor'] : '';
 $titleActiveColor       = isset( $attrs['titleActiveColor'] ) ? $attrs['titleActiveColor'] : '#1e73be';
 $backgroundColor        = isset( $attrs['backgroundColor'] ) ? $attrs['backgroundColor'] : '#ffffff';
@@ -29,7 +29,7 @@ $contentHoverColor      = isset( $attrs['contentHoverColor'] ) ? $attrs['content
 $borderColor            = isset( $attrs['borderColor'] ) ? $attrs['borderColor'] : '#e0e0e0';
 $borderHoverColor       = isset( $attrs['borderHoverColor'] ) ? $attrs['borderHoverColor'] : '';
 $iconPosition           = isset( $attrs['iconPosition'] ) ? $attrs['iconPosition'] : 'right';
-$iconColor              = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : '#333333';
+$iconColor              = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : '';
 $iconHoverColor         = isset( $attrs['iconHoverColor'] ) ? $attrs['iconHoverColor'] : '';
 $iconActiveColor        = isset( $attrs['iconActiveColor'] ) ? $attrs['iconActiveColor'] : '#1e73be';
 $allowMultipleOpen      = isset( $attrs['allowMultipleOpen'] ) ? $attrs['allowMultipleOpen'] : false;
@@ -286,7 +286,9 @@ ob_start();
 /* Accordion title */
 .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-title {
     margin: 0;
-    color: <?php echo esc_attr( $titleColor ); ?>;
+	<?php if ( ! empty( $titleColor ) ) : ?>
+    	color: <?php echo esc_attr( $titleColor ); ?>;
+	<?php endif; ?>
     flex: 1;
 <?php if ( ! empty( $titleTypography['fontFamily'] ) ) : ?>
     font-family: <?php echo esc_attr( $titleTypography['fontFamily'] ); ?>;
@@ -370,7 +372,9 @@ ob_start();
 .<?php echo esc_attr( $id ); ?> .digiblocks-accordion-content {
     overflow: hidden;
 	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
+<?php if ( ! empty( $contentColor ) ) : ?>
 	color: <?php echo esc_attr( $contentColor ); ?>;
+<?php endif; ?>
 <?php if ( ! empty( $contentTypography['fontFamily'] ) ) : ?>
     font-family: <?php echo esc_attr( $contentTypography['fontFamily'] ); ?>;
 <?php endif; ?>

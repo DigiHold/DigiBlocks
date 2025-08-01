@@ -1157,9 +1157,9 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                 value={typography}
                                 onChange={(value) => setAttributes({ typography: value })}
                                 defaults={{
-                                    fontSize: { desktop: 32, tablet: 28, mobile: 24 },
+                                    fontSize: { desktop: '', tablet: '', mobile: '' },
                                     fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
                                     lineHeightUnit: 'em',
                                 }}
                             />

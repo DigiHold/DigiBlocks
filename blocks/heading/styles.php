@@ -19,7 +19,7 @@ $visibility             = isset( $attrs['visibility'] ) ? $attrs['visibility'] :
 ];
 $content                = isset( $attrs['content'] ) ? $attrs['content'] : '';
 $level                  = isset( $attrs['level'] ) ? $attrs['level'] : 2;
-$textColor              = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#333333';
+$textColor              = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '';
 $textHoverColor         = isset( $attrs['textHoverColor'] ) ? $attrs['textHoverColor'] : '';
 $backgroundColor        = isset( $attrs['backgroundColor'] ) ? $attrs['backgroundColor'] : '';
 $backgroundHoverColor   = isset( $attrs['backgroundHoverColor'] ) ? $attrs['backgroundHoverColor'] : '';
@@ -80,9 +80,9 @@ $margin = isset( $attrs['margin'] ) ? $attrs['margin'] : digiblocks_get_default_
 $typography = isset( $attrs['typography'] ) ? $attrs['typography'] : array(
     'fontFamily'        => '',
     'fontSize'          => array(
-        'desktop' => 32,
-        'tablet'  => 28,
-        'mobile'  => 24,
+        'desktop' => '',
+        'tablet'  => '',
+        'mobile'  => '',
     ),
     'fontSizeUnit'      => 'px',
     'fontWeight'        => '600',
@@ -90,15 +90,15 @@ $typography = isset( $attrs['typography'] ) ? $attrs['typography'] : array(
     'textTransform'     => 'none',
     'textDecoration'    => 'none',
     'lineHeight'        => array(
-        'desktop' => 1.2,
-        'tablet'  => 1.2,
-        'mobile'  => 1.2,
+        'desktop' => '',
+        'tablet'  => '',
+        'mobile'  => '',
     ),
     'lineHeightUnit'    => 'em',
     'letterSpacing'     => array(
-        'desktop' => 0,
-        'tablet'  => 0,
-        'mobile'  => 0,
+        'desktop' => '',
+        'tablet'  => '',
+        'mobile'  => '',
     ),
     'letterSpacingUnit' => 'px',
 );
@@ -435,15 +435,15 @@ switch ( $separatorStyle ) :
 		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
     }
     
-    <?php if ( isset( $typography['fontSize']['tablet'] ) ) : ?>
+    <?php if ( ! empty( $typography['fontSize']['tablet'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-heading-text {
         font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
         
-        <?php if ( isset( $typography['lineHeight']['tablet'] ) ) : ?>
+        <?php if ( ! empty( $typography['lineHeight']['tablet'] ) ) : ?>
         line-height: <?php echo esc_attr( $typography['lineHeight']['tablet'] . ( $typography['lineHeightUnit'] ?: 'em' ) ); ?>;
         <?php endif; ?>
         
-        <?php if ( isset( $typography['letterSpacing']['tablet'] ) ) : ?>
+        <?php if ( ! empty( $typography['letterSpacing']['tablet'] ) ) : ?>
         letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['tablet'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
     }
@@ -520,15 +520,15 @@ switch ( $separatorStyle ) :
 		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?>
     }
     
-    <?php if ( isset( $typography['fontSize']['mobile'] ) ) : ?>
+    <?php if ( ! empty( $typography['fontSize']['mobile'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-heading-text {
         font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
         
-        <?php if ( isset( $typography['lineHeight']['mobile'] ) ) : ?>
+        <?php if ( ! empty( $typography['lineHeight']['mobile'] ) ) : ?>
         line-height: <?php echo esc_attr( $typography['lineHeight']['mobile'] . ( $typography['lineHeightUnit'] ?: 'em' ) ); ?>;
         <?php endif; ?>
         
-        <?php if ( isset( $typography['letterSpacing']['mobile'] ) ) : ?>
+        <?php if ( ! empty( $typography['letterSpacing']['mobile'] ) ) : ?>
         letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['mobile'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
         <?php endif; ?>
     }

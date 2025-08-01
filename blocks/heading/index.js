@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import HeadingEdit from './edit';
 import HeadingSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Heading block
@@ -29,11 +29,10 @@ registerBlockType('digiblocks/heading', {
     keywords: [__('heading', 'digiblocks'), __('title', 'digiblocks'), __('header', 'digiblocks')],
     // Disable default controls and settings panels
     supports: {
-		inserter: getBlockActiveStatus('heading') ? true : false,
         html: false,
         className: false,
         customClassName: false,
-        anchor: false,
+        anchor: false
     },
     attributes: {
         id: {
@@ -66,7 +65,7 @@ registerBlockType('digiblocks/heading', {
         },
         textColor: {
             type: 'string',
-            default: '#333333'
+            default: ''
         },
         textHoverColor: {
             type: 'string',
@@ -84,15 +83,15 @@ registerBlockType('digiblocks/heading', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 32, tablet: 28, mobile: 24 },
+                fontSize: { desktop: '', tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '600',
                 fontStyle: 'normal',
                 textTransform: 'none',
                 textDecoration: 'none',
-                lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+                lineHeight: { desktop: '', tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: '', tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },

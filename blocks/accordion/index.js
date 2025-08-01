@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import AccordionEdit from './edit';
 import AccordionSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Accordion block
@@ -29,7 +29,6 @@ registerBlockType('digiblocks/accordion', {
     keywords: [__('accordion', 'digiblocks'), __('toggle', 'digiblocks'), __('collapse', 'digiblocks'), __('faq', 'digiblocks')],
     // Disable all default controls and settings panels
     supports: {
-		inserter: getBlockActiveStatus('accordion') ? true : false,
         html: false,
         className: false,
         customClassName: false,
@@ -75,7 +74,7 @@ registerBlockType('digiblocks/accordion', {
 		},
 		titleColor: {
 			type: 'string',
-			default: '#333333'
+			default: ''
 		},
 		titleHoverColor: {
 			type: 'string',
@@ -211,7 +210,7 @@ registerBlockType('digiblocks/accordion', {
 		},
 		iconColor: {
 			type: 'string',
-			default: '#333333'
+			default: ''
 		},
 		iconHoverColor: {
 			type: 'string',

@@ -32,8 +32,8 @@ $borderHoverColor    = isset( $attrs['borderHoverColor'] ) ? $attrs['borderHover
 // Get spacing attributes with fallbacks
 $padding = isset( $attrs['padding'] ) ? $attrs['padding'] : array(
 	'desktop' => array( 'top' => 12, 'right' => 24, 'bottom' => 12, 'left' => 24, 'unit' => 'px' ),
-	'tablet'  => array( 'top' => 10, 'right' => 20, 'bottom' => 10, 'left' => 20, 'unit' => 'px' ),
-	'mobile'  => array( 'top' => 8, 'right' => 16, 'bottom' => 8, 'left' => 16, 'unit' => 'px' ),
+	'tablet'  => array( 'top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px' ),
 );
 
 $margin = isset( $attrs['margin'] ) ? $attrs['margin'] : digiblocks_get_default_dimensions('px');
@@ -68,15 +68,15 @@ $boxShadowHover = isset( $attrs['boxShadowHover'] ) ? $attrs['boxShadowHover'] :
 
 $buttonTypography = isset( $attrs['buttonTypography'] ) ? $attrs['buttonTypography'] : array(
 	'fontFamily'        => '',
-	'fontSize'          => array( 'desktop' => 16, 'tablet' => 15, 'mobile' => 14 ),
+	'fontSize'          => array( 'desktop' => '', 'tablet' => '', 'mobile' => '' ),
 	'fontSizeUnit'      => 'px',
 	'fontWeight'        => '',
 	'fontStyle'         => 'normal',
 	'textTransform'     => '',
 	'textDecoration'    => '',
-	'lineHeight'        => array( 'desktop' => 1.5, 'tablet' => 1.4, 'mobile' => 1.3 ),
+	'lineHeight'        => array( 'desktop' => '', 'tablet' => '', 'mobile' => '' ),
 	'lineHeightUnit'    => 'em',
-	'letterSpacing'     => array( 'desktop' => 0, 'tablet' => 0, 'mobile' => 0 ),
+	'letterSpacing'     => array( 'desktop' => '', 'tablet' => '', 'mobile' => '' ),
 	'letterSpacingUnit' => 'px',
 );
 

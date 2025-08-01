@@ -26,13 +26,13 @@ $daysLabel                = isset( $attrs['daysLabel'] ) ? $attrs['daysLabel'] :
 $hoursLabel               = isset( $attrs['hoursLabel'] ) ? $attrs['hoursLabel'] : __( 'Hours', 'digiblocks' );
 $minutesLabel             = isset( $attrs['minutesLabel'] ) ? $attrs['minutesLabel'] : __( 'Minutes', 'digiblocks' );
 $secondsLabel             = isset( $attrs['secondsLabel'] ) ? $attrs['secondsLabel'] : __( 'Seconds', 'digiblocks' );
-$digitColor               = isset( $attrs['digitColor'] ) ? $attrs['digitColor'] : '#333333';
+$digitColor               = isset( $attrs['digitColor'] ) ? $attrs['digitColor'] : '';
 $digitBackground          = isset( $attrs['digitBackground'] ) ? $attrs['digitBackground'] : '#f0f0f0';
 $digitHoverColor          = isset( $attrs['digitHoverColor'] ) ? $attrs['digitHoverColor'] : '';
 $digitHoverBackground     = isset( $attrs['digitHoverBackground'] ) ? $attrs['digitHoverBackground'] : '';
 $labelColor               = isset( $attrs['labelColor'] ) ? $attrs['labelColor'] : '#666666';
 $labelHoverColor          = isset( $attrs['labelHoverColor'] ) ? $attrs['labelHoverColor'] : '';
-$separatorColor           = isset( $attrs['separatorColor'] ) ? $attrs['separatorColor'] : '#333333';
+$separatorColor           = isset( $attrs['separatorColor'] ) ? $attrs['separatorColor'] : '';
 $separatorHoverColor      = isset( $attrs['separatorHoverColor'] ) ? $attrs['separatorHoverColor'] : '';
 $boxStyle                 = isset( $attrs['boxStyle'] ) ? $attrs['boxStyle'] : 'default';
 $boxBorderRadius          = isset( $attrs['boxBorderRadius'] ) ? $attrs['boxBorderRadius'] : array(
@@ -360,13 +360,17 @@ ob_start();
 		font-weight: <?php echo esc_attr( $titleTypography['fontWeight'] ); ?>;
 	<?php endif; ?>
 	
-	color: <?php echo esc_attr( $digitColor ); ?>;
+	<?php if ( ! empty( $digitColor ) ) : ?>
+		color: <?php echo esc_attr( $digitColor ); ?>;
+	<?php endif; ?>
 	text-align: <?php echo esc_attr( $align ); ?>;
 }
 
 <?php if ( $displaySeparator ) : ?>
 	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-separator {
+		<?php if ( ! empty( $separatorColor ) ) : ?>
 		color: <?php echo esc_attr( $separatorColor ); ?>;
+		<?php endif; ?>
 		font-size: <?php echo esc_attr( $titleTypography['fontSize']['desktop'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
 	}
 	
@@ -397,7 +401,9 @@ ob_start();
 	<?php if ( 'filled' === $boxStyle ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			background-color: <?php echo esc_attr( $digitBackground ); ?>;
-			color: <?php echo esc_attr( $digitColor ); ?>;
+			<?php if ( ! empty( $digitColor ) ) : ?>
+				color: <?php echo esc_attr( $digitColor ); ?>;
+			<?php endif; ?>
 			<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderRadius, 'border-radius', 'desktop' ) ); ?>
 			padding: <?php echo esc_attr( $boxPadding['desktop']['top'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['right'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['bottom'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['left'] . $boxPadding['desktop']['unit'] ); ?>;
 			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
@@ -423,7 +429,9 @@ ob_start();
 	<?php elseif ( 'outlined' === $boxStyle ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			background-color: transparent;
+			<?php if ( ! empty( $digitColor ) ) : ?>
 			color: <?php echo esc_attr( $digitColor ); ?>;
+			<?php endif; ?>
 			border-style: solid;
 			<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderWidth, 'border-width', 'desktop' ) ); ?>
 			border-color: <?php echo esc_attr( $boxBorderColor ); ?>;
@@ -452,7 +460,9 @@ ob_start();
 	<?php elseif ( 'pill' === $boxStyle ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			background-color: <?php echo esc_attr( $digitBackground ); ?>;
+			<?php if ( ! empty( $digitColor ) ) : ?>
 			color: <?php echo esc_attr( $digitColor ); ?>;
+			<?php endif; ?>
 			border-radius: 50px;
 			<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'desktop' ) ); ?>
 			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
@@ -478,7 +488,9 @@ ob_start();
 	<?php elseif ( 'rounded' === $boxStyle ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			background-color: <?php echo esc_attr( $digitBackground ); ?>;
+			<?php if ( ! empty( $digitColor ) ) : ?>
 			color: <?php echo esc_attr( $digitColor ); ?>;
+			<?php endif; ?>
 			border-radius: 8px;
 			<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'desktop' ) ); ?>
 			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
@@ -504,7 +516,9 @@ ob_start();
 	<?php elseif ( 'circle' === $boxStyle ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 			background-color: <?php echo esc_attr( $digitBackground ); ?>;
+			<?php if ( ! empty( $digitColor ) ) : ?>
 			color: <?php echo esc_attr( $digitColor ); ?>;
+			<?php endif; ?>
 			border-radius: 50%;
 			aspect-ratio: 1/1;
 			display: flex;
@@ -534,7 +548,9 @@ ob_start();
 	<?php else : ?>
 		/* Default box style */
 		.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
+			<?php if ( ! empty( $digitColor ) ) : ?>
 			color: <?php echo esc_attr( $digitColor ); ?>;
+			<?php endif; ?>
 			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
@@ -554,9 +570,11 @@ ob_start();
 	<?php endif; ?>
 <?php else : ?>
 	/* Simple style (no boxes) */
+	<?php if ( ! empty( $digitColor ) ) : ?>
 	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item-inner {
 		color: <?php echo esc_attr( $digitColor ); ?>;
 	}
+	<?php endif; ?>
 	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
 		<?php if ( $digitHoverColor ) : ?>
 			color: <?php echo esc_attr( $digitHoverColor ); ?>;

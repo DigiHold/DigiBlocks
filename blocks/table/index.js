@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import TableEdit from './edit';
 import TableSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Table block
@@ -28,7 +28,6 @@ registerBlockType('digiblocks/table', {
     description: digiBlocksData.blocks['table'].description,
     keywords: [__('table', 'digiblocks'), __('comparison', 'digiblocks'), __('grid', 'digiblocks'), __('cells', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('table') ? true : false,
         html: false,
         className: false,
         customClassName: false,

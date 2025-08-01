@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import FormsEdit from './edit';
 import FormsSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Forms block
@@ -28,7 +28,6 @@ registerBlockType('digiblocks/forms', {
     description: digiBlocksData.blocks['forms'].description,
     keywords: [__('form', 'digiblocks'), __('contact', 'digiblocks'), __('input', 'digiblocks'), __('email', 'digiblocks'), __('field', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('forms') ? true : false,
         html: false,
         className: false,
         customClassName: false,
@@ -115,11 +114,11 @@ registerBlockType('digiblocks/forms', {
 		},
         textColor: {
 			type: 'string',
-			default: '#333333'
+			default: ''
 		},
         labelColor: {
 			type: 'string',
-			default: '#333333'
+			default: ''
 		},
         buttonBackgroundColor: { 
 			type: 'string',
@@ -251,7 +250,7 @@ registerBlockType('digiblocks/forms', {
 		},
         inputTextColor: {
 			type: 'string',
-			default: '#333333'
+			default: ''
 		},
         inputFocusBorderColor: {
 			type: 'string',

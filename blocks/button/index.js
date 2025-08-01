@@ -95,15 +95,15 @@ registerBlockType('digiblocks/button', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSize: { desktop: '', tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: '', tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: '', tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -179,8 +179,8 @@ registerBlockType('digiblocks/button', {
             type: 'object',
             default: {
                 desktop: { top: 12, right: 24, bottom: 12, left: 24, unit: 'px' },
-                tablet: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px' },
-                mobile: { top: 8, right: 16, bottom: 8, left: 16, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         margin: {

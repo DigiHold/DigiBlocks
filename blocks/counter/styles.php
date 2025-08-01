@@ -26,9 +26,9 @@ $counterPrefixSpacing     = isset( $attrs['counterPrefixSpacing'] ) ? $attrs['co
 $counterSuffixSpacing     = isset( $attrs['counterSuffixSpacing'] ) ? $attrs['counterSuffixSpacing'] : 5;
 $title                    = isset( $attrs['title'] ) ? $attrs['title'] : '';
 $description              = isset( $attrs['description'] ) ? $attrs['description'] : '';
-$counterColor             = isset( $attrs['counterColor'] ) ? $attrs['counterColor'] : '#333333';
+$counterColor             = isset( $attrs['counterColor'] ) ? $attrs['counterColor'] : '';
 $counterHoverColor        = isset( $attrs['counterHoverColor'] ) ? $attrs['counterHoverColor'] : '';
-$titleColor               = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '#333333';
+$titleColor               = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '';
 $titleHoverColor          = isset( $attrs['titleHoverColor'] ) ? $attrs['titleHoverColor'] : '';
 $textColor                = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#666666';
 $textHoverColor           = isset( $attrs['textHoverColor'] ) ? $attrs['textHoverColor'] : '';
@@ -410,7 +410,9 @@ ob_start();
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-counter-prefix {
     margin-right: <?php echo esc_attr( $counterPrefixSpacing ); ?>px;
+    <?php if ( ! empty( $counterColor ) ) : ?>
     color: <?php echo esc_attr( $counterColor ); ?>;
+    <?php endif; ?>
     <?php if ( ! empty( $typography['fontFamily'] ) ) : ?>
         font-family: <?php echo esc_attr( $typography['fontFamily'] ); ?>;
     <?php endif; ?>
@@ -448,7 +450,9 @@ ob_start();
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-counter-suffix {
     margin-left: <?php echo esc_attr( $counterSuffixSpacing ); ?>px;
+    <?php if ( ! empty( $counterColor ) ) : ?>
     color: <?php echo esc_attr( $counterColor ); ?>;
+    <?php endif; ?>
     <?php if ( ! empty( $typography['fontFamily'] ) ) : ?>
         font-family: <?php echo esc_attr( $typography['fontFamily'] ); ?>;
     <?php endif; ?>
@@ -485,7 +489,9 @@ ob_start();
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-counter-number {
+    <?php if ( ! empty( $counterColor ) ) : ?>
     color: <?php echo esc_attr( $counterColor ); ?>;
+    <?php endif; ?>
     <?php if ( ! empty( $typography['fontFamily'] ) ) : ?>
         font-family: <?php echo esc_attr( $typography['fontFamily'] ); ?>;
     <?php endif; ?>
@@ -532,7 +538,9 @@ ob_start();
 
 /* Title styles */
 .<?php echo esc_attr( $id ); ?> .digiblocks-counter-title {
+    <?php if ( ! empty( $titleColor ) ) : ?>
     color: <?php echo esc_attr( $titleColor ); ?>;
+    <?php endif; ?>
     margin-bottom: 10px;
     
     <?php if ( ! empty( $titleTypography['fontFamily'] ) ) : ?>
@@ -666,45 +674,45 @@ ob_start();
         <?php endif; ?>
     <?php endif; ?>
     
-    <?php if ( isset( $typography['fontSize']['tablet'] ) || isset( $typography['lineHeight']['tablet'] ) || isset( $typography['letterSpacing']['tablet'] ) ) : ?>
+    <?php if ( ! empty( $typography['fontSize']['tablet'] ) || ! empty( $typography['lineHeight']['tablet'] ) || ! empty( $typography['letterSpacing']['tablet'] ) ) : ?>
         .<?php echo esc_attr( $id ); ?> .digiblocks-counter-number,
 		.<?php echo esc_attr( $id ); ?> .digiblocks-counter-prefix,
 		.<?php echo esc_attr( $id ); ?> .digiblocks-counter-suffix {
-            <?php if ( isset( $typography['fontSize']['tablet'] ) ) : ?>
+            <?php if ( ! empty( $typography['fontSize']['tablet'] ) ) : ?>
                 font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
-            <?php if ( isset( $typography['lineHeight']['tablet'] ) ) : ?>
+            <?php if ( ! empty( $typography['lineHeight']['tablet'] ) ) : ?>
                 line-height: <?php echo esc_attr( $typography['lineHeight']['tablet'] . ( $typography['lineHeightUnit'] ?: 'em' ) ); ?>;
             <?php endif; ?>
-            <?php if ( isset( $typography['letterSpacing']['tablet'] ) ) : ?>
+            <?php if ( ! empty( $typography['letterSpacing']['tablet'] ) ) : ?>
                 letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['tablet'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
         }
     <?php endif; ?>
     
-    <?php if ( isset( $titleTypography['fontSize']['tablet'] ) || isset( $titleTypography['lineHeight']['tablet'] ) || isset( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
+    <?php if ( ! empty( $titleTypography['fontSize']['tablet'] ) || ! empty( $titleTypography['lineHeight']['tablet'] ) || ! empty( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
         .<?php echo esc_attr( $id ); ?> .digiblocks-counter-title {
-            <?php if ( isset( $titleTypography['fontSize']['tablet'] ) ) : ?>
+            <?php if ( ! empty( $titleTypography['fontSize']['tablet'] ) ) : ?>
                 font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
-            <?php if ( isset( $titleTypography['lineHeight']['tablet'] ) ) : ?>
+            <?php if ( ! empty( $titleTypography['lineHeight']['tablet'] ) ) : ?>
                 line-height: <?php echo esc_attr( $titleTypography['lineHeight']['tablet'] . ( $titleTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
             <?php endif; ?>
-            <?php if ( isset( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
+            <?php if ( ! empty( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
                 letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['tablet'] . ( $titleTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
         }
     <?php endif; ?>
     
-    <?php if ( isset( $contentTypography['fontSize']['tablet'] ) || isset( $contentTypography['lineHeight']['tablet'] ) || isset( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
+    <?php if ( ! empty( $contentTypography['fontSize']['tablet'] ) || ! empty( $contentTypography['lineHeight']['tablet'] ) || ! empty( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
         .<?php echo esc_attr( $id ); ?> .digiblocks-counter-description {
-            <?php if ( isset( $contentTypography['fontSize']['tablet'] ) ) : ?>
+            <?php if ( ! empty( $contentTypography['fontSize']['tablet'] ) ) : ?>
                 font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
-            <?php if ( isset( $contentTypography['lineHeight']['tablet'] ) ) : ?>
+            <?php if ( ! empty( $contentTypography['lineHeight']['tablet'] ) ) : ?>
                 line-height: <?php echo esc_attr( $contentTypography['lineHeight']['tablet'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
             <?php endif; ?>
-            <?php if ( isset( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
+            <?php if ( ! empty( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
                 letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['tablet'] . ( $contentTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
         }
@@ -754,45 +762,45 @@ ob_start();
         <?php endif; ?>
     <?php endif; ?>
     
-	<?php if ( isset( $typography['fontSize']['mobile'] ) || isset( $typography['lineHeight']['mobile'] ) || isset( $typography['letterSpacing']['mobile'] ) ) : ?>
+	<?php if ( ! empty( $typography['fontSize']['mobile'] ) || ! empty( $typography['lineHeight']['mobile'] ) || ! empty( $typography['letterSpacing']['mobile'] ) ) : ?>
         .<?php echo esc_attr( $id ); ?> .digiblocks-counter-number,
 		.<?php echo esc_attr( $id ); ?> .digiblocks-counter-prefix,
 		.<?php echo esc_attr( $id ); ?> .digiblocks-counter-suffix {
-            <?php if ( isset( $typography['fontSize']['mobile'] ) ) : ?>
+            <?php if ( ! empty( $typography['fontSize']['mobile'] ) ) : ?>
                 font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
-            <?php if ( isset( $typography['lineHeight']['mobile'] ) ) : ?>
+            <?php if ( ! empty( $typography['lineHeight']['mobile'] ) ) : ?>
                 line-height: <?php echo esc_attr( $typography['lineHeight']['mobile'] . ( $typography['lineHeightUnit'] ?: 'em' ) ); ?>;
             <?php endif; ?>
-            <?php if ( isset( $typography['letterSpacing']['mobile'] ) ) : ?>
+            <?php if ( ! empty( $typography['letterSpacing']['mobile'] ) ) : ?>
                 letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['mobile'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
         }
     <?php endif; ?>
     
-    <?php if ( isset( $titleTypography['fontSize']['mobile'] ) || isset( $titleTypography['lineHeight']['mobile'] ) || isset( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
+    <?php if ( ! empty( $titleTypography['fontSize']['mobile'] ) || ! empty( $titleTypography['lineHeight']['mobile'] ) || ! empty( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
         .<?php echo esc_attr( $id ); ?> .digiblocks-counter-title {
-            <?php if ( isset( $titleTypography['fontSize']['mobile'] ) ) : ?>
+            <?php if ( ! empty( $titleTypography['fontSize']['mobile'] ) ) : ?>
                 font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
-            <?php if ( isset( $titleTypography['lineHeight']['mobile'] ) ) : ?>
+            <?php if ( ! empty( $titleTypography['lineHeight']['mobile'] ) ) : ?>
                 line-height: <?php echo esc_attr( $titleTypography['lineHeight']['mobile'] . ( $titleTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
             <?php endif; ?>
-            <?php if ( isset( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
+            <?php if ( ! empty( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
                 letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['mobile'] . ( $titleTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
         }
     <?php endif; ?>
     
-    <?php if ( isset( $contentTypography['fontSize']['mobile'] ) || isset( $contentTypography['lineHeight']['mobile'] ) || isset( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
+    <?php if ( ! empty( $contentTypography['fontSize']['mobile'] ) || ! empty( $contentTypography['lineHeight']['mobile'] ) || ! empty( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
         .<?php echo esc_attr( $id ); ?> .digiblocks-counter-description {
-            <?php if ( isset( $contentTypography['fontSize']['mobile'] ) ) : ?>
+            <?php if ( ! empty( $contentTypography['fontSize']['mobile'] ) ) : ?>
                 font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
-            <?php if ( isset( $contentTypography['lineHeight']['mobile'] ) ) : ?>
+            <?php if ( ! empty( $contentTypography['lineHeight']['mobile'] ) ) : ?>
                 line-height: <?php echo esc_attr( $contentTypography['lineHeight']['mobile'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
             <?php endif; ?>
-            <?php if ( isset( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
+            <?php if ( ! empty( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
                 letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['mobile'] . ( $contentTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
             <?php endif; ?>
         }

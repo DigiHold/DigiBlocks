@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import ImageEdit from './edit';
 import ImageSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Image block
@@ -28,7 +28,6 @@ registerBlockType('digiblocks/image', {
     description: digiBlocksData.blocks['image'].description,
     keywords: [__('image', 'digiblocks'), __('picture', 'digiblocks'), __('photo', 'digiblocks'), __('media', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('image') ? true : false,
         html: false,
         className: false,
         customClassName: false,

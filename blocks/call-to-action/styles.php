@@ -28,7 +28,7 @@ $padding                 = isset( $attrs['padding'] ) ? $attrs['padding'] : [
     'mobile'  => [ 'top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px' ]
 ];
 $margin                  = isset( $attrs['margin'] ) ? $attrs['margin'] : digiblocks_get_default_dimensions('px');
-$titleColor              = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '#333333';
+$titleColor              = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '';
 $textColor               = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#666666';
 $buttonColor             = isset( $attrs['buttonColor'] ) ? $attrs['buttonColor'] : '#1e73be';
 $buttonTextColor         = isset( $attrs['buttonTextColor'] ) ? $attrs['buttonTextColor'] : '#ffffff';
@@ -294,7 +294,9 @@ ob_start();
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-cta-title {
-    color: <?php echo esc_attr( $titleColor ); ?>;
+    <?php if ( !empty( $titleColor ) ) : ?>
+    	color: <?php echo esc_attr( $titleColor ); ?>;
+    <?php endif; ?>
     margin-top: 0;
     margin-bottom: 20px;
     

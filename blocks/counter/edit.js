@@ -591,20 +591,20 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
             
             .${id} .digiblocks-counter-prefix {
                 margin-right: ${counterPrefixSpacing || 5}px;
-                color: ${counterColor || '#333333'};
+                color: ${counterColor};
                 ${typographyCSS}
                 transition: color 0.3s ease;
             }
             
             .${id} .digiblocks-counter-suffix {
                 margin-left: ${counterSuffixSpacing || 5}px;
-                color: ${counterColor || '#333333'};
+                color: ${counterColor};
                 ${typographyCSS}
                 transition: color 0.3s ease;
             }
             
             .${id} .digiblocks-counter-number {
-                color: ${counterColor || '#333333'};
+                color: ${counterColor};
                 ${typographyCSS}
                 transition: color 0.3s ease;
             }

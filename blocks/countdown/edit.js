@@ -365,14 +365,14 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                     specificStyles = `
                         .${id} .digiblocks-countdown-item-inner {
                             background-color: ${digitBackground || '#f0f0f0'};
-                            color: ${digitColor || '#333333'};
+                            color: ${digitColor};
 							${getDimensionCSS(boxPadding, 'padding', activeDevice)}
 							${getDimensionCSS(boxBorderRadius, 'border-radius', activeDevice)}
                             ${boxShadowCSS}
                         }
                         .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
                             background-color: ${digitHoverBackground || digitBackground || '#e0e0e0'};
-                            color: ${digitHoverColor || digitColor || '#333333'};
+                            color: ${digitHoverColor || digitColor};
                             ${boxShadowHoverCSS}
                         }
                     `;
@@ -381,7 +381,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                     specificStyles = `
                         .${id} .digiblocks-countdown-item-inner {
                             background-color: transparent;
-                            color: ${digitColor || '#333333'};
+                            color: ${digitColor};
 							${getDimensionCSS(boxPadding, 'padding', activeDevice)}
 							border-style: solid;
 							${getDimensionCSS(boxBorderWidth, 'border-width', activeDevice)}
@@ -392,7 +392,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                         }
                         .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
                             background-color: ${digitHoverBackground || 'transparent'};
-                            color: ${digitHoverColor || digitColor || '#333333'};
+                            color: ${digitHoverColor || digitColor};
                             ${boxShadowHoverCSS}
                         }
                     `;
@@ -401,14 +401,14 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                     specificStyles = `
                         .${id} .digiblocks-countdown-item-inner {
                             background-color: ${digitBackground || '#f0f0f0'};
-                            color: ${digitColor || '#333333'};
+                            color: ${digitColor};
                             border-radius: 50px;
 							${getDimensionCSS(boxPadding, 'padding', activeDevice)}
                             ${boxShadowCSS}
                         }
                         .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
                             background-color: ${digitHoverBackground || digitBackground || '#e0e0e0'};
-                            color: ${digitHoverColor || digitColor || '#333333'};
+                            color: ${digitHoverColor || digitColor};
                             ${boxShadowHoverCSS}
                         }
                     `;
@@ -417,14 +417,14 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                     specificStyles = `
                         .${id} .digiblocks-countdown-item-inner {
                             background-color: ${digitBackground || '#f0f0f0'};
-                            color: ${digitColor || '#333333'};
+                            color: ${digitColor};
                             border-radius: 8px;
 							${getDimensionCSS(boxPadding, 'padding', activeDevice)}
                             ${boxShadowCSS}
                         }
                         .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
                             background-color: ${digitHoverBackground || digitBackground || '#e0e0e0'};
-                            color: ${digitHoverColor || digitColor || '#333333'};
+                            color: ${digitHoverColor || digitColor};
                             ${boxShadowHoverCSS}
                         }
                     `;
@@ -433,7 +433,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                     specificStyles = `
                         .${id} .digiblocks-countdown-item-inner {
                             background-color: ${digitBackground || '#f0f0f0'};
-                            color: ${digitColor || '#333333'};
+                            color: ${digitColor};
                             border-radius: 50%;
                             aspect-ratio: 1/1;
                             display: flex;
@@ -444,7 +444,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                         }
                         .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
                             background-color: ${digitHoverBackground || digitBackground || '#e0e0e0'};
-                            color: ${digitHoverColor || digitColor || '#333333'};
+                            color: ${digitHoverColor || digitColor};
                             ${boxShadowHoverCSS}
                         }
                     `;
@@ -453,11 +453,11 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                 default:
                     specificStyles = `
                         .${id} .digiblocks-countdown-item-inner {
-                            color: ${digitColor || '#333333'};
+                            color: ${digitColor};
                             ${boxShadowCSS}
                         }
                         .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
-                            color: ${digitHoverColor || digitColor || '#333333'};
+                            color: ${digitHoverColor || digitColor};
                             ${boxShadowHoverCSS}
                         }
                     `;
@@ -467,10 +467,10 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
             // Simple style (no boxes)
             specificStyles = `
                 .${id} .digiblocks-countdown-item-inner {
-                    color: ${digitColor || '#333333'};
+                    color: ${digitColor};
                 }
                 .${id} .digiblocks-countdown-item:hover .digiblocks-countdown-item-inner {
-                    color: ${digitHoverColor || digitColor || '#333333'};
+                    color: ${digitHoverColor || digitColor};
                 }
             `;
         }
@@ -500,14 +500,14 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
             
             separatorStyles = `
                 .${id} .digiblocks-countdown-separator {
-                    color: ${separatorColor || '#333333'};
+                    color: ${separatorColor};
                     font-size: ${titleTypography && titleTypography.fontSize && titleTypography.fontSize[activeDevice] ? titleTypography.fontSize[activeDevice] + (titleTypography.fontSizeUnit || 'px') : '2rem'};
                 }
                 .${id} .digiblocks-countdown-separator::before {
                     content: "${separatorContent}";
                 }
                 .${id}:hover .digiblocks-countdown-separator {
-                    color: ${separatorHoverColor || separatorColor || '#333333'};
+                    color: ${separatorHoverColor || separatorColor};
                 }
             `;
         }
@@ -622,7 +622,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
             
             .${id} .digiblocks-countdown-expired {
                 ${titleTypographyCSS}
-                color: ${digitColor || '#333333'};
+                color: ${digitColor};
                 text-align: ${align};
             }
             

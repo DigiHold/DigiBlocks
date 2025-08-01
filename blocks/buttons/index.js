@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import ButtonsEdit from './edit';
 import ButtonsSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Buttons block
@@ -28,7 +28,6 @@ registerBlockType('digiblocks/buttons', {
     description: digiBlocksData.blocks['buttons'].description,
     keywords: [__('buttons', 'digiblocks'), __('button group', 'digiblocks'), __('link', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('buttons') ? true : false,
         html: false,
         className: false,
         customClassName: false,

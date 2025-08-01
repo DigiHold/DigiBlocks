@@ -807,6 +807,10 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 color: #28a745;
             }
             
+            .${id} .digiblocks-table .digiblocks-cell-warning {
+                color: #dca236;
+            }
+            
             .${id} .digiblocks-table .digiblocks-cell-cross {
                 color: #dc3545;
             }
@@ -849,6 +853,10 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 
 			.${id} .digiblocks-cell-controls-buttons .digiblocks-cell-control-check-button {
                 color: #28a745;
+            }
+
+			.${id} .digiblocks-cell-controls-buttons .digiblocks-cell-control-warning-button {
+                color: #dca236;
             }
 
 			.${id} .digiblocks-cell-controls-buttons .digiblocks-cell-control-cross-button {
@@ -992,6 +1000,18 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 							}}
 						/>
 						<Button
+							className="digiblocks-cell-control-warning-button"
+							icon={() => (
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20" height="20" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path></svg>
+							)}
+							label={__("Add Warning", "digiblocks")}
+							onClick={() => {
+								// Clear existing stars control first
+								clearCellControl(selectedCell.row, selectedCell.col, 'stars');
+								setCellControl(selectedCell.row, selectedCell.col, 'icon', 'warning');
+							}}
+						/>
+						<Button
 							className="digiblocks-cell-control-cross-button"
 							icon={() => (
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20" height="20" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"/></svg>
@@ -1084,6 +1104,12 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20" height="20" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
                         </span>
                     );
+				case 'warning':
+					return (
+						<span className="digiblocks-cell-icon digiblocks-cell-warning">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="20" height="20" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path></svg>
+						</span>
+					);
                 case 'cross':
                     return (
                         <span className="digiblocks-cell-icon digiblocks-cell-cross">
@@ -1985,7 +2011,7 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 
             <div {...blockProps}>
                 <div className="digiblocks-table-instructions">
-                    <p>{__("Click on any cell to select it and add icons, checks, crosses, or star ratings.", "digiblocks")}</p>
+                    <p>{__("Click on any cell to select it and add icons, checks, warnings, crosses, or star ratings.", "digiblocks")}</p>
                 </div>
                 
                 {selectedCell.row !== -1 && selectedCell.col !== -1 && renderCellControlToolbar()}

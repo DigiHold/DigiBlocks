@@ -1,7 +1,3 @@
-/**
- * Editor styles for Container and Column blocks
- */
-
 /* Container block */
 .block-editor-block-list__block[data-type="digiblocks/container"] {
     position: relative;

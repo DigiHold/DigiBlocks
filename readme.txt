@@ -4,7 +4,7 @@ Tags: blocks, gutenberg, editor, page builder, gutenberg blocks
 Requires at least: 5.8
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,7 +36,6 @@ DigiBlocks includes a comprehensive collection of blocks designed to address all
 * **[Image](https://digiblocks.me/block/image?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add images with extensive styling options.
 * **[Lottie Animation](https://digiblocks.me/block/lottie?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add beautiful Lottie animations to your content.
 * **[Newsletter](https://digiblocks.me/block/newsletter?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add a newsletter subscription form.
-* **[Posts](https://digiblocks.me/block/posts?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Display your WordPress posts in beautiful grid and list layouts.
 * **[Pricing Table](https://digiblocks.me/block/pricing-table?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Create beautiful pricing tables with multiple plans and features.
 * **[Separator](https://digiblocks.me/block/separator?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add a separator with various styles, text, and icon options.
 * **[Social Icons](https://digiblocks.me/block/social-icons?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add social media links with beautiful icons.
@@ -48,6 +47,7 @@ DigiBlocks includes a comprehensive collection of blocks designed to address all
 
 = Pro Version Blocks =
 
+* **[Posts](https://digiblocks.me/block/posts?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Display your WordPress posts in beautiful grid and list layouts.
 * **[Money Back](https://digiblocks.me/block/money-back?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add a customizable money back guarantee.
 * **[Logo](https://digiblocks.me/block/logo?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add a customizable logo for your website header or footer.
 * **[Navigation](https://digiblocks.me/block/navigation?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add a responsive navigation menu with custom or WordPress menus.
@@ -208,6 +208,11 @@ This plugin uses Google Maps API for the Google Map Block feature.
 2. **Settings**: Configure what you need.
 
 == Changelog ==
+
+= 1.0.1 =
+* Tweak: Table block, warning icon added
+* Tweak: Icon box block, Better settings for icon width and spacing
+* Fixed: If the Text block was used in post content, it wasn't added in excerpt
 
 = 1.0.0 - June 15, 2025 =
 * Initial release

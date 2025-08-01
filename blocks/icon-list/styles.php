@@ -38,7 +38,7 @@ $itemSpace          = isset( $attrs['itemSpace'] ) ? $attrs['itemSpace'] : array
 );
 $iconColor          = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : '#1e73be';
 $iconHoverColor     = isset( $attrs['iconHoverColor'] ) ? $attrs['iconHoverColor'] : '';
-$textColor          = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#333333';
+$textColor          = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '';
 $textHoverColor     = isset( $attrs['textHoverColor'] ) ? $attrs['textHoverColor'] : '';
 $backgroundColor    = isset( $attrs['backgroundColor'] ) ? $attrs['backgroundColor'] : '';
 $backgroundHoverColor = isset( $attrs['backgroundHoverColor'] ) ? $attrs['backgroundHoverColor'] : '';
@@ -228,6 +228,7 @@ ob_start();
 	display: flex;
 	flex-direction: <?php echo esc_attr( 'horizontal' === $listLayout ? 'row' : 'column' ); ?>;
 	flex-wrap: wrap;
+	justify-content: <?php echo esc_attr( 'center' === $listAlign ? 'center' : ( 'right' === $listAlign ? 'flex-end' : 'flex-start' ) ); ?>;
 	gap: <?php echo esc_attr( $itemSpace['desktop'] . 'px' ); ?>;
 }
 
@@ -274,7 +275,9 @@ ob_start();
 
 /* Text content */
 .<?php echo esc_attr( $id ); ?> .digiblocks-icon-list-content {
+    <?php if ( !empty($textColor) ) : ?>
 	color: <?php echo esc_attr( $textColor ); ?>;
+    <?php endif; ?>
 	<?php if ( ! empty( $contentTypography['fontFamily'] ) ) : ?>
 		font-family: <?php echo esc_attr( $contentTypography['fontFamily'] ); ?>;
 	<?php endif; ?>

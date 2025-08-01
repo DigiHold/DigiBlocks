@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import TextEdit from './edit';
 import TextSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Text block
@@ -29,7 +29,6 @@ registerBlockType('digiblocks/text', {
     keywords: [__('text', 'digiblocks'), __('paragraph', 'digiblocks'), __('content', 'digiblocks')],
     // Disable default controls and settings panels
     supports: {
-		inserter: getBlockActiveStatus('text') ? true : false,
         html: false,
         className: false,
         customClassName: false,
@@ -82,7 +81,7 @@ registerBlockType('digiblocks/text', {
 		},
         textColor: {
             type: 'string',
-            default: '#333333'
+            default: ''
         },
         textHoverColor: {
             type: 'string',
@@ -104,15 +103,15 @@ registerBlockType('digiblocks/text', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSize: { desktop: '', tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: '', tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: '', tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },

@@ -18,15 +18,20 @@ $visibility           = isset( $attrs['visibility'] ) ? $attrs['visibility'] : [
     'mobile'  => false,
 ];
 $icons                = isset( $attrs['icons'] ) ? $attrs['icons'] : array();
-$iconSize             = isset( $attrs['iconSize'] ) ? $attrs['iconSize'] : array(
-    'desktop' => 24,
-    'tablet'  => 22,
-    'mobile'  => 20
+$iconWidth = isset( $attrs['iconWidth'] ) ? $attrs['iconWidth'] : array(
+    'desktop' => array( 'value' => 1, 'unit' => 'rem' ),
+    'tablet'  => array( 'value' => '', 'unit' => 'rem' ),
+    'mobile'  => array( 'value' => '', 'unit' => 'rem' ),
 );
-$iconSpacing          = isset( $attrs['iconSpacing'] ) ? $attrs['iconSpacing'] : array(
-    'desktop' => 10,
-    'tablet'  => 8,
-    'mobile'  => 6
+$iconHeight = isset( $attrs['iconHeight'] ) ? $attrs['iconHeight'] : array(
+    'desktop' => array( 'value' => 1, 'unit' => 'rem' ),
+    'tablet'  => array( 'value' => '', 'unit' => 'rem' ),
+    'mobile'  => array( 'value' => '', 'unit' => 'rem' ),
+);
+$iconSpacing = isset( $attrs['iconSpacing'] ) ? $attrs['iconSpacing'] : array(
+    'desktop' => array( 'value' => 0.8, 'unit' => 'rem' ),
+    'tablet'  => array( 'value' => '', 'unit' => 'rem' ),
+    'mobile'  => array( 'value' => '', 'unit' => 'rem' ),
 );
 $iconColor            = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : '#333333';
 $iconHoverColor       = isset( $attrs['iconHoverColor'] ) ? $attrs['iconHoverColor'] : '';
@@ -61,10 +66,10 @@ $iconBorderColor      = isset( $attrs['iconBorderColor'] ) ? $attrs['iconBorderC
 $iconHoverBorderColor = isset( $attrs['iconHoverBorderColor'] ) ? $attrs['iconHoverBorderColor'] : '';
 $labelColor           = isset( $attrs['labelColor'] ) ? $attrs['labelColor'] : '';
 $labelHoverColor      = isset( $attrs['labelHoverColor'] ) ? $attrs['labelHoverColor'] : '';
-$labelSpacing         = isset( $attrs['labelSpacing'] ) ? $attrs['labelSpacing'] : array(
-    'desktop' => 5,
-    'tablet'  => 5,
-    'mobile'  => 5
+$labelSpacing = isset( $attrs['labelSpacing'] ) ? $attrs['labelSpacing'] : array(
+    'desktop' => array( 'value' => 0.8, 'unit' => 'rem' ),
+    'tablet'  => array( 'value' => '', 'unit' => 'rem' ),
+    'mobile'  => array( 'value' => '', 'unit' => 'rem' ),
 );
 $align                = isset( $attrs['align'] ) ? $attrs['align'] : [
     'desktop' => 'flex-start',
@@ -108,7 +113,7 @@ ob_start();
 .<?php echo esc_attr( $id ); ?> {
     display: flex;
     flex-wrap: wrap;
-    gap: <?php echo esc_attr( $iconSpacing['desktop'] ); ?>px;
+    gap: <?php echo esc_attr( $iconSpacing['desktop']['value'] ? $iconSpacing['desktop']['value'] . $iconSpacing['desktop']['unit'] : '0.8rem' ); ?>;
     justify-content: <?php echo esc_attr( $align['desktop'] ); ?>;
 }
 
@@ -117,7 +122,7 @@ ob_start();
     align-items: center;
     text-decoration: none;
 	<?php if ( $labelSpacing && isset( $labelSpacing['desktop'] ) ) : ?>
-    	gap: <?php echo esc_attr( $labelSpacing['desktop'] ); ?>px;
+		gap: <?php echo esc_attr( $labelSpacing['desktop']['value'] ? $labelSpacing['desktop']['value'] . $labelSpacing['desktop']['unit'] : '0.8rem' ); ?>;
     <?php endif; ?>
 }
 
@@ -146,8 +151,8 @@ ob_start();
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon svg {
-    width: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
-    height: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
+    width: <?php echo esc_attr( $iconWidth['desktop']['value'] ? $iconWidth['desktop']['value'] . $iconWidth['desktop']['unit'] : '1rem' ); ?>;
+    height: <?php echo esc_attr( $iconHeight['desktop']['value'] ? $iconHeight['desktop']['value'] . $iconHeight['desktop']['unit'] : '1rem' ); ?>;
     fill: <?php echo esc_attr( $iconColor ); ?>;
     transition: all 0.3s ease;
 }
@@ -233,7 +238,7 @@ ob_start();
 /* Tablet Styles */
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
-        gap: <?php echo esc_attr( isset( $iconSpacing['tablet'] ) ? $iconSpacing['tablet'] : $iconSpacing['desktop'] ); ?>px;
+        gap: <?php echo esc_attr( $iconSpacing['tablet']['value'] ? $iconSpacing['tablet']['value'] . $iconSpacing['tablet']['unit'] : ($iconSpacing['desktop']['value'] . $iconSpacing['desktop']['unit']) ); ?>;
 		<?php if ( ! empty( $align['tablet'] ) ) : ?>
 		justify-content: <?php echo esc_attr( $align['tablet'] ); ?>;
         <?php endif; ?>
@@ -241,7 +246,7 @@ ob_start();
 
 	<?php if ( $labelSpacing && isset( $labelSpacing['tablet'] ) ) : ?>
     	.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon {
-			gap: <?php echo esc_attr( isset( $labelSpacing['tablet'] ) ? $labelSpacing['tablet'] : $labelSpacing['desktop'] ); ?>px;
+			gap: <?php echo esc_attr( $labelSpacing['tablet']['value'] ? $labelSpacing['tablet']['value'] . $labelSpacing['tablet']['unit'] : ($labelSpacing['desktop']['value'] . $labelSpacing['desktop']['unit']) ); ?>;
 		}
     <?php endif; ?>
 
@@ -258,8 +263,8 @@ ob_start();
     }
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon svg {
-        width: <?php echo esc_attr( isset( $iconSize['tablet'] ) ? $iconSize['tablet'] : $iconSize['desktop'] ); ?>px;
-        height: <?php echo esc_attr( isset( $iconSize['tablet'] ) ? $iconSize['tablet'] : $iconSize['desktop'] ); ?>px;
+        width: <?php echo esc_attr( $iconWidth['tablet']['value'] ? $iconWidth['tablet']['value'] . $iconWidth['tablet']['unit'] : ($iconWidth['desktop']['value'] . $iconWidth['desktop']['unit']) ); ?>;
+        height: <?php echo esc_attr( $iconHeight['tablet']['value'] ? $iconHeight['tablet']['value'] . $iconHeight['tablet']['unit'] : ($iconHeight['desktop']['value'] . $iconHeight['desktop']['unit']) ); ?>;
     }
     
     <?php if ( $showLabels && isset( $textTypography['fontSize']['tablet'] ) ) : ?>
@@ -280,7 +285,7 @@ ob_start();
 /* Mobile Styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
-        gap: <?php echo esc_attr( isset( $iconSpacing['mobile'] ) ? $iconSpacing['mobile'] : (isset( $iconSpacing['tablet'] ) ? $iconSpacing['tablet'] : $iconSpacing['desktop']) ); ?>px;
+        gap: <?php echo esc_attr( $iconSpacing['mobile']['value'] ? $iconSpacing['mobile']['value'] . $iconSpacing['mobile']['unit'] : ($iconSpacing['tablet']['value'] ? $iconSpacing['tablet']['value'] . $iconSpacing['tablet']['unit'] : ($iconSpacing['desktop']['value'] . $iconSpacing['desktop']['unit'])) ); ?>;
 		<?php if ( ! empty( $align['mobile'] ) ) : ?>
 		justify-content: <?php echo esc_attr( $align['mobile'] ); ?>;
         <?php endif; ?>
@@ -288,7 +293,7 @@ ob_start();
 
 	<?php if ( $labelSpacing && isset( $labelSpacing['mobile'] ) ) : ?>
     	.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon {
-        	gap: <?php echo esc_attr( isset( $labelSpacing['mobile'] ) ? $labelSpacing['mobile'] : (isset( $labelSpacing['tablet'] ) ? $labelSpacing['tablet'] : $labelSpacing['desktop']) ); ?>px;
+			gap: <?php echo esc_attr( $labelSpacing['mobile']['value'] ? $labelSpacing['mobile']['value'] . $labelSpacing['mobile']['unit'] : ($labelSpacing['tablet']['value'] ? $labelSpacing['tablet']['value'] . $labelSpacing['tablet']['unit'] : ($labelSpacing['desktop']['value'] . $labelSpacing['desktop']['unit'])) ); ?>;
 		}
     <?php endif; ?>
 
@@ -305,8 +310,8 @@ ob_start();
     }
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon svg {
-        width: <?php echo esc_attr( isset( $iconSize['mobile'] ) ? $iconSize['mobile'] : (isset( $iconSize['tablet'] ) ? $iconSize['tablet'] : $iconSize['desktop']) ); ?>px;
-        height: <?php echo esc_attr( isset( $iconSize['mobile'] ) ? $iconSize['mobile'] : (isset( $iconSize['tablet'] ) ? $iconSize['tablet'] : $iconSize['desktop']) ); ?>px;
+        width: <?php echo esc_attr( $iconWidth['mobile']['value'] ? $iconWidth['mobile']['value'] . $iconWidth['mobile']['unit'] : ($iconWidth['tablet']['value'] ? $iconWidth['tablet']['value'] . $iconWidth['tablet']['unit'] : ($iconWidth['desktop']['value'] . $iconWidth['desktop']['unit'])) ); ?>;
+        height: <?php echo esc_attr( $iconHeight['mobile']['value'] ? $iconHeight['mobile']['value'] . $iconHeight['mobile']['unit'] : ($iconHeight['tablet']['value'] ? $iconHeight['tablet']['value'] . $iconHeight['tablet']['unit'] : ($iconHeight['desktop']['value'] . $iconHeight['desktop']['unit'])) ); ?>;
     }
     
     <?php if ( $showLabels && isset( $textTypography['fontSize']['mobile'] ) ) : ?>

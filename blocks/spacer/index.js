@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import SpacerEdit from './edit';
 import SpacerSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Spacer block
@@ -28,7 +28,6 @@ registerBlockType('digiblocks/spacer', {
     description: digiBlocksData.blocks['spacer'].description,
     keywords: [__('spacer', 'digiblocks'), __('gap', 'digiblocks'), __('spacing', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('spacer') ? true : false,
         html: false,
         className: false,
         customClassName: false,

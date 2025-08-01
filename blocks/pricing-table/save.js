@@ -133,26 +133,28 @@ const PricingTableSave = ({ attributes }) => {
                             ))}
                         </div>
                         
-                        {/* Footer */}
-                        <div className="digiblocks-pricing-table-footer">
-							<a 
-								href={table.buttonUrl || '#'}
-								className="digiblocks-pricing-table-button"
-								style={table.buttonBackgroundColor ? { 
-									backgroundColor: table.buttonBackgroundColor,
-									color: table.buttonTextColor || '#ffffff'
-								} : null}
-								target={table.buttonOpenInNewTab ? '_blank' : undefined}
-								rel={table.buttonOpenInNewTab 
-									? `noopener noreferrer ${table.buttonRel || ''}`.trim()
-									: table.buttonRel || undefined}
-							>
-								<RichText.Content
-									tagName="span"
-									value={table.buttonText}
-								/>
-							</a>
-                        </div>
+						{/* Footer */}
+						{table.buttonUrl && table.buttonUrl.trim() !== '' && (
+							<div className="digiblocks-pricing-table-footer">
+								<a 
+									href={table.buttonUrl || '#'}
+									className="digiblocks-pricing-table-button"
+									style={table.buttonBackgroundColor ? { 
+										backgroundColor: table.buttonBackgroundColor,
+										color: table.buttonTextColor || '#ffffff'
+									} : null}
+									target={table.buttonOpenInNewTab ? '_blank' : undefined}
+									rel={table.buttonOpenInNewTab 
+										? `noopener noreferrer ${table.buttonRel || ''}`.trim()
+										: table.buttonRel || undefined}
+								>
+									<RichText.Content
+										tagName="span"
+										value={table.buttonText}
+									/>
+								</a>
+							</div>
+						)}
                     </div>
                 ))}
             </div>

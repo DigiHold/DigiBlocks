@@ -185,6 +185,64 @@ if ( ! function_exists( 'digiblocks_get_gap_css' ) ) {
 	}
 }
 
+if ( ! function_exists( 'digiblocks_get_single_gap_css' ) ) {
+	/**
+	 * Get single gap CSS for responsive design
+	 *
+	 * @param array  $gap_values Gap values array
+	 * @param string $device Current device
+	 * @return string CSS gap property
+	 */
+	function digiblocks_get_single_gap_css( $gap_values, $device ) {
+		// Default gap structure
+		$default_gap = array(
+			'desktop' => array( 'value' => 20, 'unit' => 'px' ),
+			'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+			'mobile'  => array( 'value' => '', 'unit' => 'px' ),
+		);
+		
+		// Merge with defaults
+		$gap_values = wp_parse_args( $gap_values, $default_gap );
+		
+		// Get gap value with responsive fallback
+		$gap_value = '';
+		$gap_unit = 'px';
+		
+		// If current device has a value, use it
+		if ( isset( $gap_values[ $device ] ) && ! empty( $gap_values[ $device ]['value'] ) ) {
+			$gap_value = $gap_values[ $device ]['value'];
+			$gap_unit = isset( $gap_values[ $device ]['unit'] ) ? $gap_values[ $device ]['unit'] : 'px';
+		} 
+		// For tablet: fallback to desktop
+		elseif ( $device === 'tablet' && isset( $gap_values['desktop'] ) && ! empty( $gap_values['desktop']['value'] ) ) {
+			$gap_value = $gap_values['desktop']['value'];
+			$gap_unit = isset( $gap_values['desktop']['unit'] ) ? $gap_values['desktop']['unit'] : 'px';
+		}
+		// For mobile: try tablet first, then desktop
+		elseif ( $device === 'mobile' ) {
+			if ( isset( $gap_values['tablet'] ) && ! empty( $gap_values['tablet']['value'] ) ) {
+				$gap_value = $gap_values['tablet']['value'];
+				$gap_unit = isset( $gap_values['tablet']['unit'] ) ? $gap_values['tablet']['unit'] : 'px';
+			} elseif ( isset( $gap_values['desktop'] ) && ! empty( $gap_values['desktop']['value'] ) ) {
+				$gap_value = $gap_values['desktop']['value'];
+				$gap_unit = isset( $gap_values['desktop']['unit'] ) ? $gap_values['desktop']['unit'] : 'px';
+			}
+		}
+		// Default case
+		elseif ( isset( $gap_values['desktop'] ) && ! empty( $gap_values['desktop']['value'] ) ) {
+			$gap_value = $gap_values['desktop']['value'];
+			$gap_unit = isset( $gap_values['desktop']['unit'] ) ? $gap_values['desktop']['unit'] : 'px';
+		}
+		
+		// Return gap CSS if we have a value
+		if ( ! empty( $gap_value ) || $gap_value === 0 || $gap_value === '0' ) {
+			return "gap: {$gap_value}{$gap_unit};";
+		}
+		
+		return '';
+	}
+}
+
 /**
  * Get default responsive dimension values.
  *

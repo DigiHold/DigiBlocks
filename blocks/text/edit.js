@@ -556,9 +556,9 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
                                     })
                                 }
                                 defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                                    fontSize: { desktop: '', tablet: '', mobile: '' },
                                     fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
                                     lineHeightUnit: 'em',
                                 }}
                             />
@@ -935,7 +935,7 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
 					tagName={htmlTag}
 					value={content}
 					onChange={(value) => setAttributes({ content: value })}
-					placeholder={__("Start writing or type / to add blocks", "digiblocks")}
+					placeholder={__("Start writing your content", "digiblocks")}
 					allowedFormats={['core/bold', 'core/italic', 'core/link', 'core/strikethrough', 'core/underline', 'core/text-color', 'core/code', 'core/superscript', 'core/subscript']}
 				/>
 			</div>

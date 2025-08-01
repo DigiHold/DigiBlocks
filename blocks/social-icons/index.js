@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import SocialIconsEdit from './edit';
 import SocialIconsSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Social Icons block
@@ -29,7 +29,6 @@ registerBlockType('digiblocks/social-icons', {
     keywords: [__('social', 'digiblocks'), __('icons', 'digiblocks'), __('networks', 'digiblocks'), __('media', 'digiblocks')],
     // Disable all default controls and settings panels
     supports: {
-        inserter: getBlockActiveStatus('social-icons') ? true : false,
         html: false,
         className: false,
         customClassName: false,
@@ -105,30 +104,38 @@ registerBlockType('digiblocks/social-icons', {
                 }
             ]
         },
-        iconSize: {
-            type: 'object',
-            default: {
-                desktop: 24,
-                tablet: 22,
-                mobile: 20
-            }
-        },
-        iconSpacing: {
-            type: 'object',
-            default: {
-                desktop: 10,
-                tablet: 8,
-                mobile: 6
-            }
-        },
-        labelSpacing: {
-            type: 'object',
-            default: {
-                desktop: 5,
-                tablet: 5,
-                mobile: 5
-            }
-        },
+        iconWidth: {
+			type: 'object',
+			default: {
+				desktop: { value: 1, unit: 'rem' },
+				tablet: { value: '', unit: 'rem' },
+				mobile: { value: '', unit: 'rem' }
+			}
+		},
+		iconHeight: {
+			type: 'object',
+			default: {
+				desktop: { value: 1, unit: 'rem' },
+				tablet: { value: '', unit: 'rem' },
+				mobile: { value: '', unit: 'rem' }
+			}
+		},
+		iconSpacing: {
+			type: 'object',
+			default: {
+				desktop: { value: 0.8, unit: 'rem' },
+				tablet: { value: '', unit: 'rem' },
+				mobile: { value: '', unit: 'rem' }
+			}
+		},
+		labelSpacing: {
+			type: 'object',
+			default: {
+				desktop: { value: 0.8, unit: 'rem' },
+				tablet: { value: '', unit: 'rem' },
+				mobile: { value: '', unit: 'rem' }
+			}
+		},
         iconColor: {
             type: 'string',
             default: '#333333'
@@ -205,15 +212,15 @@ registerBlockType('digiblocks/social-icons', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 14, tablet: 13, mobile: 12 },
-                fontSizeUnit: 'px',
+                fontSize: { desktop: 1, tablet: '', mobile: '' },
+                fontSizeUnit: 'rem',
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: '', tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: '', tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         }
@@ -258,7 +265,7 @@ registerBlockType('digiblocks/social-icons', {
                     rel: 'nofollow'
                 }
             ],
-            iconSpacing: { desktop: 20 },
+            iconSpacing: { desktop: { value: 1.25, unit: 'rem' } },
             align: 'center',
             iconColor: '#1e73be',
             labelColor: '#09053a',

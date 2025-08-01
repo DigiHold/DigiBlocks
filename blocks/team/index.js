@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import TeamEdit from './edit';
 import TeamSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Team block
@@ -28,7 +28,6 @@ registerBlockType('digiblocks/team', {
     description: digiBlocksData.blocks['team'].description,
     keywords: [__('team', 'digiblocks'), __('members', 'digiblocks'), __('staff', 'digiblocks'), __('people', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('team') ? true : false,
         html: false,
         className: false,
         customClassName: false,

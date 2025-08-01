@@ -18,8 +18,8 @@ $visibility                = isset( $attrs['visibility'] ) ? $attrs['visibility'
     'mobile'  => false,
 ];
 $backgroundColor           = isset( $attrs['backgroundColor'] ) ? $attrs['backgroundColor'] : '#ffffff';
-$textColor                 = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#333333';
-$labelColor                = isset( $attrs['labelColor'] ) ? $attrs['labelColor'] : '#333333';
+$textColor                 = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '';
+$labelColor                = isset( $attrs['labelColor'] ) ? $attrs['labelColor'] : '';
 $buttonBackgroundColor     = isset( $attrs['buttonBackgroundColor'] ) ? $attrs['buttonBackgroundColor'] : '#4a6cf7';
 $buttonTextColor           = isset( $attrs['buttonTextColor'] ) ? $attrs['buttonTextColor'] : '#ffffff';
 $buttonBackgroundHoverColor = isset( $attrs['buttonBackgroundHoverColor'] ) ? $attrs['buttonBackgroundHoverColor'] : '#3a5ce5';
@@ -32,7 +32,7 @@ $inputBorderStyle          = isset( $attrs['inputBorderStyle'] ) ? $attrs['input
 $inputBorderColor          = isset( $attrs['inputBorderColor'] ) ? $attrs['inputBorderColor'] : '#e0e0e0';
 $inputBorderWidth          = isset( $attrs['inputBorderWidth'] ) ? $attrs['inputBorderWidth'] : 1;
 $inputBackgroundColor      = isset( $attrs['inputBackgroundColor'] ) ? $attrs['inputBackgroundColor'] : '#ffffff';
-$inputTextColor            = isset( $attrs['inputTextColor'] ) ? $attrs['inputTextColor'] : '#333333';
+$inputTextColor            = isset( $attrs['inputTextColor'] ) ? $attrs['inputTextColor'] : '';
 $inputFocusBorderColor     = isset( $attrs['inputFocusBorderColor'] ) ? $attrs['inputFocusBorderColor'] : '#4a6cf7';
 
 // Responsive attributes
@@ -237,7 +237,9 @@ ob_start();
 /* Form Block - <?php echo esc_attr( $id ); ?> */
 .<?php echo esc_attr( $id ); ?> {
     background-color: <?php echo esc_attr( $backgroundColor ); ?>;
+    <?php if ( !empty($textColor) ) : ?>
     color: <?php echo esc_attr( $textColor ); ?>;
+    <?php endif; ?>
     <?php if ( 'none' !== $borderStyle ) : ?>
 	border-style: <?php echo esc_attr( $borderStyle ); ?>;
 	border-color: <?php echo esc_attr( $borderColor ); ?>;
@@ -309,7 +311,9 @@ ob_start();
 .<?php echo esc_attr( $id ); ?> .digiblocks-form-field-label {
     display: block;
     margin-bottom: <?php echo esc_attr( $labelMargin['desktop'] ); ?>px;
+    <?php if ( !empty($labelColor) ) : ?>
     color: <?php echo esc_attr( $labelColor ); ?>;
+    <?php endif; ?>
     <?php if ( !empty($textTypography['fontFamily']) ) : ?>
     font-family: <?php echo esc_attr( $textTypography['fontFamily'] ); ?>;
     <?php endif; ?>
@@ -355,7 +359,9 @@ ob_start();
 	<?php echo esc_attr( digiblocks_get_dimensions( $inputBorderWidth, 'border-width', 'desktop' ) ); ?>
     <?php endif; ?>
     background-color: <?php echo esc_attr( $inputBackgroundColor ); ?>;
+    <?php if ( !empty($inputTextColor) ) : ?>
     color: <?php echo esc_attr( $inputTextColor ); ?>;
+    <?php endif; ?>
     transition: all 0.3s ease;
     <?php if ( !empty($typography['fontFamily']) ) : ?>
     font-family: <?php echo esc_attr( $typography['fontFamily'] ); ?>;

@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import CountdownEdit from './edit';
 import CountdownSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Countdown block
@@ -28,7 +28,6 @@ registerBlockType('digiblocks/countdown', {
 	description: digiBlocksData.blocks['countdown'].description,
     keywords: [__('countdown', 'digiblocks'), __('timer', 'digiblocks'), __('clock', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('countdown') ? true : false,
         html: false,
         className: false,
         customClassName: false,
@@ -93,7 +92,7 @@ registerBlockType('digiblocks/countdown', {
         },
         digitColor: {
             type: 'string',
-            default: '#333333'
+            default: ''
         },
         digitBackground: {
             type: 'string',
@@ -117,7 +116,7 @@ registerBlockType('digiblocks/countdown', {
         },
         separatorColor: {
             type: 'string',
-            default: '#333333'
+            default: ''
         },
         separatorHoverColor: {
             type: 'string',

@@ -1401,7 +1401,7 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			.${id} .digiblocks-table-item-controls {
 				position: absolute;
 				top: 5px;
-				right: 5px;
+				left: 5px;
 				display: flex;
 				gap: 5px;
 				z-index: 10;
@@ -1413,11 +1413,6 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			.${id} .digiblocks-feature-item-controls {
 				display: flex;
 				gap: 5px;
-			}
-			
-			.${id} .digiblocks-table-active {
-				outline: 2px solid #4a6cf7;
-				outline-offset: -2px;
 			}
 			
 			/* Responsive styles */
@@ -1667,22 +1662,24 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                 </div>
                 
                 {/* Footer */}
-                <div className="digiblocks-pricing-table-footer">
-                    <div 
-                        className="digiblocks-pricing-table-button"
-                        style={table.buttonBackgroundColor ? { 
-                            backgroundColor: table.buttonBackgroundColor,
-                            color: table.buttonTextColor || buttonTextColor || '#ffffff'
-                        } : null}
-                    >
-                        <RichText
-                            tagName="span"
-                            value={table.buttonText}
-                            onChange={(value) => updateTableAttribute(index, 'buttonText', value)}
-                            placeholder={__('Get Started', 'digiblocks')}
-                        />
-                    </div>
-                </div>
+				{table.buttonUrl && table.buttonUrl.trim() !== '' && (
+					<div className="digiblocks-pricing-table-footer">
+						<div 
+							className="digiblocks-pricing-table-button"
+							style={table.buttonBackgroundColor ? { 
+								backgroundColor: table.buttonBackgroundColor,
+								color: table.buttonTextColor || buttonTextColor || '#ffffff'
+							} : null}
+						>
+							<RichText
+								tagName="span"
+								value={table.buttonText}
+								onChange={(value) => updateTableAttribute(index, 'buttonText', value)}
+								placeholder={__('Get Started', 'digiblocks')}
+							/>
+						</div>
+					</div>
+				)}
             </div>
         );
     };

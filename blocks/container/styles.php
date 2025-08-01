@@ -286,7 +286,7 @@ ob_start();
 <?php endif; ?>
 
 /* Background video */
-.<?php echo esc_attr( $id ); ?> > .digiblocks-bg-video-container {
+.<?php echo esc_attr( $id ); ?> .digiblocks-bg-video-container {
     position: absolute;
     top: 0;
     left: 0;
@@ -298,15 +298,11 @@ ob_start();
     border-radius: inherit;
 }
 
-.<?php echo esc_attr( $id ); ?> > .digiblocks-bg-video {
+.<?php echo esc_attr( $id ); ?> .digiblocks-bg-video {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    transform: translateX(-50%) translateY(-50%);
+    width: 100%;
+    height: 100%;
+    -o-object-fit: cover;
     object-fit: cover;
 }
 

@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import NewsletterEdit from './edit';
 import NewsletterSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Newsletter block
@@ -28,7 +28,6 @@ registerBlockType('digiblocks/newsletter', {
     description: digiBlocksData.blocks['newsletter'].description,
     keywords: [__('newsletter', 'digiblocks'), __('subscribe', 'digiblocks'), __('email', 'digiblocks'), __('mailchimp', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('newsletter') ? true : false,
         html: false,
         className: false,
         customClassName: false,
@@ -109,7 +108,7 @@ registerBlockType('digiblocks/newsletter', {
         },
         titleColor: {
             type: 'string',
-            default: '#333333'
+            default: ''
         },
         titleHoverColor: {
             type: 'string',
@@ -121,7 +120,7 @@ registerBlockType('digiblocks/newsletter', {
         },
         inputTextColor: {
             type: 'string',
-            default: '#333333'
+            default: ''
         },
         inputBackgroundColor: {
             type: 'string',

@@ -6,7 +6,6 @@ const { registerBlockType } = wp.blocks;
 
 import ContainerEdit from './edit';
 import ContainerSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
 
 /**
  * Register Container block
@@ -28,7 +27,6 @@ registerBlockType('digiblocks/container', {
     description: digiBlocksData.blocks['container'].description,
     keywords: [__('container', 'digiblocks'), __('section', 'digiblocks'), __('row', 'digiblocks'), __('layout', 'digiblocks'), __('columns', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('container') ? true : false,
         html: false,
         className: false,
         customClassName: false,

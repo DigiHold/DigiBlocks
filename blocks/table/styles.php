@@ -469,6 +469,10 @@ ob_start();
     color: #28a745;
 }
 
+.<?php echo esc_attr( $id ); ?> .digiblocks-table .digiblocks-cell-warning {
+    color: #dca236;
+}
+
 .<?php echo esc_attr( $id ); ?> .digiblocks-table .digiblocks-cell-cross {
     color: #dc3545;
 }

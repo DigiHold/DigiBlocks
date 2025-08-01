@@ -23,10 +23,10 @@ $align                       = isset( $attrs['align'] ) ? $attrs['align'] : [
     'tablet'  => 'left',
     'mobile'  => 'left',
 ];
-$titleColor                  = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '#333333';
+$titleColor                  = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '';
 $titleHoverColor             = isset( $attrs['titleHoverColor'] ) ? $attrs['titleHoverColor'] : '';
 $descriptionColor            = isset( $attrs['descriptionColor'] ) ? $attrs['descriptionColor'] : '#666666';
-$inputTextColor              = isset( $attrs['inputTextColor'] ) ? $attrs['inputTextColor'] : '#333333';
+$inputTextColor              = isset( $attrs['inputTextColor'] ) ? $attrs['inputTextColor'] : '';
 $inputBackgroundColor        = isset( $attrs['inputBackgroundColor'] ) ? $attrs['inputBackgroundColor'] : '#ffffff';
 $inputBorderColor            = isset( $attrs['inputBorderColor'] ) ? $attrs['inputBorderColor'] : '#e0e0e0';
 $inputBorderFocusColor       = isset( $attrs['inputBorderFocusColor'] ) ? $attrs['inputBorderFocusColor'] : '#4a6cf7';
@@ -250,7 +250,9 @@ ob_start();
 
 /* Newsletter Title */
 .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-title {
+    <?php if ( !empty($titleColor) ) : ?>
     color: <?php echo esc_attr( $titleColor ); ?>;
+    <?php endif; ?>
     margin-top: 0;
     margin-bottom: <?php echo esc_attr($spacing['desktop']['value'] . ($spacing['desktop']['unit'] ?: 'px')); ?>;
     <?php if ( ! empty( $titleTypography['fontFamily'] ) ) : ?>
@@ -361,7 +363,9 @@ ob_start();
     width: 1em;
     height: 1em;
     <?php endif; ?>
+    <?php if ( !empty($inputTextColor) ) : ?>
     fill: <?php echo esc_attr( $inputTextColor ); ?>;
+    <?php endif; ?>
     pointer-events: none;
     z-index: 2;
     opacity: 0.7;
@@ -372,7 +376,9 @@ ob_start();
 .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-input {
     width: 100%;
     padding: 12px 16px 12px 50px;
+    <?php if ( !empty($inputTextColor) ) : ?>
     color: <?php echo esc_attr( $inputTextColor ); ?>;
+    <?php endif; ?>
     background-color: <?php echo esc_attr( $inputBackgroundColor ); ?>;
 	<?php if ( $inputBorderStyle !== 'none' && ! empty( $inputBorderColor ) ) : ?>
     border: <?php echo esc_attr( $inputBorderWidth['desktop'] ); ?>px <?php echo esc_attr( $inputBorderStyle ); ?> <?php echo esc_attr( $inputBorderColor ); ?>;

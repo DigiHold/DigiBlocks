@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import GoogleMapEdit from './edit';
 import GoogleMapSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Google Map block
@@ -28,7 +28,6 @@ registerBlockType('digiblocks/google-map', {
     description: digiBlocksData.blocks['google-map'].description,
     keywords: [__('map', 'digiblocks'), __('google', 'digiblocks'), __('location', 'digiblocks'), __('marker', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('google-map') ? true : false,
         html: false,
         className: false,
         customClassName: false,

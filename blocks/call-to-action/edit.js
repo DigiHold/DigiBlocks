@@ -1036,7 +1036,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                     }
                     
                     .${id} .digiblocks-cta-title {
-                        color: ${titleColor || '#333'};
+                        color: ${titleColor};
                         margin-bottom: 15px;
                     }
                     
@@ -1068,7 +1068,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
                     }
                     
                     .${id} .digiblocks-cta-title {
-                        color: ${titleColor || '#333'};
+                        color: ${titleColor};
                         margin-bottom: 15px;
                     }
                     
@@ -1203,7 +1203,7 @@ const CallToActionEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             .${id} .digiblocks-cta-title {
-                color: ${titleColor || '#333333'};
+                color: ${titleColor};
                 margin-top: 0;
                 margin-bottom: 20px;
                 ${titleTypographyCSS}

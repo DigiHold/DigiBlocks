@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import CallToActionEdit from './edit';
 import CallToActionSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Call to Action block
@@ -28,7 +28,6 @@ registerBlockType('digiblocks/call-to-action', {
     description: digiBlocksData.blocks['call-to-action'].description,
     keywords: [__('cta', 'digiblocks'), __('call to action', 'digiblocks'), __('button', 'digiblocks'), __('conversion', 'digiblocks')],
     supports: {
-        inserter: getBlockActiveStatus('call-to-action') ? true : false,
         html: false,
         className: false,
         customClassName: false,
@@ -77,7 +76,7 @@ registerBlockType('digiblocks/call-to-action', {
         },
         titleColor: {
             type: 'string',
-            default: '#333333'
+            default: ''
         },
         textColor: {
             type: 'string',

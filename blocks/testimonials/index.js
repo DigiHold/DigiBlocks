@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import TestimonialsEdit from './edit';
 import TestimonialsSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Testimonials block
@@ -29,7 +29,6 @@ registerBlockType('digiblocks/testimonials', {
     keywords: [__('testimonials', 'digiblocks'), __('reviews', 'digiblocks'), __('quotes', 'digiblocks'), __('testimonial', 'digiblocks')],
     // Disable all default controls and settings panels
     supports: {
-        inserter: getBlockActiveStatus('testimonials') ? true : false,
         html: false,
         className: false,
         customClassName: false,

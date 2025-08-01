@@ -64,7 +64,7 @@ $showTitle                    = isset( $attrs['showTitle'] ) ? $attrs['showTitle
 $showContent                  = isset( $attrs['showContent'] ) ? $attrs['showContent'] : true;
 $showBadge                    = isset( $attrs['showBadge'] ) ? $attrs['showBadge'] : false;
 $badgeText                    = isset( $attrs['badgeText'] ) ? $attrs['badgeText'] : __('Popular', 'digiblocks');
-$titleColor                   = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '#333333';
+$titleColor                   = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '';
 $titleHoverColor              = isset( $attrs['titleHoverColor'] ) ? $attrs['titleHoverColor'] : '';
 $textColor                    = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#666666';
 $textHoverColor               = isset( $attrs['textHoverColor'] ) ? $attrs['textHoverColor'] : '';
@@ -201,9 +201,9 @@ $buttonMargin                 = isset( $attrs['buttonMargin'] ) ? $attrs['button
 $buttonTypography             = isset( $attrs['buttonTypography'] ) ? $attrs['buttonTypography'] : array(
 	'fontFamily'        => '',
 	'fontSize'          => array(
-		'desktop' => 16,
-		'tablet'  => 15,
-		'mobile'  => 14,
+		'desktop' => '',
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'fontSizeUnit'      => 'px',
 	'fontWeight'        => '500',
@@ -211,15 +211,15 @@ $buttonTypography             = isset( $attrs['buttonTypography'] ) ? $attrs['bu
 	'textTransform'     => '',
 	'textDecoration'    => '',
 	'lineHeight'        => array(
-		'desktop' => 1.5,
-		'tablet'  => 1.4,
-		'mobile'  => 1.3,
+		'desktop' => '',
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'lineHeightUnit'    => 'em',
 	'letterSpacing'     => array(
-		'desktop' => 0,
-		'tablet'  => 0,
-		'mobile'  => 0,
+		'desktop' => '',
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'letterSpacingUnit' => 'px',
 );
@@ -481,9 +481,9 @@ $borderRadius = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : array
 $titleTypography = isset( $attrs['titleTypography'] ) ? $attrs['titleTypography'] : array(
 	'fontFamily'        => '',
 	'fontSize'          => array(
-		'desktop' => 22,
-		'tablet'  => 20,
-		'mobile'  => 18,
+		'desktop' => '',
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'fontSizeUnit'      => 'px',
 	'fontWeight'        => '',
@@ -491,15 +491,15 @@ $titleTypography = isset( $attrs['titleTypography'] ) ? $attrs['titleTypography'
 	'textTransform'     => '',
 	'textDecoration'    => '',
 	'lineHeight'        => array(
-		'desktop' => 1.5,
-		'tablet'  => 1.4,
-		'mobile'  => 1.3,
+		'desktop' => '',
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'lineHeightUnit'    => 'em',
 	'letterSpacing'     => array(
-		'desktop' => 0,
-		'tablet'  => 0,
-		'mobile'  => 0,
+		'desktop' => '',
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'letterSpacingUnit' => 'px',
 );
@@ -507,9 +507,9 @@ $titleTypography = isset( $attrs['titleTypography'] ) ? $attrs['titleTypography'
 $contentTypography = isset( $attrs['contentTypography'] ) ? $attrs['contentTypography'] : array(
 	'fontFamily'        => '',
 	'fontSize'          => array(
-		'desktop' => 16,
-		'tablet'  => 15,
-		'mobile'  => 14,
+		'desktop' => '',
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'fontSizeUnit'      => 'px',
 	'fontWeight'        => '',
@@ -517,15 +517,15 @@ $contentTypography = isset( $attrs['contentTypography'] ) ? $attrs['contentTypog
 	'textTransform'     => '',
 	'textDecoration'    => '',
 	'lineHeight'        => array(
-		'desktop' => 1.5,
-		'tablet'  => 1.4,
-		'mobile'  => 1.3,
+		'desktop' => '',
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'lineHeightUnit'    => 'em',
 	'letterSpacing'     => array(
-		'desktop' => 0,
-		'tablet'  => 0,
-		'mobile'  => 0,
+		'desktop' => '',
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'letterSpacingUnit' => 'px',
 );
@@ -679,7 +679,9 @@ ob_start();
 <?php if ( $showTitle ) : ?>
 /* Title styles */
 .<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-title {
+    <?php if ( !empty($titleColor) ) : ?>
 	color: <?php echo esc_attr( $titleColor ); ?>;
+    <?php endif; ?>
 	margin-top: 0;
 	margin-bottom: 10px;
 

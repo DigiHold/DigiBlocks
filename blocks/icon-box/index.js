@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import IconBoxEdit from './edit';
 import IconBoxSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register Icon Box block
@@ -28,7 +28,6 @@ registerBlockType('digiblocks/icon-box', {
 	description: digiBlocksData.blocks['icon-box'].description,
 	keywords: [__('icon', 'digiblocks'), __('box', 'digiblocks'), __('feature', 'digiblocks'), __('service', 'digiblocks')],
 	supports: {
-		inserter: getBlockActiveStatus('icon-box') ? true : false,
 		html: false,
 		className: false,
 		customClassName: false,
@@ -121,7 +120,7 @@ registerBlockType('digiblocks/icon-box', {
 		},
 		titleColor: {
 			type: 'string',
-			default: '#333333'
+			default: ''
 		},
 		titleHoverColor: {
 			type: 'string',
@@ -311,15 +310,15 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				fontFamily: '',
-				fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+				fontSize: { desktop: '', tablet: '', mobile: '' },
 				fontSizeUnit: 'px',
 				fontWeight: '500',
 				fontStyle: 'normal',
 				textTransform: '',
 				textDecoration: '',
-				lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+				lineHeight: { desktop: '', tablet: '', mobile: '' },
 				lineHeightUnit: 'em',
-				letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+				letterSpacing: { desktop: '', tablet: '', mobile: '' },
 				letterSpacingUnit: 'px'
 			}
 		},
@@ -435,15 +434,15 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				fontFamily: '',
-				fontSize: { desktop: 22, tablet: 20, mobile: 18 },
+				fontSize: { desktop: '', tablet: '', mobile: '' },
 				fontSizeUnit: 'px',
 				fontWeight: '',
 				fontStyle: 'normal',
 				textTransform: '',
 				textDecoration: '',
-				lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+				lineHeight: { desktop: '', tablet: '', mobile: '' },
 				lineHeightUnit: 'em',
-				letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+				letterSpacing: { desktop: '', tablet: '', mobile: '' },
 				letterSpacingUnit: 'px'
 			}
 		},
@@ -451,15 +450,15 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				fontFamily: '',
-				fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+				fontSize: { desktop: '', tablet: '', mobile: '' },
 				fontSizeUnit: 'px',
 				fontWeight: '',
 				fontStyle: 'normal',
 				textTransform: '',
 				textDecoration: '',
-				lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+				lineHeight: { desktop: '', tablet: '', mobile: '' },
 				lineHeightUnit: 'em',
-				letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+				letterSpacing: { desktop: '', tablet: '', mobile: '' },
 				letterSpacingUnit: 'px'
 			}
 		},

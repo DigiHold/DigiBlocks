@@ -18,7 +18,7 @@ $visibility            = isset( $attrs['visibility'] ) ? $attrs['visibility'] : 
     'mobile'  => false,
 ];
 $items                 = isset( $attrs['items'] ) ? $attrs['items'] : array();
-$titleColor            = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '#333333';
+$titleColor            = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '';
 $titleHoverColor       = isset( $attrs['titleHoverColor'] ) ? $attrs['titleHoverColor'] : '';
 $titleActiveColor      = isset( $attrs['titleActiveColor'] ) ? $attrs['titleActiveColor'] : '#1e73be';
 $backgroundColor       = isset( $attrs['backgroundColor'] ) ? $attrs['backgroundColor'] : '#ffffff';
@@ -28,7 +28,7 @@ $contentColor          = isset( $attrs['contentColor'] ) ? $attrs['contentColor'
 $contentBackgroundColor = isset( $attrs['contentBackgroundColor'] ) ? $attrs['contentBackgroundColor'] : '';
 $borderColor           = isset( $attrs['borderColor'] ) ? $attrs['borderColor'] : '#e0e0e0';
 $borderHoverColor      = isset( $attrs['borderHoverColor'] ) ? $attrs['borderHoverColor'] : '';
-$iconColor             = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : '#333333';
+$iconColor             = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : '';
 $iconHoverColor        = isset( $attrs['iconHoverColor'] ) ? $attrs['iconHoverColor'] : '';
 $iconActiveColor       = isset( $attrs['iconActiveColor'] ) ? $attrs['iconActiveColor'] : '#1e73be';
 $layout                = isset( $attrs['layout'] ) ? $attrs['layout'] : 'boxed';
@@ -162,7 +162,9 @@ ob_start();
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-text,
 .<?php echo esc_attr( $id ); ?> .digiblocks-faq-question-text-content {
+	<?php if ( ! empty( $titleColor ) ) : ?>
 	color: <?php echo esc_attr( $titleColor ); ?>;
+	<?php endif; ?>
 	<?php if ( ! empty( $titleTypography['fontFamily'] ) ) : ?>
 	font-family: <?php echo esc_attr( $titleTypography['fontFamily'] ); ?>;
 	<?php endif; ?>
@@ -267,7 +269,9 @@ ob_start();
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	<?php if ( ! empty( $iconColor ) ) : ?>
 	color: <?php echo esc_attr( $iconColor ); ?>;
+	<?php endif; ?>
 	transition: all 0.3s ease;
 	font-size: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
 }

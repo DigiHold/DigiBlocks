@@ -6,7 +6,7 @@ const { registerBlockType } = wp.blocks;
 
 import FAQEdit from './edit';
 import FAQSave from './save';
-const { getBlockActiveStatus } = wp.digiBlocks;
+
 
 /**
  * Register FAQ block
@@ -29,7 +29,6 @@ registerBlockType('digiblocks/faq', {
     keywords: [__('faq', 'digiblocks'), __('questions', 'digiblocks'), __('answers', 'digiblocks'), __('schema', 'digiblocks')],
     // Disable all default controls and settings panels
     supports: {
-        inserter: getBlockActiveStatus('faq') ? true : false,
         html: false,
         className: false,
         customClassName: false,
@@ -75,7 +74,7 @@ registerBlockType('digiblocks/faq', {
         },
         titleColor: {
             type: 'string',
-            default: '#333333'
+            default: ''
         },
         titleHoverColor: {
             type: 'string',
@@ -211,7 +210,7 @@ registerBlockType('digiblocks/faq', {
         },
         iconColor: {
             type: 'string',
-            default: '#333333'
+            default: ''
         },
         iconHoverColor: {
             type: 'string',
@@ -299,7 +298,7 @@ registerBlockType('digiblocks/faq', {
                 }
             ],
             layout: 'boxed',
-            titleColor: '#333333',
+            titleColor: '',
             titleActiveColor: '#1e73be',
             backgroundColor: '#ffffff'
         }

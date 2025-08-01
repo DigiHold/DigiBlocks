@@ -1714,9 +1714,9 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                     })
                 }
                 defaults={{
-                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                    fontSize: { desktop: '', tablet: '', mobile: '' },
                     fontSizeUnit: 'px',
-                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                    lineHeight: { desktop: '', tablet: '', mobile: '' },
                     lineHeightUnit: 'em',
                 }}
             />
@@ -2064,9 +2064,9 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                     })
                                 }
                                 defaults={{
-                                    fontSize: { desktop: 24, tablet: 22, mobile: 20 },
+                                    fontSize: { desktop: '', tablet: '', mobile: '' },
                                     fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
                                     lineHeightUnit: 'em',
                                 }}
                             />
@@ -2083,9 +2083,9 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                     })
                                 }
                                 defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                                    fontSize: { desktop: '', tablet: '', mobile: '' },
                                     fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
                                     lineHeightUnit: 'em',
                                 }}
                             />

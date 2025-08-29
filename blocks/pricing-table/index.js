@@ -73,25 +73,85 @@ registerBlockType('digiblocks/pricing-table', {
             default: 'none',
         },
         titleTypography: {
-            type: 'object',
-            default: {},
-        },
+			type: 'object',
+			default: {
+				fontFamily: '',
+				fontSize: { desktop: 20, tablet: '', mobile: '' },
+				fontSizeUnit: 'px',
+				fontWeight: '500',
+				fontStyle: 'normal',
+				textTransform: '',
+				textDecoration: '',
+				lineHeight: { desktop: 1.4, tablet: '', mobile: '' },
+				lineHeightUnit: 'em',
+				letterSpacing: { desktop: 0, tablet: '', mobile: '' },
+				letterSpacingUnit: 'px'
+			}
+		},
         headingTypography: {
-            type: 'object',
-            default: {},
-        },
+			type: 'object',
+			default: {
+				fontFamily: '',
+				fontSize: { desktop: 36, tablet: '', mobile: '' },
+				fontSizeUnit: 'px',
+				fontWeight: 'bold',
+				fontStyle: 'normal',
+				textTransform: '',
+				textDecoration: '',
+				lineHeight: { desktop: 1.2, tablet: '', mobile: '' },
+				lineHeightUnit: 'em',
+				letterSpacing: { desktop: 0, tablet: '', mobile: '' },
+				letterSpacingUnit: 'px'
+			}
+		},
         textTypography: {
-            type: 'object',
-            default: {},
-        },
+			type: 'object',
+			default: {
+				fontFamily: '',
+				fontSize: { desktop: 16, tablet: '', mobile: '' },
+				fontSizeUnit: 'px',
+				fontWeight: '',
+				fontStyle: 'normal',
+				textTransform: '',
+				textDecoration: '',
+				lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
+				lineHeightUnit: 'em',
+				letterSpacing: { desktop: 0, tablet: '', mobile: '' },
+				letterSpacingUnit: 'px'
+			}
+		},
         contentTypography: {
-            type: 'object',
-            default: {},
-        },
-        buttonTypography: {
-            type: 'object',
-            default: {},
-        },
+			type: 'object',
+			default: {
+				fontFamily: '',
+				fontSize: { desktop: 16, tablet: '', mobile: '' },
+				fontSizeUnit: 'px',
+				fontWeight: '',
+				fontStyle: 'normal',
+				textTransform: '',
+				textDecoration: '',
+				lineHeight: { desktop: 1.6, tablet: '', mobile: '' },
+				lineHeightUnit: 'em',
+				letterSpacing: { desktop: 0, tablet: '', mobile: '' },
+				letterSpacingUnit: 'px'
+			}
+		},
+       	buttonTypography: {
+			type: 'object',
+			default: {
+				fontFamily: '',
+				fontSize: { desktop: 16, tablet: '', mobile: '' },
+				fontSizeUnit: 'px',
+				fontWeight: '500',
+				fontStyle: 'normal',
+				textTransform: '',
+				textDecoration: '',
+				lineHeight: { desktop: 1.4, tablet: '', mobile: '' },
+				lineHeightUnit: 'em',
+				letterSpacing: { desktop: 0, tablet: '', mobile: '' },
+				letterSpacingUnit: 'px'
+			}
+		},
         padding: {
             type: 'object',
             default: {
@@ -104,8 +164,8 @@ registerBlockType('digiblocks/pricing-table', {
             type: 'object',
             default: {
                 desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 15, left: 0, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             },
         },
         borderRadius: {
@@ -164,8 +224,8 @@ registerBlockType('digiblocks/pricing-table', {
             type: 'object',
             default: {
                 desktop: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px' },
-                tablet: { top: 8, right: 16, bottom: 8, left: 16, unit: 'px' },
-                mobile: { top: 6, right: 12, bottom: 6, left: 12, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             },
         },
         buttonBorderStyle: {

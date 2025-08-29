@@ -225,6 +225,21 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
 	// Create unique class
 	useBlockId( id, clientId, setAttributes );
 
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		if (device === 'mobile') {
+			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
+				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : obj.desktop;
+		}
+		return obj.desktop;
+	};
+
     // Use global responsive state for local rendering
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
@@ -498,8 +513,8 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                 }
                 
                 .${id} .digiblocks-separator-icon svg {
-                    width: ${iconSize[activeDevice] || 24}px;
-                    height: ${iconSize[activeDevice] || 24}px;
+                    width: ${getVal(iconSize, activeDevice) || 24}px;
+					height: ${getVal(iconSize, activeDevice) || 24}px;
                     fill: ${textColor || primaryColor};
                 }
             `;
@@ -513,9 +528,10 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                 typographyStyles += `font-family: ${typography.fontFamily};`;
             }
             
-            if (typography.fontSize && typography.fontSize[activeDevice]) {
-                typographyStyles += `font-size: ${typography.fontSize[activeDevice]}${typography.fontSizeUnit || 'px'};`;
-            }
+            const fontSize = getVal(typography.fontSize, activeDevice);
+			if (fontSize) {
+				typographyStyles += `font-size: ${fontSize}${typography.fontSizeUnit || 'px'};`;
+			}
             
             if (typography.fontWeight) {
                 typographyStyles += `font-weight: ${typography.fontWeight};`;
@@ -529,13 +545,15 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                 typographyStyles += `text-transform: ${typography.textTransform};`;
             }
             
-            if (typography.lineHeight && typography.lineHeight[activeDevice]) {
-                typographyStyles += `line-height: ${typography.lineHeight[activeDevice]}${typography.lineHeightUnit || 'em'};`;
-            }
+            const lineHeight = getVal(typography.lineHeight, activeDevice);
+			if (lineHeight) {
+				typographyStyles += `line-height: ${lineHeight}${typography.lineHeightUnit || 'em'};`;
+			}
             
-            if (typography.letterSpacing && typography.letterSpacing[activeDevice]) {
-                typographyStyles += `letter-spacing: ${typography.letterSpacing[activeDevice]}${typography.letterSpacingUnit || 'px'};`;
-            }
+            const letterSpacing = getVal(typography.letterSpacing, activeDevice);
+			if (letterSpacing || letterSpacing === 0) {
+				typographyStyles += `letter-spacing: ${letterSpacing}${typography.letterSpacingUnit || 'px'};`;
+			}
             
             contentStyles += `
                 .${id} .digiblocks-separator-text {

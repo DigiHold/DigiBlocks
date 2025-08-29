@@ -79,6 +79,22 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 	// Create unique class
 	useBlockId( id, clientId, setAttributes );
 
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		if (device === 'mobile') {
+			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
+				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		return obj.desktop;
+	};
+
 	// Initialize items with deep cloned objects when empty or ensure items are unique
 	useEffect(() => {
 		// If items array is empty, initialize with default items
@@ -406,12 +422,10 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                 contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
             }
 
-            if (
-                contentTypography.fontSize &&
-                contentTypography.fontSize[activeDevice]
-            ) {
-                contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || "px"};`;
-            }
+            const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
+			if (contentFontSize || contentFontSize === 0) {
+				contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || 'px'};`;
+			}
 
             if (contentTypography.fontWeight) {
                 contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
@@ -429,19 +443,15 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                 contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
             }
 
-            if (
-                contentTypography.lineHeight &&
-                contentTypography.lineHeight[activeDevice]
-            ) {
-                contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || "em"};`;
-            }
+            const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
+			if (contentLineHeight || contentLineHeight === 0) {
+				contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || 'em'};`;
+			}
 
-            if (
-                contentTypography.letterSpacing &&
-                contentTypography.letterSpacing[activeDevice]
-            ) {
-                contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || "px"};`;
-            }
+			const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
+			if (contentLetterSpacing || contentLetterSpacing === 0) {
+				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || 'px'};`;
+			}
         }
 
         // Hover effects
@@ -493,14 +503,14 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 				flex-direction: ${listLayout === 'horizontal' ? 'row' : 'column'};
 				flex-wrap: wrap;
 				justify-content: ${listAlign === 'center' ? 'center' : (listAlign === 'right' ? 'flex-end' : 'flex-start')};
-				gap: ${itemSpace[activeDevice] !== undefined ? itemSpace[activeDevice] : 16}px;
+				gap: ${getVal(itemSpace, activeDevice) || 16}px;
             }
             
             /* List item */
             .${id} .digiblocks-icon-list-item {
                 display: inline-flex;
                 align-items: center;
-				gap: ${iconSpace[activeDevice] !== undefined ? iconSpace[activeDevice] : 12}px;
+				gap: ${getVal(iconSpace, activeDevice) || 12}px;
 				justify-content: ${listAlign === 'center' ? 'center' : (listAlign === 'right' ? 'flex-end' : 'flex-start')};
                 transition: all 0.3s ease;
             }
@@ -524,8 +534,8 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             .${id} .digiblocks-icon-list-icon svg {
-                width: ${iconSize[activeDevice] !== undefined ? iconSize[activeDevice] : 24}px;
-                height: ${iconSize[activeDevice] !== undefined ? iconSize[activeDevice] : 24}px;
+                width: ${getVal(iconSize, activeDevice) || 24}px;
+				height: ${getVal(iconSize, activeDevice) || 24}px;
                 fill: currentColor;
             }
             
@@ -548,7 +558,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
             .${id} .digiblocks-icon-list-child {
                 display: inline-flex;
                 ${iconPosition === "after" ? "flex-direction: row-reverse;" : ""}
-				gap: ${iconSpace[activeDevice] !== undefined ? iconSpace[activeDevice] : 12}px;
+				gap: ${getVal(iconSpace, activeDevice) || 12}px;
                 align-items: center;
             }
             

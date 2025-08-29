@@ -67,6 +67,17 @@
       schemaName
     } = attributes;
     useBlockId(id, clientId, setAttributes);
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     const [activeTab, setActiveTab] = useState(() => {
       if (window.digi.uiState) {
         const savedTab = window.digi.uiState.getActiveTab(clientId);
@@ -316,8 +327,9 @@
         if (titleTypography.fontFamily) {
           titleTypographyCSS += `font-family: ${titleTypography.fontFamily};`;
         }
-        if (titleTypography.fontSize && titleTypography.fontSize[activeDevice]) {
-          titleTypographyCSS += `font-size: ${titleTypography.fontSize[activeDevice]}${titleTypography.fontSizeUnit || "px"};`;
+        const titleFontSize = getVal(titleTypography.fontSize, activeDevice);
+        if (titleFontSize) {
+          titleTypographyCSS += `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || "px"};`;
         }
         if (titleTypography.fontWeight) {
           titleTypographyCSS += `font-weight: ${titleTypography.fontWeight};`;
@@ -331,11 +343,13 @@
         if (titleTypography.textDecoration) {
           titleTypographyCSS += `text-decoration: ${titleTypography.textDecoration};`;
         }
-        if (titleTypography.lineHeight && titleTypography.lineHeight[activeDevice]) {
-          titleTypographyCSS += `line-height: ${titleTypography.lineHeight[activeDevice]}${titleTypography.lineHeightUnit || "em"};`;
+        const titleLineHeight = getVal(titleTypography.lineHeight, activeDevice);
+        if (titleLineHeight) {
+          titleTypographyCSS += `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || "em"};`;
         }
-        if (titleTypography.letterSpacing && titleTypography.letterSpacing[activeDevice]) {
-          titleTypographyCSS += `letter-spacing: ${titleTypography.letterSpacing[activeDevice]}${titleTypography.letterSpacingUnit || "px"};`;
+        const titleLetterSpacing = getVal(titleTypography.letterSpacing, activeDevice);
+        if (titleLetterSpacing || titleLetterSpacing === 0) {
+          titleTypographyCSS += `letter-spacing: ${titleLetterSpacing}${titleTypography.letterSpacingUnit || "px"};`;
         }
       }
       let contentTypographyCSS = "";
@@ -343,8 +357,9 @@
         if (contentTypography.fontFamily) {
           contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
         }
-        if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
-          contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || "px"};`;
+        const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
+        if (contentFontSize) {
+          contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || "px"};`;
         }
         if (contentTypography.fontWeight) {
           contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
@@ -358,11 +373,13 @@
         if (contentTypography.textDecoration) {
           contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
         }
-        if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
-          contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || "em"};`;
+        const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
+        if (contentLineHeight) {
+          contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || "em"};`;
         }
-        if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
-          contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || "px"};`;
+        const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
+        if (contentLetterSpacing || contentLetterSpacing === 0) {
+          contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || "px"};`;
         }
       }
       let boxShadowHoverCSS = "";
@@ -437,7 +454,7 @@
 				justify-content: center;
 				color: ${iconColor};
 				transition: all 0.3s ease;
-				font-size: ${iconSize[activeDevice]}px;
+				font-size: ${getVal(iconSize, activeDevice)}px;
 			}
 			
 			.${id} .digiblocks-faq-question-icon span {
@@ -447,8 +464,8 @@
 			}
 			
 			.${id} .digiblocks-faq-question-icon svg {
-				width: ${iconSize[activeDevice]}px;
-				height: ${iconSize[activeDevice]}px;
+				width: ${getVal(iconSize, activeDevice)}px;
+				height: ${getVal(iconSize, activeDevice)}px;
 				transition: transform 0.3s ease;
 				fill: currentColor;
 			}
@@ -724,16 +741,16 @@
       const tabletStyles = `
 			@media (max-width: 991px) {
 				.${id} {
-					${margin.tablet ? `${getDimensionCSS(margin, "margin", "tablet")}` : ""}
+					${getDimensionCSS(margin, "margin", "tablet")}
 				}
 				
 				.${id} .digiblocks-faq-item {
-					margin-bottom: ${itemsSpacing.tablet !== void 0 ? itemsSpacing.tablet : itemSpacing}px;
+					margin-bottom: ${getVal(itemsSpacing, "tablet") || itemSpacing}px;
 				}
 				
 				.${id} .digiblocks-faq-question,
 				.${id} .digiblocks-faq-answer {
-					${padding.tablet ? `${getDimensionCSS(padding, "padding", "tablet")}` : ""}
+					${getDimensionCSS(padding, "padding", "tablet")}
 				}
 				
 				${layout === "minimalist" ? `
@@ -744,45 +761,60 @@
 				}
 				` : ""}
 				
-				${iconSize && iconSize.tablet ? `
-				.${id} .digiblocks-faq-question-icon {
-					font-size: ${iconSize.tablet}px;
-				}
+				${(() => {
+        const tabletIconSize = getVal(iconSize, "tablet");
+        return tabletIconSize ? `
+					.${id} .digiblocks-faq-question-icon {
+						font-size: ${tabletIconSize}px;
+					}
+					
+					.${id} .digiblocks-faq-question-icon svg {
+						width: ${tabletIconSize}px;
+						height: ${tabletIconSize}px;
+					}
+					` : "";
+      })()}
 				
-				.${id} .digiblocks-faq-question-icon svg {
-					width: ${iconSize.tablet}px;
-					height: ${iconSize.tablet}px;
-				}
-				` : ""}
+				${(() => {
+        const titleFontSize = getVal(titleTypography?.fontSize, "tablet");
+        const titleLineHeight = getVal(titleTypography?.lineHeight, "tablet");
+        if (!titleFontSize && !titleLineHeight)
+          return "";
+        return `
+					.${id} .digiblocks-faq-question-text {
+						${titleFontSize ? `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || "px"};` : ""}
+						${titleLineHeight ? `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || "em"};` : ""}
+					}
+					`;
+      })()}
 				
-				${titleTypography && titleTypography.fontSize && titleTypography.fontSize.tablet ? `
-				.${id} .digiblocks-faq-question-text {
-					font-size: ${titleTypography.fontSize.tablet}${titleTypography.fontSizeUnit || "px"};
-					${titleTypography.lineHeight && titleTypography.lineHeight.tablet ? `line-height: ${titleTypography.lineHeight.tablet}${titleTypography.lineHeightUnit || "em"};` : ""}
-				}
-				` : ""}
-				
-				${contentTypography && contentTypography.fontSize && contentTypography.fontSize.tablet ? `
-				.${id} .digiblocks-faq-answer-content {
-					font-size: ${contentTypography.fontSize.tablet}${contentTypography.fontSizeUnit || "px"};
-					${contentTypography.lineHeight && contentTypography.lineHeight.tablet ? `line-height: ${contentTypography.lineHeight.tablet}${contentTypography.lineHeightUnit || "em"};` : ""}
-				}
-				` : ""}
+				${(() => {
+        const contentFontSize = getVal(contentTypography?.fontSize, "tablet");
+        const contentLineHeight = getVal(contentTypography?.lineHeight, "tablet");
+        if (!contentFontSize && !contentLineHeight)
+          return "";
+        return `
+					.${id} .digiblocks-faq-answer-content {
+						${contentFontSize ? `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || "px"};` : ""}
+						${contentLineHeight ? `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || "em"};` : ""}
+					}
+					`;
+      })()}
 			}
 		`;
       const mobileStyles = `
 			@media (max-width: 767px) {
 				.${id} {
-					${margin.mobile ? `${getDimensionCSS(margin, "margin", "mobile")}` : ""}
+					${getDimensionCSS(margin, "margin", "mobile")}
 				}
 				
 				.${id} .digiblocks-faq-item {
-					margin-bottom: ${itemsSpacing.mobile !== void 0 ? itemsSpacing.mobile : itemSpacing}px;
+					margin-bottom: ${getVal(itemsSpacing, "mobile") || getVal(itemsSpacing, "tablet") || itemSpacing}px;
 				}
 				
 				.${id} .digiblocks-faq-question,
 				.${id} .digiblocks-faq-answer {
-					${padding.mobile ? `${getDimensionCSS(padding, "padding", "mobile")}` : ""}
+					${getDimensionCSS(padding, "padding", "mobile")}
 				}
 				
 				${layout === "minimalist" ? `
@@ -793,30 +825,45 @@
 				}
 				` : ""}
 				
-				${iconSize && iconSize.mobile ? `
-				.${id} .digiblocks-faq-question-icon {
-					font-size: ${iconSize.mobile}px;
-				}
+				${(() => {
+        const mobileIconSize = getVal(iconSize, "mobile");
+        return mobileIconSize ? `
+					.${id} .digiblocks-faq-question-icon {
+						font-size: ${mobileIconSize}px;
+					}
+					
+					.${id} .digiblocks-faq-question-icon svg {
+						width: ${mobileIconSize}px;
+						height: ${mobileIconSize}px;
+					}
+					` : "";
+      })()}
 				
-				.${id} .digiblocks-faq-question-icon svg {
-					width: ${iconSize.mobile}px;
-					height: ${iconSize.mobile}px;
-				}
-				` : ""}
+				${(() => {
+        const titleFontSize = getVal(titleTypography?.fontSize, "mobile");
+        const titleLineHeight = getVal(titleTypography?.lineHeight, "mobile");
+        if (!titleFontSize && !titleLineHeight)
+          return "";
+        return `
+					.${id} .digiblocks-faq-question-text {
+						${titleFontSize ? `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || "px"};` : ""}
+						${titleLineHeight ? `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || "em"};` : ""}
+					}
+					`;
+      })()}
 				
-				${titleTypography && titleTypography.fontSize && titleTypography.fontSize.mobile ? `
-				.${id} .digiblocks-faq-question-text {
-					font-size: ${titleTypography.fontSize.mobile}${titleTypography.fontSizeUnit || "px"};
-					${titleTypography.lineHeight && titleTypography.lineHeight.mobile ? `line-height: ${titleTypography.lineHeight.mobile}${titleTypography.lineHeightUnit || "em"};` : ""}
-				}
-				` : ""}
-				
-				${contentTypography && contentTypography.fontSize && contentTypography.fontSize.mobile ? `
-				.${id} .digiblocks-faq-answer-content {
-					font-size: ${contentTypography.fontSize.mobile}${contentTypography.fontSizeUnit || "px"};
-					${contentTypography.lineHeight && contentTypography.lineHeight.mobile ? `line-height: ${contentTypography.lineHeight.mobile}${contentTypography.lineHeightUnit || "em"};` : ""}
-				}
-				` : ""}
+				${(() => {
+        const contentFontSize = getVal(contentTypography?.fontSize, "mobile");
+        const contentLineHeight = getVal(contentTypography?.lineHeight, "mobile");
+        if (!contentFontSize && !contentLineHeight)
+          return "";
+        return `
+					.${id} .digiblocks-faq-answer-content {
+						${contentFontSize ? `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || "px"};` : ""}
+						${contentLineHeight ? `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || "em"};` : ""}
+					}
+					`;
+      })()}
 			}
 		`;
       let animationCSS = "";
@@ -1984,31 +2031,31 @@
         type: "object",
         default: {
           desktop: { top: 20, right: 20, bottom: 20, left: 20, unit: "px" },
-          tablet: { top: 15, right: 15, bottom: 15, left: 15, unit: "px" },
-          mobile: { top: 10, right: 10, bottom: 10, left: 10, unit: "px" }
+          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
         }
       },
       margin: {
         type: "object",
         default: {
           desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: "px" },
-          tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: "px" },
-          mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: "px" }
+          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
         }
       },
       titleTypography: {
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 18, tablet: 16, mobile: 15 },
+          fontSize: { desktop: 18, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "600",
           fontStyle: "normal",
           textTransform: "none",
           textDecoration: "none",
-          lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -2016,15 +2063,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+          fontSize: { desktop: 16, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "",
           fontStyle: "normal",
           textTransform: "",
           textDecoration: "",
-          lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -2048,8 +2095,8 @@
         type: "object",
         default: {
           desktop: 16,
-          tablet: 14,
-          mobile: 12
+          tablet: "",
+          mobile: ""
         }
       },
       animation: {
@@ -2092,8 +2139,8 @@
         type: "object",
         default: {
           desktop: 16,
-          tablet: 12,
-          mobile: 8
+          tablet: "",
+          mobile: ""
         }
       },
       schemaType: {

@@ -82,6 +82,22 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
 	// Create unique class
 	useBlockId( id, clientId, setAttributes );
 
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		if (device === 'mobile') {
+			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
+				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		return obj.desktop;
+	};
+
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
@@ -285,9 +301,9 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
     const generateCSS = () => {
         const activeDevice = localActiveDevice;
         
-        // Get device-specific values
-        const currentItemSpacing = itemSpacing && itemSpacing[activeDevice] !== undefined ? itemSpacing[activeDevice] : 20;
-        const currentLabelSpacing = labelSpacing && labelSpacing[activeDevice] !== undefined ? labelSpacing[activeDevice] : 5;
+        // Get current values for the active device
+		const currentItemSpacing = getVal(itemSpacing, localActiveDevice);
+		const currentLabelSpacing = getVal(labelSpacing, localActiveDevice);
         
         // Digit typography
         let titleTypographyCSS = '';
@@ -295,9 +311,10 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
             if (titleTypography.fontFamily) {
                 titleTypographyCSS += `font-family: ${titleTypography.fontFamily};`;
             }
-            if (titleTypography.fontSize && titleTypography.fontSize[activeDevice]) {
-                titleTypographyCSS += `font-size: ${titleTypography.fontSize[activeDevice]}${titleTypography.fontSizeUnit || 'px'};`;
-            }
+            const titleFontSize = getVal(titleTypography.fontSize, activeDevice);
+			if (titleFontSize) {
+				titleTypographyCSS += `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || 'px'};`;
+			}
             if (titleTypography.fontWeight) {
                 titleTypographyCSS += `font-weight: ${titleTypography.fontWeight};`;
             }
@@ -307,12 +324,14 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
             if (titleTypography.textTransform) {
                 titleTypographyCSS += `text-transform: ${titleTypography.textTransform};`;
             }
-            if (titleTypography.lineHeight && titleTypography.lineHeight[activeDevice]) {
-                titleTypographyCSS += `line-height: ${titleTypography.lineHeight[activeDevice]}${titleTypography.lineHeightUnit || 'em'};`;
-            }
-            if (titleTypography.letterSpacing && titleTypography.letterSpacing[activeDevice]) {
-                titleTypographyCSS += `letter-spacing: ${titleTypography.letterSpacing[activeDevice]}${titleTypography.letterSpacingUnit || 'px'};`;
-            }
+            const titleLineHeight = getVal(titleTypography.lineHeight, activeDevice);
+			if (titleLineHeight) {
+				titleTypographyCSS += `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || 'em'};`;
+			}
+            const titleLetterSpacing = getVal(titleTypography.letterSpacing, activeDevice);
+			if (titleLetterSpacing || titleLetterSpacing === 0) {
+				titleTypographyCSS += `letter-spacing: ${titleLetterSpacing}${titleTypography.letterSpacingUnit || 'px'};`;
+			}
         }
 
         // Label typography
@@ -321,9 +340,10 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
             if (contentTypography.fontFamily) {
                 contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
             }
-            if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
-                contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || 'px'};`;
-            }
+            const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
+			if (contentFontSize) {
+				contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || 'px'};`;
+			}
             if (contentTypography.fontWeight) {
                 contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
             }
@@ -333,12 +353,14 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
             if (contentTypography.textTransform) {
                 contentTypographyCSS += `text-transform: ${contentTypography.textTransform};`;
             }
-            if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
-                contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || 'em'};`;
-            }
-            if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
-                contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || 'px'};`;
-            }
+            const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
+			if (contentLineHeight) {
+				contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || 'em'};`;
+			}
+            const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
+			if (contentLetterSpacing || contentLetterSpacing === 0) {
+				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || 'px'};`;
+			}
         }
         
         // Box shadow style

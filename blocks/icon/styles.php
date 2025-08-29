@@ -86,11 +86,18 @@ $boxShadowHover = isset( $attrs['boxShadowHover'] ) ? $attrs['boxShadowHover'] :
     'position'   => 'outset',
 );
 
-// Get icon size (with fallback)
+// Get icon size
 $iconSize = isset( $attrs['iconSize'] ) ? $attrs['iconSize'] : array(
-    'desktop' => 48,
-    'tablet'  => 40,
-    'mobile'  => 32,
+    'desktop' => array( 'value' => 48, 'unit' => 'px' ),
+    'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+    'mobile'  => array( 'value' => '', 'unit' => 'px' ),
+);
+
+// Get icon height
+$iconHeight = isset( $attrs['iconHeight'] ) ? $attrs['iconHeight'] : array(
+    'desktop' => array( 'value' => '', 'unit' => 'px' ),
+    'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+    'mobile'  => array( 'value' => '', 'unit' => 'px' ),
 );
 
 // Create icon transform CSS
@@ -272,8 +279,17 @@ ob_start();
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-icon svg {
-	width: <?php echo esc_attr( $iconSize['desktop'] ); ?>px;
-	height: 100%;
+	<?php if ( ! empty( $iconSize['desktop']['value'] ) ) : ?>
+		width: <?php echo esc_attr( $iconSize['desktop']['value'] . $iconSize['desktop']['unit'] ); ?>;
+	<?php else: ?>
+		width: 48px;
+	<?php endif; ?>
+
+	<?php if ( ! empty( $iconHeight['desktop']['value'] ) ) : ?>
+		height: <?php echo esc_attr( $iconHeight['desktop']['value'] . $iconHeight['desktop']['unit'] ); ?>;
+	<?php else: ?>
+		height: auto;
+	<?php endif; ?>
 	fill: <?php echo esc_attr( $iconColor ); ?>;
 	transition: all 0.3s ease;
 }
@@ -310,11 +326,17 @@ ob_start();
         <?php endif; ?>
     }
 
-	<?php if ( isset( $iconSize['tablet'] ) ) : ?>
-		.<?php echo esc_attr( $id ); ?> .digiblocks-icon svg {
-			width: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
-		}
-	<?php endif; ?>
+	<?php if ( isset( $iconSize['tablet']['value'] ) || isset( $iconHeight['tablet']['value'] ) ) : ?>
+        .<?php echo esc_attr( $id ); ?> .digiblocks-icon svg {
+            <?php if ( ! empty( $iconSize['tablet']['value'] ) ) : ?>
+                width: <?php echo esc_attr( $iconSize['tablet']['value'] . $iconSize['tablet']['unit'] ); ?>;
+            <?php endif; ?>
+
+            <?php if ( ! empty( $iconHeight['tablet']['value'] ) ) : ?>
+                height: <?php echo esc_attr( $iconHeight['tablet']['value'] . $iconHeight['tablet']['unit'] ); ?>;
+            <?php endif; ?>
+        }
+    <?php endif; ?>
 		
 	<?php if ( $iconPadding && isset( $iconPadding['tablet'] ) ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-icon {
@@ -344,11 +366,17 @@ ob_start();
         <?php endif; ?>
     }
     
-	<?php if ( isset( $iconSize['mobile'] ) ) : ?>
-		.<?php echo esc_attr( $id ); ?> .digiblocks-icon svg {
-			width: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
-		}
-	<?php endif; ?>
+	<?php if ( isset( $iconSize['mobile']['value'] ) || isset( $iconHeight['mobile']['value'] ) ) : ?>
+        .<?php echo esc_attr( $id ); ?> .digiblocks-icon svg {
+            <?php if ( ! empty( $iconSize['mobile']['value'] ) ) : ?>
+                width: <?php echo esc_attr( $iconSize['mobile']['value'] . $iconSize['mobile']['unit'] ); ?>;
+            <?php endif; ?>
+
+            <?php if ( ! empty( $iconHeight['mobile']['value'] ) ) : ?>
+                height: <?php echo esc_attr( $iconHeight['mobile']['value'] . $iconHeight['mobile']['unit'] ); ?>;
+            <?php endif; ?>
+        }
+    <?php endif; ?>
 		
 	<?php if ( $iconPadding && isset( $iconPadding['mobile'] ) ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-icon {

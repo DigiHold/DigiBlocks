@@ -87,8 +87,8 @@ registerBlockType('digiblocks/separator', {
             type: 'object',
             default: {
                 desktop: 100,
-                tablet: 100,
-                mobile: 100
+                tablet: '',
+                mobile: ''
             }
         },
         widthUnit: {
@@ -99,8 +99,8 @@ registerBlockType('digiblocks/separator', {
             type: 'object',
             default: {
                 desktop: 3,
-                tablet: 2,
-                mobile: 2
+                tablet: '',
+                mobile: ''
             }
         },
         heightUnit: {
@@ -111,8 +111,8 @@ registerBlockType('digiblocks/separator', {
             type: 'object',
             default: {
                 desktop: 0,
-                tablet: 0,
-                mobile: 0
+                tablet: '',
+                mobile: ''
             }
         },
         margin: {
@@ -124,13 +124,13 @@ registerBlockType('digiblocks/separator', {
                     unit: 'px'
                 },
                 tablet: {
-                    top: 25,
-                    bottom: 25,
+                    top: '',
+                    bottom: '',
                     unit: 'px'
                 },
                 mobile: {
-                    top: 20,
-                    bottom: 20,
+                    top: '',
+                    bottom: '',
                     unit: 'px'
                 }
             }
@@ -147,15 +147,15 @@ registerBlockType('digiblocks/separator', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSize: { desktop: 16, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.5, tablet: 1.5, mobile: 1.5 },
+                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -163,16 +163,16 @@ registerBlockType('digiblocks/separator', {
             type: 'object',
             default: {
                 desktop: 24,
-                tablet: 20,
-                mobile: 16
+                tablet: '',
+                mobile: ''
             }
         },
         gap: {
             type: 'object',
             default: {
                 desktop: 15,
-                tablet: 10,
-                mobile: 8
+                tablet: '',
+                mobile: ''
             }
         }
     },

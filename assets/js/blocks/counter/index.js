@@ -84,6 +84,17 @@
       numberWithCommas
     } = attributes;
     useBlockId(id, clientId, setAttributes);
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     const [isAnimating, setIsAnimating] = useState(false);
     const [counterValue, setCounterValue] = useState(startNumber || 0);
@@ -266,8 +277,9 @@
         if (titleTypography.fontFamily) {
           titleTypographyCSS += `font-family: ${titleTypography.fontFamily};`;
         }
-        if (titleTypography.fontSize && titleTypography.fontSize[activeDevice]) {
-          titleTypographyCSS += `font-size: ${titleTypography.fontSize[activeDevice]}${titleTypography.fontSizeUnit || "px"};`;
+        const titleFontSize = getVal(titleTypography.fontSize, activeDevice);
+        if (titleFontSize) {
+          titleTypographyCSS += `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || "px"};`;
         }
         if (titleTypography.fontWeight) {
           titleTypographyCSS += `font-weight: ${titleTypography.fontWeight};`;
@@ -281,11 +293,13 @@
         if (titleTypography.textDecoration) {
           titleTypographyCSS += `text-decoration: ${titleTypography.textDecoration};`;
         }
-        if (titleTypography.lineHeight && titleTypography.lineHeight[activeDevice]) {
-          titleTypographyCSS += `line-height: ${titleTypography.lineHeight[activeDevice]}${titleTypography.lineHeightUnit || "em"};`;
+        const titleLineHeight = getVal(titleTypography.lineHeight, activeDevice);
+        if (titleLineHeight) {
+          titleTypographyCSS += `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || "em"};`;
         }
-        if (titleTypography.letterSpacing && titleTypography.letterSpacing[activeDevice]) {
-          titleTypographyCSS += `letter-spacing: ${titleTypography.letterSpacing[activeDevice]}${titleTypography.letterSpacingUnit || "px"};`;
+        const titleLetterSpacing = getVal(titleTypography.letterSpacing, activeDevice);
+        if (titleLetterSpacing || titleLetterSpacing === 0) {
+          titleTypographyCSS += `letter-spacing: ${titleLetterSpacing}${titleTypography.letterSpacingUnit || "px"};`;
         }
       }
       let contentTypographyCSS = "";
@@ -293,8 +307,9 @@
         if (contentTypography.fontFamily) {
           contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
         }
-        if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
-          contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || "px"};`;
+        const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
+        if (contentFontSize) {
+          contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || "px"};`;
         }
         if (contentTypography.fontWeight) {
           contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
@@ -308,11 +323,13 @@
         if (contentTypography.textDecoration) {
           contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
         }
-        if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
-          contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || "em"};`;
+        const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
+        if (contentLineHeight) {
+          contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || "em"};`;
         }
-        if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
-          contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || "px"};`;
+        const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
+        if (contentLetterSpacing || contentLetterSpacing === 0) {
+          contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || "px"};`;
         }
       }
       let typographyCSS = "";
@@ -320,8 +337,9 @@
         if (typography.fontFamily) {
           typographyCSS += `font-family: ${typography.fontFamily};`;
         }
-        if (typography.fontSize && typography.fontSize[activeDevice]) {
-          typographyCSS += `font-size: ${typography.fontSize[activeDevice]}${typography.fontSizeUnit || "px"};`;
+        const fontSize = getVal(typography.fontSize, activeDevice);
+        if (fontSize) {
+          typographyCSS += `font-size: ${fontSize}${typography.fontSizeUnit || "px"};`;
         }
         if (typography.fontWeight) {
           typographyCSS += `font-weight: ${typography.fontWeight};`;
@@ -335,11 +353,13 @@
         if (typography.textDecoration) {
           typographyCSS += `text-decoration: ${typography.textDecoration};`;
         }
-        if (typography.lineHeight && typography.lineHeight[activeDevice]) {
-          typographyCSS += `line-height: ${typography.lineHeight[activeDevice]}${typography.lineHeightUnit || "em"};`;
+        const lineHeight = getVal(typography.lineHeight, activeDevice);
+        if (lineHeight) {
+          typographyCSS += `line-height: ${lineHeight}${typography.lineHeightUnit || "em"};`;
         }
-        if (typography.letterSpacing && typography.letterSpacing[activeDevice]) {
-          typographyCSS += `letter-spacing: ${typography.letterSpacing[activeDevice]}${typography.letterSpacingUnit || "px"};`;
+        const letterSpacing = getVal(typography.letterSpacing, activeDevice);
+        if (letterSpacing || letterSpacing === 0) {
+          typographyCSS += `letter-spacing: ${letterSpacing}${typography.letterSpacingUnit || "px"};`;
         }
       }
       let iconCSS = "";
@@ -943,9 +963,9 @@
                 value: typography || {},
                 onChange: (value) => setAttributes({ typography: value }),
                 defaults: {
-                  fontSize: { desktop: 48, tablet: 42, mobile: 36 },
+                  fontSize: { desktop: 48, tablet: "", mobile: "" },
                   fontSizeUnit: "px",
-                  lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+                  lineHeight: { desktop: 1.2, tablet: "", mobile: "" },
                   lineHeightUnit: "em"
                 }
               }
@@ -957,9 +977,9 @@
                 value: titleTypography || {},
                 onChange: (value) => setAttributes({ titleTypography: value }),
                 defaults: {
-                  fontSize: { desktop: 20, tablet: 18, mobile: 16 },
+                  fontSize: { desktop: 20, tablet: "", mobile: "" },
                   fontSizeUnit: "px",
-                  lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                  lineHeight: { desktop: 1.4, tablet: "", mobile: "" },
                   lineHeightUnit: "em"
                 }
               }
@@ -971,9 +991,9 @@
                 value: contentTypography || {},
                 onChange: (value) => setAttributes({ contentTypography: value }),
                 defaults: {
-                  fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                  fontSize: { desktop: 16, tablet: "", mobile: "" },
                   fontSizeUnit: "px",
-                  lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                  lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
                   lineHeightUnit: "em"
                 }
               }
@@ -997,7 +1017,7 @@
                   value: iconSize && iconSize[localActiveDevice] ? iconSize[localActiveDevice] : 32,
                   onChange: (value) => setAttributes({
                     iconSize: {
-                      ...iconSize || { desktop: 32, tablet: 28, mobile: 24 },
+                      ...iconSize || { desktop: 32, tablet: "", mobile: "" },
                       [localActiveDevice]: value
                     }
                   }),
@@ -1126,8 +1146,8 @@
                     iconMargin: {
                       ...iconMargin || {
                         desktop: { top: 0, right: 0, bottom: 20, left: 0, unit: "px" },
-                        tablet: { top: 0, right: 0, bottom: 15, left: 0, unit: "px" },
-                        mobile: { top: 0, right: 0, bottom: 10, left: 0, unit: "px" }
+                        tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+                        mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
                       },
                       [localActiveDevice]: value
                     }
@@ -1298,7 +1318,7 @@
               /* @__PURE__ */ wp.element.createElement(
                 DimensionControl,
                 {
-                  values: padding && padding[localActiveDevice] ? padding[localActiveDevice] : { top: 30, right: 30, bottom: 30, left: 30, unit: "px" },
+                  values: padding && padding[localActiveDevice] ? padding[localActiveDevice] : { top: "", right: "", bottom: "", left: "", unit: "px" },
                   onChange: (value) => setAttributes({
                     padding: {
                       ...padding,
@@ -1316,7 +1336,7 @@
               /* @__PURE__ */ wp.element.createElement(
                 DimensionControl,
                 {
-                  values: margin && margin[localActiveDevice] ? margin[localActiveDevice] : { top: 0, right: 0, bottom: 30, left: 0, unit: "px" },
+                  values: margin && margin[localActiveDevice] ? margin[localActiveDevice] : { top: "", right: "", bottom: "", left: "", unit: "px" },
                   onChange: (value) => setAttributes({
                     margin: {
                       ...margin,
@@ -1687,8 +1707,8 @@
         type: "object",
         default: {
           desktop: 32,
-          tablet: 28,
-          mobile: 24
+          tablet: "",
+          mobile: ""
         }
       },
       iconPadding: {
@@ -1703,8 +1723,8 @@
         type: "object",
         default: {
           desktop: { top: 0, right: 0, bottom: 20, left: 0, unit: "px" },
-          tablet: { top: 0, right: 0, bottom: 15, left: 0, unit: "px" },
-          mobile: { top: 0, right: 0, bottom: 10, left: 0, unit: "px" }
+          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
         }
       },
       iconBorderStyle: {
@@ -1739,15 +1759,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 48, tablet: 42, mobile: 36 },
+          fontSize: { desktop: 48, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "700",
           fontStyle: "normal",
           textTransform: "",
           textDecoration: "",
-          lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+          lineHeight: { desktop: 1.2, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -1755,15 +1775,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 20, tablet: 18, mobile: 16 },
+          fontSize: { desktop: 20, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "500",
           fontStyle: "normal",
           textTransform: "",
           textDecoration: "",
-          lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+          lineHeight: { desktop: 1.4, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -1771,15 +1791,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+          fontSize: { desktop: 16, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "",
           fontStyle: "normal",
           textTransform: "",
           textDecoration: "",
-          lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -1787,24 +1807,24 @@
         type: "object",
         default: {
           desktop: {
-            top: 30,
-            right: 30,
-            bottom: 30,
-            left: 30,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           tablet: {
-            top: 25,
-            right: 25,
-            bottom: 25,
-            left: 25,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           mobile: {
-            top: 20,
-            right: 20,
-            bottom: 20,
-            left: 20,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           }
         }
@@ -1813,24 +1833,24 @@
         type: "object",
         default: {
           desktop: {
-            top: 0,
-            right: 0,
-            bottom: 30,
-            left: 0,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           tablet: {
-            top: 0,
-            right: 0,
-            bottom: 25,
-            left: 0,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           mobile: {
-            top: 0,
-            right: 0,
-            bottom: 20,
-            left: 0,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           }
         }

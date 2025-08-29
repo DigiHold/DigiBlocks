@@ -20,8 +20,8 @@ $visibility                  = isset( $attrs['visibility'] ) ? $attrs['visibilit
 $layout                      = isset( $attrs['layout'] ) ? $attrs['layout'] : 'stacked';
 $align                       = isset( $attrs['align'] ) ? $attrs['align'] : [
     'desktop' => 'left',
-    'tablet'  => 'left',
-    'mobile'  => 'left',
+    'tablet'  => '',
+    'mobile'  => '',
 ];
 $titleColor                  = isset( $attrs['titleColor'] ) ? $attrs['titleColor'] : '';
 $titleHoverColor             = isset( $attrs['titleHoverColor'] ) ? $attrs['titleHoverColor'] : '';
@@ -44,57 +44,57 @@ $backgroundHoverColor        = isset( $attrs['backgroundHoverColor'] ) ? $attrs[
 
 $titleTypography             = isset( $attrs['titleTypography'] ) ? $attrs['titleTypography'] : [
     'fontFamily'        => '',
-    'fontSize'          => ['desktop' => 24, 'tablet' => 22, 'mobile' => 20],
+    'fontSize'          => ['desktop' => 24, 'tablet' => '', 'mobile' => ''],
     'fontSizeUnit'      => 'px',
     'fontWeight'        => '600',
     'fontStyle'         => 'normal',
     'textTransform'     => 'none',
     'textDecoration'    => 'none',
-    'lineHeight'        => ['desktop' => 1.4, 'tablet' => 1.3, 'mobile' => 1.2],
+    'lineHeight'        => ['desktop' => 1.4, 'tablet' => '', 'mobile' => ''],
     'lineHeightUnit'    => 'em',
-    'letterSpacing'     => ['desktop' => 0, 'tablet' => 0, 'mobile' => 0],
+    'letterSpacing'     => ['desktop' => 0, 'tablet' => '', 'mobile' => ''],
     'letterSpacingUnit' => 'px',
 ];
 
 $contentTypography       = isset( $attrs['contentTypography'] ) ? $attrs['contentTypography'] : [
     'fontFamily'        => '',
-    'fontSize'          => ['desktop' => 16, 'tablet' => 15, 'mobile' => 14],
+    'fontSize'          => ['desktop' => 16, 'tablet' => '', 'mobile' => ''],
     'fontSizeUnit'      => 'px',
     'fontWeight'        => 'normal',
     'fontStyle'         => 'normal',
     'textTransform'     => 'none',
     'textDecoration'    => 'none',
-    'lineHeight'        => ['desktop' => 1.5, 'tablet' => 1.4, 'mobile' => 1.3],
+    'lineHeight'        => ['desktop' => 1.5, 'tablet' => '', 'mobile' => ''],
     'lineHeightUnit'    => 'em',
-    'letterSpacing'     => ['desktop' => 0, 'tablet' => 0, 'mobile' => 0],
+    'letterSpacing'     => ['desktop' => 0, 'tablet' => '', 'mobile' => ''],
     'letterSpacingUnit' => 'px',
 ];
 
 $textTypography             = isset( $attrs['textTypography'] ) ? $attrs['textTypography'] : [
     'fontFamily'        => '',
-    'fontSize'          => ['desktop' => 16, 'tablet' => 15, 'mobile' => 14],
+    'fontSize'          => ['desktop' => 16, 'tablet' => '', 'mobile' => ''],
     'fontSizeUnit'      => 'px',
     'fontWeight'        => 'normal',
     'fontStyle'         => 'normal',
     'textTransform'     => 'none',
     'textDecoration'    => 'none',
-    'lineHeight'        => ['desktop' => 1.5, 'tablet' => 1.4, 'mobile' => 1.3],
+    'lineHeight'        => ['desktop' => 1.5, 'tablet' => '', 'mobile' => ''],
     'lineHeightUnit'    => 'em',
-    'letterSpacing'     => ['desktop' => 0, 'tablet' => 0, 'mobile' => 0],
+    'letterSpacing'     => ['desktop' => 0, 'tablet' => '', 'mobile' => ''],
     'letterSpacingUnit' => 'px',
 ];
 
 $buttonTypography            = isset( $attrs['buttonTypography'] ) ? $attrs['buttonTypography'] : [
     'fontFamily'        => '',
-    'fontSize'          => ['desktop' => 16, 'tablet' => 15, 'mobile' => 14],
+    'fontSize'          => ['desktop' => 16, 'tablet' => '', 'mobile' => ''],
     'fontSizeUnit'      => 'px',
     'fontWeight'        => '500',
     'fontStyle'         => 'normal',
     'textTransform'     => 'none',
     'textDecoration'    => 'none',
-    'lineHeight'        => ['desktop' => 1.5, 'tablet' => 1.4, 'mobile' => 1.3],
+    'lineHeight'        => ['desktop' => 1.5, 'tablet' => '', 'mobile' => ''],
     'lineHeightUnit'    => 'em',
-    'letterSpacing'     => ['desktop' => 0, 'tablet' => 0, 'mobile' => 0],
+    'letterSpacing'     => ['desktop' => 0, 'tablet' => '', 'mobile' => ''],
     'letterSpacingUnit' => 'px',
 ];
 
@@ -140,14 +140,14 @@ $buttonBorderStyle           = isset( $attrs['buttonBorderStyle'] ) ? $attrs['bu
 
 $spacing                     = isset( $attrs['spacing'] ) ? $attrs['spacing'] : [
 	'desktop' => ['value' => 20, 'unit' => 'px'],
-    'tablet'  => ['value' => 15, 'unit' => 'px'],
-    'mobile'  => ['value' => 10, 'unit' => 'px'],
+    'tablet'  => ['value' => '', 'unit' => 'px'],
+    'mobile'  => ['value' => '', 'unit' => 'px'],
 ];
 
 $inputSpacing                = isset( $attrs['inputSpacing'] ) ? $attrs['inputSpacing'] : [
 	'desktop' => ['value' => 10, 'unit' => 'px'],
-    'tablet'  => ['value' => 8, 'unit' => 'px'],
-    'mobile'  => ['value' => 6, 'unit' => 'px'],
+    'tablet'  => ['value' => '', 'unit' => 'px'],
+    'mobile'  => ['value' => '', 'unit' => 'px'],
 ];
 
 $padding                     = isset( $attrs['padding'] ) ? $attrs['padding'] : digiblocks_get_default_dimensions('px');
@@ -254,12 +254,12 @@ ob_start();
     color: <?php echo esc_attr( $titleColor ); ?>;
     <?php endif; ?>
     margin-top: 0;
-    margin-bottom: <?php echo esc_attr($spacing['desktop']['value'] . ($spacing['desktop']['unit'] ?: 'px')); ?>;
+    margin-bottom: <?php echo esc_attr($spacing['desktop']['value'] . ($spacing['desktop']['unit'] ?? 'px')); ?>;
     <?php if ( ! empty( $titleTypography['fontFamily'] ) ) : ?>
     font-family: <?php echo esc_attr( $titleTypography['fontFamily'] ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $titleTypography['fontSize']['desktop'] ) ) : ?>
-    font-size: <?php echo esc_attr( $titleTypography['fontSize']['desktop'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+    font-size: <?php echo esc_attr( $titleTypography['fontSize']['desktop'] . ( $titleTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $titleTypography['fontWeight'] ) ) : ?>
     font-weight: <?php echo esc_attr( $titleTypography['fontWeight'] ); ?>;
@@ -274,10 +274,10 @@ ob_start();
     text-decoration: <?php echo esc_attr( $titleTypography['textDecoration'] ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $titleTypography['lineHeight']['desktop'] ) ) : ?>
-    line-height: <?php echo esc_attr( $titleTypography['lineHeight']['desktop'] . ( $titleTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+    line-height: <?php echo esc_attr( $titleTypography['lineHeight']['desktop'] . ( $titleTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $titleTypography['letterSpacing']['desktop'] ) ) : ?>
-    letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['desktop'] . ( $titleTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+    letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['desktop'] . ( $titleTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     transition: color 0.3s ease;
 }
@@ -291,12 +291,12 @@ ob_start();
 /* Newsletter Description */
 .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-description {
     color: <?php echo esc_attr( $descriptionColor ); ?>;
-    margin-bottom: <?php echo esc_attr($spacing['desktop']['value'] . ($spacing['desktop']['unit'] ?: 'px')); ?>;
+    margin-bottom: <?php echo esc_attr($spacing['desktop']['value'] . ($spacing['desktop']['unit'] ?? 'px')); ?>;
     <?php if ( ! empty( $contentTypography['fontFamily'] ) ) : ?>
     font-family: <?php echo esc_attr( $contentTypography['fontFamily'] ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $contentTypography['fontSize']['desktop'] ) ) : ?>
-    font-size: <?php echo esc_attr( $contentTypography['fontSize']['desktop'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+    font-size: <?php echo esc_attr( $contentTypography['fontSize']['desktop'] . ( $contentTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $contentTypography['fontWeight'] ) ) : ?>
     font-weight: <?php echo esc_attr( $contentTypography['fontWeight'] ); ?>;
@@ -311,10 +311,10 @@ ob_start();
     text-decoration: <?php echo esc_attr( $contentTypography['textDecoration'] ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $contentTypography['lineHeight']['desktop'] ) ) : ?>
-    line-height: <?php echo esc_attr( $contentTypography['lineHeight']['desktop'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+    line-height: <?php echo esc_attr( $contentTypography['lineHeight']['desktop'] . ( $contentTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $contentTypography['letterSpacing']['desktop'] ) ) : ?>
-    letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['desktop'] . ( $contentTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+    letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['desktop'] . ( $contentTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
 }
 
@@ -322,20 +322,20 @@ ob_start();
 .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-form {
     display: flex;
     <?php echo $layout === 'stacked' ? 'flex-direction: column;' : 'flex-direction: row;'; ?>
-    gap: <?php echo esc_attr($inputSpacing['desktop']['value'] . ($inputSpacing['desktop']['unit'] ?: 'px')); ?>;
+    gap: <?php echo esc_attr($inputSpacing['desktop']['value'] . ($inputSpacing['desktop']['unit'] ?? 'px')); ?>;
     <?php if ( $layout === 'inline' && $align['desktop'] === 'center' ) : ?>
-    justify-content: center;
-    <?php endif; ?>
-    <?php if ( $layout === 'inline' && $align['desktop'] === 'right' ) : ?>
-    justify-content: flex-end;
-    <?php endif; ?>
+	justify-content: center;
+	<?php endif; ?>
+	<?php if ( $layout === 'inline' && $align['desktop'] === 'right' ) : ?>
+	justify-content: flex-end;
+	<?php endif; ?>
 }
 
 /* Form Fields */
 .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-fields {
     display: flex;
     <?php echo $layout === 'stacked' ? 'flex-direction: column;' : 'flex-direction: row;'; ?>
-    gap: <?php echo esc_attr($inputSpacing['desktop']['value'] . ($inputSpacing['desktop']['unit'] ?: 'px')); ?>;
+    gap: <?php echo esc_attr($inputSpacing['desktop']['value'] . ($inputSpacing['desktop']['unit'] ?? 'px')); ?>;
     <?php echo $layout === 'inline' ? 'flex: 1;' : 'width: 100%;'; ?>
 }
 
@@ -357,8 +357,8 @@ ob_start();
     top: 50%;
     transform: translateY(-50%);
 	<?php if ( ! empty( $textTypography['fontSize']['desktop'] ) ) : ?>
-    width: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
-    height: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+    width: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
+    height: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
 	<?php else : ?>
     width: 1em;
     height: 1em;
@@ -393,7 +393,7 @@ ob_start();
     font-family: <?php echo esc_attr( $textTypography['fontFamily'] ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $textTypography['fontSize']['desktop'] ) ) : ?>
-    font-size: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+    font-size: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $textTypography['fontWeight'] ) ) : ?>
     font-weight: <?php echo esc_attr( $textTypography['fontWeight'] ); ?>;
@@ -408,10 +408,10 @@ ob_start();
     text-decoration: <?php echo esc_attr( $textTypography['textDecoration'] ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $textTypography['lineHeight']['desktop'] ) ) : ?>
-    line-height: <?php echo esc_attr( $textTypography['lineHeight']['desktop'] . ( $textTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+    line-height: <?php echo esc_attr( $textTypography['lineHeight']['desktop'] . ( $textTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $textTypography['letterSpacing']['desktop'] ) ) : ?>
-    letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['desktop'] . ( $textTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+    letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['desktop'] . ( $textTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     transition: all 0.3s ease;
     outline: none;
@@ -452,7 +452,7 @@ ob_start();
     font-family: <?php echo esc_attr( $buttonTypography['fontFamily'] ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $buttonTypography['fontSize']['desktop'] ) ) : ?>
-    font-size: <?php echo esc_attr( $buttonTypography['fontSize']['desktop'] . ( $buttonTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+    font-size: <?php echo esc_attr( $buttonTypography['fontSize']['desktop'] . ( $buttonTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $buttonTypography['fontWeight'] ) ) : ?>
     font-weight: <?php echo esc_attr( $buttonTypography['fontWeight'] ); ?>;
@@ -467,10 +467,10 @@ ob_start();
     text-decoration: <?php echo esc_attr( $buttonTypography['textDecoration'] ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $buttonTypography['lineHeight']['desktop'] ) ) : ?>
-    line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['desktop'] . ( $buttonTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+    line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['desktop'] . ( $buttonTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $buttonTypography['letterSpacing']['desktop'] ) ) : ?>
-    letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['desktop'] . ( $buttonTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+    letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['desktop'] . ( $buttonTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     cursor: pointer;
     transition: all 0.3s ease;
@@ -490,7 +490,7 @@ ob_start();
 
 /* Messages */
 .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-message {
-    margin-top: <?php echo esc_attr($spacing['desktop']['value'] . ($spacing['desktop']['unit'] ?: 'px')); ?>;
+    margin-top: <?php echo esc_attr($spacing['desktop']['value'] . ($spacing['desktop']['unit'] ?? 'px')); ?>;
     padding: 12px;
     border-radius: 4px;
     display: none;
@@ -517,57 +517,63 @@ ob_start();
 		border-width: <?php echo esc_attr( $containerBorderWidth['tablet'] ); ?>px;
 		<?php endif; ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $containerBorderRadius, 'border-radius', 'tablet' ) ); ?>
-        text-align: <?php echo esc_attr( $align['tablet'] === 'center' ? 'center' : ( $align['tablet'] === 'right' ? 'right' : 'left' ) ); ?>;
+		<?php if ( !empty($align['tablet']) ) : ?>
+		text-align: <?php echo esc_attr( $align['tablet'] === 'center' ? 'center' : ( $align['tablet'] === 'right' ? 'right' : 'left' ) ); ?>;
+		<?php endif; ?>
     }
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-title {
-    	margin-bottom: <?php echo esc_attr($spacing['tablet']['value'] . ($spacing['tablet']['unit'] ?: 'px')); ?>;
+        <?php if ( ! empty( $spacing['tablet']['value'] ) ) : ?>
+    	margin-bottom: <?php echo esc_attr($spacing['tablet']['value'] . ($spacing['tablet']['unit'] ?? 'px')); ?>;
+        <?php endif; ?>
         <?php if ( ! empty( $titleTypography['fontSize']['tablet'] ) ) : ?>
-        font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ( $titleTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $titleTypography['lineHeight']['tablet'] ) ) : ?>
-        line-height: <?php echo esc_attr( $titleTypography['lineHeight']['tablet'] . ( $titleTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $titleTypography['lineHeight']['tablet'] . ( $titleTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['tablet'] . ( $titleTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['tablet'] . ( $titleTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
     }
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-description {
-    	margin-bottom: <?php echo esc_attr($spacing['tablet']['value'] . ($spacing['tablet']['unit'] ?: 'px')); ?>;
+        <?php if ( ! empty( $spacing['tablet']['value'] ) ) : ?>
+    	margin-bottom: <?php echo esc_attr($spacing['tablet']['value'] . ($spacing['tablet']['unit'] ?? 'px')); ?>;
+        <?php endif; ?>
         <?php if ( ! empty( $contentTypography['fontSize']['tablet'] ) ) : ?>
-        font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $contentTypography['lineHeight']['tablet'] ) ) : ?>
-        line-height: <?php echo esc_attr( $contentTypography['lineHeight']['tablet'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $contentTypography['lineHeight']['tablet'] . ( $contentTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['tablet'] . ( $contentTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['tablet'] . ( $contentTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
     }
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-form {
-        <?php if ( $inputSpacing['tablet']['value'] ) : ?>
-    	gap: <?php echo esc_attr($inputSpacing['tablet']['value'] . ($inputSpacing['tablet']['unit'] ?: 'px')); ?>;
+        <?php if ( ! empty( $inputSpacing['tablet']['value'] ) ) : ?>
+    	gap: <?php echo esc_attr($inputSpacing['tablet']['value'] . ($inputSpacing['tablet']['unit'] ?? 'px')); ?>;
 		<?php endif; ?>
-        <?php if ( $layout === 'inline' && $align['tablet'] === 'center' ) : ?>
-        justify-content: center;
-        <?php endif; ?>
-        <?php if ( $layout === 'inline' && $align['tablet'] === 'right' ) : ?>
-        justify-content: flex-end;
-        <?php endif; ?>
+        <?php if ( !empty($align['tablet']) && $layout === 'inline' && $align['tablet'] === 'center' ) : ?>
+		justify-content: center;
+		<?php endif; ?>
+		<?php if ( !empty($align['tablet']) && $layout === 'inline' && $align['tablet'] === 'right' ) : ?>
+		justify-content: flex-end;
+		<?php endif; ?>
     }
 
+    <?php if ( ! empty( $inputSpacing['tablet']['value'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-fields {
-        <?php if ( $inputSpacing['tablet']['value'] ) : ?>
-    	gap: <?php echo esc_attr($inputSpacing['tablet']['value'] . ($inputSpacing['tablet']['unit'] ?: 'px')); ?>;
-		<?php endif; ?>
+    	gap: <?php echo esc_attr($inputSpacing['tablet']['value'] . ($inputSpacing['tablet']['unit'] ?? 'px')); ?>;
     }
+	<?php endif; ?>
 
 	.<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-input-icon {
 		<?php if ( ! empty( $textTypography['fontSize']['tablet'] ) ) : ?>
-		width: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
-		height: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+		width: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
+		height: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
 		<?php endif; ?>
 	}
 
@@ -577,13 +583,13 @@ ob_start();
 		<?php endif; ?>
         <?php echo esc_attr( digiblocks_get_dimensions( $inputBorderRadius, 'border-radius', 'tablet' ) ); ?>
         <?php if ( ! empty( $textTypography['fontSize']['tablet'] ) ) : ?>
-        font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $textTypography['lineHeight']['tablet'] ) ) : ?>
-        line-height: <?php echo esc_attr( $textTypography['lineHeight']['tablet'] . ( $textTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $textTypography['lineHeight']['tablet'] . ( $textTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $textTypography['letterSpacing']['tablet'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['tablet'] . ( $textTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['tablet'] . ( $textTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
     }
 
@@ -593,19 +599,21 @@ ob_start();
 		<?php endif; ?>
         <?php echo esc_attr( digiblocks_get_dimensions( $buttonBorderRadius, 'border-radius', 'tablet' ) ); ?>
         <?php if ( ! empty( $buttonTypography['fontSize']['tablet'] ) ) : ?>
-        font-size: <?php echo esc_attr( $buttonTypography['fontSize']['tablet'] . ( $buttonTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $buttonTypography['fontSize']['tablet'] . ( $buttonTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $buttonTypography['lineHeight']['tablet'] ) ) : ?>
-        line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['tablet'] . ( $buttonTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['tablet'] . ( $buttonTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $buttonTypography['letterSpacing']['tablet'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['tablet'] . ( $buttonTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['tablet'] . ( $buttonTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
     }
 
+    <?php if ( ! empty( $spacing['tablet']['value'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-message {
-    	margin-top: <?php echo esc_attr($spacing['tablet']['value'] . ($spacing['tablet']['unit'] ?: 'px')); ?>;
+    	margin-top: <?php echo esc_attr($spacing['tablet']['value'] . ($spacing['tablet']['unit'] ?? 'px')); ?>;
     }
+    <?php endif; ?>
 }
 
 /* Mobile styles */
@@ -617,53 +625,59 @@ ob_start();
 		border-width: <?php echo esc_attr( $containerBorderWidth['mobile'] ); ?>px;
 		<?php endif; ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $containerBorderRadius, 'border-radius', 'mobile' ) ); ?>
-        text-align: <?php echo esc_attr( $align['mobile'] === 'center' ? 'center' : ( $align['mobile'] === 'right' ? 'right' : 'left' ) ); ?>;
+        <?php if ( !empty($align['mobile']) ) : ?>
+		text-align: <?php echo esc_attr( $align['mobile'] === 'center' ? 'center' : ( $align['mobile'] === 'right' ? 'right' : 'left' ) ); ?>;
+		<?php endif; ?>
     }
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-title {
-    	margin-bottom: <?php echo esc_attr($spacing['mobile']['value'] . ($spacing['mobile']['unit'] ?: 'px')); ?>;
+        <?php if ( ! empty( $spacing['mobile']['value'] ) ) : ?>
+    	margin-bottom: <?php echo esc_attr($spacing['mobile']['value'] . ($spacing['mobile']['unit'] ?? 'px')); ?>;
+        <?php endif; ?>
         <?php if ( ! empty( $titleTypography['fontSize']['mobile'] ) ) : ?>
-        font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ( $titleTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ( $titleTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $titleTypography['lineHeight']['mobile'] ) ) : ?>
-        line-height: <?php echo esc_attr( $titleTypography['lineHeight']['mobile'] . ( $titleTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $titleTypography['lineHeight']['mobile'] . ( $titleTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['mobile'] . ( $titleTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['mobile'] . ( $titleTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
     }
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-description {
-    	margin-bottom: <?php echo esc_attr($spacing['mobile']['value'] . ($spacing['mobile']['unit'] ?: 'px')); ?>;
+        <?php if ( ! empty( $spacing['mobile']['value'] ) ) : ?>
+    	margin-bottom: <?php echo esc_attr($spacing['mobile']['value'] . ($spacing['mobile']['unit'] ?? 'px')); ?>;
+        <?php endif; ?>
         <?php if ( ! empty( $contentTypography['fontSize']['mobile'] ) ) : ?>
-        font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $contentTypography['lineHeight']['mobile'] ) ) : ?>
-        line-height: <?php echo esc_attr( $contentTypography['lineHeight']['mobile'] . ( $contentTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $contentTypography['lineHeight']['mobile'] . ( $contentTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['mobile'] . ( $contentTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['mobile'] . ( $contentTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
     }
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-form {
         flex-direction: column;
-        <?php if ( $inputSpacing['mobile']['value'] ) : ?>
-    	gap: <?php echo esc_attr($inputSpacing['mobile']['value'] . ($inputSpacing['mobile']['unit'] ?: 'px')); ?>;
+        <?php if ( ! empty( $inputSpacing['mobile']['value'] ) ) : ?>
+    	gap: <?php echo esc_attr($inputSpacing['mobile']['value'] . ($inputSpacing['mobile']['unit'] ?? 'px')); ?>;
 		<?php endif; ?>
     }
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-fields {
         flex-direction: column;
-        <?php if ( $inputSpacing['mobile']['value'] ) : ?>
-    	gap: <?php echo esc_attr($inputSpacing['mobile']['value'] . ($inputSpacing['mobile']['unit'] ?: 'px')); ?>;
+        <?php if ( ! empty( $inputSpacing['mobile']['value'] ) ) : ?>
+    	gap: <?php echo esc_attr($inputSpacing['mobile']['value'] . ($inputSpacing['mobile']['unit'] ?? 'px')); ?>;
 		<?php endif; ?>
     }
 
 	.<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-input-icon {
 		<?php if ( ! empty( $textTypography['fontSize']['mobile'] ) ) : ?>
-		width: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
-		height: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+		width: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
+		height: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
 		<?php endif; ?>
 	}
 
@@ -673,13 +687,13 @@ ob_start();
 		<?php endif; ?>
         <?php echo esc_attr( digiblocks_get_dimensions( $inputBorderRadius, 'border-radius', 'mobile' ) ); ?>
         <?php if ( ! empty( $textTypography['fontSize']['mobile'] ) ) : ?>
-        font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $textTypography['lineHeight']['mobile'] ) ) : ?>
-        line-height: <?php echo esc_attr( $textTypography['lineHeight']['mobile'] . ( $textTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $textTypography['lineHeight']['mobile'] . ( $textTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $textTypography['letterSpacing']['mobile'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['mobile'] . ( $textTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['mobile'] . ( $textTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
     }
 
@@ -689,20 +703,22 @@ ob_start();
 		<?php endif; ?>
         <?php echo esc_attr( digiblocks_get_dimensions( $buttonBorderRadius, 'border-radius', 'mobile' ) ); ?>
         <?php if ( ! empty( $buttonTypography['fontSize']['mobile'] ) ) : ?>
-        font-size: <?php echo esc_attr( $buttonTypography['fontSize']['mobile'] . ( $buttonTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $buttonTypography['fontSize']['mobile'] . ( $buttonTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $buttonTypography['lineHeight']['mobile'] ) ) : ?>
-        line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['mobile'] . ( $buttonTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['mobile'] . ( $buttonTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
         <?php if ( ! empty( $buttonTypography['letterSpacing']['mobile'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['mobile'] . ( $buttonTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['mobile'] . ( $buttonTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         width: 100%;
     }
 
+    <?php if ( ! empty( $spacing['mobile']['value'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-message {
-    	margin-top: <?php echo esc_attr($spacing['mobile']['value'] . ($spacing['mobile']['unit'] ?: 'px')); ?>;
+    	margin-top: <?php echo esc_attr($spacing['mobile']['value'] . ($spacing['mobile']['unit'] ?? 'px')); ?>;
     }
+    <?php endif; ?>
 }
 
 /* Visibility Controls */

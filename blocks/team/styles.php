@@ -25,16 +25,16 @@ $columns                  = isset( $attrs['columns'] ) ? $attrs['columns'] : arr
 );
 $gutter                   = isset( $attrs['gutter'] ) ? $attrs['gutter'] : array(
 	'desktop' => 30,
-	'tablet'  => 20,
-	'mobile'  => 15,
+	'tablet'  => '',
+	'mobile'  => '',
 );
 $layout                   = isset( $attrs['layout'] ) ? $attrs['layout'] : 'grid';
 $alignment                = isset( $attrs['alignment'] ) ? $attrs['alignment'] : 'center';
 $imageStyle               = isset( $attrs['imageStyle'] ) ? $attrs['imageStyle'] : 'circle';
 $imageSize                = isset( $attrs['imageSize'] ) ? $attrs['imageSize'] : array(
 	'desktop' => 150,
-	'tablet'  => 120,
-	'mobile'  => 100,
+	'tablet'  => '',
+	'mobile'  => '',
 );
 $imageBorderRadius        = isset( $attrs['imageBorderRadius'] ) ? $attrs['imageBorderRadius'] : array(
 	'desktop' => array(
@@ -66,8 +66,8 @@ $typography               = isset( $attrs['typography'] ) ? $attrs['typography']
 	'fontFamily'        => '',
 	'fontSize'          => array(
 		'desktop' => 22,
-		'tablet'  => 20,
-		'mobile'  => 18,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'fontSizeUnit'      => 'px',
 	'fontWeight'        => '600',
@@ -76,14 +76,14 @@ $typography               = isset( $attrs['typography'] ) ? $attrs['typography']
 	'textDecoration'    => 'none',
 	'lineHeight'        => array(
 		'desktop' => 1.5,
-		'tablet'  => 1.4,
-		'mobile'  => 1.3,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'lineHeightUnit'    => 'em',
 	'letterSpacing'     => array(
 		'desktop' => 0,
-		'tablet'  => 0,
-		'mobile'  => 0,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'letterSpacingUnit' => 'px',
 );
@@ -91,8 +91,8 @@ $textTypography           = isset( $attrs['textTypography'] ) ? $attrs['textTypo
 	'fontFamily'        => '',
 	'fontSize'          => array(
 		'desktop' => 16,
-		'tablet'  => 15,
-		'mobile'  => 14,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'fontSizeUnit'      => 'px',
 	'fontWeight'        => '400',
@@ -101,14 +101,14 @@ $textTypography           = isset( $attrs['textTypography'] ) ? $attrs['textTypo
 	'textDecoration'    => 'none',
 	'lineHeight'        => array(
 		'desktop' => 1.5,
-		'tablet'  => 1.4,
-		'mobile'  => 1.3,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'lineHeightUnit'    => 'em',
 	'letterSpacing'     => array(
 		'desktop' => 0,
-		'tablet'  => 0,
-		'mobile'  => 0,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'letterSpacingUnit' => 'px',
 );
@@ -116,8 +116,8 @@ $contentTypography        = isset( $attrs['contentTypography'] ) ? $attrs['conte
 	'fontFamily'        => '',
 	'fontSize'          => array(
 		'desktop' => 16,
-		'tablet'  => 15,
-		'mobile'  => 14,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'fontSizeUnit'      => 'px',
 	'fontWeight'        => '400',
@@ -126,14 +126,14 @@ $contentTypography        = isset( $attrs['contentTypography'] ) ? $attrs['conte
 	'textDecoration'    => 'none',
 	'lineHeight'        => array(
 		'desktop' => 1.5,
-		'tablet'  => 1.4,
-		'mobile'  => 1.3,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'lineHeightUnit'    => 'em',
 	'letterSpacing'     => array(
 		'desktop' => 0,
-		'tablet'  => 0,
-		'mobile'  => 0,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'letterSpacingUnit' => 'px',
 );
@@ -144,13 +144,13 @@ $iconColor                = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] :
 $iconHoverColor           = isset( $attrs['iconHoverColor'] ) ? $attrs['iconHoverColor'] : '#135e9e';
 $iconSize                 = isset( $attrs['iconSize'] ) ? $attrs['iconSize'] : array(
 	'desktop' => 20,
-	'tablet'  => 18,
-	'mobile'  => 16,
+	'tablet'  => '',
+	'mobile'  => '',
 );
 $iconSpacing              = isset( $attrs['iconSpacing'] ) ? $attrs['iconSpacing'] : array(
 	'desktop' => 10,
-	'tablet'  => 8,
-	'mobile'  => 6,
+	'tablet'  => '',
+	'mobile'  => '',
 );
 $iconBackgroundColor      = isset( $attrs['iconBackgroundColor'] ) ? $attrs['iconBackgroundColor'] : 'transparent';
 $iconBackgroundHoverColor = isset( $attrs['iconBackgroundHoverColor'] ) ? $attrs['iconBackgroundHoverColor'] : '';
@@ -186,17 +186,17 @@ $iconPadding              = isset( $attrs['iconPadding'] ) ? $attrs['iconPadding
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 6,
-		'right'  => 6,
-		'bottom' => 6,
-		'left'   => 6,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 4,
-		'right'  => 4,
-		'bottom' => 4,
-		'left'   => 4,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -258,17 +258,17 @@ $boxPadding               = isset( $attrs['boxPadding'] ) ? $attrs['boxPadding']
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 25,
-		'right'  => 25,
-		'bottom' => 25,
-		'left'   => 25,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 20,
-		'right'  => 20,
-		'bottom' => 20,
-		'left'   => 20,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -281,17 +281,17 @@ $boxMargin                = isset( $attrs['boxMargin'] ) ? $attrs['boxMargin'] :
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 25,
-		'left'   => 0,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 20,
-		'left'   => 0,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -319,9 +319,13 @@ $showBio                  = isset( $attrs['showBio'] ) ? (bool) $attrs['showBio'
 $showSocial               = isset( $attrs['showSocial'] ) ? (bool) $attrs['showSocial'] : true;
 
 // Calculate column width based on number of columns and gutter
-$column_width_desktop = "calc((100% - " . ( ( $columns['desktop'] - 1 ) * $gutter['desktop'] ) . "px) / " . $columns['desktop'] . ")";
-$column_width_tablet  = "calc((100% - " . ( ( $columns['tablet'] - 1 ) * $gutter['tablet'] ) . "px) / " . $columns['tablet'] . ")";
-$column_width_mobile  = "calc((100% - " . ( ( $columns['mobile'] - 1 ) * $gutter['mobile'] ) . "px) / " . $columns['mobile'] . ")";
+$gutter_desktop = !empty($gutter['desktop']) ? $gutter['desktop'] : 30;
+$gutter_tablet = !empty($gutter['tablet']) ? $gutter['tablet'] : $gutter_desktop;
+$gutter_mobile = !empty($gutter['mobile']) ? $gutter['mobile'] : $gutter_tablet;
+
+$column_width_desktop = "calc((100% - " . ( ( $columns['desktop'] - 1 ) * $gutter_desktop ) . "px) / " . $columns['desktop'] . ")";
+$column_width_tablet  = "calc((100% - " . ( ( $columns['tablet'] - 1 ) * $gutter_tablet ) . "px) / " . $columns['tablet'] . ")";
+$column_width_mobile  = "calc((100% - " . ( ( $columns['mobile'] - 1 ) * $gutter_mobile ) . "px) / " . $columns['mobile'] . ")";
 
 // Get image border radius based on style or custom values
 $image_border_radius_value_desktop = '';
@@ -570,6 +574,7 @@ ob_start();
         <?php echo esc_attr( digiblocks_get_dimensions( $boxMargin, 'margin', 'tablet' ) ); ?>
     }
     
+    <?php if ( ! empty( $gutter['tablet'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-container {
         gap: <?php echo esc_attr( $gutter['tablet'] ); ?>px;
     }
@@ -581,6 +586,7 @@ ob_start();
 	.<?php echo esc_attr( $id ); ?>.layout-list .digiblocks-team-member {
 		gap: <?php echo esc_attr( $gutter['tablet'] ); ?>px;
 	}
+    <?php endif; ?>
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member {
         <?php if ( 'grid' === $layout ) : ?>
@@ -594,8 +600,10 @@ ob_start();
     }
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-image {
+		<?php if ( ! empty( $imageSize['tablet'] ) ) : ?>
         width: <?php echo esc_attr( $imageSize['tablet'] ); ?>px;
         height: <?php echo esc_attr( $imageSize['tablet'] ); ?>px;
+		<?php endif; ?>
         <?php echo esc_attr( $image_border_radius_value_tablet ); ?>
         <?php if ( 'none' !== $imageBorderStyle ) : ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $imageBorderWidth, 'border-width', 'tablet' ) ); ?>
@@ -638,19 +646,23 @@ ob_start();
     }
     <?php endif; ?>
     
+    <?php if ( ! empty( $iconSpacing['tablet'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social {
         gap: <?php echo esc_attr( $iconSpacing['tablet'] ); ?>px;
     }
+    <?php endif; ?>
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon {
         <?php echo esc_attr( digiblocks_get_dimensions( $iconBorderRadius, 'border-radius', 'tablet' ) ); ?>
         <?php echo esc_attr( digiblocks_get_dimensions( $iconPadding, 'padding', 'tablet' ) ); ?>
     }
     
+    <?php if ( ! empty( $iconSize['tablet'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon svg {
         width: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
         height: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
     }
+    <?php endif; ?>
 }
 
 /* Mobile Styles */
@@ -659,6 +671,7 @@ ob_start();
         <?php echo esc_attr( digiblocks_get_dimensions( $boxMargin, 'margin', 'mobile' ) ); ?>
     }
     
+    <?php if ( ! empty( $gutter['mobile'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-container {
         gap: <?php echo esc_attr( $gutter['mobile'] ); ?>px;
     }
@@ -670,6 +683,7 @@ ob_start();
 	.<?php echo esc_attr( $id ); ?>.layout-list .digiblocks-team-member {
 		gap: <?php echo esc_attr( $gutter['mobile'] ); ?>px;
 	}
+    <?php endif; ?>
     
 	.<?php echo esc_attr( $id ); ?> .digiblocks-team-member {
     	<?php if ( 'grid' === $layout ) : ?>
@@ -683,8 +697,10 @@ ob_start();
 	}
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-image {
+		<?php if ( ! empty( $imageSize['mobile'] ) ) : ?>
         width: <?php echo esc_attr( $imageSize['mobile'] ); ?>px;
         height: <?php echo esc_attr( $imageSize['mobile'] ); ?>px;
+		<?php endif; ?>
         <?php echo esc_attr( $image_border_radius_value_mobile ); ?>
         <?php if ( 'none' !== $imageBorderStyle ) : ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $imageBorderWidth, 'border-width', 'mobile' ) ); ?>
@@ -727,19 +743,23 @@ ob_start();
     }
     <?php endif; ?>
     
+    <?php if ( ! empty( $iconSpacing['mobile'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social {
         gap: <?php echo esc_attr( $iconSpacing['mobile'] ); ?>px;
     }
+    <?php endif; ?>
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon {
         <?php echo esc_attr( digiblocks_get_dimensions( $iconBorderRadius, 'border-radius', 'mobile' ) ); ?>
         <?php echo esc_attr( digiblocks_get_dimensions( $iconPadding, 'padding', 'mobile' ) ); ?>
     }
     
+    <?php if ( ! empty( $iconSize['mobile'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-team-member-social-icon svg {
         width: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
         height: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
     }
+    <?php endif; ?>
 }
 
 /* Visibility Controls */

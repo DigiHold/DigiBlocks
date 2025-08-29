@@ -171,7 +171,7 @@ ob_start();
 	<?php endif; ?>
 	
 	<?php if ( ! empty( $buttonTypography['fontSize']['desktop'] ) ) : ?>
-		font-size: <?php echo esc_attr( $buttonTypography['fontSize']['desktop'] . ( $buttonTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+		font-size: <?php echo esc_attr( $buttonTypography['fontSize']['desktop'] . ( $buttonTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
 	<?php endif; ?>
 	
 	<?php if ( ! empty( $buttonTypography['fontWeight'] ) ) : ?>
@@ -191,11 +191,11 @@ ob_start();
 	<?php endif; ?>
 	
 	<?php if ( ! empty( $buttonTypography['lineHeight']['desktop'] ) ) : ?>
-		line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['desktop'] . ( $buttonTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+		line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['desktop'] . ( $buttonTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
 	<?php endif; ?>
 	
 	<?php if ( ! empty( $buttonTypography['letterSpacing']['desktop'] ) ) : ?>
-		letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['desktop'] . ( $buttonTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+		letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['desktop'] . ( $buttonTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
 	<?php endif; ?>
 }
 
@@ -218,15 +218,15 @@ ob_start();
 	
 	.<?php echo esc_attr( $id ); ?> {
 		<?php if ( ! empty( $buttonTypography['fontSize']['tablet'] ) ) : ?>
-			font-size: <?php echo esc_attr( $buttonTypography['fontSize']['tablet'] . ( $buttonTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+			font-size: <?php echo esc_attr( $buttonTypography['fontSize']['tablet'] . ( $buttonTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
 		<?php endif; ?>
 		
 		<?php if ( ! empty( $buttonTypography['lineHeight']['tablet'] ) ) : ?>
-			line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['tablet'] . ( $buttonTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+			line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['tablet'] . ( $buttonTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
 		<?php endif; ?>
 		
 		<?php if ( ! empty( $buttonTypography['letterSpacing']['tablet'] ) ) : ?>
-			letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['tablet'] . ( $buttonTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+			letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['tablet'] . ( $buttonTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
 		<?php endif; ?>
 	}
 }
@@ -249,15 +249,15 @@ ob_start();
 	
 	.<?php echo esc_attr( $id ); ?> {
 		<?php if ( ! empty( $buttonTypography['fontSize']['mobile'] ) ) : ?>
-			font-size: <?php echo esc_attr( $buttonTypography['fontSize']['mobile'] . ( $buttonTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+			font-size: <?php echo esc_attr( $buttonTypography['fontSize']['mobile'] . ( $buttonTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
 		<?php endif; ?>
 		
 		<?php if ( ! empty( $buttonTypography['lineHeight']['mobile'] ) ) : ?>
-			line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['mobile'] . ( $buttonTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+			line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['mobile'] . ( $buttonTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
 		<?php endif; ?>
 		
 		<?php if ( ! empty( $buttonTypography['letterSpacing']['mobile'] ) ) : ?>
-			letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['mobile'] . ( $buttonTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+			letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['mobile'] . ( $buttonTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
 		<?php endif; ?>
 	}
 }

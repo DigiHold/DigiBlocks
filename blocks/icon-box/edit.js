@@ -120,6 +120,21 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 	// Create unique class
 	useBlockId( id, clientId, setAttributes );
 
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		if (device === 'mobile') {
+			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
+				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : obj.desktop;
+		}
+		return obj.desktop;
+	};
+
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
@@ -272,22 +287,34 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         const activeDevice = window.digi.responsiveState.activeDevice;
 
 		// Set alignment properties based on align value
+		const currentAlign = getVal(align, activeDevice);
 		let alignCSS = '';
-		if (align[activeDevice] === 'flex-start') {
+		if (currentAlign === 'flex-start') {
 			alignCSS = `
 				align-items: flex-start;
 				text-align: left;
 			`;
-		} else if (align[activeDevice] === 'center') {
+		} else if (currentAlign === 'center') {
 			alignCSS = `
 				align-items: center;
 				text-align: center;
 			`;
-		} else if (align[activeDevice] === 'flex-end') {
+		} else if (currentAlign === 'flex-end') {
 			alignCSS = `
 				align-items: flex-end;
 				text-align: right;
 			`;
+		}
+
+		// Icon layout CSS with getVal
+		const currentIconLayout = getVal(iconLayout, activeDevice);
+		let flexDirectionCSS = '';
+		if (currentIconLayout === 'above') {
+			flexDirectionCSS = 'flex-direction: column;';
+		} else if (currentIconLayout === 'after') {
+			flexDirectionCSS = 'flex-direction: row-reverse;';
+		} else {
+			flexDirectionCSS = 'flex-direction: row;';
 		}
         
         // Border styles
@@ -321,9 +348,10 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 titleTypographyCSS += `font-family: ${titleTypography.fontFamily};`;
             }
             
-            if (titleTypography.fontSize && titleTypography.fontSize[activeDevice]) {
-                titleTypographyCSS += `font-size: ${titleTypography.fontSize[activeDevice]}${titleTypography.fontSizeUnit || 'px'};`;
-            }
+            const titleFontSize = getVal(titleTypography.fontSize, activeDevice);
+			if (titleFontSize) {
+				titleTypographyCSS += `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || 'px'};`;
+			}
             
             if (titleTypography.fontWeight) {
                 titleTypographyCSS += `font-weight: ${titleTypography.fontWeight};`;
@@ -341,13 +369,15 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 titleTypographyCSS += `text-decoration: ${titleTypography.textDecoration};`;
             }
             
-            if (titleTypography.lineHeight && titleTypography.lineHeight[activeDevice]) {
-                titleTypographyCSS += `line-height: ${titleTypography.lineHeight[activeDevice]}${titleTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (titleTypography.letterSpacing && titleTypography.letterSpacing[activeDevice]) {
-                titleTypographyCSS += `letter-spacing: ${titleTypography.letterSpacing[activeDevice]}${titleTypography.letterSpacingUnit || 'px'};`;
-            }
+            const titleLineHeight = getVal(titleTypography.lineHeight, activeDevice);
+			if (titleLineHeight) {
+				titleTypographyCSS += `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || 'em'};`;
+			}
+
+			const titleLetterSpacing = getVal(titleTypography.letterSpacing, activeDevice);
+			if (titleLetterSpacing || titleLetterSpacing === 0) {
+				titleTypographyCSS += `letter-spacing: ${titleLetterSpacing}${titleTypography.letterSpacingUnit || 'px'};`;
+			}
         }
         
         // Content typography CSS
@@ -357,9 +387,10 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
             }
             
-            if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
-                contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || 'px'};`;
-            }
+            const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
+			if (contentFontSize) {
+				contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || 'px'};`;
+			}
             
             if (contentTypography.fontWeight) {
                 contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
@@ -377,13 +408,15 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
             }
             
-            if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
-                contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
-                contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || 'px'};`;
-            }
+            const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
+			if (contentLineHeight) {
+				contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
+			if (contentLetterSpacing || contentLetterSpacing === 0) {
+				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || 'px'};`;
+			}
         }
         
         // Button typography CSS
@@ -393,9 +426,10 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 buttonTypographyCSS += `font-family: ${buttonTypography.fontFamily};`;
             }
             
-            if (buttonTypography.fontSize && buttonTypography.fontSize[activeDevice]) {
-                buttonTypographyCSS += `font-size: ${buttonTypography.fontSize[activeDevice]}${buttonTypography.fontSizeUnit || 'px'};`;
-            }
+            const buttonFontSize = getVal(buttonTypography.fontSize, activeDevice);
+			if (buttonFontSize) {
+				buttonTypographyCSS += `font-size: ${buttonFontSize}${buttonTypography.fontSizeUnit || 'px'};`;
+			}
             
             if (buttonTypography.fontWeight) {
                 buttonTypographyCSS += `font-weight: ${buttonTypography.fontWeight};`;
@@ -413,13 +447,15 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 buttonTypographyCSS += `text-decoration: ${buttonTypography.textDecoration};`;
             }
             
-            if (buttonTypography.lineHeight && buttonTypography.lineHeight[activeDevice]) {
-                buttonTypographyCSS += `line-height: ${buttonTypography.lineHeight[activeDevice]}${buttonTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (buttonTypography.letterSpacing && buttonTypography.letterSpacing[activeDevice]) {
-                buttonTypographyCSS += `letter-spacing: ${buttonTypography.letterSpacing[activeDevice]}${buttonTypography.letterSpacingUnit || 'px'};`;
-            }
+            const buttonLineHeight = getVal(buttonTypography.lineHeight, activeDevice);
+			if (buttonLineHeight) {
+				buttonTypographyCSS += `line-height: ${buttonLineHeight}${buttonTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			const buttonLetterSpacing = getVal(buttonTypography.letterSpacing, activeDevice);
+			if (buttonLetterSpacing || buttonLetterSpacing === 0) {
+				buttonTypographyCSS += `letter-spacing: ${buttonLetterSpacing}${buttonTypography.letterSpacingUnit || 'px'};`;
+			}
         }
 
 		// Badge typography CSS
@@ -429,8 +465,9 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 				badgeTypographyCSS += `font-family: ${badgeTypography.fontFamily};`;
 			}
 			
-			if (badgeTypography.fontSize && badgeTypography.fontSize[activeDevice]) {
-				badgeTypographyCSS += `font-size: ${badgeTypography.fontSize[activeDevice]}${badgeTypography.fontSizeUnit || 'rem'};`;
+			const badgeFontSize = getVal(badgeTypography.fontSize, activeDevice);
+			if (badgeFontSize) {
+				badgeTypographyCSS += `font-size: ${badgeFontSize}${badgeTypography.fontSizeUnit || 'rem'};`;
 			}
 			
 			if (badgeTypography.fontWeight) {
@@ -449,12 +486,14 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 				badgeTypographyCSS += `text-decoration: ${badgeTypography.textDecoration};`;
 			}
 			
-			if (badgeTypography.lineHeight && badgeTypography.lineHeight[activeDevice]) {
-				badgeTypographyCSS += `line-height: ${badgeTypography.lineHeight[activeDevice]}${badgeTypography.lineHeightUnit || 'em'};`;
+			const badgeLineHeight = getVal(badgeTypography.lineHeight, activeDevice);
+			if (badgeLineHeight) {
+				badgeTypographyCSS += `line-height: ${badgeLineHeight}${badgeTypography.lineHeightUnit || 'em'};`;
 			}
 			
-			if (badgeTypography.letterSpacing && badgeTypography.letterSpacing[activeDevice]) {
-				badgeTypographyCSS += `letter-spacing: ${badgeTypography.letterSpacing[activeDevice]}${badgeTypography.letterSpacingUnit || 'em'};`;
+			const badgeLetterSpacing = getVal(badgeTypography.letterSpacing, activeDevice);
+			if (badgeLetterSpacing || badgeLetterSpacing === 0) {
+				badgeTypographyCSS += `letter-spacing: ${badgeLetterSpacing}${badgeTypography.letterSpacingUnit || 'em'};`;
 			}
 		}
         
@@ -595,7 +634,7 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             buttonCSS = `
                 .${id} .digiblocks-button-wrapper {
                     display: flex;
-                    justify-content: ${align[activeDevice] === 'center' ? 'center' : align[activeDevice] === 'flex-end' ? 'flex-end' : 'flex-start'};
+                    justify-content: ${currentAlign === 'center' ? 'center' : currentAlign === 'flex-end' ? 'flex-end' : 'flex-start'};
                     ${buttonMarginCSS}
                 }
                 
@@ -698,9 +737,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 ${marginCSS}
                 ${borderCSS}
                 ${borderRadiusCSS}
-				${iconLayout[activeDevice] === 'above' ? 'flex-direction: column;' : 'flex-direction: row;'}
-				${iconLayout[activeDevice] === 'after' ? 'flex-direction: row-reverse;' : ''}
-				gap: ${iconContentGap[activeDevice].value}${iconContentGap[activeDevice].unit};
+				${flexDirectionCSS}
+				gap: ${getVal(iconContentGap, activeDevice).value || iconContentGap.desktop.value}${getVal(iconContentGap, activeDevice).unit || iconContentGap.desktop.unit};
                 transition: all 0.3s ease;
                 ${linkEnabled && linkType === 'box' ? linkCSS : ''}
             }
@@ -727,8 +765,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 				}
 
 				.${id} .digiblocks-icon-box-icon svg {
-					width: ${iconSize[activeDevice].value}${iconSize[activeDevice].unit};
-					height: ${iconHeight[activeDevice].value ? `${iconHeight[activeDevice].value}${iconHeight[activeDevice].unit}` : '100%'};
+					width: ${getVal(iconSize, activeDevice).value || iconSize.desktop.value}${getVal(iconSize, activeDevice).unit || iconSize.desktop.unit};
+					height: ${getVal(iconHeight, activeDevice).value ? `${getVal(iconHeight, activeDevice).value}${getVal(iconHeight, activeDevice).unit || iconHeight.desktop.unit}` : '100%'};
 					fill: ${iconColor || 'inherit'};
 					transition: all 0.3s ease;
 				}
@@ -780,6 +818,36 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 
 			/* Badge styles */
 			${badgeCSS}
+
+			/* Tablet styles */
+			@media (max-width: 991px) {
+				.${id} {
+					${getVal(align, 'tablet') ? `
+						${getVal(align, 'tablet') === 'flex-start' ? 'align-items: flex-start; text-align: left;' : ''}
+						${getVal(align, 'tablet') === 'center' ? 'align-items: center; text-align: center;' : ''}
+						${getVal(align, 'tablet') === 'flex-end' ? 'align-items: flex-end; text-align: right;' : ''}
+					` : ''}
+					${getVal(iconLayout, 'tablet') === 'above' ? 'flex-direction: column;' : 
+					getVal(iconLayout, 'tablet') === 'after' ? 'flex-direction: row-reverse;' : 
+					getVal(iconLayout, 'tablet') ? 'flex-direction: row;' : ''}
+					gap: ${getVal(iconContentGap, 'tablet').value || getVal(iconContentGap, 'desktop').value}${getVal(iconContentGap, 'tablet').unit || getVal(iconContentGap, 'desktop').unit};
+				}
+			}
+
+			/* Mobile styles */
+			@media (max-width: 767px) {
+				.${id} {
+					${getVal(align, 'mobile') ? `
+						${getVal(align, 'mobile') === 'flex-start' ? 'align-items: flex-start; text-align: left;' : ''}
+						${getVal(align, 'mobile') === 'center' ? 'align-items: center; text-align: center;' : ''}
+						${getVal(align, 'mobile') === 'flex-end' ? 'align-items: flex-end; text-align: right;' : ''}
+					` : ''}
+					${getVal(iconLayout, 'mobile') === 'above' ? 'flex-direction: column;' : 
+					getVal(iconLayout, 'mobile') === 'after' ? 'flex-direction: row-reverse;' : 
+					getVal(iconLayout, 'mobile') ? 'flex-direction: row;' : ''}
+					gap: ${getVal(iconContentGap, 'mobile').value || getVal(iconContentGap, 'desktop').value}${getVal(iconContentGap, 'mobile').unit || getVal(iconContentGap, 'desktop').unit};
+				}
+			}
 
 			/* Visibility Controls */
 			${visibility.desktop ? `

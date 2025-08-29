@@ -136,7 +136,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $typography['fontSize']['desktop'] ) ) : ?>
-        font-size: <?php echo esc_attr( $typography['fontSize']['desktop'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $typography['fontSize']['desktop'] . ( $typography['fontSizeUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $typography['fontWeight'] ) ) : ?>
@@ -156,11 +156,11 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $typography['lineHeight']['desktop'] ) ) : ?>
-        line-height: <?php echo esc_attr( $typography['lineHeight']['desktop'] . ( $typography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $typography['lineHeight']['desktop'] . ( $typography['lineHeightUnit'] ?? 'em' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $typography['letterSpacing']['desktop'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['desktop'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['desktop'] . ( $typography['letterSpacingUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
 }
 
@@ -437,14 +437,14 @@ switch ( $separatorStyle ) :
     
     <?php if ( ! empty( $typography['fontSize']['tablet'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-heading-text {
-        font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ( $typography['fontSizeUnit'] ?? 'px' ) ); ?>;
         
         <?php if ( ! empty( $typography['lineHeight']['tablet'] ) ) : ?>
-        line-height: <?php echo esc_attr( $typography['lineHeight']['tablet'] . ( $typography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $typography['lineHeight']['tablet'] . ( $typography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
         
         <?php if ( ! empty( $typography['letterSpacing']['tablet'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['tablet'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['tablet'] . ( $typography['letterSpacingUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
@@ -522,14 +522,14 @@ switch ( $separatorStyle ) :
     
     <?php if ( ! empty( $typography['fontSize']['mobile'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-heading-text {
-        font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ( $typography['fontSizeUnit'] ?? 'px' ) ); ?>;
         
         <?php if ( ! empty( $typography['lineHeight']['mobile'] ) ) : ?>
-        line-height: <?php echo esc_attr( $typography['lineHeight']['mobile'] . ( $typography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $typography['lineHeight']['mobile'] . ( $typography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
         
         <?php if ( ! empty( $typography['letterSpacing']['mobile'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['mobile'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['mobile'] . ( $typography['letterSpacingUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>

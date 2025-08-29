@@ -25,7 +25,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveButtonGroup, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveControl, ResponsiveButtonGroup, ResponsiveRangeControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
 
 /**
  * Edit function for the Icon block
@@ -40,6 +40,7 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
         customSvg,
         iconValue,
         iconSize,
+        iconHeight,
         iconColor,
         iconBackgroundColor,
         iconBorderStyle,
@@ -73,6 +74,21 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
 
 	// Create unique class
 	useBlockId( id, clientId, setAttributes );
+
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		if (device === 'mobile') {
+			return (obj.mobile && obj.mobile.value !== '' && obj.mobile.value !== undefined && obj.mobile.value !== null) ? obj.mobile : 
+				(obj.tablet && obj.tablet.value !== '' && obj.tablet.value !== undefined && obj.tablet.value !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return (obj.tablet && obj.tablet.value !== '' && obj.tablet.value !== undefined && obj.tablet.value !== null) ? obj.tablet : obj.desktop;
+		}
+		return obj.desktop;
+	};
 
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
@@ -144,6 +160,31 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
     const setIconValue = (newIcon) => {
         setAttributes({ iconValue: newIcon });
     };
+
+	const getMaxValue = (unit) => {
+		switch (unit) {
+			case '%':
+				return 100;
+			case 'em':
+			case 'rem':
+				return 10;
+			case 'px':
+			default:
+				return 1000;
+		}
+	};
+
+	const getStepValue = (unit) => {
+		switch (unit) {
+			case '%':
+			case 'em':
+			case 'rem':
+				return 0.1;
+			case 'px':
+			default:
+				return 1;
+		}
+	};
 
     // Use ref
 	const previewTimeoutRef = useRef(null);
@@ -389,11 +430,17 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             .${id} .digiblocks-icon svg {
-                width: ${iconSize[activeDevice]}px;
-                height: auto;
-                fill: ${iconColor || 'inherit'};
-                transition: all 0.3s ease;
-            }
+				width: ${(() => {
+					const sizeObj = getVal(iconSize, activeDevice);
+					return (sizeObj && sizeObj.value !== '' && sizeObj.value !== undefined && sizeObj.value !== null) ? `${sizeObj.value}${sizeObj.unit}` : '48px';
+				})()};
+				height: ${(() => {
+					const heightObj = getVal(iconHeight, activeDevice);
+					return (heightObj && heightObj.value !== '' && heightObj.value !== undefined && heightObj.value !== null) ? `${heightObj.value}${heightObj.unit}` : 'auto';
+				})()};
+				fill: ${iconColor || 'inherit'};
+				transition: all 0.3s ease;
+			}
             
             /* Icon hover styles */
             .${id}:hover .digiblocks-icon {
@@ -1008,30 +1055,37 @@ const IconEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__("Icon", "digiblocks")}
                             initialOpen={true}
                         >
-                            {/* Icon Size */}
-                            <ResponsiveControl
-                                label={__(
-                                    "Icon Size",
-                                    "digiblocks"
-                                )}
-                            >
-                                <RangeControl
-                                    value={iconSize[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            iconSize: {
-                                                ...iconSize,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    min={8}
-                                    max={500}
-                                    step={1}
-                                    __next40pxDefaultSize={true}
-                                    __nextHasNoMarginBottom={true}
-                                />
-                            </ResponsiveControl>
+                            <ResponsiveRangeControl
+								label={__("Icon Width", "digiblocks")}
+								value={iconSize}
+								onChange={(value) => setAttributes({ iconSize: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' },
+									{ label: 'em', value: 'em' },
+									{ label: 'rem', value: 'rem' },
+								]}
+								defaultUnit="px"
+								min={0}
+								max={getMaxValue(iconSize?.[localActiveDevice]?.unit)}
+								step={getStepValue(iconSize?.[localActiveDevice]?.unit)}
+							/>
+
+							<ResponsiveRangeControl
+								label={__("Icon Height", "digiblocks")}
+								value={iconHeight}
+								onChange={(value) => setAttributes({ iconHeight: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' },
+									{ label: 'em', value: 'em' },
+									{ label: 'rem', value: 'rem' },
+								]}
+								defaultUnit="px"
+								min={0}
+								max={getMaxValue(iconHeight?.[localActiveDevice]?.unit)}
+								step={getStepValue(iconHeight?.[localActiveDevice]?.unit)}
+							/>
 
                             <TabPanel
                                 className="digiblocks-control-tabs"

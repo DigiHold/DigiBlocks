@@ -78,6 +78,17 @@
       fields
     } = attributes;
     useBlockId(id, clientId, setAttributes);
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     const [activeTab, setActiveTab] = useState(() => {
       if (window.digi.uiState) {
@@ -309,8 +320,9 @@
         if (typography.fontFamily) {
           mainTypographyCSS += `font-family: ${typography.fontFamily};`;
         }
-        if (typography.fontSize && typography.fontSize[activeDevice]) {
-          mainTypographyCSS += `font-size: ${typography.fontSize[activeDevice]}${typography.fontSizeUnit || "px"};`;
+        const fontSize = getVal(typography.fontSize, activeDevice);
+        if (fontSize) {
+          typographyCSS += `font-size: ${fontSize}${typography.fontSizeUnit || "px"};`;
         }
         if (typography.fontWeight) {
           mainTypographyCSS += `font-weight: ${typography.fontWeight};`;
@@ -321,11 +333,13 @@
         if (typography.textTransform) {
           mainTypographyCSS += `text-transform: ${typography.textTransform};`;
         }
-        if (typography.lineHeight && typography.lineHeight[activeDevice]) {
-          mainTypographyCSS += `line-height: ${typography.lineHeight[activeDevice]}${typography.lineHeightUnit || "em"};`;
+        const lineHeight = getVal(typography.lineHeight, activeDevice);
+        if (lineHeight) {
+          typographyCSS += `line-height: ${lineHeight}${typography.lineHeightUnit || "em"};`;
         }
-        if (typography.letterSpacing && typography.letterSpacing[activeDevice]) {
-          mainTypographyCSS += `letter-spacing: ${typography.letterSpacing[activeDevice]}${typography.letterSpacingUnit || "px"};`;
+        const letterSpacing = getVal(typography.letterSpacing, activeDevice);
+        if (letterSpacing || letterSpacing === 0) {
+          typographyCSS += `letter-spacing: ${letterSpacing}${typography.letterSpacingUnit || "px"};`;
         }
       }
       let textTypographyCSS = "";
@@ -333,8 +347,9 @@
         if (textTypography.fontFamily) {
           textTypographyCSS += `font-family: ${textTypography.fontFamily};`;
         }
-        if (textTypography.fontSize && textTypography.fontSize[activeDevice]) {
-          textTypographyCSS += `font-size: ${textTypography.fontSize[activeDevice]}${textTypography.fontSizeUnit || "px"};`;
+        const textFontSize = getVal(textTypography.fontSize, activeDevice);
+        if (textFontSize) {
+          textTypographyCSS += `font-size: ${textFontSize}${textTypography.fontSizeUnit || "px"};`;
         }
         if (textTypography.fontWeight) {
           textTypographyCSS += `font-weight: ${textTypography.fontWeight};`;
@@ -345,11 +360,13 @@
         if (textTypography.textTransform) {
           textTypographyCSS += `text-transform: ${textTypography.textTransform};`;
         }
-        if (textTypography.lineHeight && textTypography.lineHeight[activeDevice]) {
-          textTypographyCSS += `line-height: ${textTypography.lineHeight[activeDevice]}${textTypography.lineHeightUnit || "em"};`;
+        const textLineHeight = getVal(textTypography.lineHeight, activeDevice);
+        if (textLineHeight) {
+          textTypographyCSS += `line-height: ${textLineHeight}${textTypography.lineHeightUnit || "em"};`;
         }
-        if (textTypography.letterSpacing && textTypography.letterSpacing[activeDevice]) {
-          textTypographyCSS += `letter-spacing: ${textTypography.letterSpacing[activeDevice]}${textTypography.letterSpacingUnit || "px"};`;
+        const textLetterSpacing = getVal(textTypography.letterSpacing, activeDevice);
+        if (textLetterSpacing || textLetterSpacing === 0) {
+          textTypographyCSS += `letter-spacing: ${textLetterSpacing}${textTypography.letterSpacingUnit || "px"};`;
         }
       }
       let buttonTypographyCSS = "";
@@ -357,8 +374,9 @@
         if (buttonTypography.fontFamily) {
           buttonTypographyCSS += `font-family: ${buttonTypography.fontFamily};`;
         }
-        if (buttonTypography.fontSize && buttonTypography.fontSize[activeDevice]) {
-          buttonTypographyCSS += `font-size: ${buttonTypography.fontSize[activeDevice]}${buttonTypography.fontSizeUnit || "px"};`;
+        const buttonFontSize = getVal(buttonTypography.fontSize, activeDevice);
+        if (buttonFontSize) {
+          buttonTypographyCSS += `font-size: ${buttonFontSize}${buttonTypography.fontSizeUnit || "px"};`;
         }
         if (buttonTypography.fontWeight) {
           buttonTypographyCSS += `font-weight: ${buttonTypography.fontWeight};`;
@@ -369,16 +387,18 @@
         if (buttonTypography.textTransform) {
           buttonTypographyCSS += `text-transform: ${buttonTypography.textTransform};`;
         }
-        if (buttonTypography.lineHeight && buttonTypography.lineHeight[activeDevice]) {
-          buttonTypographyCSS += `line-height: ${buttonTypography.lineHeight[activeDevice]}${buttonTypography.lineHeightUnit || "em"};`;
+        const buttonLineHeight = getVal(buttonTypography.lineHeight, activeDevice);
+        if (buttonLineHeight) {
+          buttonTypographyCSS += `line-height: ${buttonLineHeight}${buttonTypography.lineHeightUnit || "em"};`;
         }
-        if (buttonTypography.letterSpacing && buttonTypography.letterSpacing[activeDevice]) {
-          buttonTypographyCSS += `letter-spacing: ${buttonTypography.letterSpacing[activeDevice]}${buttonTypography.letterSpacingUnit || "px"};`;
+        const buttonLetterSpacing = getVal(buttonTypography.letterSpacing, activeDevice);
+        if (buttonLetterSpacing || buttonLetterSpacing === 0) {
+          buttonTypographyCSS += `letter-spacing: ${buttonLetterSpacing}${buttonTypography.letterSpacingUnit || "px"};`;
         }
       }
       const buttonAlignCSS = buttonAlign === "full" ? "width: 100%;" : `text-align: ${buttonAlign};`;
-      const currentFieldGap = fieldGap && fieldGap[activeDevice] ? fieldGap[activeDevice] : 20;
-      const currentLabelMargin = labelMargin && labelMargin[activeDevice] ? labelMargin[activeDevice] : 8;
+      const currentFieldGap = fieldGap ? getVal(fieldGap, activeDevice) : 20;
+      const currentLabelMargin = labelMargin ? getVal(labelMargin, activeDevice) : 8;
       let animationKeyframes = "";
       if (animation && animation !== "none" && animations[animation]) {
         animationKeyframes = animations[animation].keyframes;
@@ -2096,16 +2116,16 @@
         type: "object",
         default: {
           desktop: { top: 30, right: 30, bottom: 30, left: 30, unit: "px" },
-          tablet: { top: 25, right: 25, bottom: 25, left: 25, unit: "px" },
-          mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: "px" }
+          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
         }
       },
       margin: {
         type: "object",
         default: {
           desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: "px" },
-          tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: "px" },
-          mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: "px" }
+          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
         }
       },
       typography: {
@@ -2172,8 +2192,8 @@
         type: "object",
         default: {
           desktop: { top: 12, right: 15, bottom: 12, left: 15, unit: "px" },
-          tablet: { top: 10, right: 12, bottom: 10, left: 12, unit: "px" },
-          mobile: { top: 8, right: 10, bottom: 8, left: 10, unit: "px" }
+          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
         }
       },
       inputBackgroundColor: {
@@ -2196,16 +2216,16 @@
         type: "object",
         default: {
           desktop: 20,
-          tablet: 15,
-          mobile: 12
+          tablet: "",
+          mobile: ""
         }
       },
       labelMargin: {
         type: "object",
         default: {
           desktop: 8,
-          tablet: 6,
-          mobile: 5
+          tablet: "",
+          mobile: ""
         }
       },
       fields: {

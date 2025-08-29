@@ -28,7 +28,7 @@ $verticalAlign = isset( $attrs['verticalAlign'] ) ? $attrs['verticalAlign'] : [
     'tablet'  => 'flex-start',
     'mobile'  => 'flex-start',
 ];
-$buttonSpacing = isset( $attrs['buttonSpacing'] ) ? $attrs['buttonSpacing'] : ['desktop' => 10, 'tablet' => 8, 'mobile' => 6];
+$buttonSpacing = isset( $attrs['buttonSpacing'] ) ? $attrs['buttonSpacing'] : ['desktop' => 10, 'tablet' => '', 'mobile' => ''];
 
 // CSS Output
 ob_start();
@@ -51,7 +51,9 @@ ob_start();
 	.<?php echo esc_attr( $id ); ?> {
 		<?php echo esc_attr( digiblocks_get_css( 'align-items', $verticalAlign, 'tablet' ) ); ?>
 		<?php echo esc_attr( digiblocks_get_css( 'justify-content', $horizontalAlign, 'tablet' ) ); ?>
-		gap: <?php echo esc_attr( $buttonSpacing['tablet'] ); ?>px;
+		<?php if ( ! empty( $buttonSpacing['tablet'] ) ) : ?>
+			gap: <?php echo esc_attr( $buttonSpacing['tablet'] ); ?>px;
+		<?php endif; ?>
 	}
 }
 
@@ -59,7 +61,9 @@ ob_start();
 	.<?php echo esc_attr( $id ); ?> {
 		<?php echo esc_attr( digiblocks_get_css( 'align-items', $verticalAlign, 'mobile' ) ); ?>
 		<?php echo esc_attr( digiblocks_get_css( 'justify-content', $horizontalAlign, 'mobile' ) ); ?>
-		gap: <?php echo esc_attr( $buttonSpacing['mobile'] ); ?>px;
+		<?php if ( ! empty( $buttonSpacing['mobile'] ) ) : ?>
+			gap: <?php echo esc_attr( $buttonSpacing['mobile'] ); ?>px;
+		<?php endif; ?>
 	}
 }
 

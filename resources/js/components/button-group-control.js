@@ -71,27 +71,38 @@ const ResponsiveButtonGroup = ({
     };
 
     // Reset to default value
-    const resetValue = () => {
-        if (defaultValues) {
-            const defaultVal = defaultValues[localActiveDevice] !== undefined ? 
-                defaultValues[localActiveDevice] : 
-                (defaultValues.default !== undefined ? defaultValues.default : options[0].value);
-            updateValue(defaultVal);
-        } else {
-            updateValue(defaultValue);
-        }
-    };
+	const resetValue = () => {
+		let defaultVal;
+		
+		if (defaultValues) {
+			// Use provided defaultValues
+			defaultVal = defaultValues[localActiveDevice] !== undefined ? 
+				defaultValues[localActiveDevice] : 
+				(defaultValues.default !== undefined ? defaultValues.default : options[0].value);
+		} else {
+			// Auto-detect defaults: desktop uses first option, tablet/mobile use empty string
+			defaultVal = localActiveDevice === 'desktop' ? options[0].value : '';
+		}
+		
+		updateValue(defaultVal);
+	};
 
-    // Determine if reset button should be disabled
-    const isResetDisabled = () => {
-        if (!defaultValues) return false;
-        
-        const defaultVal = defaultValues[localActiveDevice] !== undefined ? 
-            defaultValues[localActiveDevice] : 
-            (defaultValues.default !== undefined ? defaultValues.default : options[0].value);
-        
-        return values[localActiveDevice] === defaultVal;
-    };
+	// Determine if reset button should be disabled
+	const isResetDisabled = () => {
+		let expectedDefault;
+		
+		if (defaultValues) {
+			// Use provided defaultValues
+			expectedDefault = defaultValues[localActiveDevice] !== undefined ? 
+				defaultValues[localActiveDevice] : 
+				(defaultValues.default !== undefined ? defaultValues.default : options[0].value);
+		} else {
+			// Auto-detect defaults: desktop uses first option, tablet/mobile use empty string
+			expectedDefault = localActiveDevice === 'desktop' ? options[0].value : '';
+		}
+		
+		return values[localActiveDevice] === expectedDefault;
+	};
 
     // THIS IS ALSO KEY - use the same handleToggleDevice approach as ResponsiveControl
     const handleToggleDevice = () => {
@@ -146,7 +157,7 @@ const ResponsiveButtonGroup = ({
                         </div>
                         <div className="digiblocks-range-control__mobile-controls">
                             <ToggleGroupControl
-                                value={values[localActiveDevice]}
+                                value={values[localActiveDevice] === '' ? undefined : values[localActiveDevice]}
                                 onChange={updateValue}
                                 isBlock
                                 __next40pxDefaultSize={true}

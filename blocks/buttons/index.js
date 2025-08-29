@@ -78,8 +78,8 @@ registerBlockType('digiblocks/buttons', {
             type: 'object',
             default: {
                 desktop: 10,
-                tablet: 8,
-                mobile: 6
+                tablet: '',
+                mobile: ''
             }
         },
         animation: {

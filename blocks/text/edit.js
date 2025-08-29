@@ -60,6 +60,21 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
     // Create unique class
     useBlockId(id, clientId, setAttributes);
 
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		if (device === 'mobile') {
+			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
+				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : obj.desktop;
+		}
+		return obj.desktop;
+	};
+
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
@@ -201,16 +216,17 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
         const activeDevice = window.digi.responsiveState.activeDevice;
 
         // Set alignment properties based on align value
-        let alignCSS = '';
-        if (align[activeDevice] === 'left') {
-            alignCSS = 'text-align: left;';
-        } else if (align[activeDevice] === 'center') {
-            alignCSS = 'text-align: center;';
-        } else if (align[activeDevice] === 'right') {
-            alignCSS = 'text-align: right;';
-        } else if (align[activeDevice] === 'justify') {
-            alignCSS = 'text-align: justify;';
-        }
+		let alignCSS = '';
+		const alignValue = getVal(align, activeDevice);
+		if (alignValue === 'left') {
+			alignCSS = 'text-align: left;';
+		} else if (alignValue === 'center') {
+			alignCSS = 'text-align: center;';
+		} else if (alignValue === 'right') {
+			alignCSS = 'text-align: right;';
+		} else if (alignValue === 'justify') {
+			alignCSS = 'text-align: justify;';
+		}
         
         // Border styles
         let borderRadiusCSS = getDimensionCSS(borderRadius, 'border-radius', activeDevice);
@@ -255,9 +271,10 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
                 typographyCSS += `font-family: ${typography.fontFamily};`;
             }
             
-            if (typography.fontSize && typography.fontSize[activeDevice]) {
-                typographyCSS += `font-size: ${typography.fontSize[activeDevice]}${typography.fontSizeUnit || 'px'};`;
-            }
+            const fontSize = getVal(typography.fontSize, activeDevice);
+			if (fontSize) {
+				typographyCSS += `font-size: ${fontSize}${typography.fontSizeUnit || 'px'};`;
+			}
             
             if (typography.fontWeight) {
                 typographyCSS += `font-weight: ${typography.fontWeight};`;
@@ -275,13 +292,15 @@ const TextEdit = ({ attributes, setAttributes, clientId }) => {
                 typographyCSS += `text-decoration: ${typography.textDecoration};`;
             }
             
-            if (typography.lineHeight && typography.lineHeight[activeDevice]) {
-                typographyCSS += `line-height: ${typography.lineHeight[activeDevice]}${typography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (typography.letterSpacing && typography.letterSpacing[activeDevice]) {
-                typographyCSS += `letter-spacing: ${typography.letterSpacing[activeDevice]}${typography.letterSpacingUnit || 'px'};`;
-            }
+            const lineHeight = getVal(typography.lineHeight, activeDevice);
+			if (lineHeight) {
+				typographyCSS += `line-height: ${lineHeight}${typography.lineHeightUnit || 'em'};`;
+			}
+			
+			const letterSpacing = getVal(typography.letterSpacing, activeDevice);
+			if (letterSpacing) {
+				typographyCSS += `letter-spacing: ${letterSpacing}${typography.letterSpacingUnit || 'px'};`;
+			}
         }
 
         // Background

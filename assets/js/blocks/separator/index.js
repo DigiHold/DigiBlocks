@@ -168,6 +168,17 @@
       textColor
     } = attributes;
     useBlockId(id, clientId, setAttributes);
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     useEffect(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
@@ -368,8 +379,8 @@
                 }
                 
                 .${id} .digiblocks-separator-icon svg {
-                    width: ${iconSize[activeDevice] || 24}px;
-                    height: ${iconSize[activeDevice] || 24}px;
+                    width: ${getVal(iconSize, activeDevice) || 24}px;
+					height: ${getVal(iconSize, activeDevice) || 24}px;
                     fill: ${textColor || primaryColor};
                 }
             `;
@@ -379,8 +390,9 @@
         if (typography.fontFamily) {
           typographyStyles += `font-family: ${typography.fontFamily};`;
         }
-        if (typography.fontSize && typography.fontSize[activeDevice]) {
-          typographyStyles += `font-size: ${typography.fontSize[activeDevice]}${typography.fontSizeUnit || "px"};`;
+        const fontSize = getVal(typography.fontSize, activeDevice);
+        if (fontSize) {
+          typographyStyles += `font-size: ${fontSize}${typography.fontSizeUnit || "px"};`;
         }
         if (typography.fontWeight) {
           typographyStyles += `font-weight: ${typography.fontWeight};`;
@@ -391,11 +403,13 @@
         if (typography.textTransform) {
           typographyStyles += `text-transform: ${typography.textTransform};`;
         }
-        if (typography.lineHeight && typography.lineHeight[activeDevice]) {
-          typographyStyles += `line-height: ${typography.lineHeight[activeDevice]}${typography.lineHeightUnit || "em"};`;
+        const lineHeight = getVal(typography.lineHeight, activeDevice);
+        if (lineHeight) {
+          typographyStyles += `line-height: ${lineHeight}${typography.lineHeightUnit || "em"};`;
         }
-        if (typography.letterSpacing && typography.letterSpacing[activeDevice]) {
-          typographyStyles += `letter-spacing: ${typography.letterSpacing[activeDevice]}${typography.letterSpacingUnit || "px"};`;
+        const letterSpacing = getVal(typography.letterSpacing, activeDevice);
+        if (letterSpacing || letterSpacing === 0) {
+          typographyStyles += `letter-spacing: ${letterSpacing}${typography.letterSpacingUnit || "px"};`;
         }
         contentStyles += `
                 .${id} .digiblocks-separator-text {
@@ -1215,8 +1229,8 @@
         type: "object",
         default: {
           desktop: 100,
-          tablet: 100,
-          mobile: 100
+          tablet: "",
+          mobile: ""
         }
       },
       widthUnit: {
@@ -1227,8 +1241,8 @@
         type: "object",
         default: {
           desktop: 3,
-          tablet: 2,
-          mobile: 2
+          tablet: "",
+          mobile: ""
         }
       },
       heightUnit: {
@@ -1239,8 +1253,8 @@
         type: "object",
         default: {
           desktop: 0,
-          tablet: 0,
-          mobile: 0
+          tablet: "",
+          mobile: ""
         }
       },
       margin: {
@@ -1252,13 +1266,13 @@
             unit: "px"
           },
           tablet: {
-            top: 25,
-            bottom: 25,
+            top: "",
+            bottom: "",
             unit: "px"
           },
           mobile: {
-            top: 20,
-            bottom: 20,
+            top: "",
+            bottom: "",
             unit: "px"
           }
         }
@@ -1275,15 +1289,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+          fontSize: { desktop: 16, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "",
           fontStyle: "normal",
           textTransform: "",
           textDecoration: "",
-          lineHeight: { desktop: 1.5, tablet: 1.5, mobile: 1.5 },
+          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -1291,16 +1305,16 @@
         type: "object",
         default: {
           desktop: 24,
-          tablet: 20,
-          mobile: 16
+          tablet: "",
+          mobile: ""
         }
       },
       gap: {
         type: "object",
         default: {
           desktop: 15,
-          tablet: 10,
-          mobile: 8
+          tablet: "",
+          mobile: ""
         }
       }
     },

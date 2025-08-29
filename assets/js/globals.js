@@ -1923,18 +1923,22 @@
       });
     };
     const resetValue = () => {
+      let defaultVal;
       if (defaultValues) {
-        const defaultVal = defaultValues[localActiveDevice] !== void 0 ? defaultValues[localActiveDevice] : defaultValues.default !== void 0 ? defaultValues.default : options[0].value;
-        updateValue(defaultVal);
+        defaultVal = defaultValues[localActiveDevice] !== void 0 ? defaultValues[localActiveDevice] : defaultValues.default !== void 0 ? defaultValues.default : options[0].value;
       } else {
-        updateValue(defaultValue);
+        defaultVal = localActiveDevice === "desktop" ? options[0].value : "";
       }
+      updateValue(defaultVal);
     };
     const isResetDisabled = () => {
-      if (!defaultValues)
-        return false;
-      const defaultVal = defaultValues[localActiveDevice] !== void 0 ? defaultValues[localActiveDevice] : defaultValues.default !== void 0 ? defaultValues.default : options[0].value;
-      return values[localActiveDevice] === defaultVal;
+      let expectedDefault;
+      if (defaultValues) {
+        expectedDefault = defaultValues[localActiveDevice] !== void 0 ? defaultValues[localActiveDevice] : defaultValues.default !== void 0 ? defaultValues.default : options[0].value;
+      } else {
+        expectedDefault = localActiveDevice === "desktop" ? options[0].value : "";
+      }
+      return values[localActiveDevice] === expectedDefault;
     };
     const handleToggleDevice = () => {
       if (window.digi?.responsiveState?.toggleDevice) {
@@ -1970,7 +1974,7 @@
     )))), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-range-control__mobile-controls" }, /* @__PURE__ */ wp.element.createElement(
       ToggleGroupControl5,
       {
-        value: values[localActiveDevice],
+        value: values[localActiveDevice] === "" ? void 0 : values[localActiveDevice],
         onChange: updateValue,
         isBlock: true,
         __next40pxDefaultSize: true,

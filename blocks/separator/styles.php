@@ -28,34 +28,34 @@ $textColor          = isset( $attrs['textColor'] ) ? $attrs['textColor'] : '#333
 $animation          = isset( $attrs['animation'] ) ? $attrs['animation'] : 'none';
 $iconSize           = isset( $attrs['iconSize'] ) ? $attrs['iconSize'] : array(
     'desktop' => 24,
-    'tablet'  => 20,
-    'mobile'  => 16
+    'tablet'  => '',
+    'mobile'  => ''
 );
 $gap                = isset( $attrs['gap'] ) ? $attrs['gap'] : array(
     'desktop' => 15,
-    'tablet'  => 10,
-    'mobile'  => 8
+    'tablet'  => '',
+    'mobile'  => ''
 );
 
 // Width and height with units
 $width              = isset( $attrs['width'] ) ? $attrs['width'] : array(
     'desktop' => 100,
-    'tablet'  => 100,
-    'mobile'  => 100
+    'tablet'  => '',
+    'mobile'  => ''
 );
 $widthUnit          = isset( $attrs['widthUnit'] ) ? $attrs['widthUnit'] : '%';
 $height             = isset( $attrs['height'] ) ? $attrs['height'] : array(
     'desktop' => 3,
-    'tablet'  => 2,
-    'mobile'  => 2
+    'tablet'  => '',
+    'mobile'  => ''
 );
 $heightUnit         = isset( $attrs['heightUnit'] ) ? $attrs['heightUnit'] : 'px';
 
 // Border radius (only used for some styles)
 $borderRadius       = isset( $attrs['borderRadius'] ) ? $attrs['borderRadius'] : array(
     'desktop' => 0,
-    'tablet'  => 0,
-    'mobile'  => 0
+    'tablet'  => '',
+    'mobile'  => ''
 );
 
 // Margin
@@ -66,13 +66,13 @@ $margin             = isset( $attrs['margin'] ) ? $attrs['margin'] : array(
         'unit'   => 'px',
     ),
     'tablet'  => array(
-        'top'    => 25,
-        'bottom' => 25,
+        'top'    => '',
+        'bottom' => '',
         'unit'   => 'px',
     ),
     'mobile'  => array(
-        'top'    => 20,
-        'bottom' => 20,
+        'top'    => '',
+        'bottom' => '',
         'unit'   => 'px',
     ),
 );
@@ -82,8 +82,8 @@ $typography         = isset( $attrs['typography'] ) ? $attrs['typography'] : arr
     'fontFamily'        => '',
     'fontSize'          => array(
         'desktop' => 16,
-        'tablet'  => 15,
-        'mobile'  => 14,
+        'tablet'  => '',
+        'mobile'  => '',
     ),
     'fontSizeUnit'      => 'px',
     'fontWeight'        => '',
@@ -92,14 +92,14 @@ $typography         = isset( $attrs['typography'] ) ? $attrs['typography'] : arr
     'textDecoration'    => '',
     'lineHeight'        => array(
         'desktop' => 1.5,
-        'tablet'  => 1.5,
-        'mobile'  => 1.5,
+        'tablet'  => '',
+        'mobile'  => '',
     ),
     'lineHeightUnit'    => 'em',
     'letterSpacing'     => array(
         'desktop' => 0,
-        'tablet'  => 0,
-        'mobile'  => 0,
+        'tablet'  => '',
+        'mobile'  => '',
     ),
     'letterSpacingUnit' => 'px',
 );
@@ -249,7 +249,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( !empty($typography['fontSize']['desktop']) ) : ?>
-    font-size: <?php echo esc_attr( $typography['fontSize']['desktop'] . ($typography['fontSizeUnit'] ?: 'px') ); ?>;
+    font-size: <?php echo esc_attr( $typography['fontSize']['desktop'] . ($typography['fontSizeUnit'] ?? 'px') ); ?>;
     <?php endif; ?>
     
     <?php if ( !empty($typography['fontWeight']) ) : ?>
@@ -265,120 +265,141 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( !empty($typography['lineHeight']['desktop']) ) : ?>
-    line-height: <?php echo esc_attr( $typography['lineHeight']['desktop'] . ($typography['lineHeightUnit'] ?: 'em') ); ?>;
+    line-height: <?php echo esc_attr( $typography['lineHeight']['desktop'] . ($typography['lineHeightUnit'] ?? 'em') ); ?>;
     <?php endif; ?>
     
     <?php if ( !empty($typography['letterSpacing']['desktop']) ) : ?>
-    letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['desktop'] . ($typography['letterSpacingUnit'] ?: 'px') ); ?>;
+    letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['desktop'] . ($typography['letterSpacingUnit'] ?? 'px') ); ?>;
     <?php endif; ?>
 }
 <?php endif; ?>
 
 /* Tablet Styles */
 @media (max-width: 991px) {
-    .<?php echo esc_attr( $id ); ?> {
-        margin-top: <?php echo esc_attr( isset($margin['tablet']['top']) ? $margin['tablet']['top'] . ($margin['tablet']['unit'] ?: 'px') : $margin['desktop']['top'] . $margin['desktop']['unit'] ); ?>;
-        margin-bottom: <?php echo esc_attr( isset($margin['tablet']['bottom']) ? $margin['tablet']['bottom'] . ($margin['tablet']['unit'] ?: 'px') : $margin['desktop']['bottom'] . $margin['desktop']['unit'] ); ?>;
-    }
+    <?php if ( !empty($margin['tablet']['top']) || !empty($margin['tablet']['bottom']) ) : ?>
+	.<?php echo esc_attr( $id ); ?> {
+		<?php if ( !empty($margin['tablet']['top']) ) : ?>
+		margin-top: <?php echo esc_attr( $margin['tablet']['top'] . ($margin['tablet']['unit'] ?? 'px') ); ?>;
+		<?php endif; ?>
+		<?php if ( !empty($margin['tablet']['bottom']) ) : ?>
+		margin-bottom: <?php echo esc_attr( $margin['tablet']['bottom'] . ($margin['tablet']['unit'] ?? 'px') ); ?>;
+		<?php endif; ?>
+	}
+	<?php endif; ?>
     
-    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-line {
-        width: <?php echo esc_attr( isset($width['tablet']) ? $width['tablet'] . $widthUnit : $width['desktop'] . $widthUnit ); ?>;
-        <?php if ( !in_array($separatorStyle, array('dashed', 'dotted')) ) : ?>
-        height: <?php echo esc_attr( isset($height['tablet']) ? $height['tablet'] . $heightUnit : $height['desktop'] . $heightUnit ); ?>;
-        <?php else : ?>
-        border-top-width: <?php echo esc_attr( isset($height['tablet']) ? $height['tablet'] . $heightUnit : $height['desktop'] . $heightUnit ); ?>;
-        <?php endif; ?>
-        
-        <?php if ( in_array($separatorStyle, array('line', 'gradient', 'shadow')) && isset($borderRadius['tablet']) ) : ?>
-        border-radius: <?php echo esc_attr( $borderRadius['tablet'] ); ?>px;
-        <?php endif; ?>
-    }
+    <?php if ( !empty($width['tablet']) || !empty($height['tablet']) || !empty($borderRadius['tablet']) ) : ?>
+	.<?php echo esc_attr( $id ); ?> .digiblocks-separator-line {
+		<?php if ( !empty($width['tablet']) ) : ?>
+		width: <?php echo esc_attr( $width['tablet'] . $widthUnit ); ?>;
+		<?php endif; ?>
+		
+		<?php if ( !empty($height['tablet']) ) : ?>
+			<?php if ( !in_array($separatorStyle, array('dashed', 'dotted')) ) : ?>
+			height: <?php echo esc_attr( $height['tablet'] . $heightUnit ); ?>;
+			<?php else : ?>
+			border-top-width: <?php echo esc_attr( $height['tablet'] . $heightUnit ); ?>;
+			<?php endif; ?>
+		<?php endif; ?>
+		
+		<?php if ( in_array($separatorStyle, array('line', 'gradient', 'shadow')) && !empty($borderRadius['tablet']) ) : ?>
+		border-radius: <?php echo esc_attr( $borderRadius['tablet'] ); ?>px;
+		<?php endif; ?>
+	}
+	<?php endif; ?>
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-separator-shape {
         width: 100%;
         height: 100%;
     }
     
-    <?php if ( 'none' !== $contentType && !in_array($separatorStyle, array('wave', 'zigzag', 'slant')) ) : ?>
-    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-content {
-        padding: 0 <?php echo esc_attr( isset($gap['tablet']) ? $gap['tablet'] : $gap['desktop'] ); ?>px;
-    }
-    <?php endif; ?>
+    <?php if ( 'none' !== $contentType && !in_array($separatorStyle, array('wave', 'zigzag', 'slant')) && !empty($gap['tablet']) ) : ?>
+	.<?php echo esc_attr( $id ); ?> .digiblocks-separator-content {
+		padding: 0 <?php echo esc_attr( $gap['tablet'] ); ?>px;
+	}
+	<?php endif; ?>
     
-    <?php if ( 'icon' === $contentType && $iconValue && isset($iconValue['svg']) ) : ?>
-    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-icon svg {
-        width: <?php echo esc_attr( isset($iconSize['tablet']) ? $iconSize['tablet'] : $iconSize['desktop'] ); ?>px;
-        height: <?php echo esc_attr( isset($iconSize['tablet']) ? $iconSize['tablet'] : $iconSize['desktop'] ); ?>px;
-    }
-    <?php endif; ?>
+    <?php if ( 'icon' === $contentType && $iconValue && isset($iconValue['svg']) && !empty($iconSize['tablet']) ) : ?>
+	.<?php echo esc_attr( $id ); ?> .digiblocks-separator-icon svg {
+		width: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
+		height: <?php echo esc_attr( $iconSize['tablet'] ); ?>px;
+	}
+	<?php endif; ?>
     
-    <?php if ( 'text' === $contentType && isset($typography['fontSize']['tablet']) ) : ?>
-    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-text {
-        <?php if ( isset($typography['fontSize']['tablet']) ) : ?>
-        font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ($typography['fontSizeUnit'] ?: 'px') ); ?>;
-        <?php endif; ?>
-        
-        <?php if ( isset($typography['lineHeight']['tablet']) ) : ?>
-        line-height: <?php echo esc_attr( $typography['lineHeight']['tablet'] . ($typography['lineHeightUnit'] ?: 'em') ); ?>;
-        <?php endif; ?>
-        
-        <?php if ( isset($typography['letterSpacing']['tablet']) ) : ?>
-        letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['tablet'] . ($typography['letterSpacingUnit'] ?: 'px') ); ?>;
-        <?php endif; ?>
-    }
-    <?php endif; ?>
+    <?php if ( 'text' === $contentType && ( !empty($typography['fontSize']['tablet']) || !empty($typography['lineHeight']['tablet']) || ( isset($typography['letterSpacing']['tablet']) && $typography['letterSpacing']['tablet'] !== '' ) ) ) : ?>
+	.<?php echo esc_attr( $id ); ?> .digiblocks-separator-text {
+		<?php if ( !empty($typography['fontSize']['tablet']) ) : ?>
+		font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ($typography['fontSizeUnit'] ?? 'px') ); ?>;
+		<?php endif; ?>
+		
+		<?php if ( !empty($typography['lineHeight']['tablet']) ) : ?>
+		line-height: <?php echo esc_attr( $typography['lineHeight']['tablet'] . ($typography['lineHeightUnit'] ?? 'em') ); ?>;
+		<?php endif; ?>
+		
+		<?php if ( isset($typography['letterSpacing']['tablet']) && $typography['letterSpacing']['tablet'] !== '' ) : ?>
+		letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['tablet'] . ($typography['letterSpacingUnit'] ?? 'px') ); ?>;
+		<?php endif; ?>
+	}
+	<?php endif; ?>
 }
 
 /* Mobile Styles */
 @media (max-width: 767px) {
+    <?php if ( !empty($margin['mobile']['top']) || !empty($margin['mobile']['bottom']) ) : ?>
     .<?php echo esc_attr( $id ); ?> {
-        margin-top: <?php echo esc_attr( isset($margin['mobile']['top']) ? $margin['mobile']['top'] . ($margin['mobile']['unit'] ?: 'px') : $margin['desktop']['top'] . $margin['desktop']['unit'] ); ?>;
-        margin-bottom: <?php echo esc_attr( isset($margin['mobile']['bottom']) ? $margin['mobile']['bottom'] . ($margin['mobile']['unit'] ?: 'px') : $margin['desktop']['bottom'] . $margin['desktop']['unit'] ); ?>;
+        <?php if ( !empty($margin['mobile']['top']) ) : ?>
+        margin-top: <?php echo esc_attr( $margin['mobile']['top'] . ($margin['mobile']['unit'] ?? 'px') ); ?>;
+        <?php endif; ?>
+        <?php if ( !empty($margin['mobile']['bottom']) ) : ?>
+        margin-bottom: <?php echo esc_attr( $margin['mobile']['bottom'] . ($margin['mobile']['unit'] ?? 'px') ); ?>;
+        <?php endif; ?>
     }
+    <?php endif; ?>
     
+    <?php if ( !empty($width['mobile']) || !empty($height['mobile']) || !empty($borderRadius['mobile']) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-separator-line {
-        width: <?php echo esc_attr( isset($width['mobile']) ? $width['mobile'] . $widthUnit : $width['desktop'] . $widthUnit ); ?>;
-        <?php if ( !in_array($separatorStyle, array('dashed', 'dotted')) ) : ?>
-        height: <?php echo esc_attr( isset($height['mobile']) ? $height['mobile'] . $heightUnit : $height['desktop'] . $heightUnit ); ?>;
-        <?php else : ?>
-        border-top-width: <?php echo esc_attr( isset($height['mobile']) ? $height['mobile'] . $heightUnit : $height['desktop'] . $heightUnit ); ?>;
+        <?php if ( !empty($width['mobile']) ) : ?>
+        width: <?php echo esc_attr( $width['mobile'] . $widthUnit ); ?>;
         <?php endif; ?>
         
-        <?php if ( in_array($separatorStyle, array('line', 'gradient', 'shadow')) && isset($borderRadius['mobile']) ) : ?>
+        <?php if ( !empty($height['mobile']) ) : ?>
+            <?php if ( !in_array($separatorStyle, array('dashed', 'dotted')) ) : ?>
+            height: <?php echo esc_attr( $height['mobile'] . $heightUnit ); ?>;
+            <?php else : ?>
+            border-top-width: <?php echo esc_attr( $height['mobile'] . $heightUnit ); ?>;
+            <?php endif; ?>
+        <?php endif; ?>
+        
+        <?php if ( in_array($separatorStyle, array('line', 'gradient', 'shadow')) && !empty($borderRadius['mobile']) ) : ?>
         border-radius: <?php echo esc_attr( $borderRadius['mobile'] ); ?>px;
         <?php endif; ?>
     }
+    <?php endif; ?>
     
-    .<?php echo esc_attr( $id ); ?> .digiblocks-separator-shape {
-        width: 100%;
-        height: 100%;
-    }
-    
-    <?php if ( 'none' !== $contentType && !in_array($separatorStyle, array('wave', 'zigzag', 'slant')) ) : ?>
+    <?php if ( 'none' !== $contentType && !in_array($separatorStyle, array('wave', 'zigzag', 'slant')) && !empty($gap['mobile']) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-separator-content {
-        padding: 0 <?php echo esc_attr( isset($gap['mobile']) ? $gap['mobile'] : $gap['desktop'] ); ?>px;
+        padding: 0 <?php echo esc_attr( $gap['mobile'] ); ?>px;
     }
     <?php endif; ?>
     
-    <?php if ( 'icon' === $contentType && $iconValue && isset($iconValue['svg']) ) : ?>
+    <?php if ( 'icon' === $contentType && $iconValue && isset($iconValue['svg']) && !empty($iconSize['mobile']) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-separator-icon svg {
-        width: <?php echo esc_attr( isset($iconSize['mobile']) ? $iconSize['mobile'] : $iconSize['desktop'] ); ?>px;
-        height: <?php echo esc_attr( isset($iconSize['mobile']) ? $iconSize['mobile'] : $iconSize['desktop'] ); ?>px;
+        width: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
+        height: <?php echo esc_attr( $iconSize['mobile'] ); ?>px;
     }
     <?php endif; ?>
     
-    <?php if ( 'text' === $contentType && isset($typography['fontSize']['mobile']) ) : ?>
+    <?php if ( 'text' === $contentType && ( !empty($typography['fontSize']['mobile']) || !empty($typography['lineHeight']['mobile']) || ( isset($typography['letterSpacing']['mobile']) && $typography['letterSpacing']['mobile'] !== '' ) ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-separator-text {
-        <?php if ( isset($typography['fontSize']['mobile']) ) : ?>
-        font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ($typography['fontSizeUnit'] ?: 'px') ); ?>;
+        <?php if ( !empty($typography['fontSize']['mobile']) ) : ?>
+        font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ($typography['fontSizeUnit'] ?? 'px') ); ?>;
         <?php endif; ?>
         
-        <?php if ( isset($typography['lineHeight']['mobile']) ) : ?>
-        line-height: <?php echo esc_attr( $typography['lineHeight']['mobile'] . ($typography['lineHeightUnit'] ?: 'em') ); ?>;
+        <?php if ( !empty($typography['lineHeight']['mobile']) ) : ?>
+        line-height: <?php echo esc_attr( $typography['lineHeight']['mobile'] . ($typography['lineHeightUnit'] ?? 'em') ); ?>;
         <?php endif; ?>
         
-        <?php if ( isset($typography['letterSpacing']['mobile']) ) : ?>
-        letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['mobile'] . ($typography['letterSpacingUnit'] ?: 'px') ); ?>;
+        <?php if ( isset($typography['letterSpacing']['mobile']) && $typography['letterSpacing']['mobile'] !== '' ) : ?>
+        letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['mobile'] . ($typography['letterSpacingUnit'] ?? 'px') ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>

@@ -175,7 +175,7 @@ class DigiBlocks_Image_API_Handler {
 		foreach ( $data['results'] as $photo ) {
 			$images[] = array(
 				'id' => $photo['id'],
-				'title' => $photo['alt_description'] ?: $photo['description'] ?: 'Unsplash Image',
+				'title' => $photo['alt_description'] ?: $photo['description'] ?? 'Unsplash Image',
 				'url' => $photo['urls']['regular'],
 				'thumb' => $photo['urls']['thumb'],
 				'width' => $photo['width'],
@@ -183,7 +183,7 @@ class DigiBlocks_Image_API_Handler {
 				'author' => $photo['user']['name'],
 				'author_url' => $photo['user']['links']['html'],
 				'source_url' => $photo['links']['html'],
-				'alt' => $photo['alt_description'] ?: $photo['description'] ?: '',
+				'alt' => $photo['alt_description'] ?: $photo['description'] ?? '',
 			);
 		}
 
@@ -233,7 +233,7 @@ class DigiBlocks_Image_API_Handler {
 		foreach ( $data['photos'] as $photo ) {
 			$images[] = array(
 				'id' => $photo['id'],
-				'title' => $photo['alt'] ?: 'Pexels Image',
+				'title' => $photo['alt'] ?? 'Pexels Image',
 				'url' => $photo['src']['large'],
 				'thumb' => $photo['src']['medium'],
 				'width' => $photo['width'],
@@ -241,7 +241,7 @@ class DigiBlocks_Image_API_Handler {
 				'author' => $photo['photographer'],
 				'author_url' => $photo['photographer_url'],
 				'source_url' => $photo['url'],
-				'alt' => $photo['alt'] ?: '',
+				'alt' => $photo['alt'] ?? '',
 			);
 		}
 
@@ -292,7 +292,7 @@ class DigiBlocks_Image_API_Handler {
 		foreach ( $data['hits'] as $photo ) {
 			$images[] = array(
 				'id' => $photo['id'],
-				'title' => $photo['tags'] ?: 'Pixabay Image',
+				'title' => $photo['tags'] ?? 'Pixabay Image',
 				'url' => $photo['largeImageURL'],
 				'thumb' => $photo['previewURL'],
 				'width' => $photo['imageWidth'],
@@ -300,7 +300,7 @@ class DigiBlocks_Image_API_Handler {
 				'author' => $photo['user'],
 				'author_url' => 'https://pixabay.com/users/' . $photo['user'] . '-' . $photo['user_id'] . '/',
 				'source_url' => $photo['pageURL'],
-				'alt' => $photo['tags'] ?: '',
+				'alt' => $photo['tags'] ?? '',
 			);
 		}
 

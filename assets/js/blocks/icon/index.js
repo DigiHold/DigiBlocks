@@ -20,7 +20,7 @@
   var { useState, useEffect, useRef } = window.wp.element;
   var { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
   var { tabIcons } = digi.icons;
-  var { ResponsiveControl, ResponsiveButtonGroup, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
+  var { ResponsiveControl, ResponsiveButtonGroup, ResponsiveRangeControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
   var IconEdit = ({ attributes, setAttributes, clientId }) => {
     const {
       id,
@@ -31,6 +31,7 @@
       customSvg,
       iconValue,
       iconSize,
+      iconHeight,
       iconColor,
       iconBackgroundColor,
       iconBorderStyle,
@@ -62,6 +63,17 @@
       flipVertical
     } = attributes;
     useBlockId(id, clientId, setAttributes);
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile && obj.mobile.value !== "" && obj.mobile.value !== void 0 && obj.mobile.value !== null ? obj.mobile : obj.tablet && obj.tablet.value !== "" && obj.tablet.value !== void 0 && obj.tablet.value !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet && obj.tablet.value !== "" && obj.tablet.value !== void 0 && obj.tablet.value !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     const [isAnimating, setIsAnimating] = useState(false);
     useEffect(() => {
@@ -109,6 +121,29 @@
     }, []);
     const setIconValue = (newIcon) => {
       setAttributes({ iconValue: newIcon });
+    };
+    const getMaxValue = (unit) => {
+      switch (unit) {
+        case "%":
+          return 100;
+        case "em":
+        case "rem":
+          return 10;
+        case "px":
+        default:
+          return 1e3;
+      }
+    };
+    const getStepValue = (unit) => {
+      switch (unit) {
+        case "%":
+        case "em":
+        case "rem":
+          return 0.1;
+        case "px":
+        default:
+          return 1;
+      }
     };
     const previewTimeoutRef = useRef(null);
     useEffect(() => {
@@ -300,11 +335,17 @@
             }
             
             .${id} .digiblocks-icon svg {
-                width: ${iconSize[activeDevice]}px;
-                height: auto;
-                fill: ${iconColor || "inherit"};
-                transition: all 0.3s ease;
-            }
+				width: ${(() => {
+        const sizeObj = getVal(iconSize, activeDevice);
+        return sizeObj && sizeObj.value !== "" && sizeObj.value !== void 0 && sizeObj.value !== null ? `${sizeObj.value}${sizeObj.unit}` : "48px";
+      })()};
+				height: ${(() => {
+        const heightObj = getVal(iconHeight, activeDevice);
+        return heightObj && heightObj.value !== "" && heightObj.value !== void 0 && heightObj.value !== null ? `${heightObj.value}${heightObj.unit}` : "auto";
+      })()};
+				fill: ${iconColor || "inherit"};
+				transition: all 0.3s ease;
+			}
             
             /* Icon hover styles */
             .${id}:hover .digiblocks-icon {
@@ -825,30 +866,40 @@
               initialOpen: true
             },
             /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl,
+              ResponsiveRangeControl,
               {
-                label: __(
-                  "Icon Size",
-                  "digiblocks"
-                )
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                RangeControl,
-                {
-                  value: iconSize[localActiveDevice],
-                  onChange: (value) => setAttributes({
-                    iconSize: {
-                      ...iconSize,
-                      [localActiveDevice]: value
-                    }
-                  }),
-                  min: 8,
-                  max: 500,
-                  step: 1,
-                  __next40pxDefaultSize: true,
-                  __nextHasNoMarginBottom: true
-                }
-              )
+                label: __("Icon Width", "digiblocks"),
+                value: iconSize,
+                onChange: (value) => setAttributes({ iconSize: value }),
+                units: [
+                  { label: "px", value: "px" },
+                  { label: "%", value: "%" },
+                  { label: "em", value: "em" },
+                  { label: "rem", value: "rem" }
+                ],
+                defaultUnit: "px",
+                min: 0,
+                max: getMaxValue(iconSize?.[localActiveDevice]?.unit),
+                step: getStepValue(iconSize?.[localActiveDevice]?.unit)
+              }
+            ),
+            /* @__PURE__ */ wp.element.createElement(
+              ResponsiveRangeControl,
+              {
+                label: __("Icon Height", "digiblocks"),
+                value: iconHeight,
+                onChange: (value) => setAttributes({ iconHeight: value }),
+                units: [
+                  { label: "px", value: "px" },
+                  { label: "%", value: "%" },
+                  { label: "em", value: "em" },
+                  { label: "rem", value: "rem" }
+                ],
+                defaultUnit: "px",
+                min: 0,
+                max: getMaxValue(iconHeight?.[localActiveDevice]?.unit),
+                step: getStepValue(iconHeight?.[localActiveDevice]?.unit)
+              }
             ),
             /* @__PURE__ */ wp.element.createElement(
               TabPanel,
@@ -1336,8 +1387,8 @@
         type: "object",
         default: {
           desktop: { top: 10, right: 10, bottom: 10, left: 10, unit: "px" },
-          tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: "px" },
-          mobile: { top: 5, right: 5, bottom: 5, left: 5, unit: "px" }
+          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
         }
       },
       iconMargin: {
@@ -1379,9 +1430,17 @@
       iconSize: {
         type: "object",
         default: {
-          desktop: 48,
-          tablet: 40,
-          mobile: 32
+          desktop: { value: 48, unit: "px" },
+          tablet: { value: "", unit: "px" },
+          mobile: { value: "", unit: "px" }
+        }
+      },
+      iconHeight: {
+        type: "object",
+        default: {
+          desktop: { value: "", unit: "px" },
+          tablet: { value: "", unit: "px" },
+          mobile: { value: "", unit: "px" }
         }
       },
       backgroundColor: {
@@ -1411,17 +1470,17 @@
             unit: "px"
           },
           tablet: {
-            top: 8,
-            right: 8,
-            bottom: 8,
-            left: 8,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           mobile: {
-            top: 8,
-            right: 8,
-            bottom: 8,
-            left: 8,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           }
         }
@@ -1437,17 +1496,17 @@
             unit: "px"
           },
           tablet: {
-            top: 1,
-            right: 1,
-            bottom: 1,
-            left: 1,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           mobile: {
-            top: 1,
-            right: 1,
-            bottom: 1,
-            left: 1,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           }
         }

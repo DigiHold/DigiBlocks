@@ -108,6 +108,17 @@
       badgeBoxShadowHover
     } = attributes;
     useBlockId(id, clientId, setAttributes);
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     const [isAnimating, setIsAnimating] = useState(false);
     useEffect(() => {
@@ -217,22 +228,32 @@
     ];
     const generateCSS = () => {
       const activeDevice = window.digi.responsiveState.activeDevice;
+      const currentAlign = getVal(align, activeDevice);
       let alignCSS = "";
-      if (align[activeDevice] === "flex-start") {
+      if (currentAlign === "flex-start") {
         alignCSS = `
 				align-items: flex-start;
 				text-align: left;
 			`;
-      } else if (align[activeDevice] === "center") {
+      } else if (currentAlign === "center") {
         alignCSS = `
 				align-items: center;
 				text-align: center;
 			`;
-      } else if (align[activeDevice] === "flex-end") {
+      } else if (currentAlign === "flex-end") {
         alignCSS = `
 				align-items: flex-end;
 				text-align: right;
 			`;
+      }
+      const currentIconLayout = getVal(iconLayout, activeDevice);
+      let flexDirectionCSS = "";
+      if (currentIconLayout === "above") {
+        flexDirectionCSS = "flex-direction: column;";
+      } else if (currentIconLayout === "after") {
+        flexDirectionCSS = "flex-direction: row-reverse;";
+      } else {
+        flexDirectionCSS = "flex-direction: row;";
       }
       let borderRadiusCSS = getDimensionCSS(borderRadius, "border-radius", activeDevice);
       let borderCSS = "";
@@ -257,8 +278,9 @@
         if (titleTypography.fontFamily) {
           titleTypographyCSS += `font-family: ${titleTypography.fontFamily};`;
         }
-        if (titleTypography.fontSize && titleTypography.fontSize[activeDevice]) {
-          titleTypographyCSS += `font-size: ${titleTypography.fontSize[activeDevice]}${titleTypography.fontSizeUnit || "px"};`;
+        const titleFontSize = getVal(titleTypography.fontSize, activeDevice);
+        if (titleFontSize) {
+          titleTypographyCSS += `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || "px"};`;
         }
         if (titleTypography.fontWeight) {
           titleTypographyCSS += `font-weight: ${titleTypography.fontWeight};`;
@@ -272,11 +294,13 @@
         if (titleTypography.textDecoration) {
           titleTypographyCSS += `text-decoration: ${titleTypography.textDecoration};`;
         }
-        if (titleTypography.lineHeight && titleTypography.lineHeight[activeDevice]) {
-          titleTypographyCSS += `line-height: ${titleTypography.lineHeight[activeDevice]}${titleTypography.lineHeightUnit || "em"};`;
+        const titleLineHeight = getVal(titleTypography.lineHeight, activeDevice);
+        if (titleLineHeight) {
+          titleTypographyCSS += `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || "em"};`;
         }
-        if (titleTypography.letterSpacing && titleTypography.letterSpacing[activeDevice]) {
-          titleTypographyCSS += `letter-spacing: ${titleTypography.letterSpacing[activeDevice]}${titleTypography.letterSpacingUnit || "px"};`;
+        const titleLetterSpacing = getVal(titleTypography.letterSpacing, activeDevice);
+        if (titleLetterSpacing || titleLetterSpacing === 0) {
+          titleTypographyCSS += `letter-spacing: ${titleLetterSpacing}${titleTypography.letterSpacingUnit || "px"};`;
         }
       }
       let contentTypographyCSS = "";
@@ -284,8 +308,9 @@
         if (contentTypography.fontFamily) {
           contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
         }
-        if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
-          contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || "px"};`;
+        const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
+        if (contentFontSize) {
+          contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || "px"};`;
         }
         if (contentTypography.fontWeight) {
           contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
@@ -299,11 +324,13 @@
         if (contentTypography.textDecoration) {
           contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
         }
-        if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
-          contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || "em"};`;
+        const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
+        if (contentLineHeight) {
+          contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || "em"};`;
         }
-        if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
-          contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || "px"};`;
+        const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
+        if (contentLetterSpacing || contentLetterSpacing === 0) {
+          contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || "px"};`;
         }
       }
       let buttonTypographyCSS = "";
@@ -311,8 +338,9 @@
         if (buttonTypography.fontFamily) {
           buttonTypographyCSS += `font-family: ${buttonTypography.fontFamily};`;
         }
-        if (buttonTypography.fontSize && buttonTypography.fontSize[activeDevice]) {
-          buttonTypographyCSS += `font-size: ${buttonTypography.fontSize[activeDevice]}${buttonTypography.fontSizeUnit || "px"};`;
+        const buttonFontSize = getVal(buttonTypography.fontSize, activeDevice);
+        if (buttonFontSize) {
+          buttonTypographyCSS += `font-size: ${buttonFontSize}${buttonTypography.fontSizeUnit || "px"};`;
         }
         if (buttonTypography.fontWeight) {
           buttonTypographyCSS += `font-weight: ${buttonTypography.fontWeight};`;
@@ -326,11 +354,13 @@
         if (buttonTypography.textDecoration) {
           buttonTypographyCSS += `text-decoration: ${buttonTypography.textDecoration};`;
         }
-        if (buttonTypography.lineHeight && buttonTypography.lineHeight[activeDevice]) {
-          buttonTypographyCSS += `line-height: ${buttonTypography.lineHeight[activeDevice]}${buttonTypography.lineHeightUnit || "em"};`;
+        const buttonLineHeight = getVal(buttonTypography.lineHeight, activeDevice);
+        if (buttonLineHeight) {
+          buttonTypographyCSS += `line-height: ${buttonLineHeight}${buttonTypography.lineHeightUnit || "em"};`;
         }
-        if (buttonTypography.letterSpacing && buttonTypography.letterSpacing[activeDevice]) {
-          buttonTypographyCSS += `letter-spacing: ${buttonTypography.letterSpacing[activeDevice]}${buttonTypography.letterSpacingUnit || "px"};`;
+        const buttonLetterSpacing = getVal(buttonTypography.letterSpacing, activeDevice);
+        if (buttonLetterSpacing || buttonLetterSpacing === 0) {
+          buttonTypographyCSS += `letter-spacing: ${buttonLetterSpacing}${buttonTypography.letterSpacingUnit || "px"};`;
         }
       }
       let badgeTypographyCSS = "";
@@ -338,8 +368,9 @@
         if (badgeTypography.fontFamily) {
           badgeTypographyCSS += `font-family: ${badgeTypography.fontFamily};`;
         }
-        if (badgeTypography.fontSize && badgeTypography.fontSize[activeDevice]) {
-          badgeTypographyCSS += `font-size: ${badgeTypography.fontSize[activeDevice]}${badgeTypography.fontSizeUnit || "rem"};`;
+        const badgeFontSize = getVal(badgeTypography.fontSize, activeDevice);
+        if (badgeFontSize) {
+          badgeTypographyCSS += `font-size: ${badgeFontSize}${badgeTypography.fontSizeUnit || "rem"};`;
         }
         if (badgeTypography.fontWeight) {
           badgeTypographyCSS += `font-weight: ${badgeTypography.fontWeight};`;
@@ -353,11 +384,13 @@
         if (badgeTypography.textDecoration) {
           badgeTypographyCSS += `text-decoration: ${badgeTypography.textDecoration};`;
         }
-        if (badgeTypography.lineHeight && badgeTypography.lineHeight[activeDevice]) {
-          badgeTypographyCSS += `line-height: ${badgeTypography.lineHeight[activeDevice]}${badgeTypography.lineHeightUnit || "em"};`;
+        const badgeLineHeight = getVal(badgeTypography.lineHeight, activeDevice);
+        if (badgeLineHeight) {
+          badgeTypographyCSS += `line-height: ${badgeLineHeight}${badgeTypography.lineHeightUnit || "em"};`;
         }
-        if (badgeTypography.letterSpacing && badgeTypography.letterSpacing[activeDevice]) {
-          badgeTypographyCSS += `letter-spacing: ${badgeTypography.letterSpacing[activeDevice]}${badgeTypography.letterSpacingUnit || "em"};`;
+        const badgeLetterSpacing = getVal(badgeTypography.letterSpacing, activeDevice);
+        if (badgeLetterSpacing || badgeLetterSpacing === 0) {
+          badgeTypographyCSS += `letter-spacing: ${badgeLetterSpacing}${badgeTypography.letterSpacingUnit || "em"};`;
         }
       }
       let iconCSS = "";
@@ -452,7 +485,7 @@
         buttonCSS = `
                 .${id} .digiblocks-button-wrapper {
                     display: flex;
-                    justify-content: ${align[activeDevice] === "center" ? "center" : align[activeDevice] === "flex-end" ? "flex-end" : "flex-start"};
+                    justify-content: ${currentAlign === "center" ? "center" : currentAlign === "flex-end" ? "flex-end" : "flex-start"};
                     ${buttonMarginCSS}
                 }
                 
@@ -539,9 +572,8 @@
                 ${marginCSS}
                 ${borderCSS}
                 ${borderRadiusCSS}
-				${iconLayout[activeDevice] === "above" ? "flex-direction: column;" : "flex-direction: row;"}
-				${iconLayout[activeDevice] === "after" ? "flex-direction: row-reverse;" : ""}
-				gap: ${iconContentGap[activeDevice].value}${iconContentGap[activeDevice].unit};
+				${flexDirectionCSS}
+				gap: ${getVal(iconContentGap, activeDevice).value || iconContentGap.desktop.value}${getVal(iconContentGap, activeDevice).unit || iconContentGap.desktop.unit};
                 transition: all 0.3s ease;
                 ${linkEnabled && linkType === "box" ? linkCSS : ""}
             }
@@ -568,8 +600,8 @@
 				}
 
 				.${id} .digiblocks-icon-box-icon svg {
-					width: ${iconSize[activeDevice].value}${iconSize[activeDevice].unit};
-					height: ${iconHeight[activeDevice].value ? `${iconHeight[activeDevice].value}${iconHeight[activeDevice].unit}` : "100%"};
+					width: ${getVal(iconSize, activeDevice).value || iconSize.desktop.value}${getVal(iconSize, activeDevice).unit || iconSize.desktop.unit};
+					height: ${getVal(iconHeight, activeDevice).value ? `${getVal(iconHeight, activeDevice).value}${getVal(iconHeight, activeDevice).unit || iconHeight.desktop.unit}` : "100%"};
 					fill: ${iconColor || "inherit"};
 					transition: all 0.3s ease;
 				}
@@ -621,6 +653,32 @@
 
 			/* Badge styles */
 			${badgeCSS}
+
+			/* Tablet styles */
+			@media (max-width: 991px) {
+				.${id} {
+					${getVal(align, "tablet") ? `
+						${getVal(align, "tablet") === "flex-start" ? "align-items: flex-start; text-align: left;" : ""}
+						${getVal(align, "tablet") === "center" ? "align-items: center; text-align: center;" : ""}
+						${getVal(align, "tablet") === "flex-end" ? "align-items: flex-end; text-align: right;" : ""}
+					` : ""}
+					${getVal(iconLayout, "tablet") === "above" ? "flex-direction: column;" : getVal(iconLayout, "tablet") === "after" ? "flex-direction: row-reverse;" : getVal(iconLayout, "tablet") ? "flex-direction: row;" : ""}
+					gap: ${getVal(iconContentGap, "tablet").value || getVal(iconContentGap, "desktop").value}${getVal(iconContentGap, "tablet").unit || getVal(iconContentGap, "desktop").unit};
+				}
+			}
+
+			/* Mobile styles */
+			@media (max-width: 767px) {
+				.${id} {
+					${getVal(align, "mobile") ? `
+						${getVal(align, "mobile") === "flex-start" ? "align-items: flex-start; text-align: left;" : ""}
+						${getVal(align, "mobile") === "center" ? "align-items: center; text-align: center;" : ""}
+						${getVal(align, "mobile") === "flex-end" ? "align-items: flex-end; text-align: right;" : ""}
+					` : ""}
+					${getVal(iconLayout, "mobile") === "above" ? "flex-direction: column;" : getVal(iconLayout, "mobile") === "after" ? "flex-direction: row-reverse;" : getVal(iconLayout, "mobile") ? "flex-direction: row;" : ""}
+					gap: ${getVal(iconContentGap, "mobile").value || getVal(iconContentGap, "desktop").value}${getVal(iconContentGap, "mobile").unit || getVal(iconContentGap, "desktop").unit};
+				}
+			}
 
 			/* Visibility Controls */
 			${visibility.desktop ? `
@@ -2382,24 +2440,24 @@
         type: "object",
         default: {
           desktop: "center",
-          tablet: "center",
-          mobile: "center"
+          tablet: "",
+          mobile: ""
         }
       },
       iconLayout: {
         type: "object",
         default: {
           desktop: "above",
-          tablet: "above",
-          mobile: "above"
+          tablet: "",
+          mobile: ""
         }
       },
       iconContentGap: {
         type: "object",
         default: {
           desktop: { value: 20, unit: "px" },
-          tablet: { value: 15, unit: "px" },
-          mobile: { value: 10, unit: "px" }
+          tablet: { value: "", unit: "px" },
+          mobile: { value: "", unit: "px" }
         }
       },
       showTitle: {
@@ -2448,7 +2506,7 @@
       },
       backgroundColor: {
         type: "string",
-        default: "#ffffff"
+        default: ""
       },
       backgroundHoverColor: {
         type: "string",
@@ -2606,16 +2664,16 @@
         type: "object",
         default: {
           desktop: { top: 10, right: 20, bottom: 10, left: 20, unit: "px" },
-          tablet: { top: 8, right: 16, bottom: 8, left: 16, unit: "px" },
-          mobile: { top: 6, right: 12, bottom: 6, left: 12, unit: "px" }
+          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
         }
       },
       buttonMargin: {
         type: "object",
         default: {
           desktop: { top: 15, right: 0, bottom: 0, left: 0, unit: "px" },
-          tablet: { top: 10, right: 0, bottom: 0, left: 0, unit: "px" },
-          mobile: { top: 8, right: 0, bottom: 0, left: 0, unit: "px" }
+          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
         }
       },
       buttonTypography: {
@@ -2654,15 +2712,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 0.7, tablet: 0.7, mobile: 0.7 },
+          fontSize: { desktop: 0.7, tablet: "", mobile: "" },
           fontSizeUnit: "rem",
           fontWeight: "700",
           fontStyle: "normal",
           textTransform: "uppercase",
           textDecoration: "",
-          lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+          lineHeight: { desktop: 1.2, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0.05, tablet: 0.05, mobile: 0.05 },
+          letterSpacing: { desktop: 0.05, tablet: "", mobile: "" },
           letterSpacingUnit: "em"
         }
       },
@@ -2778,24 +2836,24 @@
         type: "object",
         default: {
           desktop: {
-            top: 30,
-            right: 30,
-            bottom: 30,
-            left: 30,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           tablet: {
-            top: 25,
-            right: 25,
-            bottom: 25,
-            left: 25,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           mobile: {
-            top: 20,
-            right: 20,
-            bottom: 20,
-            left: 20,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           }
         }
@@ -2804,24 +2862,24 @@
         type: "object",
         default: {
           desktop: {
-            top: 0,
-            right: 0,
-            bottom: 30,
-            left: 0,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           tablet: {
-            top: 0,
-            right: 0,
-            bottom: 25,
-            left: 0,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           mobile: {
-            top: 0,
-            right: 0,
-            bottom: 20,
-            left: 0,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           }
         }
@@ -2838,24 +2896,24 @@
         type: "object",
         default: {
           desktop: {
-            top: 8,
-            right: 8,
-            bottom: 8,
-            left: 8,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           tablet: {
-            top: 8,
-            right: 8,
-            bottom: 8,
-            left: 8,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           mobile: {
-            top: 8,
-            right: 8,
-            bottom: 8,
-            left: 8,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           }
         }
@@ -2871,17 +2929,17 @@
             unit: "px"
           },
           tablet: {
-            top: 1,
-            right: 1,
-            bottom: 1,
-            left: 1,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           },
           mobile: {
-            top: 1,
-            right: 1,
-            bottom: 1,
-            left: 1,
+            top: "",
+            right: "",
+            bottom: "",
+            left: "",
             unit: "px"
           }
         }
@@ -2934,8 +2992,7 @@
         },
         title: __2("Feature Title", "digiblocks"),
         content: __2("Add your feature description here. Explain what makes this feature special.", "digiblocks"),
-        iconColor: "#1e73be",
-        backgroundColor: "#ffffff"
+        iconColor: "#1e73be"
       },
       viewportWidth: 400
     },

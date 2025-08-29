@@ -37,28 +37,38 @@ $contentMaxWidth          = isset( $attrs['contentMaxWidth'] ) ? $attrs['content
 ];
 $flexWrap                 = isset( $attrs['flexWrap'] ) ? $attrs['flexWrap'] : [
     'desktop' => 'nowrap',
-    'tablet'  => 'nowrap',
-    'mobile'  => 'nowrap',
+    'tablet'  => '',
+    'mobile'  => '',
 ];
 $heightType = isset( $attrs['heightType'] ) ? $attrs['heightType'] : [
     'desktop' => 'auto',
-    'tablet'  => 'auto',
-    'mobile'  => 'auto',
+    'tablet'  => '',
+    'mobile'  => '',
 ];
 $horizontalAlign = isset( $attrs['horizontalAlign'] ) ? $attrs['horizontalAlign'] : [
     'desktop' => 'center',
-    'tablet'  => 'center',
-    'mobile'  => 'center',
+    'tablet'  => '',
+    'mobile'  => '',
 ];
 $verticalAlign = isset( $attrs['verticalAlign'] ) ? $attrs['verticalAlign'] : [
     'desktop' => 'center',
-    'tablet'  => 'center',
-    'mobile'  => 'center',
+    'tablet'  => '',
+    'mobile'  => '',
 ];
+$columnVerticalAlign = isset( $attrs['columnVerticalAlign'] ) ? $attrs['columnVerticalAlign'] : [
+    'desktop' => 'flex-start',
+    'tablet'  => '',
+    'mobile'  => '',
+];
+
+$hasStretchVerticalAlign = 
+    $verticalAlign['desktop'] === 'stretch' || 
+    $verticalAlign['tablet'] === 'stretch' || 
+    $verticalAlign['mobile'] === 'stretch';
 $minHeight                = isset( $attrs['minHeight'] ) ? $attrs['minHeight'] : [
     'desktop' => 0,
-    'tablet'  => 0,
-    'mobile'  => 0,
+    'tablet'  => '',
+    'mobile'  => '',
 ];
 $columnGap = isset( $attrs['columnGap'] ) ? $attrs['columnGap'] : array(
 	'desktop' => array( 'value' => 20, 'unit' => 'px' ),
@@ -257,7 +267,36 @@ ob_start();
 	width: 100%;
 }
 
-<?php if (!$isNested) : ?>
+<?php if ( $hasStretchVerticalAlign ) : ?>
+
+	/* Column vertical alignment when container uses stretch */
+	<?php if ( $verticalAlign['desktop'] === 'stretch' ) : ?>
+	@media (min-width: 992px) {
+		.<?php echo esc_attr( $id ); ?> > .digiblocks-container-inner .digiblocks-column {
+			justify-content: <?php echo esc_attr( $columnVerticalAlign['desktop'] ); ?>;
+		}
+	}
+	<?php endif; ?>
+
+	<?php if ( $verticalAlign['tablet'] === 'stretch' ) : ?>
+	@media (max-width: 991px) {
+		.<?php echo esc_attr( $id ); ?> > .digiblocks-container-inner .digiblocks-column {
+			justify-content: <?php echo esc_attr( !empty($columnVerticalAlign['tablet']) ? $columnVerticalAlign['tablet'] : $columnVerticalAlign['desktop'] ); ?>;
+		}
+	}
+	<?php endif; ?>
+
+	<?php if ( $verticalAlign['mobile'] === 'stretch' ) : ?>
+	@media (max-width: 767px) {
+		.<?php echo esc_attr( $id ); ?> > .digiblocks-container-inner .digiblocks-column {
+			justify-content: <?php echo esc_attr( !empty($columnVerticalAlign['mobile']) ? $columnVerticalAlign['mobile'] : (!empty($columnVerticalAlign['tablet']) ? $columnVerticalAlign['tablet'] : $columnVerticalAlign['desktop']) ); ?>;
+		}
+	}
+	<?php endif; ?>
+
+<?php endif; ?>
+
+<?php if ( ! $isNested ) : ?>
 .<?php echo esc_attr( $id ); ?>.alignfull > .digiblocks-container-inner {
     <?php echo esc_attr( $contentWidthCSS ); ?>
     <?php echo esc_attr( $contentMaxWidthCSS ); ?>

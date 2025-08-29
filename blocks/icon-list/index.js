@@ -131,15 +131,15 @@ registerBlockType('digiblocks/icon-list', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSize: { desktop: 16, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -159,24 +159,24 @@ registerBlockType('digiblocks/icon-list', {
             type: 'object',
             default: {
                 desktop: 24,
-                tablet: 20,
-                mobile: 18
+                tablet: '',
+                mobile: ''
             }
         },
         iconSpace: {
             type: 'object',
             default: {
                 desktop: 12,
-                tablet: 10,
-                mobile: 8
+                tablet: '',
+                mobile: ''
             }
         },
         itemSpace: {
             type: 'object',
             default: {
                 desktop: 16,
-                tablet: 12,
-                mobile: 8
+                tablet: '',
+                mobile: ''
             }
         },
         iconColor: {
@@ -211,8 +211,8 @@ registerBlockType('digiblocks/icon-list', {
             type: 'object',
             default: {
                 desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         borderStyle: {

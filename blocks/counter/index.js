@@ -154,8 +154,8 @@ registerBlockType('digiblocks/counter', {
             type: 'object',
             default: {
                 desktop: 32,
-                tablet: 28,
-                mobile: 24
+                tablet: '',
+                mobile: ''
             }
         },
         iconPadding: {
@@ -170,8 +170,8 @@ registerBlockType('digiblocks/counter', {
             type: 'object',
             default: {
                 desktop: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 15, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 10, left: 0, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         iconBorderStyle: {
@@ -206,15 +206,15 @@ registerBlockType('digiblocks/counter', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 48, tablet: 42, mobile: 36 },
+                fontSize: { desktop: 48, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '700',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+                lineHeight: { desktop: 1.2, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -222,15 +222,15 @@ registerBlockType('digiblocks/counter', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 20, tablet: 18, mobile: 16 },
+                fontSize: { desktop: 20, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '500',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeight: { desktop: 1.4, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -238,15 +238,15 @@ registerBlockType('digiblocks/counter', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSize: { desktop: 16, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -254,24 +254,24 @@ registerBlockType('digiblocks/counter', {
             type: 'object',
             default: {
                 desktop: {
-                    top: 30,
-                    right: 30,
-                    bottom: 30,
-                    left: 30,
+                    top: "",
+                    right: "",
+                    bottom: "",
+                    left: "",
                     unit: 'px'
                 },
                 tablet: {
-                    top: 25,
-                    right: 25,
-                    bottom: 25,
-                    left: 25,
+                    top: "",
+                    right: "",
+                    bottom: "",
+                    left: "",
                     unit: 'px'
                 },
                 mobile: {
-                    top: 20,
-                    right: 20,
-                    bottom: 20,
-                    left: 20,
+                    top: "",
+                    right: "",
+                    bottom: "",
+                    left: "",
                     unit: 'px'
                 }
             }
@@ -280,24 +280,24 @@ registerBlockType('digiblocks/counter', {
             type: 'object',
             default: {
                 desktop: {
-                    top: 0,
-                    right: 0,
-                    bottom: 30,
-                    left: 0,
+                    top: "",
+                    right: "",
+                    bottom: "",
+                    left: "",
                     unit: 'px'
                 },
                 tablet: {
-                    top: 0,
-                    right: 0,
-                    bottom: 25,
-                    left: 0,
+                    top: "",
+                    right: "",
+                    bottom: "",
+                    left: "",
                     unit: 'px'
                 },
                 mobile: {
-                    top: 0,
-                    right: 0,
-                    bottom: 20,
-                    left: 0,
+                    top: "",
+                    right: "",
+                    bottom: "",
+                    left: "",
                     unit: 'px'
                 }
             }

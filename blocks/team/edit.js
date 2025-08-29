@@ -108,6 +108,21 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 	// Create unique class
 	useBlockId( id, clientId, setAttributes );
 
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		if (device === 'mobile') {
+			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
+				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : obj.desktop;
+		}
+		return obj.desktop;
+	};
+
     // State for active tab
     const [activeTab, setActiveTab] = useState(() => {
 		// Try to get the saved tab for this block
@@ -535,10 +550,10 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Calculate column width based on number of columns and gutter
         const columnWidth = {
-            desktop: `calc((100% - ${(columns.desktop - 1) * gutter.desktop}px) / ${columns.desktop})`,
-            tablet: `calc((100% - ${(columns.tablet - 1) * gutter.tablet}px) / ${columns.tablet})`,
-            mobile: `calc((100% - ${(columns.mobile - 1) * gutter.mobile}px) / ${columns.mobile})`
-        };
+			desktop: `calc((100% - ${(columns.desktop - 1) * getVal(gutter, 'desktop')}px) / ${columns.desktop})`,
+			tablet: `calc((100% - ${(columns.tablet - 1) * getVal(gutter, 'tablet')}px) / ${columns.tablet})`,
+			mobile: `calc((100% - ${(columns.mobile - 1) * getVal(gutter, 'mobile')}px) / ${columns.mobile})`
+		};
         
         // Box shadow
         let boxShadowCSS = 'box-shadow: none;';
@@ -554,113 +569,122 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
             boxShadowHoverCSS = `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
         }
         
-        // Name typography
-        let nameTypographyCSS = '';
-        if (typography) {
-            if (typography.fontFamily) {
-                nameTypographyCSS += `font-family: ${typography.fontFamily};`;
-            }
-            
-            if (typography.fontSize && typography.fontSize[activeDevice]) {
-                nameTypographyCSS += `font-size: ${typography.fontSize[activeDevice]}${typography.fontSizeUnit || 'px'};`;
-            }
-            
-            if (typography.fontWeight) {
-                nameTypographyCSS += `font-weight: ${typography.fontWeight};`;
-            }
-            
-            if (typography.fontStyle) {
-                nameTypographyCSS += `font-style: ${typography.fontStyle};`;
-            }
-            
-            if (typography.textTransform) {
-                nameTypographyCSS += `text-transform: ${typography.textTransform};`;
-            }
-            
-            if (typography.textDecoration) {
-                nameTypographyCSS += `text-decoration: ${typography.textDecoration};`;
-            }
-            
-            if (typography.lineHeight && typography.lineHeight[activeDevice]) {
-                nameTypographyCSS += `line-height: ${typography.lineHeight[activeDevice]}${typography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (typography.letterSpacing && typography.letterSpacing[activeDevice]) {
-                nameTypographyCSS += `letter-spacing: ${typography.letterSpacing[activeDevice]}${typography.letterSpacingUnit || 'px'};`;
-            }
-        }
-        
-        // Position typography
-        let positionTypographyCSS = '';
-        if (textTypography) {
-            if (textTypography.fontFamily) {
-                positionTypographyCSS += `font-family: ${textTypography.fontFamily};`;
-            }
-            
-            if (textTypography.fontSize && textTypography.fontSize[activeDevice]) {
-                positionTypographyCSS += `font-size: ${textTypography.fontSize[activeDevice]}${textTypography.fontSizeUnit || 'px'};`;
-            }
-            
-            if (textTypography.fontWeight) {
-                positionTypographyCSS += `font-weight: ${textTypography.fontWeight};`;
-            }
-            
-            if (textTypography.fontStyle) {
-                positionTypographyCSS += `font-style: ${textTypography.fontStyle};`;
-            }
-            
-            if (textTypography.textTransform) {
-                positionTypographyCSS += `text-transform: ${textTypography.textTransform};`;
-            }
-            
-            if (textTypography.textDecoration) {
-                positionTypographyCSS += `text-decoration: ${textTypography.textDecoration};`;
-            }
-            
-            if (textTypography.lineHeight && textTypography.lineHeight[activeDevice]) {
-                positionTypographyCSS += `line-height: ${textTypography.lineHeight[activeDevice]}${textTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (textTypography.letterSpacing && textTypography.letterSpacing[activeDevice]) {
-                positionTypographyCSS += `letter-spacing: ${textTypography.letterSpacing[activeDevice]}${textTypography.letterSpacingUnit || 'px'};`;
-            }
-        }
-        
-        // Bio typography
-        let bioTypographyCSS = '';
-        if (contentTypography) {
-            if (contentTypography.fontFamily) {
-                bioTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
-            }
-            
-            if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
-                bioTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || 'px'};`;
-            }
-            
-            if (contentTypography.fontWeight) {
-                bioTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
-            }
-            
-            if (contentTypography.fontStyle) {
-                bioTypographyCSS += `font-style: ${contentTypography.fontStyle};`;
-            }
-            
-            if (contentTypography.textTransform) {
-                bioTypographyCSS += `text-transform: ${contentTypography.textTransform};`;
-            }
-            
-            if (contentTypography.textDecoration) {
-                bioTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
-            }
-            
-            if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
-                bioTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
-                bioTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || 'px'};`;
-            }
-        }
+        // Name typography CSS
+		let nameTypographyCSS = '';
+		if (typography) {
+			if (typography.fontFamily) {
+				nameTypographyCSS += `font-family: ${typography.fontFamily};`;
+			}
+			
+			const nameFontSize = getVal(typography.fontSize, activeDevice);
+			if (nameFontSize) {
+				nameTypographyCSS += `font-size: ${nameFontSize}${typography.fontSizeUnit || 'px'};`;
+			}
+			
+			if (typography.fontWeight) {
+				nameTypographyCSS += `font-weight: ${typography.fontWeight};`;
+			}
+			
+			if (typography.fontStyle) {
+				nameTypographyCSS += `font-style: ${typography.fontStyle};`;
+			}
+			
+			if (typography.textTransform) {
+				nameTypographyCSS += `text-transform: ${typography.textTransform};`;
+			}
+			
+			if (typography.textDecoration) {
+				nameTypographyCSS += `text-decoration: ${typography.textDecoration};`;
+			}
+			
+			const nameLineHeight = getVal(typography.lineHeight, activeDevice);
+			if (nameLineHeight) {
+				nameTypographyCSS += `line-height: ${nameLineHeight}${typography.lineHeightUnit || 'em'};`;
+			}
+
+			const nameLetterSpacing = getVal(typography.letterSpacing, activeDevice);
+			if (nameLetterSpacing || nameLetterSpacing === 0) {
+				nameTypographyCSS += `letter-spacing: ${nameLetterSpacing}${typography.letterSpacingUnit || 'px'};`;
+			}
+		}
+
+		// Position typography CSS
+		let positionTypographyCSS = '';
+		if (textTypography) {
+			if (textTypography.fontFamily) {
+				positionTypographyCSS += `font-family: ${textTypography.fontFamily};`;
+			}
+			
+			const positionFontSize = getVal(textTypography.fontSize, activeDevice);
+			if (positionFontSize) {
+				positionTypographyCSS += `font-size: ${positionFontSize}${textTypography.fontSizeUnit || 'px'};`;
+			}
+			
+			if (textTypography.fontWeight) {
+				positionTypographyCSS += `font-weight: ${textTypography.fontWeight};`;
+			}
+			
+			if (textTypography.fontStyle) {
+				positionTypographyCSS += `font-style: ${textTypography.fontStyle};`;
+			}
+			
+			if (textTypography.textTransform) {
+				positionTypographyCSS += `text-transform: ${textTypography.textTransform};`;
+			}
+			
+			if (textTypography.textDecoration) {
+				positionTypographyCSS += `text-decoration: ${textTypography.textDecoration};`;
+			}
+			
+			const positionLineHeight = getVal(textTypography.lineHeight, activeDevice);
+			if (positionLineHeight) {
+				positionTypographyCSS += `line-height: ${positionLineHeight}${textTypography.lineHeightUnit || 'em'};`;
+			}
+
+			const positionLetterSpacing = getVal(textTypography.letterSpacing, activeDevice);
+			if (positionLetterSpacing || positionLetterSpacing === 0) {
+				positionTypographyCSS += `letter-spacing: ${positionLetterSpacing}${textTypography.letterSpacingUnit || 'px'};`;
+			}
+		}
+
+		// Bio typography CSS
+		let bioTypographyCSS = '';
+		if (contentTypography) {
+			if (contentTypography.fontFamily) {
+				bioTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
+			}
+			
+			const bioFontSize = getVal(contentTypography.fontSize, activeDevice);
+			if (bioFontSize) {
+				bioTypographyCSS += `font-size: ${bioFontSize}${contentTypography.fontSizeUnit || 'px'};`;
+			}
+			
+			if (contentTypography.fontWeight) {
+				bioTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
+			}
+			
+			if (contentTypography.fontStyle) {
+				bioTypographyCSS += `font-style: ${contentTypography.fontStyle};`;
+			}
+			
+			if (contentTypography.textTransform) {
+				bioTypographyCSS += `text-transform: ${contentTypography.textTransform};`;
+			}
+			
+			if (contentTypography.textDecoration) {
+				bioTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
+			}
+			
+			const bioLineHeight = getVal(contentTypography.lineHeight, activeDevice);
+			if (bioLineHeight) {
+				bioTypographyCSS += `line-height: ${bioLineHeight}${contentTypography.lineHeightUnit || 'em'};`;
+			}
+
+			const bioLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
+			if (bioLetterSpacing || bioLetterSpacing === 0) {
+				bioTypographyCSS += `letter-spacing: ${bioLetterSpacing}${contentTypography.letterSpacingUnit || 'px'};`;
+			}
+		}
         
         // Get the appropriate border radius based on image style
         let imageBorderRadiusValue;
@@ -705,7 +729,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
             .${id} .digiblocks-team-container {
                 display: flex;
                 flex-wrap: wrap;
-                gap: ${gutter[activeDevice]}px;
+                gap: ${getVal(gutter, activeDevice)}px;
                 justify-content: ${alignment === 'center' ? 'center' : alignment === 'right' ? 'flex-end' : 'flex-start'};
             }
             
@@ -713,14 +737,14 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
             .${id}.layout-list .digiblocks-team-container {
                 display: flex;
 				flex-direction: column;
-				gap: ${gutter[activeDevice]}px;
+				gap: ${getVal(gutter, activeDevice)}px;
             }
             
             .${id}.layout-list .digiblocks-team-member {
                 display: flex;
                 align-items: center;
                 width: 100%;
-				gap: ${gutter[activeDevice]}px;
+				gap: ${getVal(gutter, activeDevice)}px;
             }
             
             .${id}.layout-list .digiblocks-team-member-image {
@@ -765,8 +789,8 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
             
             /* Team Member Image */
             .${id} .digiblocks-team-member-image {
-                width: ${imageSize[activeDevice]}px;
-                height: ${imageSize[activeDevice]}px;
+                width: ${getVal(imageSize, activeDevice)}px;
+				height: ${getVal(imageSize, activeDevice)}px;
 				max-width: 100%;
                 ${imageBorderRadiusValue}
                 overflow: hidden;
@@ -812,7 +836,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 				display: flex;
 				align-items: center;
 				justify-content: ${alignment === 'center' ? 'center' : alignment === 'right' ? 'flex-end' : 'flex-start'};
-				gap: ${iconSpacing[activeDevice]}px;
+				gap: ${getVal(iconSpacing, activeDevice)}px;
 				flex-wrap: wrap;
 			}
 			
@@ -836,8 +860,8 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			.${id} .digiblocks-team-member-social-icon svg {
-				width: ${iconSize[activeDevice] ? `${iconSize[activeDevice]}px` : '1.2rem'};
-				height: ${iconSize[activeDevice] ? `${iconSize[activeDevice]}px` : '1.2rem'};
+				width: ${getVal(iconSize, activeDevice) ? `${getVal(iconSize, activeDevice)}px` : '1.2rem'};
+				height: ${getVal(iconSize, activeDevice) ? `${getVal(iconSize, activeDevice)}px` : '1.2rem'};
 				fill: currentColor;
 			}
 			

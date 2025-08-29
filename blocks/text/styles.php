@@ -24,8 +24,8 @@ $backgroundHoverColor         = isset( $attrs['backgroundHoverColor'] ) ? $attrs
 $backgroundGradient           = isset( $attrs['backgroundGradient'] ) ? $attrs['backgroundGradient'] : 'none';
 $align                        = isset( $attrs['align'] ) ? $attrs['align'] : array(
     'desktop' => 'left',
-    'tablet'  => 'left',
-    'mobile'  => 'left',
+    'tablet'  => '',
+    'mobile'  => '',
 );
 $maxWidth                     = isset( $attrs['maxWidth'] ) ? $attrs['maxWidth'] : array(
 	'desktop' => array( 'value' => '', 'unit' => 'px' ),
@@ -239,7 +239,7 @@ ob_start();
     <?php endif; ?>
         
     <?php if ( ! empty( $typography['fontSize']['desktop'] ) ) : ?>
-        font-size: <?php echo esc_attr( $typography['fontSize']['desktop'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $typography['fontSize']['desktop'] . ( $typography['fontSizeUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
         
     <?php if ( ! empty( $typography['fontWeight'] ) ) : ?>
@@ -259,11 +259,11 @@ ob_start();
     <?php endif; ?>
 
     <?php if ( ! empty( $typography['lineHeight']['desktop'] ) ) : ?>
-        line-height: <?php echo esc_attr( $typography['lineHeight']['desktop'] . ( $typography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $typography['lineHeight']['desktop'] . ( $typography['lineHeightUnit'] ?? 'em' ) ); ?>;
     <?php endif; ?>
         
     <?php if ( ! empty( $typography['letterSpacing']['desktop'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['desktop'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['desktop'] . ( $typography['letterSpacingUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
         
 	<?php if ( ! empty( $maxWidth['desktop']['value'] ) ) : ?>
@@ -310,7 +310,9 @@ ob_start();
 /* Tablet Styles */
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
+		<?php if ( ! empty( $align['tablet'] ) ) : ?>
         text-align: <?php echo esc_attr( $align['tablet'] ); ?>;
+		<?php endif; ?>
         
         <?php if ( $padding && isset( $padding['tablet'] ) ) : ?>
             <?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
@@ -329,13 +331,13 @@ ob_start();
         
         <?php if ( ! empty( $typography['fontSize']['tablet']) || ! empty( $typography['lineHeight']['tablet']) || ! empty( $typography['letterSpacing']['tablet'] ) ) : ?>
             <?php if ( ! empty( $typography['fontSize']['tablet'] ) ) : ?>
-                font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
+                font-size: <?php echo esc_attr( $typography['fontSize']['tablet'] . ( $typography['fontSizeUnit'] ?? 'px' ) ); ?>;
             <?php endif; ?>
             <?php if ( ! empty( $typography['lineHeight']['tablet'] ) ) : ?>
-                line-height: <?php echo esc_attr( $typography['lineHeight']['tablet'] . ( $typography['lineHeightUnit'] ?: 'em' ) ); ?>;
+                line-height: <?php echo esc_attr( $typography['lineHeight']['tablet'] . ( $typography['lineHeightUnit'] ?? 'em' ) ); ?>;
             <?php endif; ?>
             <?php if ( ! empty( $typography['letterSpacing']['tablet'] ) ) : ?>
-                letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['tablet'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+                letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['tablet'] . ( $typography['letterSpacingUnit'] ?? 'px' ) ); ?>;
             <?php endif; ?>
         <?php endif; ?>
 
@@ -353,7 +355,9 @@ ob_start();
 /* Mobile Styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
+		<?php if ( ! empty( $align['mobile'] ) ) : ?>
         text-align: <?php echo esc_attr( $align['mobile'] ); ?>;
+		<?php endif; ?>
         
         <?php if ( $padding && isset( $padding['mobile'] ) ) : ?>
             <?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
@@ -372,13 +376,13 @@ ob_start();
         
         <?php if ( ! empty( $typography['fontSize']['mobile']) || ! empty( $typography['lineHeight']['mobile']) || ! empty( $typography['letterSpacing']['mobile'] ) ) : ?>
             <?php if ( ! empty( $typography['fontSize']['mobile'] ) ) : ?>
-                font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ( $typography['fontSizeUnit'] ?: 'px' ) ); ?>;
+                font-size: <?php echo esc_attr( $typography['fontSize']['mobile'] . ( $typography['fontSizeUnit'] ?? 'px' ) ); ?>;
             <?php endif; ?>
             <?php if ( ! empty( $typography['lineHeight']['mobile'] ) ) : ?>
-                line-height: <?php echo esc_attr( $typography['lineHeight']['mobile'] . ( $typography['lineHeightUnit'] ?: 'em' ) ); ?>;
+                line-height: <?php echo esc_attr( $typography['lineHeight']['mobile'] . ( $typography['lineHeightUnit'] ?? 'em' ) ); ?>;
             <?php endif; ?>
             <?php if ( ! empty( $typography['letterSpacing']['mobile'] ) ) : ?>
-                letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['mobile'] . ( $typography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+                letter-spacing: <?php echo esc_attr( $typography['letterSpacing']['mobile'] . ( $typography['letterSpacingUnit'] ?? 'px' ) ); ?>;
             <?php endif; ?>
         <?php endif; ?>
 

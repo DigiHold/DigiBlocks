@@ -45,17 +45,17 @@ $cellPadding = isset( $attrs['cellPadding'] ) ? $attrs['cellPadding'] : array(
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 12,
-		'right'  => 12,
-		'bottom' => 12,
-		'left'   => 12,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 8,
-		'right'  => 8,
-		'bottom' => 8,
-		'left'   => 8,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -95,17 +95,17 @@ $margin = isset( $attrs['margin'] ) ? $attrs['margin'] : array(
 		'unit'   => 'px',
 	),
 	'tablet'  => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 25,
-		'left'   => 0,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 	'mobile'  => array(
-		'top'    => 0,
-		'right'  => 0,
-		'bottom' => 20,
-		'left'   => 0,
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
 		'unit'   => 'px',
 	),
 );
@@ -136,8 +136,8 @@ $headerTypography = isset( $attrs['headingTypography'] ) ? $attrs['headingTypogr
 	'fontFamily'        => '',
 	'fontSize'          => array(
 		'desktop' => 18,
-		'tablet'  => 16,
-		'mobile'  => 15,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'fontSizeUnit'      => 'px',
 	'fontWeight'        => '600',
@@ -146,14 +146,14 @@ $headerTypography = isset( $attrs['headingTypography'] ) ? $attrs['headingTypogr
 	'textDecoration'    => 'none',
 	'lineHeight'        => array(
 		'desktop' => 1.5,
-		'tablet'  => 1.4,
-		'mobile'  => 1.3,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'lineHeightUnit'    => 'em',
 	'letterSpacing'     => array(
 		'desktop' => 0,
-		'tablet'  => 0,
-		'mobile'  => 0,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'letterSpacingUnit' => 'px',
 );
@@ -162,8 +162,8 @@ $textTypography = isset( $attrs['textTypography'] ) ? $attrs['textTypography'] :
 	'fontFamily'        => '',
 	'fontSize'          => array(
 		'desktop' => 16,
-		'tablet'  => 15,
-		'mobile'  => 14,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'fontSizeUnit'      => 'px',
 	'fontWeight'        => '',
@@ -172,14 +172,14 @@ $textTypography = isset( $attrs['textTypography'] ) ? $attrs['textTypography'] :
 	'textDecoration'    => '',
 	'lineHeight'        => array(
 		'desktop' => 1.5,
-		'tablet'  => 1.4,
-		'mobile'  => 1.3,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'lineHeightUnit'    => 'em',
 	'letterSpacing'     => array(
 		'desktop' => 0,
-		'tablet'  => 0,
-		'mobile'  => 0,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'letterSpacingUnit' => 'px',
 );
@@ -188,8 +188,8 @@ $footerTypography = isset( $attrs['contentTypography'] ) ? $attrs['contentTypogr
 	'fontFamily'        => '',
 	'fontSize'          => array(
 		'desktop' => 16,
-		'tablet'  => 15,
-		'mobile'  => 14,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'fontSizeUnit'      => 'px',
 	'fontWeight'        => '600',
@@ -198,14 +198,14 @@ $footerTypography = isset( $attrs['contentTypography'] ) ? $attrs['contentTypogr
 	'textDecoration'    => 'none',
 	'lineHeight'        => array(
 		'desktop' => 1.5,
-		'tablet'  => 1.4,
-		'mobile'  => 1.3,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'lineHeightUnit'    => 'em',
 	'letterSpacing'     => array(
 		'desktop' => 0,
-		'tablet'  => 0,
-		'mobile'  => 0,
+		'tablet'  => '',
+		'mobile'  => '',
 	),
 	'letterSpacingUnit' => 'px',
 );
@@ -247,7 +247,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $textTypography['fontSize']['desktop'] ) ) : ?>
-        font-size: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $textTypography['fontWeight'] ) ) : ?>
@@ -267,11 +267,11 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $textTypography['lineHeight']['desktop'] ) ) : ?>
-        line-height: <?php echo esc_attr( $textTypography['lineHeight']['desktop'] . ( $textTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $textTypography['lineHeight']['desktop'] . ( $textTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $textTypography['letterSpacing']['desktop'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['desktop'] . ( $textTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['desktop'] . ( $textTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( 'none' !== $tableBorderStyle ) : ?>
@@ -294,7 +294,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $headerTypography['fontSize']['desktop'] ) ) : ?>
-        font-size: <?php echo esc_attr( $headerTypography['fontSize']['desktop'] . ( $headerTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $headerTypography['fontSize']['desktop'] . ( $headerTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $headerTypography['fontWeight'] ) ) : ?>
@@ -314,11 +314,11 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $headerTypography['lineHeight']['desktop'] ) ) : ?>
-        line-height: <?php echo esc_attr( $headerTypography['lineHeight']['desktop'] . ( $headerTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $headerTypography['lineHeight']['desktop'] . ( $headerTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $headerTypography['letterSpacing']['desktop'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $headerTypography['letterSpacing']['desktop'] . ( $headerTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $headerTypography['letterSpacing']['desktop'] . ( $headerTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
 	<?php echo esc_attr( digiblocks_get_dimensions( $cellPadding, 'padding', 'desktop' ) ); ?>    
     vertical-align: middle;
@@ -364,7 +364,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $headerTypography['fontSize']['desktop'] ) ) : ?>
-        font-size: <?php echo esc_attr( $headerTypography['fontSize']['desktop'] . ( $headerTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $headerTypography['fontSize']['desktop'] . ( $headerTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $headerTypography['fontWeight'] ) ) : ?>
@@ -409,7 +409,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $footerTypography['fontSize']['desktop'] ) ) : ?>
-        font-size: <?php echo esc_attr( $footerTypography['fontSize']['desktop'] . ( $footerTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+        font-size: <?php echo esc_attr( $footerTypography['fontSize']['desktop'] . ( $footerTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $footerTypography['fontWeight'] ) ) : ?>
@@ -429,11 +429,11 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $footerTypography['lineHeight']['desktop'] ) ) : ?>
-        line-height: <?php echo esc_attr( $footerTypography['lineHeight']['desktop'] . ( $footerTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+        line-height: <?php echo esc_attr( $footerTypography['lineHeight']['desktop'] . ( $footerTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $footerTypography['letterSpacing']['desktop'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $footerTypography['letterSpacing']['desktop'] . ( $footerTypography['letterSpacingUnit'] ?: 'px' ) ); ?>;
+        letter-spacing: <?php echo esc_attr( $footerTypography['letterSpacing']['desktop'] . ( $footerTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
     <?php endif; ?>
 	<?php echo esc_attr( digiblocks_get_dimensions( $cellPadding, 'padding', 'desktop' ) ); ?>     
     text-align: <?php echo esc_attr( $footerAlignment ); ?>;
@@ -501,11 +501,11 @@ ob_start();
         <?php endif; ?>
         
         <?php if ( isset( $textTypography['fontSize']['tablet'] ) ) : ?>
-            font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+            font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         
         <?php if ( isset( $textTypography['lineHeight']['tablet'] ) ) : ?>
-            line-height: <?php echo esc_attr( $textTypography['lineHeight']['tablet'] . ( $textTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+            line-height: <?php echo esc_attr( $textTypography['lineHeight']['tablet'] . ( $textTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
     }
     
@@ -519,22 +519,22 @@ ob_start();
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-table thead th {
         <?php if ( isset( $headerTypography['fontSize']['tablet'] ) ) : ?>
-            font-size: <?php echo esc_attr( $headerTypography['fontSize']['tablet'] . ( $headerTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+            font-size: <?php echo esc_attr( $headerTypography['fontSize']['tablet'] . ( $headerTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         
         <?php if ( isset( $headerTypography['lineHeight']['tablet'] ) ) : ?>
-            line-height: <?php echo esc_attr( $headerTypography['lineHeight']['tablet'] . ( $headerTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+            line-height: <?php echo esc_attr( $headerTypography['lineHeight']['tablet'] . ( $headerTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
     }
     
     <?php if ( $firstColHeader ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-table tbody td:first-child {
         <?php if ( isset( $headerTypography['fontSize']['tablet'] ) ) : ?>
-            font-size: <?php echo esc_attr( $headerTypography['fontSize']['tablet'] . ( $headerTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+            font-size: <?php echo esc_attr( $headerTypography['fontSize']['tablet'] . ( $headerTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         
         <?php if ( isset( $headerTypography['lineHeight']['tablet'] ) ) : ?>
-            line-height: <?php echo esc_attr( $headerTypography['lineHeight']['tablet'] . ( $headerTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+            line-height: <?php echo esc_attr( $headerTypography['lineHeight']['tablet'] . ( $headerTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
@@ -542,11 +542,11 @@ ob_start();
     <?php if ( $hasFooter ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-table tfoot td {
         <?php if ( isset( $footerTypography['fontSize']['tablet'] ) ) : ?>
-            font-size: <?php echo esc_attr( $footerTypography['fontSize']['tablet'] . ( $footerTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+            font-size: <?php echo esc_attr( $footerTypography['fontSize']['tablet'] . ( $footerTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         
         <?php if ( isset( $footerTypography['lineHeight']['tablet'] ) ) : ?>
-            line-height: <?php echo esc_attr( $footerTypography['lineHeight']['tablet'] . ( $footerTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+            line-height: <?php echo esc_attr( $footerTypography['lineHeight']['tablet'] . ( $footerTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
@@ -570,11 +570,11 @@ ob_start();
         <?php endif; ?>
         
         <?php if ( isset( $textTypography['fontSize']['mobile'] ) ) : ?>
-            font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ( $textTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+            font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         
         <?php if ( isset( $textTypography['lineHeight']['mobile'] ) ) : ?>
-            line-height: <?php echo esc_attr( $textTypography['lineHeight']['mobile'] . ( $textTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+            line-height: <?php echo esc_attr( $textTypography['lineHeight']['mobile'] . ( $textTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
     }
     
@@ -588,22 +588,22 @@ ob_start();
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-table thead th {
         <?php if ( isset( $headerTypography['fontSize']['mobile'] ) ) : ?>
-            font-size: <?php echo esc_attr( $headerTypography['fontSize']['mobile'] . ( $headerTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+            font-size: <?php echo esc_attr( $headerTypography['fontSize']['mobile'] . ( $headerTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         
         <?php if ( isset( $headerTypography['lineHeight']['mobile'] ) ) : ?>
-            line-height: <?php echo esc_attr( $headerTypography['lineHeight']['mobile'] . ( $headerTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+            line-height: <?php echo esc_attr( $headerTypography['lineHeight']['mobile'] . ( $headerTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
     }
     
     <?php if ( $firstColHeader ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-table tbody td:first-child {
         <?php if ( isset( $headerTypography['fontSize']['mobile'] ) ) : ?>
-            font-size: <?php echo esc_attr( $headerTypography['fontSize']['mobile'] . ( $headerTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+            font-size: <?php echo esc_attr( $headerTypography['fontSize']['mobile'] . ( $headerTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         
         <?php if ( isset( $headerTypography['lineHeight']['mobile'] ) ) : ?>
-            line-height: <?php echo esc_attr( $headerTypography['lineHeight']['mobile'] . ( $headerTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+            line-height: <?php echo esc_attr( $headerTypography['lineHeight']['mobile'] . ( $headerTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
@@ -611,11 +611,11 @@ ob_start();
     <?php if ( $hasFooter ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-table tfoot td {
         <?php if ( isset( $footerTypography['fontSize']['mobile'] ) ) : ?>
-            font-size: <?php echo esc_attr( $footerTypography['fontSize']['mobile'] . ( $footerTypography['fontSizeUnit'] ?: 'px' ) ); ?>;
+            font-size: <?php echo esc_attr( $footerTypography['fontSize']['mobile'] . ( $footerTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
         <?php endif; ?>
         
         <?php if ( isset( $footerTypography['lineHeight']['mobile'] ) ) : ?>
-            line-height: <?php echo esc_attr( $footerTypography['lineHeight']['mobile'] . ( $footerTypography['lineHeightUnit'] ?: 'em' ) ); ?>;
+            line-height: <?php echo esc_attr( $footerTypography['lineHeight']['mobile'] . ( $footerTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>

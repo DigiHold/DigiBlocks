@@ -93,17 +93,17 @@ $padding = isset( $attrs['padding'] ) ? $attrs['padding'] : array(
         'unit'   => 'px',
     ),
     'tablet'  => array(
-        'top'    => 25,
-        'right'  => 25,
-        'bottom' => 25,
-        'left'   => 25,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
     'mobile'  => array(
-        'top'    => 20,
-        'right'  => 20,
-        'bottom' => 20,
-        'left'   => 20,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
 );
@@ -117,17 +117,17 @@ $margin = isset( $attrs['margin'] ) ? $attrs['margin'] : array(
         'unit'   => 'px',
     ),
     'tablet'  => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 25,
-        'left'   => 0,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
     'mobile'  => array(
-        'top'    => 0,
-        'right'  => 0,
-        'bottom' => 20,
-        'left'   => 0,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
 );
@@ -165,31 +165,31 @@ $inputPadding = isset( $attrs['inputPadding'] ) ? $attrs['inputPadding'] : array
         'unit'   => 'px',
     ),
     'tablet'  => array(
-        'top'    => 10,
-        'right'  => 12,
-        'bottom' => 10,
-        'left'   => 12,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
     'mobile'  => array(
-        'top'    => 8,
-        'right'  => 10,
-        'bottom' => 8,
-        'left'   => 10,
+        'top'    => '',
+        'right'  => '',
+        'bottom' => '',
+        'left'   => '',
         'unit'   => 'px',
     ),
 );
 
 $fieldGap = isset( $attrs['fieldGap'] ) ? $attrs['fieldGap'] : array(
     'desktop' => 20,
-    'tablet'  => 15,
-    'mobile'  => 12,
+    'tablet'  => '',
+    'mobile'  => '',
 );
 
 $labelMargin = isset( $attrs['labelMargin'] ) ? $attrs['labelMargin'] : array(
     'desktop' => 8,
-    'tablet'  => 6,
-    'mobile'  => 5,
+    'tablet'  => '',
+    'mobile'  => '',
 );
 
 // Typography
@@ -583,13 +583,17 @@ ob_start();
         <?php endif; ?>
     }
     
+    <?php if ( ! empty( $fieldGap['tablet'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-fields {
         gap: <?php echo esc_attr( $fieldGap['tablet'] ); ?>px;
         margin-bottom: <?php echo esc_attr( $fieldGap['tablet'] ); ?>px;
     }
+	<?php endif; ?>
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-field-label {
+        <?php if ( ! empty( $labelMargin['tablet'] ) ) : ?>
         margin-bottom: <?php echo esc_attr( $labelMargin['tablet'] ); ?>px;
+		<?php endif; ?>
         <?php if ( !empty($textTypography['fontSize']) && !empty($textTypography['fontSize']['tablet']) ) : ?>
         font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . (!empty($textTypography['fontSizeUnit']) ? $textTypography['fontSizeUnit'] : 'px') ); ?>;
         <?php endif; ?>
@@ -620,9 +624,11 @@ ob_start();
         <?php endif; ?>
     }
     
+    <?php if ( ! empty( $fieldGap['tablet'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-submit {
         margin-top: <?php echo esc_attr( $fieldGap['tablet'] ); ?>px;
     }
+	<?php endif; ?>
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-submit-button {
         <?php if ( !empty($buttonTypography['fontSize']) && !empty($buttonTypography['fontSize']['tablet']) ) : ?>
@@ -637,6 +643,7 @@ ob_start();
     }
     
     /* Field width classes for tablet */
+    <?php if ( ! empty( $fieldGap['tablet'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-field-width-75 {
 		width: calc(75% - (<?php echo esc_attr( $fieldGap['tablet'] ); ?>px * 0.25));
 	}
@@ -656,6 +663,7 @@ ob_start();
 	.<?php echo esc_attr( $id ); ?> .digiblocks-field-width-25 {
 		width: calc(25% - (<?php echo esc_attr( $fieldGap['tablet'] ); ?>px * 0.75));
 	}
+	<?php endif; ?>
 }
 
 /* Mobile Styles */
@@ -678,13 +686,17 @@ ob_start();
         <?php endif; ?>
     }
     
+    <?php if ( ! empty( $fieldGap['mobile'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-fields {
         gap: <?php echo esc_attr( $fieldGap['mobile'] ); ?>px;
         margin-bottom: <?php echo esc_attr( $fieldGap['mobile'] ); ?>px;
     }
+	<?php endif; ?>
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-field-label {
+        <?php if ( ! empty( $labelMargin['mobile'] ) ) : ?>
         margin-bottom: <?php echo esc_attr( $labelMargin['mobile'] ); ?>px;
+		<?php endif; ?>
         <?php if ( !empty($textTypography['fontSize']) && !empty($textTypography['fontSize']['mobile']) ) : ?>
         font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . (!empty($textTypography['fontSizeUnit']) ? $textTypography['fontSizeUnit'] : 'px') ); ?>;
         <?php endif; ?>
@@ -715,9 +727,11 @@ ob_start();
         <?php endif; ?>
     }
     
+    <?php if ( ! empty( $fieldGap['mobile'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-submit {
         margin-top: <?php echo esc_attr( $fieldGap['mobile'] ); ?>px;
     }
+	<?php endif; ?>
     
     .<?php echo esc_attr( $id ); ?> .digiblocks-form-submit-button {
         <?php if ( !empty($buttonTypography['fontSize']) && !empty($buttonTypography['fontSize']['mobile']) ) : ?>

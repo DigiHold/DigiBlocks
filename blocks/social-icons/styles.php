@@ -179,7 +179,7 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $textTypography['fontSize']['desktop'] ) ) : ?>
-    	font-size: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ($textTypography['fontSizeUnit'] ?: 'px') ); ?>;
+    	font-size: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ($textTypography['fontSizeUnit'] ?? 'px') ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $textTypography['fontWeight'] ) ) : ?>
@@ -199,11 +199,11 @@ ob_start();
     <?php endif; ?>
     
     <?php if ( ! empty( $textTypography['lineHeight']['desktop'] ) ) : ?>
-    	line-height: <?php echo esc_attr( $textTypography['lineHeight']['desktop'] . ($textTypography['lineHeightUnit'] ?: 'em') ); ?>;
+    	line-height: <?php echo esc_attr( $textTypography['lineHeight']['desktop'] . ($textTypography['lineHeightUnit'] ?? 'em') ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $textTypography['letterSpacing']['desktop'] ) ) : ?>
-    	letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['desktop'] . ($textTypography['letterSpacingUnit'] ?: 'px') ); ?>;
+    	letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['desktop'] . ($textTypography['letterSpacingUnit'] ?? 'px') ); ?>;
     <?php endif; ?>
     
     color: <?php echo esc_attr( $labelColor ?: $iconColor ); ?>;
@@ -269,14 +269,14 @@ ob_start();
     
     <?php if ( $showLabels && isset( $textTypography['fontSize']['tablet'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-label {
-        font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ($textTypography['fontSizeUnit'] ?: 'px') ); ?>;
+        font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ($textTypography['fontSizeUnit'] ?? 'px') ); ?>;
         
         <?php if ( isset( $textTypography['lineHeight']['tablet'] ) ) : ?>
-        line-height: <?php echo esc_attr( $textTypography['lineHeight']['tablet'] . ($textTypography['lineHeightUnit'] ?: 'em') ); ?>;
+        line-height: <?php echo esc_attr( $textTypography['lineHeight']['tablet'] . ($textTypography['lineHeightUnit'] ?? 'em') ); ?>;
         <?php endif; ?>
         
         <?php if ( isset( $textTypography['letterSpacing']['tablet'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['tablet'] . ($textTypography['letterSpacingUnit'] ?: 'px') ); ?>;
+        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['tablet'] . ($textTypography['letterSpacingUnit'] ?? 'px') ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
@@ -316,14 +316,14 @@ ob_start();
     
     <?php if ( $showLabels && isset( $textTypography['fontSize']['mobile'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-label {
-        font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ($textTypography['fontSizeUnit'] ?: 'px') ); ?>;
+        font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ($textTypography['fontSizeUnit'] ?? 'px') ); ?>;
         
         <?php if ( isset( $textTypography['lineHeight']['mobile'] ) ) : ?>
-        line-height: <?php echo esc_attr( $textTypography['lineHeight']['mobile'] . ($textTypography['lineHeightUnit'] ?: 'em') ); ?>;
+        line-height: <?php echo esc_attr( $textTypography['lineHeight']['mobile'] . ($textTypography['lineHeightUnit'] ?? 'em') ); ?>;
         <?php endif; ?>
         
         <?php if ( isset( $textTypography['letterSpacing']['mobile'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['mobile'] . ($textTypography['letterSpacingUnit'] ?: 'px') ); ?>;
+        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['mobile'] . ($textTypography['letterSpacingUnit'] ?? 'px') ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>

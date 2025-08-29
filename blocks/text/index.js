@@ -67,8 +67,8 @@ registerBlockType('digiblocks/text', {
             type: 'object',
             default: {
                 desktop: 'left',
-                tablet: 'left',
-                mobile: 'left'
+                tablet: '',
+                mobile: ''
             }
         },
 		maxWidth: {

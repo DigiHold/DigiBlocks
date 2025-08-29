@@ -192,8 +192,8 @@ registerBlockType('digiblocks/testimonials', {
             type: 'object',
             default: {
                 desktop: { top: 40, right: 40, bottom: 40, left: 40, unit: 'px' },
-                tablet: { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' },
-                mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         margin: {
@@ -208,15 +208,15 @@ registerBlockType('digiblocks/testimonials', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSize: { desktop: 16, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '',
                 fontStyle: 'italic',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.7, tablet: 1.6, mobile: 1.5 },
+                lineHeight: { desktop: 1.7, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -224,15 +224,15 @@ registerBlockType('digiblocks/testimonials', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 20, tablet: 18, mobile: 16 },
+                fontSize: { desktop: 20, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '600',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.3, tablet: 1.3, mobile: 1.3 },
+                lineHeight: { desktop: 1.3, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -240,15 +240,15 @@ registerBlockType('digiblocks/testimonials', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 14, tablet: 13, mobile: 12 },
+                fontSize: { desktop: 14, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.4, tablet: 1.4, mobile: 1.4 },
+                lineHeight: { desktop: 1.4, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0.5, tablet: 0.5, mobile: 0.5 },
+                letterSpacing: { desktop: 0.5, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -256,16 +256,16 @@ registerBlockType('digiblocks/testimonials', {
             type: 'object',
             default: {
                 desktop: 64,
-                tablet: 56,
-                mobile: 48
+                tablet: '',
+                mobile: ''
             }
         },
         quoteIconSize: {
             type: 'object',
             default: {
                 desktop: 80,
-                tablet: 50,
-                mobile: 30
+                tablet: '',
+                mobile: ''
             }
         },
         showRating: {
@@ -284,8 +284,8 @@ registerBlockType('digiblocks/testimonials', {
             type: 'object',
             default: {
                 desktop: 30,
-                tablet: 25,
-                mobile: 20
+                tablet: '',
+                mobile: ''
             }
         }
     },

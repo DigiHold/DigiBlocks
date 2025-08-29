@@ -226,7 +226,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Padding and margin
         const paddingCSS = `${getDimensionCSS(padding, 'padding', activeDevice)}`;
-        const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice)}`;
+        const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice, true)}`;
 
         // Animation CSS if provided
         let animationCSS = '';

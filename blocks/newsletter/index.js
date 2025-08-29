@@ -62,8 +62,8 @@ registerBlockType('digiblocks/newsletter', {
             type: 'object',
             default: {
                 desktop: 'left',
-                tablet: 'left',
-                mobile: 'left'
+                tablet: '',
+                mobile: ''
             }
         },
         title: {
@@ -182,15 +182,15 @@ registerBlockType('digiblocks/newsletter', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 24, tablet: 22, mobile: 20 },
+                fontSize: { desktop: 24, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '600',
                 fontStyle: 'normal',
                 textTransform: 'none',
                 textDecoration: 'none',
-                lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+                lineHeight: { desktop: 1.4, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -198,15 +198,15 @@ registerBlockType('digiblocks/newsletter', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSize: { desktop: 16, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: 'normal',
                 fontStyle: 'normal',
                 textTransform: 'none',
                 textDecoration: 'none',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -214,15 +214,15 @@ registerBlockType('digiblocks/newsletter', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSize: { desktop: 16, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: 'normal',
                 fontStyle: 'normal',
                 textTransform: 'none',
                 textDecoration: 'none',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -230,15 +230,15 @@ registerBlockType('digiblocks/newsletter', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSize: { desktop: 16, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '500',
                 fontStyle: 'normal',
                 textTransform: 'none',
                 textDecoration: 'none',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -306,16 +306,16 @@ registerBlockType('digiblocks/newsletter', {
             type: 'object',
             default: {
                 desktop: { value: 20, unit: 'px' },
-                tablet: { value: 15, unit: 'px' },
-                mobile: { value: 10, unit: 'px' }
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' }
             }
         },
         inputSpacing: {
             type: 'object',
             default: {
                 desktop: { value: 10, unit: 'px' },
-                tablet: { value: 8, unit: 'px' },
-                mobile: { value: 6, unit: 'px' }
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' }
             }
         },
         padding: {

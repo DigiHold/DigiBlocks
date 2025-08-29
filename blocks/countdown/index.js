@@ -194,8 +194,8 @@ registerBlockType('digiblocks/countdown', {
             type: 'object',
             default: {
                 desktop: 48,
-                tablet: 30,
-                mobile: 16
+                tablet: '',
+                mobile: ''
             }
         },
         align: {
@@ -210,23 +210,23 @@ registerBlockType('digiblocks/countdown', {
             type: 'object',
             default: {
                 desktop: 5,
-                tablet: 4,
-                mobile: 3
+                tablet: '',
+                mobile: ''
             }
         },
         titleTypography: {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 70, tablet: 38, mobile: 26 },
+                fontSize: { desktop: 70, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '600',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+                lineHeight: { desktop: 1.2, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -234,15 +234,15 @@ registerBlockType('digiblocks/countdown', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 14, mobile: 12 },
+                fontSize: { desktop: 16, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.4, tablet: 1.4, mobile: 1.4 },
+                lineHeight: { desktop: 1.4, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },

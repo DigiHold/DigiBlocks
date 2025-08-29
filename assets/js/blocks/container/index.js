@@ -111,6 +111,7 @@
       contentMaxWidth,
       horizontalAlign,
       verticalAlign,
+      columnVerticalAlign,
       heightType,
       minHeight,
       columnGap,
@@ -142,6 +143,17 @@
       animation
     } = attributes;
     useBlockId(id, clientId, setAttributes);
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     const [activeTab, setActiveTab] = useState(() => {
       if (window.digi.uiState) {
@@ -469,10 +481,10 @@
         boxShadowHoverCSS = `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
       }
       let heightCSS = "";
-      if (heightType[activeDevice] === "full") {
+      if (getVal(heightType, activeDevice) === "full") {
         heightCSS = "height: 100vh;";
-      } else if (heightType[activeDevice] === "custom") {
-        heightCSS = `min-height: ${minHeight[activeDevice]}px !important;`;
+      } else if (getVal(heightType, activeDevice) === "custom") {
+        heightCSS = `min-height: ${getVal(minHeight, activeDevice)}px !important;`;
       }
       let contentWidthCSS = "";
       if (!isNested) {
@@ -521,9 +533,9 @@
 
 			.${id} > .digiblocks-container-inner {
                 display: flex;
-				flex-wrap: ${flexWrap[activeDevice]};
-                align-items: ${verticalAlign[activeDevice]};
-    			justify-content: ${horizontalAlign[activeDevice]};
+				flex-wrap: ${getVal(flexWrap, activeDevice)};
+				align-items: ${getVal(verticalAlign, activeDevice)};
+				justify-content: ${getVal(horizontalAlign, activeDevice)};
 				gap: ${getGapValue(rowGap, activeDevice).value}${getGapValue(rowGap, activeDevice).unit} ${getGapValue(columnGap, activeDevice).value}${getGapValue(columnGap, activeDevice).unit};
             }
 
@@ -574,9 +586,9 @@
 						width: ${contentWidth.tablet !== void 0 && contentWidth.tablet !== "" ? contentWidth.tablet : contentWidth.desktop}px;
 						max-width: ${contentMaxWidth.tablet !== void 0 && contentMaxWidth.tablet !== "" ? contentMaxWidth.tablet : contentMaxWidth.desktop}%;
 					` : ""}
-					flex-wrap: ${flexWrap["tablet"]};
-					align-items: ${verticalAlign["tablet"]};
-					justify-content: ${horizontalAlign["tablet"]};
+					flex-wrap: ${getVal(flexWrap, "tablet")};
+					align-items: ${getVal(verticalAlign, "tablet")};
+					justify-content: ${getVal(horizontalAlign, "tablet")};
 					gap: ${getGapValue(rowGap, "tablet").value}${getGapValue(rowGap, "tablet").unit} ${getGapValue(columnGap, "tablet").value}${getGapValue(columnGap, "tablet").unit};
                     ${stackOnTablet ? "flex-direction: column;" : ""}
 				}
@@ -602,9 +614,9 @@
 						width: ${contentWidth.mobile !== void 0 && contentWidth.mobile !== "" ? contentWidth.mobile : contentWidth.tablet !== void 0 && contentWidth.tablet !== "" ? contentWidth.tablet : contentWidth.desktop}px;
 						max-width: ${contentMaxWidth.mobile !== void 0 && contentMaxWidth.mobile !== "" ? contentMaxWidth.mobile : contentMaxWidth.tablet !== void 0 && contentMaxWidth.tablet !== "" ? contentMaxWidth.tablet : contentMaxWidth.desktop}%;
 					` : ""}
-					flex-wrap: ${flexWrap["mobile"]};
-					align-items: ${verticalAlign["mobile"]};
-					justify-content: ${horizontalAlign["mobile"]};
+					flex-wrap: ${getVal(flexWrap, "mobile")};
+					align-items: ${getVal(verticalAlign, "mobile")};
+					justify-content: ${getVal(horizontalAlign, "mobile")};
 					gap: ${getGapValue(rowGap, "mobile").value}${getGapValue(rowGap, "mobile").unit} ${getGapValue(columnGap, "mobile").value}${getGapValue(columnGap, "mobile").unit};
                     ${stackOnMobile ? "flex-direction: column;" : ""}
                     ${reverseColumnsMobile ? "flex-direction: column-reverse;" : ""}
@@ -615,7 +627,28 @@
 						width: 100%;
 					}` : ""}
             }
-            
+
+			${Object.keys(verticalAlign).some((device) => verticalAlign[device] === "stretch") ? `
+				/* Column vertical alignment when container uses stretch */
+				@media (min-width: 992px) {
+					.${id} > .digiblocks-container-inner .digiblocks-column {
+						${getVal(verticalAlign, "desktop") === "stretch" ? `justify-content: ${getVal(columnVerticalAlign, "desktop")};` : ""}
+					}
+				}
+				
+				@media (max-width: 991px) {
+					.${id} > .digiblocks-container-inner .digiblocks-column {
+						${getVal(verticalAlign, "tablet") === "stretch" ? `justify-content: ${getVal(columnVerticalAlign, "tablet")};` : ""}
+					}
+				}
+				
+				@media (max-width: 767px) {
+					.${id} > .digiblocks-container-inner .digiblocks-column {
+						${getVal(verticalAlign, "mobile") === "stretch" ? `justify-content: ${getVal(columnVerticalAlign, "mobile")};` : ""}
+					}
+				}
+			` : ""}
+						
             /* Animation keyframes */
             ${animationCSS}
 
@@ -817,8 +850,23 @@
                 options: [
                   { label: __("Top", "digiblocks"), value: "flex-start" },
                   { label: __("Middle", "digiblocks"), value: "center" },
-                  { label: __("Bottom", "digiblocks"), value: "flex-end" }
+                  { label: __("Bottom", "digiblocks"), value: "flex-end" },
+                  { label: __("Stretch", "digiblocks"), value: "stretch" }
                 ]
+              }
+            ),
+            verticalAlign[localActiveDevice] === "stretch" && /* @__PURE__ */ wp.element.createElement(
+              ResponsiveButtonGroup,
+              {
+                label: __("Column Vertical Align", "digiblocks"),
+                value: columnVerticalAlign,
+                onChange: (value) => setAttributes({ columnVerticalAlign: value }),
+                options: [
+                  { label: __("Top", "digiblocks"), value: "flex-start" },
+                  { label: __("Middle", "digiblocks"), value: "center" },
+                  { label: __("Bottom", "digiblocks"), value: "flex-end" }
+                ],
+                help: __("Controls the vertical alignment of content within stretched columns.", "digiblocks")
               }
             )
           ), /* @__PURE__ */ wp.element.createElement(
@@ -1529,8 +1577,8 @@
         type: "object",
         default: {
           desktop: "nowrap",
-          tablet: "nowrap",
-          mobile: "nowrap"
+          tablet: "",
+          mobile: ""
         }
       },
       anchor: {
@@ -1569,32 +1617,40 @@
         type: "object",
         default: {
           desktop: "auto",
-          tablet: "auto",
-          mobile: "auto"
+          tablet: "",
+          mobile: ""
         }
       },
       horizontalAlign: {
         type: "object",
         default: {
           desktop: "center",
-          tablet: "center",
-          mobile: "center"
+          tablet: "",
+          mobile: ""
         }
       },
       verticalAlign: {
         type: "object",
         default: {
           desktop: "center",
-          tablet: "center",
-          mobile: "center"
+          tablet: "",
+          mobile: ""
+        }
+      },
+      columnVerticalAlign: {
+        type: "object",
+        default: {
+          desktop: "flex-start",
+          tablet: "",
+          mobile: ""
         }
       },
       minHeight: {
         type: "object",
         default: {
           desktop: 0,
-          tablet: 0,
-          mobile: 0
+          tablet: "",
+          mobile: ""
         }
       },
       columnGap: {

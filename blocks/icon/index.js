@@ -117,8 +117,8 @@ registerBlockType('digiblocks/icon', {
             type: 'object',
             default: {
                 desktop: { top: 10, right: 10, bottom: 10, left: 10, unit: 'px' },
-                tablet: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                mobile: { top: 5, right: 5, bottom: 5, left: 5, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         iconMargin: {
@@ -160,9 +160,17 @@ registerBlockType('digiblocks/icon', {
         iconSize: {
             type: 'object',
             default: {
-                desktop: 48,
-                tablet: 40,
-                mobile: 32
+                desktop: { value: 48, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' }
+            }
+        },
+        iconHeight: {
+            type: 'object',
+            default: {
+                desktop: { value: '', unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' }
             }
         },
         backgroundColor: {
@@ -192,17 +200,17 @@ registerBlockType('digiblocks/icon', {
                     unit: 'px'
                 },
                 tablet: {
-                    top: 8,
-                    right: 8,
-                    bottom: 8,
-                    left: 8,
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
                     unit: 'px'
                 },
                 mobile: {
-                    top: 8,
-                    right: 8,
-                    bottom: 8,
-                    left: 8,
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
                     unit: 'px'
                 }
             }
@@ -218,17 +226,17 @@ registerBlockType('digiblocks/icon', {
                     unit: 'px'
                 },
                 tablet: {
-                    top: 1,
-                    right: 1,
-                    bottom: 1,
-                    left: 1,
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
                     unit: 'px'
                 },
                 mobile: {
-                    top: 1,
-                    right: 1,
-                    bottom: 1,
-                    left: 1,
+                    top: '',
+                    right: '',
+                    bottom: '',
+                    left: '',
                     unit: 'px'
                 }
             }

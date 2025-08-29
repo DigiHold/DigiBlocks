@@ -67,6 +67,17 @@
       hoverEffect
     } = attributes;
     useBlockId(id, clientId, setAttributes);
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     useEffect(() => {
       if (!items || items.length === 0) {
         const defaultItems = [
@@ -326,8 +337,9 @@
         if (contentTypography.fontFamily) {
           contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
         }
-        if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
-          contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || "px"};`;
+        const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
+        if (contentFontSize || contentFontSize === 0) {
+          contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || "px"};`;
         }
         if (contentTypography.fontWeight) {
           contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
@@ -341,11 +353,13 @@
         if (contentTypography.textDecoration) {
           contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
         }
-        if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
-          contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || "em"};`;
+        const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
+        if (contentLineHeight || contentLineHeight === 0) {
+          contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || "em"};`;
         }
-        if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
-          contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || "px"};`;
+        const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
+        if (contentLetterSpacing || contentLetterSpacing === 0) {
+          contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || "px"};`;
         }
       }
       let hoverCSS = "";
@@ -390,14 +404,14 @@
 				flex-direction: ${listLayout === "horizontal" ? "row" : "column"};
 				flex-wrap: wrap;
 				justify-content: ${listAlign === "center" ? "center" : listAlign === "right" ? "flex-end" : "flex-start"};
-				gap: ${itemSpace[activeDevice] !== void 0 ? itemSpace[activeDevice] : 16}px;
+				gap: ${getVal(itemSpace, activeDevice) || 16}px;
             }
             
             /* List item */
             .${id} .digiblocks-icon-list-item {
                 display: inline-flex;
                 align-items: center;
-				gap: ${iconSpace[activeDevice] !== void 0 ? iconSpace[activeDevice] : 12}px;
+				gap: ${getVal(iconSpace, activeDevice) || 12}px;
 				justify-content: ${listAlign === "center" ? "center" : listAlign === "right" ? "flex-end" : "flex-start"};
                 transition: all 0.3s ease;
             }
@@ -421,8 +435,8 @@
             }
             
             .${id} .digiblocks-icon-list-icon svg {
-                width: ${iconSize[activeDevice] !== void 0 ? iconSize[activeDevice] : 24}px;
-                height: ${iconSize[activeDevice] !== void 0 ? iconSize[activeDevice] : 24}px;
+                width: ${getVal(iconSize, activeDevice) || 24}px;
+				height: ${getVal(iconSize, activeDevice) || 24}px;
                 fill: currentColor;
             }
             
@@ -445,7 +459,7 @@
             .${id} .digiblocks-icon-list-child {
                 display: inline-flex;
                 ${iconPosition === "after" ? "flex-direction: row-reverse;" : ""}
-				gap: ${iconSpace[activeDevice] !== void 0 ? iconSpace[activeDevice] : 12}px;
+				gap: ${getVal(iconSpace, activeDevice) || 12}px;
                 align-items: center;
             }
             
@@ -1654,15 +1668,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+          fontSize: { desktop: 16, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "",
           fontStyle: "normal",
           textTransform: "",
           textDecoration: "",
-          lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -1682,24 +1696,24 @@
         type: "object",
         default: {
           desktop: 24,
-          tablet: 20,
-          mobile: 18
+          tablet: "",
+          mobile: ""
         }
       },
       iconSpace: {
         type: "object",
         default: {
           desktop: 12,
-          tablet: 10,
-          mobile: 8
+          tablet: "",
+          mobile: ""
         }
       },
       itemSpace: {
         type: "object",
         default: {
           desktop: 16,
-          tablet: 12,
-          mobile: 8
+          tablet: "",
+          mobile: ""
         }
       },
       iconColor: {
@@ -1734,8 +1748,8 @@
         type: "object",
         default: {
           desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: "px" },
-          tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: "px" },
-          mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: "px" }
+          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
         }
       },
       borderStyle: {

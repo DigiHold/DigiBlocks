@@ -40,6 +40,22 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
         animation,
     } = attributes;
 
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		if (device === 'mobile') {
+			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
+				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		return obj.desktop;
+	};
+
     // Use global responsive state for local rendering
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
@@ -103,7 +119,7 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
                 ${layout === 'vertical' ? 'flex-direction: column;' : ''}
                 align-items: ${verticalAlign[activeDevice]};
     			justify-content: ${horizontalAlign[activeDevice]};
-                gap: ${buttonSpacing[activeDevice]}px;
+                gap: ${getVal(buttonSpacing, activeDevice)}px;
                 transition: all 0.3s ease;
             }
 

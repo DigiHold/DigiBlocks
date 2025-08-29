@@ -164,16 +164,16 @@ registerBlockType('digiblocks/forms', {
             type: 'object',
             default: {
                 desktop: { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' },
-                tablet: { top: 25, right: 25, bottom: 25, left: 25, unit: 'px' },
-                mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         margin: {
             type: 'object',
             default: {
                 desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         typography: {
@@ -240,8 +240,8 @@ registerBlockType('digiblocks/forms', {
             type: 'object',
             default: {
                 desktop: { top: 12, right: 15, bottom: 12, left: 15, unit: 'px' },
-                tablet: { top: 10, right: 12, bottom: 10, left: 12, unit: 'px' },
-                mobile: { top: 8, right: 10, bottom: 8, left: 10, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         inputBackgroundColor: {
@@ -264,16 +264,16 @@ registerBlockType('digiblocks/forms', {
             type: 'object',
             default: {
                 desktop: 20,
-                tablet: 15,
-                mobile: 12
+                tablet: '',
+                mobile: ''
             }
         },
         labelMargin: {
             type: 'object',
             default: {
                 desktop: 8,
-                tablet: 6,
-                mobile: 5
+                tablet: '',
+                mobile: ''
             }
         },
         fields: {

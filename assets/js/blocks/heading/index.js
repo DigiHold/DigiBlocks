@@ -172,7 +172,7 @@
         textShadowCSS = `text-shadow: ${textShadow.horizontal}px ${textShadow.vertical}px ${textShadow.blur}px ${textShadow.color};`;
       }
       const paddingCSS = `${getDimensionCSS(padding, "padding", activeDevice)}`;
-      const marginCSS = `${getDimensionCSS(margin, "margin", activeDevice)}`;
+      const marginCSS = `${getDimensionCSS(margin, "margin", activeDevice, true)}`;
       let animationCSS = "";
       if (animation && animation !== "none" && animations[animation]) {
         animationCSS = animations[animation].keyframes;

@@ -160,31 +160,31 @@ registerBlockType('digiblocks/faq', {
             type: 'object',
             default: {
                 desktop: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' },
-                tablet: { top: 15, right: 15, bottom: 15, left: 15, unit: 'px' },
-                mobile: { top: 10, right: 10, bottom: 10, left: 10, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         margin: {
             type: 'object',
             default: {
                 desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         titleTypography: {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 18, tablet: 16, mobile: 15 },
+                fontSize: { desktop: 18, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '600',
                 fontStyle: 'normal',
                 textTransform: 'none',
                 textDecoration: 'none',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -192,15 +192,15 @@ registerBlockType('digiblocks/faq', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSize: { desktop: 16, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -224,8 +224,8 @@ registerBlockType('digiblocks/faq', {
             type: 'object',
             default: {
                 desktop: 16,
-                tablet: 14,
-                mobile: 12
+                tablet: '',
+                mobile: ''
             }
         },
         animation: {
@@ -268,8 +268,8 @@ registerBlockType('digiblocks/faq', {
             type: 'object',
             default: {
                 desktop: 16,
-                tablet: 12,
-                mobile: 8
+                tablet: '',
+                mobile: ''
             }
         },
         schemaType: {

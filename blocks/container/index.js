@@ -53,8 +53,8 @@ registerBlockType('digiblocks/container', {
 			type: 'object',
 			default: {
 				desktop: 'nowrap',
-				tablet: 'nowrap',
-				mobile: 'nowrap'
+				tablet: '',
+				mobile: ''
 			}
 		},
         anchor: {
@@ -93,32 +93,40 @@ registerBlockType('digiblocks/container', {
 			type: 'object',
 			default: {
 				desktop: 'auto',
-				tablet: 'auto',
-				mobile: 'auto'
+				tablet: '',
+				mobile: ''
 			}
 		},
 		horizontalAlign: {
 			type: 'object',
 			default: {
 				desktop: 'center',
-				tablet: 'center',
-				mobile: 'center'
+				tablet: '',
+				mobile: ''
 			}
 		},
 		verticalAlign: {
 			type: 'object',
 			default: {
 				desktop: 'center',
-				tablet: 'center',
-				mobile: 'center'
+				tablet: '',
+				mobile: ''
+			}
+		},
+		columnVerticalAlign: {
+			type: 'object',
+			default: {
+				desktop: 'flex-start',
+				tablet: '',
+				mobile: ''
 			}
 		},
         minHeight: {
             type: 'object',
             default: {
                 desktop: 0,
-                tablet: 0,
-                mobile: 0
+                tablet: '',
+                mobile: ''
             }
         },
 		columnGap: {

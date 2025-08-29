@@ -72,6 +72,21 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
 	// Create unique class
 	useBlockId( id, clientId, setAttributes );
 
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		if (device === 'mobile') {
+			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
+				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : obj.desktop;
+		}
+		return obj.desktop;
+	};
+
     // State for active tab
     const [activeTab, setActiveTab] = useState(() => {
 		// Try to get the saved tab for this block
@@ -370,9 +385,10 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                 contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
             }
             
-            if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
-                contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || 'px'};`;
-            }
+            const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
+			if (contentFontSize) {
+				contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || 'px'};`;
+			}
             
             if (contentTypography.fontWeight) {
                 contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
@@ -390,13 +406,15 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                 contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
             }
             
-            if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
-                contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
-                contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || 'px'};`;
-            }
+            const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
+			if (contentLineHeight) {
+				contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
+			if (contentLetterSpacing || contentLetterSpacing === 0) {
+				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || 'px'};`;
+			}
         }
         
         // Name typography CSS
@@ -406,9 +424,10 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                 headingTypographyCSS += `font-family: ${headingTypography.fontFamily};`;
             }
             
-            if (headingTypography.fontSize && headingTypography.fontSize[activeDevice]) {
-                headingTypographyCSS += `font-size: ${headingTypography.fontSize[activeDevice]}${headingTypography.fontSizeUnit || 'px'};`;
-            }
+            const headingFontSize = getVal(headingTypography.fontSize, activeDevice);
+			if (headingFontSize) {
+				headingTypographyCSS += `font-size: ${headingFontSize}${headingTypography.fontSizeUnit || 'px'};`;
+			}
             
             if (headingTypography.fontWeight) {
                 headingTypographyCSS += `font-weight: ${headingTypography.fontWeight};`;
@@ -426,13 +445,15 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                 headingTypographyCSS += `text-decoration: ${headingTypography.textDecoration};`;
             }
             
-            if (headingTypography.lineHeight && headingTypography.lineHeight[activeDevice]) {
-                headingTypographyCSS += `line-height: ${headingTypography.lineHeight[activeDevice]}${headingTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (headingTypography.letterSpacing && headingTypography.letterSpacing[activeDevice]) {
-                headingTypographyCSS += `letter-spacing: ${headingTypography.letterSpacing[activeDevice]}${headingTypography.letterSpacingUnit || 'px'};`;
-            }
+            const headingLineHeight = getVal(headingTypography.lineHeight, activeDevice);
+			if (headingLineHeight) {
+				headingTypographyCSS += `line-height: ${headingLineHeight}${headingTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			const headingLetterSpacing = getVal(headingTypography.letterSpacing, activeDevice);
+			if (headingLetterSpacing || headingLetterSpacing === 0) {
+				headingTypographyCSS += `letter-spacing: ${headingLetterSpacing}${headingTypography.letterSpacingUnit || 'px'};`;
+			}
         }
         
         // Position typography CSS
@@ -442,9 +463,10 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                 textTypographyCSS += `font-family: ${textTypography.fontFamily};`;
             }
             
-            if (textTypography.fontSize && textTypography.fontSize[activeDevice]) {
-                textTypographyCSS += `font-size: ${textTypography.fontSize[activeDevice]}${textTypography.fontSizeUnit || 'px'};`;
-            }
+            const textFontSize = getVal(textTypography.fontSize, activeDevice);
+			if (textFontSize) {
+				textTypographyCSS += `font-size: ${textFontSize}${textTypography.fontSizeUnit || 'px'};`;
+			}
             
             if (textTypography.fontWeight) {
                 textTypographyCSS += `font-weight: ${textTypography.fontWeight};`;
@@ -462,13 +484,15 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
                 textTypographyCSS += `text-decoration: ${textTypography.textDecoration};`;
             }
             
-            if (textTypography.lineHeight && textTypography.lineHeight[activeDevice]) {
-                textTypographyCSS += `line-height: ${textTypography.lineHeight[activeDevice]}${textTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (textTypography.letterSpacing && textTypography.letterSpacing[activeDevice]) {
-                textTypographyCSS += `letter-spacing: ${textTypography.letterSpacing[activeDevice]}${textTypography.letterSpacingUnit || 'px'};`;
-            }
+            const textLineHeight = getVal(textTypography.lineHeight, activeDevice);
+			if (textLineHeight) {
+				textTypographyCSS += `line-height: ${textLineHeight}${textTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			const textLetterSpacing = getVal(textTypography.letterSpacing, activeDevice);
+			if (textLetterSpacing || textLetterSpacing === 0) {
+				textTypographyCSS += `letter-spacing: ${textLetterSpacing}${textTypography.letterSpacingUnit || 'px'};`;
+			}
         }
         
         // Hover effects
@@ -481,7 +505,7 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
         }
 
         const columnsDevice = columns[activeDevice] || 2;
-        const spacingDevice = itemSpacing[activeDevice] || 30;
+        const spacingDevice = getVal(itemSpacing, activeDevice) || 30;
         
         // Set base styles for the block
         return `
@@ -527,8 +551,8 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
             }
 
             .${id} .digiblocks-testimonial-quote-icon svg {
-                width: ${quoteIconSize[activeDevice]}px;
-				height: ${quoteIconSize[activeDevice]}px;
+                width: ${getVal(quoteIconSize, activeDevice)}px;
+				height: ${getVal(quoteIconSize, activeDevice)}px;
             }
             ` : ''}
             
@@ -552,8 +576,8 @@ const TestimonialsEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             .${id} .digiblocks-testimonial-image {
-                width: ${imageSize[activeDevice]}px;
-                height: ${imageSize[activeDevice]}px;
+                width: ${getVal(imageSize, activeDevice)}px;
+				height: ${getVal(imageSize, activeDevice)}px;
                 border-radius: 50%;
                 object-fit: cover;
                 background: ${quoteIconColor};

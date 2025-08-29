@@ -70,24 +70,24 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				desktop: 'center',
-				tablet: 'center',
-				mobile: 'center'
+				tablet: '',
+				mobile: ''
 			}
 		},
 		iconLayout: {
 			type: 'object',
 			default: {
 				desktop: 'above',
-				tablet: 'above',
-				mobile: 'above'
+				tablet: '',
+				mobile: ''
 			}
 		},
 		iconContentGap: {
 			type: 'object',
 			default: {
 				desktop: { value: 20, unit: 'px' },
-				tablet: { value: 15, unit: 'px' },
-				mobile: { value: 10, unit: 'px' }
+				tablet: { value: '', unit: 'px' },
+				mobile: { value: '', unit: 'px' }
 			}
 		},
 		showTitle: {
@@ -136,7 +136,7 @@ registerBlockType('digiblocks/icon-box', {
 		},
 		backgroundColor: {
 			type: 'string',
-			default: '#ffffff'
+			default: ''
 		},
 		backgroundHoverColor: {
 			type: 'string',
@@ -294,16 +294,16 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				desktop: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px' },
-				tablet: { top: 8, right: 16, bottom: 8, left: 16, unit: 'px' },
-				mobile: { top: 6, right: 12, bottom: 6, left: 12, unit: 'px' }
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 			}
 		},
 		buttonMargin: {
 			type: 'object',
 			default: {
 				desktop: { top: 15, right: 0, bottom: 0, left: 0, unit: 'px' },
-				tablet: { top: 10, right: 0, bottom: 0, left: 0, unit: 'px' },
-				mobile: { top: 8, right: 0, bottom: 0, left: 0, unit: 'px' }
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 			}
 		},
 		buttonTypography: {
@@ -342,15 +342,15 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				fontFamily: '',
-				fontSize: { desktop: 0.7, tablet: 0.7, mobile: 0.7 },
+				fontSize: { desktop: 0.7, tablet: '', mobile: '' },
 				fontSizeUnit: 'rem',
 				fontWeight: '700',
 				fontStyle: 'normal',
 				textTransform: 'uppercase',
 				textDecoration: '',
-				lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+				lineHeight: { desktop: 1.2, tablet: '', mobile: '' },
 				lineHeightUnit: 'em',
-				letterSpacing: { desktop: 0.05, tablet: 0.05, mobile: 0.05 },
+				letterSpacing: { desktop: 0.05, tablet: '', mobile: '' },
 				letterSpacingUnit: 'em'
 			}
 		},
@@ -466,24 +466,24 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				desktop: {
-					top: 30,
-					right: 30,
-					bottom: 30,
-					left: 30,
+					top: '',
+					right: '',
+					bottom: '',
+					left: '',
 					unit: 'px'
 				},
 				tablet: {
-					top: 25,
-					right: 25,
-					bottom: 25,
-					left: 25,
+					top: '',
+					right: '',
+					bottom: '',
+					left: '',
 					unit: 'px'
 				},
 				mobile: {
-					top: 20,
-					right: 20,
-					bottom: 20,
-					left: 20,
+					top: '',
+					right: '',
+					bottom: '',
+					left: '',
 					unit: 'px'
 				}
 			}
@@ -492,24 +492,24 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				desktop: {
-					top: 0,
-					right: 0,
-					bottom: 30,
-					left: 0,
+					top: '',
+					right: '',
+					bottom: '',
+					left: '',
 					unit: 'px'
 				},
 				tablet: {
-					top: 0,
-					right: 0,
-					bottom: 25,
-					left: 0,
+					top: '',
+					right: '',
+					bottom: '',
+					left: '',
 					unit: 'px'
 				},
 				mobile: {
-					top: 0,
-					right: 0,
-					bottom: 20,
-					left: 0,
+					top: '',
+					right: '',
+					bottom: '',
+					left: '',
 					unit: 'px'
 				}
 			}
@@ -526,24 +526,24 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				desktop: {
-					top: 8,
-					right: 8,
-					bottom: 8,
-					left: 8,
+					top: '',
+					right: '',
+					bottom: '',
+					left: '',
 					unit: 'px'
 				},
 				tablet: {
-					top: 8,
-					right: 8,
-					bottom: 8,
-					left: 8,
+					top: '',
+					right: '',
+					bottom: '',
+					left: '',
 					unit: 'px'
 				},
 				mobile: {
-					top: 8,
-					right: 8,
-					bottom: 8,
-					left: 8,
+					top: '',
+					right: '',
+					bottom: '',
+					left: '',
 					unit: 'px'
 				}
 			}
@@ -559,17 +559,17 @@ registerBlockType('digiblocks/icon-box', {
 					unit: 'px'
 				},
 				tablet: {
-					top: 1,
-					right: 1,
-					bottom: 1,
-					left: 1,
+					top: '',
+					right: '',
+					bottom: '',
+					left: '',
 					unit: 'px'
 				},
 				mobile: {
-					top: 1,
-					right: 1,
-					bottom: 1,
-					left: 1,
+					top: '',
+					right: '',
+					bottom: '',
+					left: '',
 					unit: 'px'
 				}
 			}
@@ -622,8 +622,7 @@ registerBlockType('digiblocks/icon-box', {
 			},
 			title: __('Feature Title', 'digiblocks'),
 			content: __('Add your feature description here. Explain what makes this feature special.', 'digiblocks'),
-			iconColor: '#1e73be',
-			backgroundColor: '#ffffff'
+			iconColor: '#1e73be'
 		},
 		viewportWidth: 400
 	},

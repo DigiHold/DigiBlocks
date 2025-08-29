@@ -148,6 +148,7 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
         contentMaxWidth,
         horizontalAlign,
         verticalAlign,
+		columnVerticalAlign,
         heightType,
         minHeight,
         columnGap,
@@ -181,6 +182,22 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Create unique class
     useBlockId(id, clientId, setAttributes);
+
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		if (device === 'mobile') {
+			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
+				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		return obj.desktop;
+	};
 
     // Use global responsive state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
@@ -629,10 +646,10 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Height CSS
         let heightCSS = '';
-		if (heightType[activeDevice] === 'full') {
+		if (getVal(heightType, activeDevice) === 'full') {
 			heightCSS = 'height: 100vh;';
-		} else if (heightType[activeDevice] === 'custom') {
-			heightCSS = `min-height: ${minHeight[activeDevice]}px !important;`;
+		} else if (getVal(heightType, activeDevice) === 'custom') {
+			heightCSS = `min-height: ${getVal(minHeight, activeDevice)}px !important;`;
 		}
         
         // Content width CSS
@@ -694,9 +711,9 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 
 			.${id} > .digiblocks-container-inner {
                 display: flex;
-				flex-wrap: ${flexWrap[activeDevice]};
-                align-items: ${verticalAlign[activeDevice]};
-    			justify-content: ${horizontalAlign[activeDevice]};
+				flex-wrap: ${getVal(flexWrap, activeDevice)};
+				align-items: ${getVal(verticalAlign, activeDevice)};
+				justify-content: ${getVal(horizontalAlign, activeDevice)};
 				gap: ${getGapValue(rowGap, activeDevice).value}${getGapValue(rowGap, activeDevice).unit} ${getGapValue(columnGap, activeDevice).value}${getGapValue(columnGap, activeDevice).unit};
             }
 
@@ -751,9 +768,9 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 							? contentMaxWidth.tablet 
 							: contentMaxWidth.desktop}%;
 					` : ''}
-					flex-wrap: ${flexWrap['tablet']};
-					align-items: ${verticalAlign['tablet']};
-					justify-content: ${horizontalAlign['tablet']};
+					flex-wrap: ${getVal(flexWrap, 'tablet')};
+					align-items: ${getVal(verticalAlign, 'tablet')};
+					justify-content: ${getVal(horizontalAlign, 'tablet')};
 					gap: ${getGapValue(rowGap, 'tablet').value}${getGapValue(rowGap, 'tablet').unit} ${getGapValue(columnGap, 'tablet').value}${getGapValue(columnGap, 'tablet').unit};
                     ${stackOnTablet ? 'flex-direction: column;' : ''}
 				}
@@ -787,9 +804,9 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 								? contentMaxWidth.tablet 
 								: contentMaxWidth.desktop)}%;
 					` : ''}
-					flex-wrap: ${flexWrap['mobile']};
-					align-items: ${verticalAlign['mobile']};
-					justify-content: ${horizontalAlign['mobile']};
+					flex-wrap: ${getVal(flexWrap, 'mobile')};
+					align-items: ${getVal(verticalAlign, 'mobile')};
+					justify-content: ${getVal(horizontalAlign, 'mobile')};
 					gap: ${getGapValue(rowGap, 'mobile').value}${getGapValue(rowGap, 'mobile').unit} ${getGapValue(columnGap, 'mobile').value}${getGapValue(columnGap, 'mobile').unit};
                     ${stackOnMobile ? 'flex-direction: column;' : ''}
                     ${reverseColumnsMobile ? 'flex-direction: column-reverse;' : ''}
@@ -800,7 +817,28 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 						width: 100%;
 					}` : ''}
             }
-            
+
+			${Object.keys(verticalAlign).some(device => verticalAlign[device] === 'stretch') ? `
+				/* Column vertical alignment when container uses stretch */
+				@media (min-width: 992px) {
+					.${id} > .digiblocks-container-inner .digiblocks-column {
+						${getVal(verticalAlign, 'desktop') === 'stretch' ? `justify-content: ${getVal(columnVerticalAlign, 'desktop')};` : ''}
+					}
+				}
+				
+				@media (max-width: 991px) {
+					.${id} > .digiblocks-container-inner .digiblocks-column {
+						${getVal(verticalAlign, 'tablet') === 'stretch' ? `justify-content: ${getVal(columnVerticalAlign, 'tablet')};` : ''}
+					}
+				}
+				
+				@media (max-width: 767px) {
+					.${id} > .digiblocks-container-inner .digiblocks-column {
+						${getVal(verticalAlign, 'mobile') === 'stretch' ? `justify-content: ${getVal(columnVerticalAlign, 'mobile')};` : ''}
+					}
+				}
+			` : ''}
+						
             /* Animation keyframes */
             ${animationCSS}
 
@@ -1012,9 +1050,24 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 								options={[
 									{ label: __("Top", "digiblocks"), value: "flex-start" },
 									{ label: __("Middle", "digiblocks"), value: "center" },
-									{ label: __("Bottom", "digiblocks"), value: "flex-end" }
+									{ label: __("Bottom", "digiblocks"), value: "flex-end" },
+									{ label: __("Stretch", "digiblocks"), value: "stretch" }
 								]}
 							/>
+
+							{verticalAlign[localActiveDevice] === 'stretch' && (
+								<ResponsiveButtonGroup
+									label={__("Column Vertical Align", "digiblocks")}
+									value={columnVerticalAlign}
+									onChange={(value) => setAttributes({ columnVerticalAlign: value })}
+									options={[
+										{ label: __("Top", "digiblocks"), value: "flex-start" },
+										{ label: __("Middle", "digiblocks"), value: "center" },
+										{ label: __("Bottom", "digiblocks"), value: "flex-end" }
+									]}
+									help={__("Controls the vertical alignment of content within stretched columns.", "digiblocks")}
+								/>
+							)}
                         </TabPanelBody>
                         
                         <TabPanelBody

@@ -90,6 +90,22 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
     // Create unique class
     useBlockId(id, clientId, setAttributes);
 
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		if (device === 'mobile') {
+			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
+				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		return obj.desktop;
+	};
+
     // Use global responsive state for local rendering
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
@@ -404,9 +420,10 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                 mainTypographyCSS += `font-family: ${typography.fontFamily};`;
             }
             
-            if (typography.fontSize && typography.fontSize[activeDevice]) {
-                mainTypographyCSS += `font-size: ${typography.fontSize[activeDevice]}${typography.fontSizeUnit || 'px'};`;
-            }
+            const fontSize = getVal(typography.fontSize, activeDevice);
+			if (fontSize) {
+				typographyCSS += `font-size: ${fontSize}${typography.fontSizeUnit || 'px'};`;
+			}
             
             if (typography.fontWeight) {
                 mainTypographyCSS += `font-weight: ${typography.fontWeight};`;
@@ -420,13 +437,15 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                 mainTypographyCSS += `text-transform: ${typography.textTransform};`;
             }
             
-            if (typography.lineHeight && typography.lineHeight[activeDevice]) {
-                mainTypographyCSS += `line-height: ${typography.lineHeight[activeDevice]}${typography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (typography.letterSpacing && typography.letterSpacing[activeDevice]) {
-                mainTypographyCSS += `letter-spacing: ${typography.letterSpacing[activeDevice]}${typography.letterSpacingUnit || 'px'};`;
-            }
+            const lineHeight = getVal(typography.lineHeight, activeDevice);
+			if (lineHeight) {
+				typographyCSS += `line-height: ${lineHeight}${typography.lineHeightUnit || 'em'};`;
+			}
+			
+			const letterSpacing = getVal(typography.letterSpacing, activeDevice);
+			if (letterSpacing || letterSpacing === 0) {
+				typographyCSS += `letter-spacing: ${letterSpacing}${typography.letterSpacingUnit || 'px'};`;
+			}
         }
         
         // Get label typography CSS
@@ -436,9 +455,10 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                 textTypographyCSS += `font-family: ${textTypography.fontFamily};`;
             }
             
-            if (textTypography.fontSize && textTypography.fontSize[activeDevice]) {
-                textTypographyCSS += `font-size: ${textTypography.fontSize[activeDevice]}${textTypography.fontSizeUnit || 'px'};`;
-            }
+            const textFontSize = getVal(textTypography.fontSize, activeDevice);
+			if (textFontSize) {
+				textTypographyCSS += `font-size: ${textFontSize}${textTypography.fontSizeUnit || 'px'};`;
+			}
             
             if (textTypography.fontWeight) {
                 textTypographyCSS += `font-weight: ${textTypography.fontWeight};`;
@@ -452,13 +472,15 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                 textTypographyCSS += `text-transform: ${textTypography.textTransform};`;
             }
             
-            if (textTypography.lineHeight && textTypography.lineHeight[activeDevice]) {
-                textTypographyCSS += `line-height: ${textTypography.lineHeight[activeDevice]}${textTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (textTypography.letterSpacing && textTypography.letterSpacing[activeDevice]) {
-                textTypographyCSS += `letter-spacing: ${textTypography.letterSpacing[activeDevice]}${textTypography.letterSpacingUnit || 'px'};`;
-            }
+            const textLineHeight = getVal(textTypography.lineHeight, activeDevice);
+			if (textLineHeight) {
+				textTypographyCSS += `line-height: ${textLineHeight}${textTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			const textLetterSpacing = getVal(textTypography.letterSpacing, activeDevice);
+			if (textLetterSpacing || textLetterSpacing === 0) {
+				textTypographyCSS += `letter-spacing: ${textLetterSpacing}${textTypography.letterSpacingUnit || 'px'};`;
+			}
         }
         
         // Get button typography CSS
@@ -468,9 +490,10 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                 buttonTypographyCSS += `font-family: ${buttonTypography.fontFamily};`;
             }
             
-            if (buttonTypography.fontSize && buttonTypography.fontSize[activeDevice]) {
-                buttonTypographyCSS += `font-size: ${buttonTypography.fontSize[activeDevice]}${buttonTypography.fontSizeUnit || 'px'};`;
-            }
+            const buttonFontSize = getVal(buttonTypography.fontSize, activeDevice);
+			if (buttonFontSize) {
+				buttonTypographyCSS += `font-size: ${buttonFontSize}${buttonTypography.fontSizeUnit || 'px'};`;
+			}
             
             if (buttonTypography.fontWeight) {
                 buttonTypographyCSS += `font-weight: ${buttonTypography.fontWeight};`;
@@ -484,13 +507,15 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                 buttonTypographyCSS += `text-transform: ${buttonTypography.textTransform};`;
             }
             
-            if (buttonTypography.lineHeight && buttonTypography.lineHeight[activeDevice]) {
-                buttonTypographyCSS += `line-height: ${buttonTypography.lineHeight[activeDevice]}${buttonTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (buttonTypography.letterSpacing && buttonTypography.letterSpacing[activeDevice]) {
-                buttonTypographyCSS += `letter-spacing: ${buttonTypography.letterSpacing[activeDevice]}${buttonTypography.letterSpacingUnit || 'px'};`;
-            }
+            const buttonLineHeight = getVal(buttonTypography.lineHeight, activeDevice);
+			if (buttonLineHeight) {
+				buttonTypographyCSS += `line-height: ${buttonLineHeight}${buttonTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			const buttonLetterSpacing = getVal(buttonTypography.letterSpacing, activeDevice);
+			if (buttonLetterSpacing || buttonLetterSpacing === 0) {
+				buttonTypographyCSS += `letter-spacing: ${buttonLetterSpacing}${buttonTypography.letterSpacingUnit || 'px'};`;
+			}
         }
         
         // Button alignment
@@ -499,14 +524,10 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
             : `text-align: ${buttonAlign};`;
         
         // Field gap
-        const currentFieldGap = fieldGap && fieldGap[activeDevice] 
-            ? fieldGap[activeDevice] 
-            : 20;
+        const currentFieldGap = fieldGap ? getVal(fieldGap, activeDevice) : 20;
         
         // Label margin
-        const currentLabelMargin = labelMargin && labelMargin[activeDevice] 
-            ? labelMargin[activeDevice] 
-            : 8;
+        const currentLabelMargin = labelMargin ? getVal(labelMargin, activeDevice) : 8;
             
         // Animation keyframes
         let animationKeyframes = '';

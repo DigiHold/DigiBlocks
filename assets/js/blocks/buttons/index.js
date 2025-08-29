@@ -30,6 +30,17 @@
       buttonSpacing,
       animation
     } = attributes;
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     const [activeTab, setActiveTab] = useState(() => {
       if (window.digi.uiState) {
@@ -75,7 +86,7 @@
                 ${layout === "vertical" ? "flex-direction: column;" : ""}
                 align-items: ${verticalAlign[activeDevice]};
     			justify-content: ${horizontalAlign[activeDevice]};
-                gap: ${buttonSpacing[activeDevice]}px;
+                gap: ${getVal(buttonSpacing, activeDevice)}px;
                 transition: all 0.3s ease;
             }
 
@@ -441,8 +452,8 @@
         type: "object",
         default: {
           desktop: 10,
-          tablet: 8,
-          mobile: 6
+          tablet: "",
+          mobile: ""
         }
       },
       animation: {

@@ -48,6 +48,17 @@
       hoverEffect
     } = attributes;
     useBlockId(id, clientId, setAttributes);
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     useEffect(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
@@ -162,13 +173,14 @@
     const generateCSS = () => {
       const activeDevice = window.digi.responsiveState.activeDevice;
       let alignCSS = "";
-      if (align[activeDevice] === "left") {
+      const alignValue = getVal(align, activeDevice);
+      if (alignValue === "left") {
         alignCSS = "text-align: left;";
-      } else if (align[activeDevice] === "center") {
+      } else if (alignValue === "center") {
         alignCSS = "text-align: center;";
-      } else if (align[activeDevice] === "right") {
+      } else if (alignValue === "right") {
         alignCSS = "text-align: right;";
-      } else if (align[activeDevice] === "justify") {
+      } else if (alignValue === "justify") {
         alignCSS = "text-align: justify;";
       }
       let borderRadiusCSS = getDimensionCSS(borderRadius, "border-radius", activeDevice);
@@ -202,8 +214,9 @@
         if (typography.fontFamily) {
           typographyCSS += `font-family: ${typography.fontFamily};`;
         }
-        if (typography.fontSize && typography.fontSize[activeDevice]) {
-          typographyCSS += `font-size: ${typography.fontSize[activeDevice]}${typography.fontSizeUnit || "px"};`;
+        const fontSize = getVal(typography.fontSize, activeDevice);
+        if (fontSize) {
+          typographyCSS += `font-size: ${fontSize}${typography.fontSizeUnit || "px"};`;
         }
         if (typography.fontWeight) {
           typographyCSS += `font-weight: ${typography.fontWeight};`;
@@ -217,11 +230,13 @@
         if (typography.textDecoration) {
           typographyCSS += `text-decoration: ${typography.textDecoration};`;
         }
-        if (typography.lineHeight && typography.lineHeight[activeDevice]) {
-          typographyCSS += `line-height: ${typography.lineHeight[activeDevice]}${typography.lineHeightUnit || "em"};`;
+        const lineHeight = getVal(typography.lineHeight, activeDevice);
+        if (lineHeight) {
+          typographyCSS += `line-height: ${lineHeight}${typography.lineHeightUnit || "em"};`;
         }
-        if (typography.letterSpacing && typography.letterSpacing[activeDevice]) {
-          typographyCSS += `letter-spacing: ${typography.letterSpacing[activeDevice]}${typography.letterSpacingUnit || "px"};`;
+        const letterSpacing = getVal(typography.letterSpacing, activeDevice);
+        if (letterSpacing) {
+          typographyCSS += `letter-spacing: ${letterSpacing}${typography.letterSpacingUnit || "px"};`;
         }
       }
       let backgroundCSS = "";
@@ -921,8 +936,8 @@
         type: "object",
         default: {
           desktop: "left",
-          tablet: "left",
-          mobile: "left"
+          tablet: "",
+          mobile: ""
         }
       },
       maxWidth: {

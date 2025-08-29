@@ -84,6 +84,17 @@
       animation
     } = attributes;
     useBlockId(id, clientId, setAttributes);
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     const [activeTab, setActiveTab] = useState(() => {
       if (window.digi.uiState) {
@@ -174,7 +185,7 @@
 				${containerBorderStyle !== "none" ? "border: " + (containerBorderWidth[activeDevice] || 1) + "px " + (containerBorderStyle || "solid") + " " + containerBorderColor + ";" : "border: none;"}
                 ${getDimensionCSS(containerBorderRadius, "border-radius", activeDevice)}
                 transition: all 0.3s ease;
-                text-align: ${align[activeDevice] === "center" ? "center" : align[activeDevice] === "right" ? "right" : "left"};
+                text-align: ${getVal(align, activeDevice) === "center" ? "center" : getVal(align, activeDevice) === "right" ? "right" : "left"};
             }
 
             .${id}:hover {
@@ -187,15 +198,15 @@
             .${id} .digiblocks-newsletter-title {
                 color: ${titleColor};
                 margin-top: 0;
-                margin-bottom: ${spacing[activeDevice]?.value || 20}${spacing[activeDevice]?.unit || "px"};
+                margin-bottom: ${getVal(spacing, activeDevice)?.value || 20}${getVal(spacing, activeDevice)?.unit || "px"};
                 ${titleTypography.fontFamily ? `font-family: ${titleTypography.fontFamily};` : ""}
-                ${titleTypography.fontSize?.[activeDevice] ? `font-size: ${titleTypography.fontSize[activeDevice]}${titleTypography.fontSizeUnit || "px"};` : ""}
+                ${getVal(titleTypography.fontSize, activeDevice) ? `font-size: ${getVal(titleTypography.fontSize, activeDevice)}${titleTypography.fontSizeUnit || "px"};` : ""}
                 ${titleTypography.fontWeight ? `font-weight: ${titleTypography.fontWeight};` : ""}
                 ${titleTypography.fontStyle ? `font-style: ${titleTypography.fontStyle};` : ""}
                 ${titleTypography.textTransform ? `text-transform: ${titleTypography.textTransform};` : ""}
                 ${titleTypography.textDecoration ? `text-decoration: ${titleTypography.textDecoration};` : ""}
-                ${titleTypography.lineHeight?.[activeDevice] ? `line-height: ${titleTypography.lineHeight[activeDevice]}${titleTypography.lineHeightUnit || "em"};` : ""}
-                ${titleTypography.letterSpacing?.[activeDevice] ? `letter-spacing: ${titleTypography.letterSpacing[activeDevice]}${titleTypography.letterSpacingUnit || "px"};` : ""}
+                ${getVal(titleTypography.lineHeight, activeDevice) ? `line-height: ${getVal(titleTypography.lineHeight, activeDevice)}${titleTypography.lineHeightUnit || "em"};` : ""}
+                ${getVal(titleTypography.letterSpacing, activeDevice) ? `letter-spacing: ${getVal(titleTypography.letterSpacing, activeDevice)}${titleTypography.letterSpacingUnit || "px"};` : ""}
                 transition: color 0.3s ease;
             }
 
@@ -208,29 +219,29 @@
                 color: ${descriptionColor};
                 margin-bottom: ${spacing[activeDevice]?.value || 20}${spacing[activeDevice]?.unit || "px"};
                 ${contentTypography.fontFamily ? `font-family: ${contentTypography.fontFamily};` : ""}
-                ${contentTypography.fontSize?.[activeDevice] ? `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || "px"};` : ""}
+                ${getVal(contentTypography.fontSize, activeDevice) ? `font-size: ${getVal(contentTypography.fontSize, activeDevice)}${contentTypography.fontSizeUnit || "px"};` : ""}
                 ${contentTypography.fontWeight ? `font-weight: ${contentTypography.fontWeight};` : ""}
                 ${contentTypography.fontStyle ? `font-style: ${contentTypography.fontStyle};` : ""}
                 ${contentTypography.textTransform ? `text-transform: ${contentTypography.textTransform};` : ""}
                 ${contentTypography.textDecoration ? `text-decoration: ${contentTypography.textDecoration};` : ""}
-                ${contentTypography.lineHeight?.[activeDevice] ? `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || "em"};` : ""}
-                ${contentTypography.letterSpacing?.[activeDevice] ? `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || "px"};` : ""}
+                ${getVal(contentTypography.lineHeight, activeDevice) ? `line-height: ${getVal(contentTypography.lineHeight, activeDevice)}${contentTypography.lineHeightUnit || "em"};` : ""}
+				${getVal(contentTypography.letterSpacing, activeDevice) !== null ? `letter-spacing: ${getVal(contentTypography.letterSpacing, activeDevice)}${contentTypography.letterSpacingUnit || "px"};` : ""}
             }
 
             /* Newsletter Form */
             .${id} .digiblocks-newsletter-form {
                 display: flex;
                 ${layout === "stacked" ? "flex-direction: column;" : "flex-direction: row;"}
-                gap: ${inputSpacing[activeDevice]?.value || 10}${inputSpacing[activeDevice]?.unit || "px"};
-                ${layout === "inline" && align[activeDevice] === "center" ? "justify-content: center;" : ""}
-                ${layout === "inline" && align[activeDevice] === "right" ? "justify-content: flex-end;" : ""}
+                gap: ${getVal(inputSpacing, activeDevice)?.value || 10}${getVal(inputSpacing, activeDevice)?.unit || "px"};
+                ${layout === "inline" && getVal(align, activeDevice) === "center" ? "justify-content: center;" : ""}
+				${layout === "inline" && getVal(align, activeDevice) === "right" ? "justify-content: flex-end;" : ""}
             }
 
             /* Form Fields */
             .${id} .digiblocks-newsletter-fields {
                 display: flex;
                 ${layout === "stacked" ? "flex-direction: column;" : "flex-direction: row;"}
-                gap: ${inputSpacing[activeDevice]?.value || 10}${inputSpacing[activeDevice]?.unit || "px"};
+                gap: ${getVal(inputSpacing, activeDevice)?.value || 10}${getVal(inputSpacing, activeDevice)?.unit || "px"};
                 ${layout === "inline" ? "flex: 1;" : "width: 100%;"}
             }
 
@@ -270,13 +281,13 @@
                 ${getDimensionCSS(inputBorderRadius, "border-radius", activeDevice)}
                 ${inputBoxShadow?.enable ? `box-shadow: ${inputBoxShadow.horizontal}px ${inputBoxShadow.vertical}px ${inputBoxShadow.blur}px ${inputBoxShadow.spread}px ${inputBoxShadow.color};` : ""}
                 ${textTypography.fontFamily ? `font-family: ${textTypography.fontFamily};` : ""}
-                ${textTypography.fontSize?.[activeDevice] ? `font-size: ${textTypography.fontSize[activeDevice]}${textTypography.fontSizeUnit || "px"};` : ""}
+                ${getVal(textTypography.fontSize, activeDevice) ? `font-size: ${getVal(textTypography.fontSize, activeDevice)}${textTypography.fontSizeUnit || "px"};` : ""}
                 ${textTypography.fontWeight ? `font-weight: ${textTypography.fontWeight};` : ""}
                 ${textTypography.fontStyle ? `font-style: ${textTypography.fontStyle};` : ""}
                 ${textTypography.textTransform ? `text-transform: ${textTypography.textTransform};` : ""}
                 ${textTypography.textDecoration ? `text-decoration: ${textTypography.textDecoration};` : ""}
-                ${textTypography.lineHeight?.[activeDevice] ? `line-height: ${textTypography.lineHeight[activeDevice]}${textTypography.lineHeightUnit || "em"};` : ""}
-                ${textTypography.letterSpacing?.[activeDevice] ? `letter-spacing: ${textTypography.letterSpacing[activeDevice]}${textTypography.letterSpacingUnit || "px"};` : ""}
+                ${getVal(textTypography.lineHeight, activeDevice) ? `line-height: ${getVal(textTypography.lineHeight, activeDevice)}${textTypography.lineHeightUnit || "em"};` : ""}
+				${getVal(textTypography.letterSpacing, activeDevice) !== null ? `letter-spacing: ${getVal(textTypography.letterSpacing, activeDevice)}${textTypography.letterSpacingUnit || "px"};` : ""}
                 transition: all 0.3s ease;
                 outline: none;
 				box-shadow: none;
@@ -303,15 +314,15 @@
                 background-color: ${buttonBackgroundColor};
 				${buttonBorderStyle !== "none" ? "border: " + (buttonBorderWidth[activeDevice] || 1) + "px " + (buttonBorderStyle || "solid") + " " + buttonBorderColor + ";" : "border: none;"}
                 ${getDimensionCSS(buttonBorderRadius, "border-radius", activeDevice)}
-                ${buttonBoxShadow?.enable ? `box-shadow: ${buttonBoxShadow.horizontal}px ${buttonBoxShadow.vertical}px ${buttonBoxShadow.blur}px ${buttonBoxShadow.spread}px ${buttonBoxShadow.color};` : ""}
+                ${getVal(buttonTypography.fontSize, activeDevice) ? `font-size: ${getVal(buttonTypography.fontSize, activeDevice)}${buttonTypography.fontSizeUnit || "px"};` : ""}
                 ${buttonTypography.fontFamily ? `font-family: ${buttonTypography.fontFamily};` : ""}
                 ${buttonTypography.fontSize?.[activeDevice] ? `font-size: ${buttonTypography.fontSize[activeDevice]}${buttonTypography.fontSizeUnit || "px"};` : ""}
                 ${buttonTypography.fontWeight ? `font-weight: ${buttonTypography.fontWeight};` : ""}
                 ${buttonTypography.fontStyle ? `font-style: ${buttonTypography.fontStyle};` : ""}
                 ${buttonTypography.textTransform ? `text-transform: ${buttonTypography.textTransform};` : ""}
                 ${buttonTypography.textDecoration ? `text-decoration: ${buttonTypography.textDecoration};` : ""}
-                ${buttonTypography.lineHeight?.[activeDevice] ? `line-height: ${buttonTypography.lineHeight[activeDevice]}${buttonTypography.lineHeightUnit || "em"};` : ""}
-                ${buttonTypography.letterSpacing?.[activeDevice] ? `letter-spacing: ${buttonTypography.letterSpacing[activeDevice]}${buttonTypography.letterSpacingUnit || "px"};` : ""}
+                ${getVal(buttonTypography.lineHeight, activeDevice) ? `line-height: ${getVal(buttonTypography.lineHeight, activeDevice)}${buttonTypography.lineHeightUnit || "em"};` : ""}
+				${getVal(buttonTypography.letterSpacing, activeDevice) !== null ? `letter-spacing: ${getVal(buttonTypography.letterSpacing, activeDevice)}${buttonTypography.letterSpacingUnit || "px"};` : ""}
                 cursor: pointer;
                 transition: all 0.3s ease;
                 ${layout === "stacked" ? "width: 100%;" : "white-space: nowrap;"}
@@ -1349,8 +1360,8 @@
         type: "object",
         default: {
           desktop: "left",
-          tablet: "left",
-          mobile: "left"
+          tablet: "",
+          mobile: ""
         }
       },
       title: {
@@ -1469,15 +1480,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 24, tablet: 22, mobile: 20 },
+          fontSize: { desktop: 24, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "600",
           fontStyle: "normal",
           textTransform: "none",
           textDecoration: "none",
-          lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
+          lineHeight: { desktop: 1.4, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -1485,15 +1496,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+          fontSize: { desktop: 16, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "normal",
           fontStyle: "normal",
           textTransform: "none",
           textDecoration: "none",
-          lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -1501,15 +1512,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+          fontSize: { desktop: 16, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "normal",
           fontStyle: "normal",
           textTransform: "none",
           textDecoration: "none",
-          lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -1517,15 +1528,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+          fontSize: { desktop: 16, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "500",
           fontStyle: "normal",
           textTransform: "none",
           textDecoration: "none",
-          lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -1593,16 +1604,16 @@
         type: "object",
         default: {
           desktop: { value: 20, unit: "px" },
-          tablet: { value: 15, unit: "px" },
-          mobile: { value: 10, unit: "px" }
+          tablet: { value: "", unit: "px" },
+          mobile: { value: "", unit: "px" }
         }
       },
       inputSpacing: {
         type: "object",
         default: {
           desktop: { value: 10, unit: "px" },
-          tablet: { value: 8, unit: "px" },
-          mobile: { value: 6, unit: "px" }
+          tablet: { value: "", unit: "px" },
+          mobile: { value: "", unit: "px" }
         }
       },
       padding: {

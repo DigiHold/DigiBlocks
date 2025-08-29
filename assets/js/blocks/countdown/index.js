@@ -70,6 +70,17 @@
       style
     } = attributes;
     useBlockId(id, clientId, setAttributes);
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     const [timeRemaining, setTimeRemaining] = useState({
       days: 30,
@@ -213,15 +224,16 @@
     };
     const generateCSS = () => {
       const activeDevice = localActiveDevice;
-      const currentItemSpacing = itemSpacing && itemSpacing[activeDevice] !== void 0 ? itemSpacing[activeDevice] : 20;
-      const currentLabelSpacing = labelSpacing && labelSpacing[activeDevice] !== void 0 ? labelSpacing[activeDevice] : 5;
+      const currentItemSpacing = getVal(itemSpacing, localActiveDevice);
+      const currentLabelSpacing = getVal(labelSpacing, localActiveDevice);
       let titleTypographyCSS = "";
       if (titleTypography) {
         if (titleTypography.fontFamily) {
           titleTypographyCSS += `font-family: ${titleTypography.fontFamily};`;
         }
-        if (titleTypography.fontSize && titleTypography.fontSize[activeDevice]) {
-          titleTypographyCSS += `font-size: ${titleTypography.fontSize[activeDevice]}${titleTypography.fontSizeUnit || "px"};`;
+        const titleFontSize = getVal(titleTypography.fontSize, activeDevice);
+        if (titleFontSize) {
+          titleTypographyCSS += `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || "px"};`;
         }
         if (titleTypography.fontWeight) {
           titleTypographyCSS += `font-weight: ${titleTypography.fontWeight};`;
@@ -232,11 +244,13 @@
         if (titleTypography.textTransform) {
           titleTypographyCSS += `text-transform: ${titleTypography.textTransform};`;
         }
-        if (titleTypography.lineHeight && titleTypography.lineHeight[activeDevice]) {
-          titleTypographyCSS += `line-height: ${titleTypography.lineHeight[activeDevice]}${titleTypography.lineHeightUnit || "em"};`;
+        const titleLineHeight = getVal(titleTypography.lineHeight, activeDevice);
+        if (titleLineHeight) {
+          titleTypographyCSS += `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || "em"};`;
         }
-        if (titleTypography.letterSpacing && titleTypography.letterSpacing[activeDevice]) {
-          titleTypographyCSS += `letter-spacing: ${titleTypography.letterSpacing[activeDevice]}${titleTypography.letterSpacingUnit || "px"};`;
+        const titleLetterSpacing = getVal(titleTypography.letterSpacing, activeDevice);
+        if (titleLetterSpacing || titleLetterSpacing === 0) {
+          titleTypographyCSS += `letter-spacing: ${titleLetterSpacing}${titleTypography.letterSpacingUnit || "px"};`;
         }
       }
       let contentTypographyCSS = "";
@@ -244,8 +258,9 @@
         if (contentTypography.fontFamily) {
           contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
         }
-        if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
-          contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || "px"};`;
+        const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
+        if (contentFontSize) {
+          contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || "px"};`;
         }
         if (contentTypography.fontWeight) {
           contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
@@ -256,11 +271,13 @@
         if (contentTypography.textTransform) {
           contentTypographyCSS += `text-transform: ${contentTypography.textTransform};`;
         }
-        if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
-          contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || "em"};`;
+        const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
+        if (contentLineHeight) {
+          contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || "em"};`;
         }
-        if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
-          contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || "px"};`;
+        const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
+        if (contentLetterSpacing || contentLetterSpacing === 0) {
+          contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || "px"};`;
         }
       }
       let boxShadowCSS = "";
@@ -1503,8 +1520,8 @@
         type: "object",
         default: {
           desktop: 48,
-          tablet: 30,
-          mobile: 16
+          tablet: "",
+          mobile: ""
         }
       },
       align: {
@@ -1519,23 +1536,23 @@
         type: "object",
         default: {
           desktop: 5,
-          tablet: 4,
-          mobile: 3
+          tablet: "",
+          mobile: ""
         }
       },
       titleTypography: {
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 70, tablet: 38, mobile: 26 },
+          fontSize: { desktop: 70, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "600",
           fontStyle: "normal",
           textTransform: "",
           textDecoration: "",
-          lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
+          lineHeight: { desktop: 1.2, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -1543,15 +1560,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 16, tablet: 14, mobile: 12 },
+          fontSize: { desktop: 16, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "",
           fontStyle: "normal",
           textTransform: "",
           textDecoration: "",
-          lineHeight: { desktop: 1.4, tablet: 1.4, mobile: 1.4 },
+          lineHeight: { desktop: 1.4, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },

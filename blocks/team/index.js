@@ -140,8 +140,8 @@ registerBlockType('digiblocks/team', {
             type: 'object',
             default: {
                 desktop: 30,
-                tablet: 20,
-                mobile: 15
+                tablet: '',
+                mobile: ''
             }
         },
         layout: {
@@ -160,8 +160,8 @@ registerBlockType('digiblocks/team', {
             type: 'object',
             default: {
                 desktop: 150,
-                tablet: 120,
-                mobile: 100
+                tablet: '',
+                mobile: ''
             }
         },
         imageBorderRadius: {
@@ -192,15 +192,15 @@ registerBlockType('digiblocks/team', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 22, tablet: 20, mobile: 18 },
+                fontSize: { desktop: 22, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '600',
                 fontStyle: 'normal',
                 textTransform: 'none',
                 textDecoration: 'none',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -208,15 +208,15 @@ registerBlockType('digiblocks/team', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSize: { desktop: 16, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '400',
                 fontStyle: 'normal',
                 textTransform: 'none',
                 textDecoration: 'none',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -224,15 +224,15 @@ registerBlockType('digiblocks/team', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                fontSize: { desktop: 16, tablet: '', mobile: '' },
                 fontSizeUnit: 'px',
                 fontWeight: '400',
                 fontStyle: 'normal',
                 textTransform: 'none',
                 textDecoration: 'none',
-                lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
                 lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
                 letterSpacingUnit: 'px'
             }
         },
@@ -260,16 +260,16 @@ registerBlockType('digiblocks/team', {
             type: 'object',
             default: {
                 desktop: 20,
-                tablet: 18,
-                mobile: 16
+                tablet: '',
+                mobile: ''
             }
         },
         iconSpacing: {
             type: 'object',
             default: {
                 desktop: 10,
-                tablet: 8,
-                mobile: 6
+                tablet: '',
+                mobile: ''
             }
         },
         iconBackgroundColor: {
@@ -292,7 +292,7 @@ registerBlockType('digiblocks/team', {
             type: 'object',
             default: {
                 desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: 'px' },
-                tablet: { top: 6, right: 6, bottom: 6, left: 6, unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
                 mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
@@ -328,16 +328,16 @@ registerBlockType('digiblocks/team', {
             type: 'object',
             default: {
                 desktop: { top: 30, right: 30, bottom: 30, left: 30, unit: 'px' },
-                tablet: { top: 25, right: 25, bottom: 25, left: 25, unit: 'px' },
-                mobile: { top: 20, right: 20, bottom: 20, left: 20, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         boxMargin: {
             type: 'object',
             default: {
                 desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
-                tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: 'px' },
-                mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' }
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
         },
         boxShadow: {

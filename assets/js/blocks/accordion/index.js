@@ -57,6 +57,17 @@
       iconType
     } = attributes;
     useBlockId(id, clientId, setAttributes);
+    const getVal = (obj, device) => {
+      if (!obj || typeof obj !== "object")
+        return null;
+      if (device === "mobile") {
+        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      if (device === "tablet") {
+        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
+      }
+      return obj.desktop;
+    };
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     useEffect(() => {
       const unsubscribe = window.digi.responsiveState.subscribe((device) => {
@@ -193,7 +204,7 @@
       }
     ];
     const renderItemIcon = (isOpen) => {
-      const size = iconSize[localActiveDevice] || 16;
+      const size = getVal(iconSize, localActiveDevice) || 16;
       if (iconType === "plusMinus") {
         return /* @__PURE__ */ wp.element.createElement("svg", { width: size, height: size, viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ wp.element.createElement("path", { d: isOpen ? "M19 13H5v-2h14v2z" : "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" }));
       } else if (iconType === "arrowUpDown") {
@@ -205,14 +216,26 @@
       const activeDevice = window.digi.responsiveState.activeDevice;
       let borderCSS = "";
       if (borderStyle && borderStyle !== "none") {
-        const currentBorderWidth = borderWidth && borderWidth[activeDevice] ? borderWidth[activeDevice] : { top: 1, right: 1, bottom: 1, left: 1, unit: "px" };
-        const currentBorderRadius = borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice] : { top: 8, right: 8, bottom: 8, left: 8, unit: "px" };
+        const currentBorderWidth = {
+          top: getVal({ desktop: borderWidth.desktop?.top || 1, tablet: borderWidth.tablet?.top || "", mobile: borderWidth.mobile?.top || "" }, activeDevice),
+          right: getVal({ desktop: borderWidth.desktop?.right || 1, tablet: borderWidth.tablet?.right || "", mobile: borderWidth.mobile?.right || "" }, activeDevice),
+          bottom: getVal({ desktop: borderWidth.desktop?.bottom || 1, tablet: borderWidth.tablet?.bottom || "", mobile: borderWidth.mobile?.bottom || "" }, activeDevice),
+          left: getVal({ desktop: borderWidth.desktop?.left || 1, tablet: borderWidth.tablet?.left || "", mobile: borderWidth.mobile?.left || "" }, activeDevice),
+          unit: getVal({ desktop: borderWidth.desktop?.unit || "px", tablet: borderWidth.tablet?.unit || "", mobile: borderWidth.mobile?.unit || "" }, activeDevice)
+        };
+        const currentBorderRadius = {
+          top: getVal({ desktop: borderRadius.desktop?.top || 8, tablet: borderRadius.tablet?.top || "", mobile: borderRadius.mobile?.top || "" }, activeDevice),
+          right: getVal({ desktop: borderRadius.desktop?.right || 8, tablet: borderRadius.tablet?.right || "", mobile: borderRadius.mobile?.right || "" }, activeDevice),
+          bottom: getVal({ desktop: borderRadius.desktop?.bottom || 8, tablet: borderRadius.tablet?.bottom || "", mobile: borderRadius.mobile?.bottom || "" }, activeDevice),
+          left: getVal({ desktop: borderRadius.desktop?.left || 8, tablet: borderRadius.tablet?.left || "", mobile: borderRadius.mobile?.left || "" }, activeDevice),
+          unit: getVal({ desktop: borderRadius.desktop?.unit || "px", tablet: borderRadius.tablet?.unit || "", mobile: borderRadius.mobile?.unit || "" }, activeDevice)
+        };
         borderCSS = `
-                border-style: ${borderStyle};
-                border-color: ${borderColor || "#e0e0e0"};
-                border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
-                border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
-            `;
+				border-style: ${borderStyle};
+				border-color: ${borderColor || "#e0e0e0"};
+				border-width: ${currentBorderWidth.top}${currentBorderWidth.unit} ${currentBorderWidth.right}${currentBorderWidth.unit} ${currentBorderWidth.bottom}${currentBorderWidth.unit} ${currentBorderWidth.left}${currentBorderWidth.unit};
+				border-radius: ${currentBorderRadius.top}${currentBorderRadius.unit} ${currentBorderRadius.right}${currentBorderRadius.unit} ${currentBorderRadius.bottom}${currentBorderRadius.unit} ${currentBorderRadius.left}${currentBorderRadius.unit};
+			`;
       } else {
         borderCSS = "border-style: none;";
       }
@@ -226,15 +249,30 @@
         const inset = boxShadowHover.position === "inset" ? "inset " : "";
         boxShadowHoverCSS = `box-shadow: ${inset}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
       }
-      const paddingCSS = `padding: ${padding[activeDevice].top}${padding[activeDevice].unit} ${padding[activeDevice].right}${padding[activeDevice].unit} ${padding[activeDevice].bottom}${padding[activeDevice].unit} ${padding[activeDevice].left}${padding[activeDevice].unit};`;
-      const marginCSS = `margin: ${margin[activeDevice].top}${margin[activeDevice].unit} ${margin[activeDevice].right}${margin[activeDevice].unit} ${margin[activeDevice].bottom}${margin[activeDevice].unit} ${margin[activeDevice].left}${margin[activeDevice].unit};`;
+      const currentPadding = {
+        top: getVal({ desktop: padding.desktop?.top || 20, tablet: padding.tablet?.top || "", mobile: padding.mobile?.top || "" }, activeDevice),
+        right: getVal({ desktop: padding.desktop?.right || 20, tablet: padding.tablet?.right || "", mobile: padding.mobile?.right || "" }, activeDevice),
+        bottom: getVal({ desktop: padding.desktop?.bottom || 20, tablet: padding.tablet?.bottom || "", mobile: padding.mobile?.bottom || "" }, activeDevice),
+        left: getVal({ desktop: padding.desktop?.left || 20, tablet: padding.tablet?.left || "", mobile: padding.mobile?.left || "" }, activeDevice),
+        unit: getVal({ desktop: padding.desktop?.unit || "px", tablet: padding.tablet?.unit || "", mobile: padding.mobile?.unit || "" }, activeDevice)
+      };
+      const currentMargin = {
+        top: getVal({ desktop: margin.desktop?.top || 0, tablet: margin.tablet?.top || "", mobile: margin.mobile?.top || "" }, activeDevice),
+        right: getVal({ desktop: margin.desktop?.right || 0, tablet: margin.tablet?.right || "", mobile: margin.mobile?.right || "" }, activeDevice),
+        bottom: getVal({ desktop: margin.desktop?.bottom || 30, tablet: margin.tablet?.bottom || "", mobile: margin.mobile?.bottom || "" }, activeDevice),
+        left: getVal({ desktop: margin.desktop?.left || 0, tablet: margin.tablet?.left || "", mobile: margin.mobile?.left || "" }, activeDevice),
+        unit: getVal({ desktop: margin.desktop?.unit || "px", tablet: margin.tablet?.unit || "", mobile: margin.mobile?.unit || "" }, activeDevice)
+      };
+      const paddingCSS = `padding: ${currentPadding.top}${currentPadding.unit} ${currentPadding.right}${currentPadding.unit} ${currentPadding.bottom}${currentPadding.unit} ${currentPadding.left}${currentPadding.unit};`;
+      const marginCSS = `margin: ${currentMargin.top}${currentMargin.unit} ${currentMargin.right}${currentMargin.unit} ${currentMargin.bottom}${currentMargin.unit} ${currentMargin.left}${currentMargin.unit};`;
       let titleTypographyCSS = "";
       if (titleTypography) {
         if (titleTypography.fontFamily) {
           titleTypographyCSS += `font-family: ${titleTypography.fontFamily};`;
         }
-        if (titleTypography.fontSize && titleTypography.fontSize[activeDevice]) {
-          titleTypographyCSS += `font-size: ${titleTypography.fontSize[activeDevice]}${titleTypography.fontSizeUnit || "px"};`;
+        const titleFontSize = getVal(titleTypography.fontSize || { desktop: 18, tablet: "", mobile: "" }, activeDevice);
+        if (titleFontSize) {
+          titleTypographyCSS += `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || "px"};`;
         }
         if (titleTypography.fontWeight) {
           titleTypographyCSS += `font-weight: ${titleTypography.fontWeight};`;
@@ -248,11 +286,13 @@
         if (titleTypography.textDecoration) {
           titleTypographyCSS += `text-decoration: ${titleTypography.textDecoration};`;
         }
-        if (titleTypography.lineHeight && titleTypography.lineHeight[activeDevice]) {
-          titleTypographyCSS += `line-height: ${titleTypography.lineHeight[activeDevice]}${titleTypography.lineHeightUnit || "em"};`;
+        const titleLineHeight = getVal(titleTypography.lineHeight || { desktop: 1.5, tablet: "", mobile: "" }, activeDevice);
+        if (titleLineHeight) {
+          titleTypographyCSS += `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || "em"};`;
         }
-        if (titleTypography.letterSpacing && titleTypography.letterSpacing[activeDevice]) {
-          titleTypographyCSS += `letter-spacing: ${titleTypography.letterSpacing[activeDevice]}${titleTypography.letterSpacingUnit || "px"};`;
+        const titleLetterSpacing = getVal(titleTypography.letterSpacing || { desktop: 0, tablet: "", mobile: "" }, activeDevice);
+        if (titleLetterSpacing || titleLetterSpacing === 0) {
+          titleTypographyCSS += `letter-spacing: ${titleLetterSpacing}${titleTypography.letterSpacingUnit || "px"};`;
         }
       }
       let contentTypographyCSS = "";
@@ -260,8 +300,9 @@
         if (contentTypography.fontFamily) {
           contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
         }
-        if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
-          contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || "px"};`;
+        const contentFontSize = getVal(contentTypography.fontSize || { desktop: 16, tablet: "", mobile: "" }, activeDevice);
+        if (contentFontSize) {
+          contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || "px"};`;
         }
         if (contentTypography.fontWeight) {
           contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
@@ -275,11 +316,13 @@
         if (contentTypography.textDecoration) {
           contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
         }
-        if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
-          contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || "em"};`;
+        const contentLineHeight = getVal(contentTypography.lineHeight || { desktop: 1.5, tablet: "", mobile: "" }, activeDevice);
+        if (contentLineHeight) {
+          contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || "em"};`;
         }
-        if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
-          contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || "px"};`;
+        const contentLetterSpacing = getVal(contentTypography.letterSpacing || { desktop: 0, tablet: "", mobile: "" }, activeDevice);
+        if (contentLetterSpacing || contentLetterSpacing === 0) {
+          contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || "px"};`;
         }
       }
       let animationCSS = "";
@@ -347,8 +390,8 @@
             /* SVG icon fill color */
             .${id} .digiblocks-accordion-icon svg {
                 fill: ${iconColor};
-                width: ${iconSize[activeDevice]}px;
-                height: ${iconSize[activeDevice]}px;
+                width: ${getVal(iconSize, activeDevice)}px;
+				height: ${getVal(iconSize, activeDevice)}px;
                 transition: transform 0.3s ease, fill 0.3s ease;
             }
             
@@ -731,9 +774,9 @@
                 value: titleTypography,
                 onChange: (value) => setAttributes({ titleTypography: value }),
                 defaults: {
-                  fontSize: { desktop: 18, tablet: 16, mobile: 16 },
+                  fontSize: { desktop: 18, tablet: "", mobile: "" },
                   fontSizeUnit: "px",
-                  lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                  lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
                   lineHeightUnit: "em"
                 }
               }
@@ -745,9 +788,9 @@
                 value: contentTypography,
                 onChange: (value) => setAttributes({ contentTypography: value }),
                 defaults: {
-                  fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                  fontSize: { desktop: 16, tablet: "", mobile: "" },
                   fontSizeUnit: "px",
-                  lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                  lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
                   lineHeightUnit: "em"
                 }
               }
@@ -1327,31 +1370,31 @@
         type: "object",
         default: {
           desktop: { top: 20, right: 20, bottom: 20, left: 20, unit: "px" },
-          tablet: { top: 15, right: 15, bottom: 15, left: 15, unit: "px" },
-          mobile: { top: 10, right: 10, bottom: 10, left: 10, unit: "px" }
+          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
         }
       },
       margin: {
         type: "object",
         default: {
           desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: "px" },
-          tablet: { top: 0, right: 0, bottom: 25, left: 0, unit: "px" },
-          mobile: { top: 0, right: 0, bottom: 20, left: 0, unit: "px" }
+          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
+          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
         }
       },
       titleTypography: {
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 18, tablet: 16, mobile: 16 },
+          fontSize: { desktop: 18, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "600",
           fontStyle: "normal",
           textTransform: "none",
           textDecoration: "none",
-          lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -1359,15 +1402,15 @@
         type: "object",
         default: {
           fontFamily: "",
-          fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+          fontSize: { desktop: 16, tablet: "", mobile: "" },
           fontSizeUnit: "px",
           fontWeight: "",
           fontStyle: "normal",
           textTransform: "",
           textDecoration: "",
-          lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
           lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
+          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
           letterSpacingUnit: "px"
         }
       },
@@ -1391,8 +1434,8 @@
         type: "object",
         default: {
           desktop: 16,
-          tablet: 14,
-          mobile: 12
+          tablet: "",
+          mobile: ""
         }
       },
       animation: {

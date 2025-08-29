@@ -188,7 +188,9 @@ ob_start();
 /* Tablet styles */
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
+		<?php if ( ! empty( $width['tablet'] ) ) : ?>
     	width: <?php echo esc_attr( $width['tablet'] ); ?>%;
+		<?php endif; ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'tablet' ) ); ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
         <?php if ( $order['tablet'] !== 0 ) : ?>
@@ -204,7 +206,9 @@ ob_start();
 /* Mobile styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
+		<?php if ( ! empty( $width['mobile'] ) ) : ?>
     	width: <?php echo esc_attr( $width['mobile'] ); ?>%;
+		<?php endif; ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'mobile' ) ); ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?>
         <?php if ( $order['mobile'] !== 0 ) : ?>

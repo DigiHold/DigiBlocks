@@ -74,6 +74,22 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 	// Create unique class
 	useBlockId( id, clientId, setAttributes );
 
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		if (device === 'mobile') {
+			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
+				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+				obj.desktop;
+		}
+		return obj.desktop;
+	};
+
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
     
@@ -492,112 +508,121 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
         const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice)}`;
         
         // Typography for header
-        let headingTypographyCSS = '';
-        if (headingTypography) {
-            if (headingTypography.fontFamily) {
-                headingTypographyCSS += `font-family: ${headingTypography.fontFamily};`;
-            }
-            
-            if (headingTypography.fontSize && headingTypography.fontSize[activeDevice]) {
-                headingTypographyCSS += `font-size: ${headingTypography.fontSize[activeDevice]}${headingTypography.fontSizeUnit || 'px'};`;
-            }
-            
-            if (headingTypography.fontWeight) {
-                headingTypographyCSS += `font-weight: ${headingTypography.fontWeight};`;
-            }
-            
-            if (headingTypography.fontStyle) {
-                headingTypographyCSS += `font-style: ${headingTypography.fontStyle};`;
-            }
-            
-            if (headingTypography.textTransform) {
-                headingTypographyCSS += `text-transform: ${headingTypography.textTransform};`;
-            }
-            
-            if (headingTypography.textDecoration) {
-                headingTypographyCSS += `text-decoration: ${headingTypography.textDecoration};`;
-            }
-            
-            if (headingTypography.lineHeight && headingTypography.lineHeight[activeDevice]) {
-                headingTypographyCSS += `line-height: ${headingTypography.lineHeight[activeDevice]}${headingTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (headingTypography.letterSpacing && headingTypography.letterSpacing[activeDevice]) {
-                headingTypographyCSS += `letter-spacing: ${headingTypography.letterSpacing[activeDevice]}${headingTypography.letterSpacingUnit || 'px'};`;
-            }
-        }
-        
-        // Typography for body
-        let bodyTypographyCSS = '';
-        if (textTypography) {
-            if (textTypography.fontFamily) {
-                bodyTypographyCSS += `font-family: ${textTypography.fontFamily};`;
-            }
-            
-            if (textTypography.fontSize && textTypography.fontSize[activeDevice]) {
-                bodyTypographyCSS += `font-size: ${textTypography.fontSize[activeDevice]}${textTypography.fontSizeUnit || 'px'};`;
-            }
-            
-            if (textTypography.fontWeight) {
-                bodyTypographyCSS += `font-weight: ${textTypography.fontWeight};`;
-            }
-            
-            if (textTypography.fontStyle) {
-                bodyTypographyCSS += `font-style: ${textTypography.fontStyle};`;
-            }
-            
-            if (textTypography.textTransform) {
-                bodyTypographyCSS += `text-transform: ${textTypography.textTransform};`;
-            }
-            
-            if (textTypography.textDecoration) {
-                bodyTypographyCSS += `text-decoration: ${textTypography.textDecoration};`;
-            }
-            
-            if (textTypography.lineHeight && textTypography.lineHeight[activeDevice]) {
-                bodyTypographyCSS += `line-height: ${textTypography.lineHeight[activeDevice]}${textTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (textTypography.letterSpacing && textTypography.letterSpacing[activeDevice]) {
-                bodyTypographyCSS += `letter-spacing: ${textTypography.letterSpacing[activeDevice]}${textTypography.letterSpacingUnit || 'px'};`;
-            }
-        }
-        
-        // Typography for footer
-        let contentTypographyCSS = '';
-        if (contentTypography) {
-            if (contentTypography.fontFamily) {
-                contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
-            }
-            
-            if (contentTypography.fontSize && contentTypography.fontSize[activeDevice]) {
-                contentTypographyCSS += `font-size: ${contentTypography.fontSize[activeDevice]}${contentTypography.fontSizeUnit || 'px'};`;
-            }
-            
-            if (contentTypography.fontWeight) {
-                contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
-            }
-            
-            if (contentTypography.fontStyle) {
-                contentTypographyCSS += `font-style: ${contentTypography.fontStyle};`;
-            }
-            
-            if (contentTypography.textTransform) {
-                contentTypographyCSS += `text-transform: ${contentTypography.textTransform};`;
-            }
-            
-            if (contentTypography.textDecoration) {
-                contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
-            }
-            
-            if (contentTypography.lineHeight && contentTypography.lineHeight[activeDevice]) {
-                contentTypographyCSS += `line-height: ${contentTypography.lineHeight[activeDevice]}${contentTypography.lineHeightUnit || 'em'};`;
-            }
-            
-            if (contentTypography.letterSpacing && contentTypography.letterSpacing[activeDevice]) {
-                contentTypographyCSS += `letter-spacing: ${contentTypography.letterSpacing[activeDevice]}${contentTypography.letterSpacingUnit || 'px'};`;
-            }
-        }
+		let headingTypographyCSS = '';
+		if (headingTypography) {
+			if (headingTypography.fontFamily) {
+				headingTypographyCSS += `font-family: ${headingTypography.fontFamily};`;
+			}
+			
+			const headerFontSize = getVal(headingTypography.fontSize, activeDevice);
+			if (headerFontSize) {
+				headingTypographyCSS += `font-size: ${headerFontSize}${headingTypography.fontSizeUnit || 'px'};`;
+			}
+			
+			if (headingTypography.fontWeight) {
+				headingTypographyCSS += `font-weight: ${headingTypography.fontWeight};`;
+			}
+			
+			if (headingTypography.fontStyle) {
+				headingTypographyCSS += `font-style: ${headingTypography.fontStyle};`;
+			}
+			
+			if (headingTypography.textTransform) {
+				headingTypographyCSS += `text-transform: ${headingTypography.textTransform};`;
+			}
+			
+			if (headingTypography.textDecoration) {
+				headingTypographyCSS += `text-decoration: ${headingTypography.textDecoration};`;
+			}
+			
+			const headerLineHeight = getVal(headingTypography.lineHeight, activeDevice);
+			if (headerLineHeight) {
+				headingTypographyCSS += `line-height: ${headerLineHeight}${headingTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			const headerLetterSpacing = getVal(headingTypography.letterSpacing, activeDevice);
+			if (headerLetterSpacing || headerLetterSpacing === 0) {
+				headingTypographyCSS += `letter-spacing: ${headerLetterSpacing}${headingTypography.letterSpacingUnit || 'px'};`;
+			}
+		}
+
+		// Typography for body
+		let bodyTypographyCSS = '';
+		if (textTypography) {
+			if (textTypography.fontFamily) {
+				bodyTypographyCSS += `font-family: ${textTypography.fontFamily};`;
+			}
+			
+			const bodyFontSize = getVal(textTypography.fontSize, activeDevice);
+			if (bodyFontSize) {
+				bodyTypographyCSS += `font-size: ${bodyFontSize}${textTypography.fontSizeUnit || 'px'};`;
+			}
+			
+			if (textTypography.fontWeight) {
+				bodyTypographyCSS += `font-weight: ${textTypography.fontWeight};`;
+			}
+			
+			if (textTypography.fontStyle) {
+				bodyTypographyCSS += `font-style: ${textTypography.fontStyle};`;
+			}
+			
+			if (textTypography.textTransform) {
+				bodyTypographyCSS += `text-transform: ${textTypography.textTransform};`;
+			}
+			
+			if (textTypography.textDecoration) {
+				bodyTypographyCSS += `text-decoration: ${textTypography.textDecoration};`;
+			}
+			
+			const bodyLineHeight = getVal(textTypography.lineHeight, activeDevice);
+			if (bodyLineHeight) {
+				bodyTypographyCSS += `line-height: ${bodyLineHeight}${textTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			const bodyLetterSpacing = getVal(textTypography.letterSpacing, activeDevice);
+			if (bodyLetterSpacing || bodyLetterSpacing === 0) {
+				bodyTypographyCSS += `letter-spacing: ${bodyLetterSpacing}${textTypography.letterSpacingUnit || 'px'};`;
+			}
+		}
+
+		// Typography for footer
+		let contentTypographyCSS = '';
+		if (contentTypography) {
+			if (contentTypography.fontFamily) {
+				contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
+			}
+			
+			const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
+			if (contentFontSize) {
+				contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || 'px'};`;
+			}
+			
+			if (contentTypography.fontWeight) {
+				contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
+			}
+			
+			if (contentTypography.fontStyle) {
+				contentTypographyCSS += `font-style: ${contentTypography.fontStyle};`;
+			}
+			
+			if (contentTypography.textTransform) {
+				contentTypographyCSS += `text-transform: ${contentTypography.textTransform};`;
+			}
+			
+			if (contentTypography.textDecoration) {
+				contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
+			}
+			
+			const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
+			if (contentLineHeight) {
+				contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || 'em'};`;
+			}
+			
+			const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
+			if (contentLetterSpacing || contentLetterSpacing === 0) {
+				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || 'px'};`;
+			}
+		}
         
         // Base styles for the table
         return `

@@ -1,723 +1,230 @@
-(() => {
-  // blocks/table/edit.js
-  var { __ } = window.wp.i18n;
-  var {
-    useBlockProps,
-    RichText,
-    InspectorControls,
-    PanelColorSettings,
-    BlockControls
-  } = window.wp.blockEditor;
-  var {
-    SelectControl,
-    RangeControl,
-    ToggleControl,
-    Button,
-    ToolbarGroup,
-    ToolbarButton,
-    BaseControl,
-    Popover,
-    __experimentalToggleGroupControl: ToggleGroupControl,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption
-  } = window.wp.components;
-  var { useState, useEffect, useRef } = window.wp.element;
-  var { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
-  var { tabIcons } = digi.icons;
-  var { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
-  var TableEdit = ({ attributes, setAttributes, clientId }) => {
-    const {
-      id,
-      anchor,
-      visibility,
-      customClasses,
-      tableData,
-      hasHeader,
-      hasFooter,
-      tableBorderColor,
-      tableBorderWidth,
-      tableBorderStyle,
-      cellPadding,
-      tableBorderCollapse,
-      headerBackgroundColor,
-      headerTextColor,
-      headingTypography,
-      bodyBackgroundColor,
-      altRowBackgroundColor,
-      bodyTextColor,
-      textTypography,
-      footerBackgroundColor,
-      footerTextColor,
-      contentTypography,
-      borderRadius,
-      boxShadow,
-      boxShadowHover,
-      margin,
-      cellAlignment,
-      headerAlignment,
-      footerAlignment,
-      tablePreset,
-      responsiveMode,
-      animation,
-      firstColHeader,
-      cellControls
-    } = attributes;
-    useBlockId(id, clientId, setAttributes);
-    const getVal = (obj, device) => {
-      if (!obj || typeof obj !== "object")
-        return null;
-      if (device === "mobile") {
-        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
-      }
-      if (device === "tablet") {
-        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
-      }
-      return obj.desktop;
-    };
-    const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [activeTab, setActiveTab] = useState(() => {
-      if (window.digi.uiState) {
-        const savedTab = window.digi.uiState.getActiveTab(clientId);
-        if (savedTab)
-          return savedTab;
-      }
-      return "options";
-    });
-    const [selectedCell, setSelectedCell] = useState({ row: -1, col: -1 });
-    const [isRatingPopoverOpen, setIsRatingPopoverOpen] = useState(false);
-    useEffect(() => {
-      const unsubscribe = window.digi.responsiveState.subscribe((device) => {
-        setLocalActiveDevice(device);
-      });
-      return unsubscribe;
-    }, []);
-    useEffect(() => {
-      if (!tableData || tableData.length === 0) {
-        setAttributes({
-          tableData: [
-            ["Header 1", "Header 2", "Header 3"],
-            ["Row 1, Cell 1", "Row 1, Cell 2", "Row 1, Cell 3"],
-            ["Row 2, Cell 1", "Row 2, Cell 2", "Row 2, Cell 3"]
-          ]
-        });
-      }
-      if (!cellControls) {
-        setAttributes({
-          cellControls: {}
-        });
-      }
-    }, [tableData, cellControls, setAttributes]);
-    const previewTimeoutRef = useRef(null);
-    useEffect(() => {
-      if (animation && animation !== "none") {
-        const timeoutId = setTimeout(() => {
-          animationPreview(id, animation, animations, previewTimeoutRef);
-        }, 100);
-        return () => clearTimeout(timeoutId);
-      }
-    }, [animation]);
-    const handlePreviewClick = () => {
-      animationPreview(id, animation, animations, previewTimeoutRef);
-    };
-    const borderStyleOptions = [
-      { label: __("Solid", "digiblocks"), value: "solid" },
-      { label: __("Dotted", "digiblocks"), value: "dotted" },
-      { label: __("Dashed", "digiblocks"), value: "dashed" },
-      { label: __("Double", "digiblocks"), value: "double" },
-      { label: __("None", "digiblocks"), value: "none" }
-    ];
-    const tablePresetOptions = [
-      { label: __("Default", "digiblocks"), value: "default" },
-      { label: __("Striped", "digiblocks"), value: "striped" },
-      { label: __("Bordered", "digiblocks"), value: "bordered" },
-      { label: __("Borderless", "digiblocks"), value: "borderless" },
-      { label: __("Modern", "digiblocks"), value: "modern" },
-      { label: __("Minimal", "digiblocks"), value: "minimal" }
-    ];
-    const animationOptions = [
-      { label: __("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations).map((animation2) => ({
-        label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
-        value: animation2
-      }))
-    ];
-    const tabList = [
-      {
-        name: "options",
-        title: __("Options", "digiblocks"),
-        icon: tabIcons.optionsIcon
-      },
-      {
-        name: "style",
-        title: __("Style", "digiblocks"),
-        icon: tabIcons.styleIcon
-      },
-      {
-        name: "advanced",
-        title: __("Advanced", "digiblocks"),
-        icon: tabIcons.advancedIcon
-      }
-    ];
-    const addRow = (index) => {
-      if (!tableData || tableData.length === 0)
-        return;
-      const newTableData = [...tableData];
-      const columnsCount = newTableData[0].length;
-      const newRow = Array(columnsCount).fill("");
-      newTableData.splice(index + 1, 0, newRow);
-      setAttributes({ tableData: newTableData });
-    };
-    const deleteRow = (index) => {
-      if (!tableData || tableData.length <= 1) {
-        return;
-      }
-      const newTableData = [...tableData];
-      newTableData.splice(index, 1);
-      setAttributes({ tableData: newTableData });
-    };
-    const addColumn = (index) => {
-      if (!tableData || tableData.length === 0)
-        return;
-      const newTableData = tableData.map((row) => {
-        const newRow = [...row];
-        newRow.splice(index + 1, 0, "");
-        return newRow;
-      });
-      setAttributes({ tableData: newTableData });
-    };
-    const deleteColumn = (index) => {
-      if (!tableData || tableData[0].length <= 1) {
-        return;
-      }
-      const newTableData = tableData.map((row) => {
-        const newRow = [...row];
-        newRow.splice(index, 1);
-        return newRow;
-      });
-      setAttributes({ tableData: newTableData });
-    };
-    const updateCellContent = (value, rowIndex, colIndex) => {
-      const newTableData = [...tableData];
-      newTableData[rowIndex][colIndex] = value;
-      setAttributes({ tableData: newTableData });
-    };
-    const handleCellClick = (rowIndex, colIndex) => {
-      setSelectedCell({ row: rowIndex, col: colIndex });
-    };
-    const getCellControl = (row, col, controlType) => {
-      if (!cellControls)
-        return null;
-      const cellKey = `${row}-${col}`;
-      if (cellControls[cellKey] && cellControls[cellKey][controlType]) {
-        return cellControls[cellKey][controlType];
-      }
-      return null;
-    };
-    const setCellControl = (row, col, controlType, value) => {
-      const cellKey = `${row}-${col}`;
-      const updatedControls = { ...cellControls || {} };
-      if (!updatedControls[cellKey]) {
-        updatedControls[cellKey] = {};
-      }
-      updatedControls[cellKey][controlType] = value;
-      setAttributes({ cellControls: updatedControls });
-    };
-    const clearCellControl = (row, col, controlType) => {
-      if (!cellControls)
-        return;
-      const cellKey = `${row}-${col}`;
-      const updatedControls = { ...cellControls };
-      if (updatedControls[cellKey] && updatedControls[cellKey][controlType]) {
-        delete updatedControls[cellKey][controlType];
-        if (Object.keys(updatedControls[cellKey]).length === 0) {
-          delete updatedControls[cellKey];
-        }
-        setAttributes({ cellControls: updatedControls });
-      }
-    };
-    const applyTablePreset = (preset) => {
-      let newAttributes = {};
-      switch (preset) {
-        case "striped":
-          newAttributes = {
-            tablePreset: preset,
-            tableBorderStyle: "solid",
-            tableBorderWidth: 1,
-            tableBorderColor: "#dee2e6",
-            tableBorderCollapse: "collapse",
-            headerBackgroundColor: "#f8f9fa",
-            headerTextColor: "#212529",
-            bodyBackgroundColor: "#ffffff",
-            altRowBackgroundColor: "#f2f2f2",
-            bodyTextColor: "#212529"
-          };
-          break;
-        case "bordered":
-          newAttributes = {
-            tablePreset: preset,
-            tableBorderStyle: "solid",
-            tableBorderWidth: 2,
-            tableBorderColor: "#dee2e6",
-            tableBorderCollapse: "collapse",
-            headerBackgroundColor: "#f8f9fa",
-            headerTextColor: "#212529",
-            bodyBackgroundColor: "#ffffff",
-            altRowBackgroundColor: "",
-            bodyTextColor: "#212529"
-          };
-          break;
-        case "borderless":
-          newAttributes = {
-            tablePreset: preset,
-            tableBorderStyle: "none",
-            tableBorderWidth: 0,
-            tableBorderColor: "transparent",
-            tableBorderCollapse: "collapse",
-            headerBackgroundColor: "transparent",
-            headerTextColor: "#212529",
-            bodyBackgroundColor: "transparent",
-            altRowBackgroundColor: "",
-            bodyTextColor: "#212529"
-          };
-          break;
-        case "modern":
-          newAttributes = {
-            tablePreset: preset,
-            tableBorderStyle: "solid",
-            tableBorderWidth: 1,
-            tableBorderColor: "#e0e0e0",
-            tableBorderCollapse: "separate",
-            headerBackgroundColor: "#4a6cf7",
-            headerTextColor: "#ffffff",
-            bodyBackgroundColor: "#ffffff",
-            altRowBackgroundColor: "#f8f9fa",
-            bodyTextColor: "#212529",
-            boxShadow: {
-              enable: true,
-              color: "rgba(0, 0, 0, 0.1)",
-              horizontal: 0,
-              vertical: 4,
-              blur: 15,
-              spread: 0,
-              position: "outset"
-            },
-            borderRadius: {
-              desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: "px" },
-              tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
-              mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
-            }
-          };
-          break;
-        case "minimal":
-          newAttributes = {
-            tablePreset: preset,
-            tableBorderStyle: "solid",
-            tableBorderWidth: 1,
-            tableBorderColor: "#e0e0e0",
-            tableBorderCollapse: "collapse",
-            headerBackgroundColor: "#ffffff",
-            headerTextColor: "#212529",
-            bodyBackgroundColor: "#ffffff",
-            altRowBackgroundColor: "",
-            bodyTextColor: "#212529",
-            boxShadow: {
-              enable: false,
-              color: "rgba(0, 0, 0, 0.1)",
-              horizontal: 0,
-              vertical: 0,
-              blur: 0,
-              spread: 0,
-              position: "outset"
-            },
-            borderRadius: {
-              desktop: { top: "", right: "", bottom: "", left: "", unit: "px" },
-              tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
-              mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
-            }
-          };
-          break;
-        default:
-          newAttributes = {
-            tablePreset: "default",
-            tableBorderStyle: "solid",
-            tableBorderWidth: 1,
-            tableBorderColor: "#e0e0e0",
-            tableBorderCollapse: "collapse",
-            headerBackgroundColor: "#f8f9fa",
-            headerTextColor: "#333333",
-            bodyBackgroundColor: "#ffffff",
-            altRowBackgroundColor: "",
-            bodyTextColor: "#666666",
-            boxShadow: {
-              enable: false,
-              color: "rgba(0, 0, 0, 0.1)",
-              horizontal: 0,
-              vertical: 0,
-              blur: 0,
-              spread: 0,
-              position: "outset"
-            },
-            borderRadius: {
-              desktop: { top: "", right: "", bottom: "", left: "", unit: "px" },
-              tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
-              mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
-            }
-          };
-      }
-      setAttributes(newAttributes);
-    };
-    const generateCSS = () => {
-      const activeDevice = window.digi.responsiveState.activeDevice;
-      if (!id)
-        return "";
-      const getFlexAlignment = (textAlign) => {
-        switch (textAlign) {
-          case "left":
-            return "flex-start";
-          case "center":
-            return "center";
-          case "right":
-            return "flex-end";
-          default:
-            return "flex-start";
-        }
-      };
-      let borderCSS = "";
-      if (tableBorderStyle !== "none") {
-        borderCSS = `
-                border-style: ${tableBorderStyle};
-                border-width: ${tableBorderWidth}px;
-                border-color: ${tableBorderColor};
-            `;
-      } else {
-        borderCSS = "border: none;";
-      }
-      let boxShadowCSS = "box-shadow: none;";
-      if (boxShadow && boxShadow.enable) {
-        const inset = boxShadow.position === "inset" ? "inset " : "";
-        boxShadowCSS = `box-shadow: ${inset}${boxShadow.horizontal}px ${boxShadow.vertical}px ${boxShadow.blur}px ${boxShadow.spread}px ${boxShadow.color};`;
-      }
-      let boxShadowHoverCSS = "";
-      if (boxShadowHover && boxShadowHover.enable) {
-        const insetHover = boxShadowHover.position === "inset" ? "inset " : "";
-        boxShadowHoverCSS = `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
-      }
-      const borderRadiusCSS = `${getDimensionCSS(borderRadius, "border-radius", activeDevice)}`;
-      const cellPaddingCSS = `${getDimensionCSS(cellPadding, "padding", activeDevice)}`;
-      const marginCSS = `${getDimensionCSS(margin, "margin", activeDevice)}`;
-      let headingTypographyCSS = "";
-      if (headingTypography) {
-        if (headingTypography.fontFamily) {
-          headingTypographyCSS += `font-family: ${headingTypography.fontFamily};`;
-        }
-        const headerFontSize = getVal(headingTypography.fontSize, activeDevice);
-        if (headerFontSize) {
-          headingTypographyCSS += `font-size: ${headerFontSize}${headingTypography.fontSizeUnit || "px"};`;
-        }
-        if (headingTypography.fontWeight) {
-          headingTypographyCSS += `font-weight: ${headingTypography.fontWeight};`;
-        }
-        if (headingTypography.fontStyle) {
-          headingTypographyCSS += `font-style: ${headingTypography.fontStyle};`;
-        }
-        if (headingTypography.textTransform) {
-          headingTypographyCSS += `text-transform: ${headingTypography.textTransform};`;
-        }
-        if (headingTypography.textDecoration) {
-          headingTypographyCSS += `text-decoration: ${headingTypography.textDecoration};`;
-        }
-        const headerLineHeight = getVal(headingTypography.lineHeight, activeDevice);
-        if (headerLineHeight) {
-          headingTypographyCSS += `line-height: ${headerLineHeight}${headingTypography.lineHeightUnit || "em"};`;
-        }
-        const headerLetterSpacing = getVal(headingTypography.letterSpacing, activeDevice);
-        if (headerLetterSpacing || headerLetterSpacing === 0) {
-          headingTypographyCSS += `letter-spacing: ${headerLetterSpacing}${headingTypography.letterSpacingUnit || "px"};`;
-        }
-      }
-      let bodyTypographyCSS = "";
-      if (textTypography) {
-        if (textTypography.fontFamily) {
-          bodyTypographyCSS += `font-family: ${textTypography.fontFamily};`;
-        }
-        const bodyFontSize = getVal(textTypography.fontSize, activeDevice);
-        if (bodyFontSize) {
-          bodyTypographyCSS += `font-size: ${bodyFontSize}${textTypography.fontSizeUnit || "px"};`;
-        }
-        if (textTypography.fontWeight) {
-          bodyTypographyCSS += `font-weight: ${textTypography.fontWeight};`;
-        }
-        if (textTypography.fontStyle) {
-          bodyTypographyCSS += `font-style: ${textTypography.fontStyle};`;
-        }
-        if (textTypography.textTransform) {
-          bodyTypographyCSS += `text-transform: ${textTypography.textTransform};`;
-        }
-        if (textTypography.textDecoration) {
-          bodyTypographyCSS += `text-decoration: ${textTypography.textDecoration};`;
-        }
-        const bodyLineHeight = getVal(textTypography.lineHeight, activeDevice);
-        if (bodyLineHeight) {
-          bodyTypographyCSS += `line-height: ${bodyLineHeight}${textTypography.lineHeightUnit || "em"};`;
-        }
-        const bodyLetterSpacing = getVal(textTypography.letterSpacing, activeDevice);
-        if (bodyLetterSpacing || bodyLetterSpacing === 0) {
-          bodyTypographyCSS += `letter-spacing: ${bodyLetterSpacing}${textTypography.letterSpacingUnit || "px"};`;
-        }
-      }
-      let contentTypographyCSS = "";
-      if (contentTypography) {
-        if (contentTypography.fontFamily) {
-          contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
-        }
-        const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
-        if (contentFontSize) {
-          contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || "px"};`;
-        }
-        if (contentTypography.fontWeight) {
-          contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
-        }
-        if (contentTypography.fontStyle) {
-          contentTypographyCSS += `font-style: ${contentTypography.fontStyle};`;
-        }
-        if (contentTypography.textTransform) {
-          contentTypographyCSS += `text-transform: ${contentTypography.textTransform};`;
-        }
-        if (contentTypography.textDecoration) {
-          contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
-        }
-        const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
-        if (contentLineHeight) {
-          contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || "em"};`;
-        }
-        const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
-        if (contentLetterSpacing || contentLetterSpacing === 0) {
-          contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || "px"};`;
-        }
-      }
-      return `
-            /* Table Block - ${id} */
-            .${id} {
-                ${marginCSS}
-                ${boxShadowCSS}
-                ${borderRadiusCSS}
+(()=>{var{__:o}=window.wp.i18n,{useBlockProps:Ie,RichText:he,InspectorControls:eo,PanelColorSettings:le,BlockControls:oo}=window.wp.blockEditor,{SelectControl:te,RangeControl:lo,ToggleControl:G,Button:O,ToolbarGroup:Re,ToolbarButton:j,BaseControl:ie,Popover:to,__experimentalToggleGroupControl:Y,__experimentalToggleGroupControlOption:$}=window.wp.components,{useState:Z,useEffect:ue,useRef:io}=window.wp.element,{useBlockId:ao,getDimensionCSS:ke,animations:I,animationPreview:Me}=digi.utils,{tabIcons:me}=digi.icons,{ResponsiveControl:Ce,DimensionControl:ve,TypographyControl:ye,BoxShadowControl:no,CustomTabPanel:ro,TabPanelBody:T}=digi.components,so=({attributes:V,setAttributes:a,clientId:ee})=>{let{id:l,anchor:B,visibility:m,customClasses:K,tableData:n,hasHeader:H,hasFooter:h,tableBorderColor:z,tableBorderWidth:W,tableBorderStyle:v,cellPadding:A,tableBorderCollapse:y,headerBackgroundColor:b,headerTextColor:f,headingTypography:c,bodyBackgroundColor:_,altRowBackgroundColor:R,bodyTextColor:we,textTypography:g,footerBackgroundColor:$e,footerTextColor:Be,contentTypography:p,borderRadius:ne,boxShadow:M,boxShadowHover:C,margin:q,cellAlignment:Se,headerAlignment:re,footerAlignment:Te,tablePreset:Le,responsiveMode:se,animation:x,firstColHeader:J,cellControls:u}=V;ao(l,ee,a);let D=(e,t)=>!e||typeof e!="object"?null:t==="mobile"?e.mobile!==""&&e.mobile!==void 0&&e.mobile!==null?e.mobile:e.tablet!==""&&e.tablet!==void 0&&e.tablet!==null?e.tablet:e.desktop:t==="tablet"&&e.tablet!==""&&e.tablet!==void 0&&e.tablet!==null?e.tablet:e.desktop,[F,Fe]=Z(window.digi.responsiveState.activeDevice),[go,po]=Z(!1),[_e,Ue]=Z(()=>{if(window.digi.uiState){let e=window.digi.uiState.getActiveTab(ee);if(e)return e}return"options"}),[i,ce]=Z({row:-1,col:-1}),[Oe,de]=Z(!1);ue(()=>window.digi.responsiveState.subscribe(t=>{Fe(t)}),[]),ue(()=>{(!n||n.length===0)&&a({tableData:[["Header 1","Header 2","Header 3"],["Row 1, Cell 1","Row 1, Cell 2","Row 1, Cell 3"],["Row 2, Cell 1","Row 2, Cell 2","Row 2, Cell 3"]]}),u||a({cellControls:{}})},[n,u,a]);let Ne=io(null);ue(()=>{if(x&&x!=="none"){let e=setTimeout(()=>{Me(l,x,I,Ne)},100);return()=>clearTimeout(e)}},[x]);let We=()=>{Me(l,x,I,Ne)},Ae=[{label:o("Solid","digiblocks"),value:"solid"},{label:o("Dotted","digiblocks"),value:"dotted"},{label:o("Dashed","digiblocks"),value:"dashed"},{label:o("Double","digiblocks"),value:"double"},{label:o("None","digiblocks"),value:"none"}],Ee=[{label:o("Default","digiblocks"),value:"default"},{label:o("Striped","digiblocks"),value:"striped"},{label:o("Bordered","digiblocks"),value:"bordered"},{label:o("Borderless","digiblocks"),value:"borderless"},{label:o("Modern","digiblocks"),value:"modern"},{label:o("Minimal","digiblocks"),value:"minimal"}],Ge=[{label:o("None","digiblocks"),value:"none"},...Object.keys(I).map(e=>({label:e.replace(/-/g," ").replace(/\b\w/g,t=>t.toUpperCase()),value:e}))],je=[{name:"options",title:o("Options","digiblocks"),icon:me.optionsIcon},{name:"style",title:o("Style","digiblocks"),icon:me.styleIcon},{name:"advanced",title:o("Advanced","digiblocks"),icon:me.advancedIcon}],Q=e=>{if(!n||n.length===0)return;let t=[...n],r=t[0].length,s=Array(r).fill("");t.splice(e+1,0,s),a({tableData:t})},Ve=e=>{if(!n||n.length<=1)return;let t=[...n];t.splice(e,1),a({tableData:t})},X=e=>{if(!n||n.length===0)return;let t=n.map(r=>{let s=[...r];return s.splice(e+1,0,""),s});a({tableData:t})},Ke=e=>{if(!n||n[0].length<=1)return;let t=n.map(r=>{let s=[...r];return s.splice(e,1),s});a({tableData:t})},be=(e,t,r)=>{let s=[...n];s[t][r]=e,a({tableData:s})},ge=(e,t)=>{ce({row:e,col:t})},He=(e,t,r)=>{if(!u)return null;let s=`${e}-${t}`;return u[s]&&u[s][r]?u[s][r]:null},oe=(e,t,r,s)=>{let d=`${e}-${t}`,k={...u||{}};k[d]||(k[d]={}),k[d][r]=s,a({cellControls:k})},E=(e,t,r)=>{if(!u)return;let s=`${e}-${t}`,d={...u};d[s]&&d[s][r]&&(delete d[s][r],Object.keys(d[s]).length===0&&delete d[s],a({cellControls:d}))},qe=e=>{let t={};switch(e){case"striped":t={tablePreset:e,tableBorderStyle:"solid",tableBorderWidth:1,tableBorderColor:"#dee2e6",tableBorderCollapse:"collapse",headerBackgroundColor:"#f8f9fa",headerTextColor:"#212529",bodyBackgroundColor:"#ffffff",altRowBackgroundColor:"#f2f2f2",bodyTextColor:"#212529"};break;case"bordered":t={tablePreset:e,tableBorderStyle:"solid",tableBorderWidth:2,tableBorderColor:"#dee2e6",tableBorderCollapse:"collapse",headerBackgroundColor:"#f8f9fa",headerTextColor:"#212529",bodyBackgroundColor:"#ffffff",altRowBackgroundColor:"",bodyTextColor:"#212529"};break;case"borderless":t={tablePreset:e,tableBorderStyle:"none",tableBorderWidth:0,tableBorderColor:"transparent",tableBorderCollapse:"collapse",headerBackgroundColor:"transparent",headerTextColor:"#212529",bodyBackgroundColor:"transparent",altRowBackgroundColor:"",bodyTextColor:"#212529"};break;case"modern":t={tablePreset:e,tableBorderStyle:"solid",tableBorderWidth:1,tableBorderColor:"#e0e0e0",tableBorderCollapse:"separate",headerBackgroundColor:"#4a6cf7",headerTextColor:"#ffffff",bodyBackgroundColor:"#ffffff",altRowBackgroundColor:"#f8f9fa",bodyTextColor:"#212529",boxShadow:{enable:!0,color:"rgba(0, 0, 0, 0.1)",horizontal:0,vertical:4,blur:15,spread:0,position:"outset"},borderRadius:{desktop:{top:8,right:8,bottom:8,left:8,unit:"px"},tablet:{top:"",right:"",bottom:"",left:"",unit:"px"},mobile:{top:"",right:"",bottom:"",left:"",unit:"px"}}};break;case"minimal":t={tablePreset:e,tableBorderStyle:"solid",tableBorderWidth:1,tableBorderColor:"#e0e0e0",tableBorderCollapse:"collapse",headerBackgroundColor:"#ffffff",headerTextColor:"#212529",bodyBackgroundColor:"#ffffff",altRowBackgroundColor:"",bodyTextColor:"#212529",boxShadow:{enable:!1,color:"rgba(0, 0, 0, 0.1)",horizontal:0,vertical:0,blur:0,spread:0,position:"outset"},borderRadius:{desktop:{top:"",right:"",bottom:"",left:"",unit:"px"},tablet:{top:"",right:"",bottom:"",left:"",unit:"px"},mobile:{top:"",right:"",bottom:"",left:"",unit:"px"}}};break;default:t={tablePreset:"default",tableBorderStyle:"solid",tableBorderWidth:1,tableBorderColor:"#e0e0e0",tableBorderCollapse:"collapse",headerBackgroundColor:"#f8f9fa",headerTextColor:"#333333",bodyBackgroundColor:"#ffffff",altRowBackgroundColor:"",bodyTextColor:"#666666",boxShadow:{enable:!1,color:"rgba(0, 0, 0, 0.1)",horizontal:0,vertical:0,blur:0,spread:0,position:"outset"},borderRadius:{desktop:{top:"",right:"",bottom:"",left:"",unit:"px"},tablet:{top:"",right:"",bottom:"",left:"",unit:"px"},mobile:{top:"",right:"",bottom:"",left:"",unit:"px"}}}}a(t)},Je=()=>{let e=window.digi.responsiveState.activeDevice;if(!l)return"";let t=w=>{switch(w){case"left":return"flex-start";case"center":return"center";case"right":return"flex-end";default:return"flex-start"}},r="";v!=="none"?r=`
+                border-style: ${v};
+                border-width: ${W}px;
+                border-color: ${z};
+            `:r="border: none;";let s="box-shadow: none;";M&&M.enable&&(s=`box-shadow: ${M.position==="inset"?"inset ":""}${M.horizontal}px ${M.vertical}px ${M.blur}px ${M.spread}px ${M.color};`);let d="";C&&C.enable&&(d=`box-shadow: ${C.position==="inset"?"inset ":""}${C.horizontal}px ${C.vertical}px ${C.blur}px ${C.spread}px ${C.color};`);let k=`${ke(ne,"border-radius",e)}`,fe=`${ke(A,"padding",e)}`,Ze=`${ke(q,"margin",e)}`,N="";if(c){c.fontFamily&&(N+=`font-family: ${c.fontFamily};`);let w=D(c.fontSize,e);w&&(N+=`font-size: ${w}${c.fontSizeUnit||"px"};`),c.fontWeight&&(N+=`font-weight: ${c.fontWeight};`),c.fontStyle&&(N+=`font-style: ${c.fontStyle};`),c.textTransform&&(N+=`text-transform: ${c.textTransform};`),c.textDecoration&&(N+=`text-decoration: ${c.textDecoration};`);let U=D(c.lineHeight,e);U&&(N+=`line-height: ${U}${c.lineHeightUnit||"em"};`);let S=D(c.letterSpacing,e);(S||S===0)&&(N+=`letter-spacing: ${S}${c.letterSpacingUnit||"px"};`)}let P="";if(g){g.fontFamily&&(P+=`font-family: ${g.fontFamily};`);let w=D(g.fontSize,e);w&&(P+=`font-size: ${w}${g.fontSizeUnit||"px"};`),g.fontWeight&&(P+=`font-weight: ${g.fontWeight};`),g.fontStyle&&(P+=`font-style: ${g.fontStyle};`),g.textTransform&&(P+=`text-transform: ${g.textTransform};`),g.textDecoration&&(P+=`text-decoration: ${g.textDecoration};`);let U=D(g.lineHeight,e);U&&(P+=`line-height: ${U}${g.lineHeightUnit||"em"};`);let S=D(g.letterSpacing,e);(S||S===0)&&(P+=`letter-spacing: ${S}${g.letterSpacingUnit||"px"};`)}let L="";if(p){p.fontFamily&&(L+=`font-family: ${p.fontFamily};`);let w=D(p.fontSize,e);w&&(L+=`font-size: ${w}${p.fontSizeUnit||"px"};`),p.fontWeight&&(L+=`font-weight: ${p.fontWeight};`),p.fontStyle&&(L+=`font-style: ${p.fontStyle};`),p.textTransform&&(L+=`text-transform: ${p.textTransform};`),p.textDecoration&&(L+=`text-decoration: ${p.textDecoration};`);let U=D(p.lineHeight,e);U&&(L+=`line-height: ${U}${p.lineHeightUnit||"em"};`);let S=D(p.letterSpacing,e);(S||S===0)&&(L+=`letter-spacing: ${S}${p.letterSpacingUnit||"px"};`)}return`
+            /* Table Block - ${l} */
+            .${l} {
+                ${Ze}
+                ${s}
+                ${k}
                 width: 100%;
                 transition: all 0.3s ease;
             }
 
 			/* Hover effects */
-            ${boxShadowHover && boxShadowHover.enable ? `
-                .${id}:hover {
-                    ${boxShadowHoverCSS}
+            ${C&&C.enable?`
+                .${l}:hover {
+                    ${d}
                 }
-            ` : ""}
+            `:""}
             
             /* Set up main table styles */
-            .${id} .digiblocks-table {
+            .${l} .digiblocks-table {
                 width: 100%;
-                border-collapse: ${tableBorderCollapse};
+                border-collapse: ${y};
                 border-spacing: 0;
-                color: ${bodyTextColor};
-                ${bodyTypographyCSS}
-                ${borderCSS}
-                ${borderRadiusCSS}
+                color: ${we};
+                ${P}
+                ${r}
+                ${k}
             }
             
             /* Table header styles */
-            .${id} .digiblocks-table thead th {
-                background-color: ${headerBackgroundColor};
-                color: ${headerTextColor};
-                ${headingTypographyCSS}
-                ${cellPaddingCSS}
+            .${l} .digiblocks-table thead th {
+                background-color: ${b};
+                color: ${f};
+                ${N}
+                ${fe}
                 vertical-align: middle;
-                border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
+                border: ${W}px ${v} ${z};
             }
 
-            .${id} .digiblocks-table thead th .digiblocks-cell-content {
-                justify-content: ${getFlexAlignment(headerAlignment)};
+            .${l} .digiblocks-table thead th .digiblocks-cell-content {
+                justify-content: ${t(re)};
             }
             
             /* Table body styles */
-            .${id} .digiblocks-table tbody td {
-                background-color: ${bodyBackgroundColor};
-                ${cellPaddingCSS}
+            .${l} .digiblocks-table tbody td {
+                background-color: ${_};
+                ${fe}
                 vertical-align: middle;
-                border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
+                border: ${W}px ${v} ${z};
             }
 
-            .${id} .digiblocks-table tbody td .digiblocks-cell-content {
-                justify-content: ${getFlexAlignment(cellAlignment)};
+            .${l} .digiblocks-table tbody td .digiblocks-cell-content {
+                justify-content: ${t(Se)};
             }
             
             /* First column styles if it's a header */
-            ${firstColHeader ? `
-            .${id} .digiblocks-table tbody td:first-child {
-                background-color: ${headerBackgroundColor};
-                color: ${headerTextColor};
-                ${headingTypographyCSS}
+            ${J?`
+            .${l} .digiblocks-table tbody td:first-child {
+                background-color: ${b};
+                color: ${f};
+                ${N}
                 font-weight: bold;
             }
 
-            .${id} .digiblocks-table tbody td:first-child .digiblocks-cell-content {
-                justify-content: ${getFlexAlignment(headerAlignment)};
+            .${l} .digiblocks-table tbody td:first-child .digiblocks-cell-content {
+                justify-content: ${t(re)};
             }
-            ` : ""}
+            `:""}
             
             /* Alternating row styles if enabled */
-            ${altRowBackgroundColor ? `
-            .${id} .digiblocks-table tbody tr:nth-child(even) td {
-                background-color: ${altRowBackgroundColor};
+            ${R?`
+            .${l} .digiblocks-table tbody tr:nth-child(even) td {
+                background-color: ${R};
             }
-            ${firstColHeader ? `
-            .${id} .digiblocks-table tbody tr:nth-child(even) td:first-child {
-                background-color: ${headerBackgroundColor};
+            ${J?`
+            .${l} .digiblocks-table tbody tr:nth-child(even) td:first-child {
+                background-color: ${b};
             }
-            ` : ""}
-            ` : ""}
+            `:""}
+            `:""}
             
             /* Footer styles if enabled */
-            ${hasFooter ? `
-            .${id} .digiblocks-table tfoot td {
-                background-color: ${footerBackgroundColor};
-                color: ${footerTextColor};
-                ${contentTypographyCSS}
-                ${cellPaddingCSS}
+            ${h?`
+            .${l} .digiblocks-table tfoot td {
+                background-color: ${$e};
+                color: ${Be};
+                ${L}
+                ${fe}
                 vertical-align: middle;
-                border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
+                border: ${W}px ${v} ${z};
             }
 
-            .${id} .digiblocks-table tfoot td .digiblocks-cell-content {
-                justify-content: ${getFlexAlignment(footerAlignment)};
+            .${l} .digiblocks-table tfoot td .digiblocks-cell-content {
+                justify-content: ${t(Te)};
             }
-            ` : ""}
+            `:""}
             
             /* Responsive styles */
             @media (max-width: 767px) {
                 /* Stack mode */
-                ${responsiveMode === "stack" ? `
-                .${id} {
+                ${se==="stack"?`
+                .${l} {
 					border-radius: 0;
 					box-shadow: none;
                 }
 
-                .${id} .digiblocks-table {
+                .${l} .digiblocks-table {
                     border-collapse: collapse;
 					border: 0;
 					border-radius: 0;
                 }
                 
-                .${id} .digiblocks-table thead,
-                .${id} .digiblocks-table tfoot {
+                .${l} .digiblocks-table thead,
+                .${l} .digiblocks-table tfoot {
                     display: none;
                 }
 
-				.${id} .digiblocks-table tbody {
+				.${l} .digiblocks-table tbody {
 					display: flex;
 					flex-direction: column;
 					gap: 1rem;
 				}
                 
-                .${id} .digiblocks-table tbody tr {
+                .${l} .digiblocks-table tbody tr {
                     display: block;
-                    border: ${tableBorderWidth}px ${tableBorderStyle} ${tableBorderColor};
-					${boxShadowCSS}
+                    border: ${W}px ${v} ${z};
+					${s}
 					transition: all 0.3s ease;
                 }
 
 				/* Hover effects */
-				${boxShadowHover && boxShadowHover.enable ? `
-				.${id} .digiblocks-table tbody tr:hover {
-						${boxShadowHoverCSS}
+				${C&&C.enable?`
+				.${l} .digiblocks-table tbody tr:hover {
+						${d}
 					}
-				` : ""}
+				`:""}
                 
-                .${id} .digiblocks-table tbody td {
+                .${l} .digiblocks-table tbody td {
                     display: flex;
                     justify-content: space-between;
 					gap: 1rem;
                     text-align: right;
-                    border-bottom: 1px solid ${tableBorderColor};
+                    border-bottom: 1px solid ${z};
                     border-top: none;
                     border-left: none;
                     border-right: none;
                 }
                 
-                .${id} .digiblocks-table tbody td::before {
+                .${l} .digiblocks-table tbody td::before {
                     content: attr(data-label);
                     font-weight: bold;
                     text-align: left;
                     flex: 1;
                 }
                 
-                .${id} .digiblocks-table tbody td:last-child {
+                .${l} .digiblocks-table tbody td:last-child {
                     border-bottom: none;
                 }
                 
-                ${firstColHeader ? `
-                .${id} .digiblocks-table tbody td:first-child {
+                ${J?`
+                .${l} .digiblocks-table tbody td:first-child {
                     text-align: center;
-                    background-color: ${headerBackgroundColor};
-                    color: ${headerTextColor};
+                    background-color: ${b};
+                    color: ${f};
                     justify-content: center;
                 }
                 
-                .${id} .digiblocks-table tbody td:first-child::before {
+                .${l} .digiblocks-table tbody td:first-child::before {
                     content: '';
                     display: none;
                 }
-                ` : ""}
-                ` : ""}
+                `:""}
+                `:""}
                 
                 /* Scroll mode */
-                ${responsiveMode === "scroll" ? `
-                .${id} {
+                ${se==="scroll"?`
+                .${l} {
                     overflow-x: auto;
                 }
                 
-                .${id} .digiblocks-table {
+                .${l} .digiblocks-table {
                     min-width: 600px; /* Ensure it's wider than most mobile screens */
                 }
-                ` : ""}
+                `:""}
             }
             
             /* Cell content layout */
-            .${id} .digiblocks-cell-content {
+            .${l} .digiblocks-cell-content {
                 display: flex;
                 align-items: center;
                 gap: 6px;
             }
             
-            .${id} .digiblocks-cell-icon {
+            .${l} .digiblocks-cell-icon {
                 flex-shrink: 0;
             }
             
             /* Cell control icons */
-            .${id} .digiblocks-table .digiblocks-cell-icon {
+            .${l} .digiblocks-table .digiblocks-cell-icon {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
             }
             
-            .${id} .digiblocks-table .digiblocks-cell-check {
+            .${l} .digiblocks-table .digiblocks-cell-check {
                 color: #28a745;
             }
             
-            .${id} .digiblocks-table .digiblocks-cell-warning {
+            .${l} .digiblocks-table .digiblocks-cell-warning {
                 color: #dca236;
             }
             
-            .${id} .digiblocks-table .digiblocks-cell-cross {
+            .${l} .digiblocks-table .digiblocks-cell-cross {
                 color: #dc3545;
             }
             
-            .${id} .digiblocks-table .digiblocks-cell-stars {
+            .${l} .digiblocks-table .digiblocks-cell-stars {
                 color: #ffc107;
                 display: inline-flex;
 				gap: 5px;
             }
             
             /* Selected cell highlight */
-            .${id} .digiblocks-table .digiblocks-selected-cell {
+            .${l} .digiblocks-table .digiblocks-selected-cell {
                 position: relative;
                 outline: 2px solid #4a6cf7;
                 outline-offset: -2px;
@@ -725,7 +232,7 @@
             }
             
             /* Cell Controls Toolbar */
-            .${id} .digiblocks-cell-controls-toolbar {
+            .${l} .digiblocks-cell-controls-toolbar {
                 margin-bottom: 15px;
                 padding: 12px;
                 background-color: #f0f0f1;
@@ -737,32 +244,32 @@
                 gap: 10px;
             }
             
-            .${id} .digiblocks-cell-controls-label {
+            .${l} .digiblocks-cell-controls-label {
                 font-weight: bold;
             }
 
-			.${id} .digiblocks-cell-controls-buttons .components-button-group {
+			.${l} .digiblocks-cell-controls-buttons .components-button-group {
                 display: flex;
                 align-items: center;
             }
 
-			.${id} .digiblocks-cell-controls-buttons .digiblocks-cell-control-check-button {
+			.${l} .digiblocks-cell-controls-buttons .digiblocks-cell-control-check-button {
                 color: #28a745;
             }
 
-			.${id} .digiblocks-cell-controls-buttons .digiblocks-cell-control-warning-button {
+			.${l} .digiblocks-cell-controls-buttons .digiblocks-cell-control-warning-button {
                 color: #dca236;
             }
 
-			.${id} .digiblocks-cell-controls-buttons .digiblocks-cell-control-cross-button {
+			.${l} .digiblocks-cell-controls-buttons .digiblocks-cell-control-cross-button {
                 color: #dc3545;
             }
 
-			.${id} .digiblocks-cell-controls-buttons .digiblocks-cell-control-rating-button {
+			.${l} .digiblocks-cell-controls-buttons .digiblocks-cell-control-rating-button {
                 color: #ffc107;
             }
 
-			.${id} .digiblocks-cell-controls-buttons .digiblocks-cell-control-remove-button {
+			.${l} .digiblocks-cell-controls-buttons .digiblocks-cell-control-remove-button {
                 color: #fe5252;
             }
             
@@ -785,14 +292,14 @@
 			}
             
             /* Table instructions */
-            .${id} .digiblocks-table-instructions {
+            .${l} .digiblocks-table-instructions {
                 margin-bottom: 15px;
                 font-style: italic;
                 color: #555;
             }
             
             /* Editor controls */
-            .${id} .digiblocks-table-controls {
+            .${l} .digiblocks-table-controls {
                 margin-top: 20px;
                 margin-bottom: 10px;
                 display: flex;
@@ -801,12 +308,12 @@
                 gap: 10px;
             }
             
-            .${id} .digiblocks-row-controls,
-            .${id} .digiblocks-col-controls {
+            .${l} .digiblocks-row-controls,
+            .${l} .digiblocks-col-controls {
                 position: relative;
             }
             
-            .${id} .digiblocks-cell-control-panel {
+            .${l} .digiblocks-cell-control-panel {
                 position: absolute;
                 top: 100%;
                 left: 0;
@@ -819,13 +326,13 @@
                 width: 240px;
             }
             
-            .${id} .digiblocks-cell-control-panel h3 {
+            .${l} .digiblocks-cell-control-panel h3 {
                 margin-top: 0;
                 font-size: 14px;
                 margin-bottom: 10px;
             }
             
-            .${id} .digiblocks-control-buttons {
+            .${l} .digiblocks-control-buttons {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 5px;
@@ -833,1393 +340,37 @@
             }
             
             /* Table caption if any */
-            .${id} .digiblocks-table-caption {
+            .${l} .digiblocks-table-caption {
                 text-align: center;
                 margin-bottom: 10px;
                 font-style: italic;
             }
             
             /* Animation CSS for the table */
-            ${animation && animation !== "none" && animations[animation] ? animations[animation].keyframes : ""}
+            ${x&&x!=="none"&&I[x]?I[x].keyframes:""}
 
 			/* Visibility Controls */
-			${visibility.desktop ? `
+			${m.desktop?`
 				@media (min-width: 992px) {
-					.${id} {
+					.${l} {
 						opacity: 0.5 !important;
 					}
 				}
-			` : ""}
+			`:""}
 
-			${visibility.tablet ? `
+			${m.tablet?`
 				@media (min-width: 768px) and (max-width: 991px) {
-					.${id} {
+					.${l} {
 						opacity: 0.5 !important;
 					}
 				}
-			` : ""}
+			`:""}
 
-			${visibility.mobile ? `
+			${m.mobile?`
 				@media (max-width: 767px) {
-					.${id} {
+					.${l} {
 						opacity: 0.5 !important;
 					}
 				}
-			` : ""}
-        `;
-    };
-    const renderCellControlToolbar = () => {
-      if (selectedCell.row === -1 || selectedCell.col === -1) {
-        return null;
-      }
-      return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-controls-toolbar" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-controls-label" }, __("Selected Cell:", "digiblocks"), " Row ", selectedCell.row + 1, ", Column ", selectedCell.col + 1), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-controls-buttons" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-button-group" }, /* @__PURE__ */ wp.element.createElement(
-        Button,
-        {
-          className: "digiblocks-cell-control-check-button",
-          icon: () => /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z" })),
-          label: __("Add Check", "digiblocks"),
-          onClick: () => {
-            clearCellControl(selectedCell.row, selectedCell.col, "stars");
-            setCellControl(selectedCell.row, selectedCell.col, "icon", "check");
-          }
-        }
-      ), /* @__PURE__ */ wp.element.createElement(
-        Button,
-        {
-          className: "digiblocks-cell-control-warning-button",
-          icon: () => /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z" })),
-          label: __("Add Warning", "digiblocks"),
-          onClick: () => {
-            clearCellControl(selectedCell.row, selectedCell.col, "stars");
-            setCellControl(selectedCell.row, selectedCell.col, "icon", "warning");
-          }
-        }
-      ), /* @__PURE__ */ wp.element.createElement(
-        Button,
-        {
-          className: "digiblocks-cell-control-cross-button",
-          icon: () => /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z" })),
-          label: __("Add Cross", "digiblocks"),
-          onClick: () => {
-            clearCellControl(selectedCell.row, selectedCell.col, "stars");
-            setCellControl(selectedCell.row, selectedCell.col, "icon", "cross");
-          }
-        }
-      ), /* @__PURE__ */ wp.element.createElement(
-        Button,
-        {
-          className: "digiblocks-cell-control-rating-button",
-          icon: () => /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "16", height: "16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327l4.898.696c.441.062.612.636.282.95l-3.522 3.356l.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" })),
-          label: __("Add Rating", "digiblocks"),
-          onClick: () => {
-            clearCellControl(selectedCell.row, selectedCell.col, "icon");
-            setIsRatingPopoverOpen(true);
-          }
-        }
-      ), getCellControl(selectedCell.row, selectedCell.col, "icon") || getCellControl(selectedCell.row, selectedCell.col, "stars") ? /* @__PURE__ */ wp.element.createElement(
-        Button,
-        {
-          className: "digiblocks-cell-control-remove-button",
-          icon: () => /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 448 512", width: "16", height: "16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M135.2 17.7L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-7.2-14.3C307.4 6.8 296.3 0 284.2 0L163.8 0c-12.1 0-23.2 6.8-28.6 17.7zM416 128L32 128 53.2 467c1.6 25.3 22.6 45 47.9 45l245.8 0c25.3 0 46.3-19.7 47.9-45L416 128z" })),
-          label: __("Remove Icons", "digiblocks"),
-          onClick: () => {
-            clearCellControl(selectedCell.row, selectedCell.col, "icon");
-            clearCellControl(selectedCell.row, selectedCell.col, "stars");
-          }
-        }
-      ) : null), isRatingPopoverOpen && /* @__PURE__ */ wp.element.createElement(
-        Popover,
-        {
-          className: "digiblocks-cell-control-popover",
-          onClose: () => setIsRatingPopoverOpen(false),
-          position: "bottom center"
-        },
-        /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-rating-selector" }, /* @__PURE__ */ wp.element.createElement("h3", null, __("Select Rating", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
-          ToggleGroupControl,
-          {
-            isBlock: true,
-            onChange: (value) => {
-              setCellControl(selectedCell.row, selectedCell.col, "stars", value.toString());
-              setIsRatingPopoverOpen(false);
-            },
-            __next40pxDefaultSize: true,
-            __nextHasNoMarginBottom: true
-          },
-          [1, 2, 3, 4, 5].map((num) => /* @__PURE__ */ wp.element.createElement(
-            ToggleGroupControlOption,
-            {
-              key: `star-${num}`,
-              value: num,
-              label: num.toString()
-            }
-          ))
-        ))
-      )));
-    };
-    const renderCellIcon = (row, col) => {
-      if (!cellControls)
-        return null;
-      const cellKey = `${row}-${col}`;
-      if (!cellControls[cellKey]) {
-        return null;
-      }
-      if (cellControls[cellKey].icon) {
-        const icon = cellControls[cellKey].icon;
-        switch (icon) {
-          case "check":
-            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-check" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z" })));
-          case "warning":
-            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-warning" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z" })));
-          case "cross":
-            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-cross" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z" })));
-          default:
-            return null;
-        }
-      }
-      if (cellControls[cellKey].stars) {
-        const starCount = parseInt(cellControls[cellKey].stars) || 0;
-        const stars = [];
-        for (let i = 0; i < 5; i++) {
-          if (i < starCount) {
-            stars.push(
-              /* @__PURE__ */ wp.element.createElement("span", { key: `star-${i}`, className: "digiblocks-cell-icon" }, /* @__PURE__ */ wp.element.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327l4.898.696c.441.062.612.636.282.95l-3.522 3.356l.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" })))
-            );
-          } else {
-            stars.push(
-              /* @__PURE__ */ wp.element.createElement("span", { key: `star-empty-${i}`, className: "digiblocks-cell-icon" }, /* @__PURE__ */ wp.element.createElement("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor", opacity: "0.5" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256l4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73l3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L7.538.792c-.197-.39-.73-.39-.927 0L4.427 5.124l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73z" })))
-            );
-          }
-        }
-        return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-stars" }, stars);
-      }
-      return null;
-    };
-    const renderTabContent = () => {
-      switch (activeTab) {
-        case "options":
-          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "options",
-              name: "general-settings",
-              title: __("Table Structure", "digiblocks"),
-              initialOpen: true
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              ToggleControl,
-              {
-                label: __("Enable Header Row", "digiblocks"),
-                checked: hasHeader,
-                onChange: () => setAttributes({ hasHeader: !hasHeader }),
-                help: __("Display the first row as table header.", "digiblocks"),
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              ToggleControl,
-              {
-                label: __("Enable Footer Row", "digiblocks"),
-                checked: hasFooter,
-                onChange: () => setAttributes({ hasFooter: !hasFooter }),
-                help: __("Display the last row as table footer.", "digiblocks"),
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              ToggleControl,
-              {
-                label: __("First Column as Header", "digiblocks"),
-                checked: firstColHeader,
-                onChange: () => setAttributes({ firstColHeader: !firstColHeader }),
-                help: __("Use the first column as a header column.", "digiblocks"),
-                __nextHasNoMarginBottom: true
-              }
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "options",
-              name: "preset-settings",
-              title: __("Table Presets", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __("Table Style Preset", "digiblocks"),
-                value: tablePreset,
-                options: tablePresetOptions,
-                onChange: (value) => applyTablePreset(value),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "options",
-              name: "responsive-settings",
-              title: __("Responsive Settings", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              BaseControl,
-              {
-                label: __("Mobile Behavior", "digiblocks"),
-                __nextHasNoMarginBottom: true
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControl,
-                {
-                  value: responsiveMode,
-                  onChange: (value) => setAttributes({ responsiveMode: value }),
-                  help: __("How the table should behave on small screens.", "digiblocks"),
-                  isBlock: true,
-                  __next40pxDefaultSize: true,
-                  __nextHasNoMarginBottom: true
-                },
-                /* @__PURE__ */ wp.element.createElement(
-                  ToggleGroupControlOption,
-                  {
-                    value: "stack",
-                    label: __("Stack", "digiblocks"),
-                    "aria-label": __("Stack Behavior", "digiblocks")
-                  }
-                ),
-                /* @__PURE__ */ wp.element.createElement(
-                  ToggleGroupControlOption,
-                  {
-                    value: "scroll",
-                    label: __("Scroll", "digiblocks"),
-                    "aria-label": __("Scroll Behavior", "digiblocks")
-                  }
-                )
-              )
-            )
-          ));
-        case "style":
-          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "style",
-              name: "border-settings",
-              title: __("Borders & Shadow", "digiblocks"),
-              initialOpen: true
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __("Border Style", "digiblocks"),
-                value: tableBorderStyle,
-                options: borderStyleOptions,
-                onChange: (value) => setAttributes({ tableBorderStyle: value }),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            tableBorderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              RangeControl,
-              {
-                label: __("Border Width", "digiblocks"),
-                value: tableBorderWidth,
-                onChange: (value) => setAttributes({ tableBorderWidth: value }),
-                min: 1,
-                max: 10,
-                step: 1,
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ), /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings,
-              {
-                title: __("Border Color", "digiblocks"),
-                initialOpen: true,
-                enableAlpha: true,
-                colorSettings: [
-                  {
-                    value: tableBorderColor,
-                    onChange: (value) => setAttributes({ tableBorderColor: value }),
-                    label: __("Border Color", "digiblocks")
-                  }
-                ]
-              }
-            )),
-            /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __("Border Collapse", "digiblocks"),
-                value: tableBorderCollapse,
-                options: [
-                  { label: __("Collapse", "digiblocks"), value: "collapse" },
-                  { label: __("Separate", "digiblocks"), value: "separate" }
-                ],
-                onChange: (value) => setAttributes({ tableBorderCollapse: value }),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl,
-              {
-                label: __("Border Radius", "digiblocks")
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                DimensionControl,
-                {
-                  values: borderRadius[localActiveDevice],
-                  onChange: (value) => setAttributes({
-                    borderRadius: {
-                      ...borderRadius,
-                      [localActiveDevice]: value
-                    }
-                  }),
-                  units: [
-                    { label: "px", value: "px" },
-                    { label: "%", value: "%" }
-                  ]
-                }
-              )
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              BoxShadowControl,
-              {
-                label: __("Box Shadow", "digiblocks"),
-                normalValue: boxShadow,
-                hoverValue: boxShadowHover,
-                onNormalChange: (value) => setAttributes({ boxShadow: value }),
-                onHoverChange: (value) => setAttributes({ boxShadowHover: value })
-              }
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "style",
-              name: "header-settings",
-              title: __("Header Styles", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings,
-              {
-                title: __(
-                  "Header Colors",
-                  "digiblocks"
-                ),
-                initialOpen: true,
-                enableAlpha: true,
-                colorSettings: [
-                  {
-                    value: headerBackgroundColor,
-                    onChange: (value) => setAttributes({
-                      headerBackgroundColor: value
-                    }),
-                    label: __(
-                      "Background Color",
-                      "digiblocks"
-                    )
-                  },
-                  {
-                    value: headerTextColor,
-                    onChange: (value) => setAttributes({
-                      headerTextColor: value
-                    }),
-                    label: __(
-                      "Text Color",
-                      "digiblocks"
-                    )
-                  }
-                ]
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              TypographyControl,
-              {
-                label: __(
-                  "Header Typography",
-                  "digiblocks"
-                ),
-                value: headingTypography,
-                onChange: (value) => setAttributes({
-                  headingTypography: value
-                }),
-                defaults: {
-                  fontSize: { desktop: 18, tablet: 16, mobile: 15 },
-                  fontSizeUnit: "px",
-                  lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                  lineHeightUnit: "em"
-                }
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              BaseControl,
-              {
-                label: __("Text Alignment", "digiblocks"),
-                __nextHasNoMarginBottom: true
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControl,
-                {
-                  value: headerAlignment,
-                  onChange: (value) => setAttributes({ headerAlignment: value }),
-                  isBlock: true,
-                  __next40pxDefaultSize: true,
-                  __nextHasNoMarginBottom: true
-                },
-                /* @__PURE__ */ wp.element.createElement(
-                  ToggleGroupControlOption,
-                  {
-                    value: "left",
-                    label: __("Left", "digiblocks"),
-                    "aria-label": __("Left", "digiblocks")
-                  }
-                ),
-                /* @__PURE__ */ wp.element.createElement(
-                  ToggleGroupControlOption,
-                  {
-                    value: "center",
-                    label: __("Center", "digiblocks"),
-                    "aria-label": __("Center", "digiblocks")
-                  }
-                ),
-                /* @__PURE__ */ wp.element.createElement(
-                  ToggleGroupControlOption,
-                  {
-                    value: "right",
-                    label: __("Right", "digiblocks"),
-                    "aria-label": __("Right", "digiblocks")
-                  }
-                )
-              )
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "style",
-              name: "body-settings",
-              title: __("Body Styles", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings,
-              {
-                title: __(
-                  "Body Colors",
-                  "digiblocks"
-                ),
-                initialOpen: true,
-                enableAlpha: true,
-                colorSettings: [
-                  {
-                    value: bodyBackgroundColor,
-                    onChange: (value) => setAttributes({
-                      bodyBackgroundColor: value
-                    }),
-                    label: __(
-                      "Background Color",
-                      "digiblocks"
-                    )
-                  },
-                  {
-                    value: altRowBackgroundColor,
-                    onChange: (value) => setAttributes({
-                      altRowBackgroundColor: value
-                    }),
-                    label: __(
-                      "Alternate Row Color",
-                      "digiblocks"
-                    )
-                  },
-                  {
-                    value: bodyTextColor,
-                    onChange: (value) => setAttributes({
-                      bodyTextColor: value
-                    }),
-                    label: __(
-                      "Text Color",
-                      "digiblocks"
-                    )
-                  }
-                ]
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              TypographyControl,
-              {
-                label: __(
-                  "Body Typography",
-                  "digiblocks"
-                ),
-                value: textTypography,
-                onChange: (value) => setAttributes({
-                  textTypography: value
-                }),
-                defaults: {
-                  fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                  fontSizeUnit: "px",
-                  lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                  lineHeightUnit: "em"
-                }
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              BaseControl,
-              {
-                label: __("Text Alignment", "digiblocks"),
-                __nextHasNoMarginBottom: true
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControl,
-                {
-                  value: cellAlignment,
-                  onChange: (value) => setAttributes({ cellAlignment: value }),
-                  isBlock: true,
-                  __next40pxDefaultSize: true,
-                  __nextHasNoMarginBottom: true
-                },
-                /* @__PURE__ */ wp.element.createElement(
-                  ToggleGroupControlOption,
-                  {
-                    value: "left",
-                    label: __("Left", "digiblocks"),
-                    "aria-label": __("Left", "digiblocks")
-                  }
-                ),
-                /* @__PURE__ */ wp.element.createElement(
-                  ToggleGroupControlOption,
-                  {
-                    value: "center",
-                    label: __("Center", "digiblocks"),
-                    "aria-label": __("Center", "digiblocks")
-                  }
-                ),
-                /* @__PURE__ */ wp.element.createElement(
-                  ToggleGroupControlOption,
-                  {
-                    value: "right",
-                    label: __("Right", "digiblocks"),
-                    "aria-label": __("Right", "digiblocks")
-                  }
-                )
-              )
-            )
-          ), hasFooter && /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "style",
-              name: "footer-settings",
-              title: __("Footer Styles", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings,
-              {
-                title: __(
-                  "Footer Colors",
-                  "digiblocks"
-                ),
-                initialOpen: true,
-                enableAlpha: true,
-                colorSettings: [
-                  {
-                    value: footerBackgroundColor,
-                    onChange: (value) => setAttributes({
-                      footerBackgroundColor: value
-                    }),
-                    label: __(
-                      "Background Color",
-                      "digiblocks"
-                    )
-                  },
-                  {
-                    value: footerTextColor,
-                    onChange: (value) => setAttributes({
-                      footerTextColor: value
-                    }),
-                    label: __(
-                      "Text Color",
-                      "digiblocks"
-                    )
-                  }
-                ]
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              TypographyControl,
-              {
-                label: __(
-                  "Footer Typography",
-                  "digiblocks"
-                ),
-                value: contentTypography,
-                onChange: (value) => setAttributes({
-                  contentTypography: value
-                }),
-                defaults: {
-                  fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                  fontSizeUnit: "px",
-                  lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                  lineHeightUnit: "em"
-                }
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              BaseControl,
-              {
-                label: __("Text Alignment", "digiblocks"),
-                __nextHasNoMarginBottom: true
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControl,
-                {
-                  value: footerAlignment,
-                  onChange: (value) => setAttributes({ footerAlignment: value }),
-                  isBlock: true,
-                  __next40pxDefaultSize: true,
-                  __nextHasNoMarginBottom: true
-                },
-                /* @__PURE__ */ wp.element.createElement(
-                  ToggleGroupControlOption,
-                  {
-                    value: "left",
-                    label: __("Left", "digiblocks"),
-                    "aria-label": __("Left", "digiblocks")
-                  }
-                ),
-                /* @__PURE__ */ wp.element.createElement(
-                  ToggleGroupControlOption,
-                  {
-                    value: "center",
-                    label: __("Center", "digiblocks"),
-                    "aria-label": __("Center", "digiblocks")
-                  }
-                ),
-                /* @__PURE__ */ wp.element.createElement(
-                  ToggleGroupControlOption,
-                  {
-                    value: "right",
-                    label: __("Right", "digiblocks"),
-                    "aria-label": __("Right", "digiblocks")
-                  }
-                )
-              )
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "style",
-              name: "spacing",
-              title: __("Spacing", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl,
-              {
-                label: __("Cell Padding", "digiblocks")
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                DimensionControl,
-                {
-                  values: cellPadding && cellPadding[localActiveDevice] ? cellPadding[localActiveDevice] : {
-                    top: 15,
-                    right: 15,
-                    bottom: 15,
-                    left: 15,
-                    unit: "px"
-                  },
-                  onChange: (value) => setAttributes({
-                    cellPadding: {
-                      ...cellPadding,
-                      [localActiveDevice]: value
-                    }
-                  })
-                }
-              )
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl,
-              {
-                label: __("Margin", "digiblocks")
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                DimensionControl,
-                {
-                  values: margin && margin[localActiveDevice] ? margin[localActiveDevice] : {
-                    top: 0,
-                    right: 0,
-                    bottom: 30,
-                    left: 0,
-                    unit: "px"
-                  },
-                  onChange: (value) => setAttributes({
-                    margin: {
-                      ...margin,
-                      [localActiveDevice]: value
-                    }
-                  })
-                }
-              )
-            )
-          ));
-        case "advanced":
-          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "advanced",
-              name: "animation",
-              title: __("Animation", "digiblocks"),
-              initialOpen: true
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __(
-                  "Animation Effect",
-                  "digiblocks"
-                ),
-                value: animation,
-                options: animationOptions,
-                onChange: (value) => setAttributes({
-                  animation: value
-                }),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button,
-              {
-                variant: "secondary",
-                isSecondary: true,
-                onClick: handlePreviewClick,
-                style: { width: "100%" }
-              },
-              __("Preview Animation", "digiblocks")
-            ))
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "advanced",
-              name: "visibility",
-              title: __("Visibility", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__help", style: {
-              padding: "12px",
-              backgroundColor: "#f0f6fc",
-              border: "1px solid #c3ddfd",
-              borderRadius: "4px",
-              marginBottom: "16px"
-            } }, /* @__PURE__ */ wp.element.createElement("strong", null, __("Editor Note:", "digiblocks")), /* @__PURE__ */ wp.element.createElement("br", null), __("Hidden elements appear with reduced opacity in the editor for easy editing. Visibility changes only take effect on the frontend.", "digiblocks")),
-            /* @__PURE__ */ wp.element.createElement(
-              ToggleControl,
-              {
-                label: __("Hide on Desktop", "digiblocks"),
-                checked: visibility.desktop,
-                onChange: (value) => setAttributes({
-                  visibility: {
-                    ...visibility,
-                    desktop: value
-                  }
-                }),
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              ToggleControl,
-              {
-                label: __("Hide on Tablet", "digiblocks"),
-                checked: visibility.tablet,
-                onChange: (value) => setAttributes({
-                  visibility: {
-                    ...visibility,
-                    tablet: value
-                  }
-                }),
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              ToggleControl,
-              {
-                label: __("Hide on Mobile", "digiblocks"),
-                checked: visibility.mobile,
-                onChange: (value) => setAttributes({
-                  visibility: {
-                    ...visibility,
-                    mobile: value
-                  }
-                }),
-                __nextHasNoMarginBottom: true
-              }
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "advanced",
-              name: "additional",
-              title: __("Additional", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
-              "input",
-              {
-                className: "components-text-control__input",
-                type: "text",
-                id: "html-anchor",
-                value: anchor || "",
-                onChange: (e) => setAttributes({ anchor: e.target.value }),
-                "aria-describedby": "html-anchor-help",
-                autoCapitalize: "none",
-                autoComplete: "off"
-              }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
-              "a",
-              {
-                className: "components-external-link",
-                href: "https://wordpress.org/documentation/article/page-jumps/",
-                target: "_blank",
-                rel: "external noreferrer noopener"
-              },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __("Learn more about anchors", "digiblocks")),
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
-            ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
-              "input",
-              {
-                className: "components-text-control__input",
-                type: "text",
-                id: "additional-css-classes",
-                value: customClasses || "",
-                onChange: (e) => setAttributes({ customClasses: e.target.value }),
-                "aria-describedby": "additional-css-classes-help",
-                autoComplete: "off"
-              }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __("Separate multiple classes with spaces.", "digiblocks")))
-          ));
-        default:
-          return null;
-      }
-    };
-    const renderTableContent = () => {
-      return /* @__PURE__ */ wp.element.createElement("table", { className: "digiblocks-table" }, hasHeader && tableData.length > 0 && /* @__PURE__ */ wp.element.createElement("thead", null, /* @__PURE__ */ wp.element.createElement("tr", null, tableData[0].map((cell, colIndex) => /* @__PURE__ */ wp.element.createElement(
-        "th",
-        {
-          key: `header-${colIndex}`,
-          onClick: () => handleCellClick(0, colIndex),
-          className: selectedCell.row === 0 && selectedCell.col === colIndex ? "digiblocks-selected-cell" : ""
-        },
-        /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-content" }, renderCellIcon(0, colIndex), /* @__PURE__ */ wp.element.createElement(
-          RichText,
-          {
-            tagName: "span",
-            value: cell,
-            onChange: (value) => updateCellContent(value, 0, colIndex),
-            placeholder: __("Header text", "digiblocks")
-          }
-        ))
-      )))), /* @__PURE__ */ wp.element.createElement("tbody", null, tableData.slice(
-        hasHeader ? 1 : 0,
-        hasFooter ? tableData.length - 1 : tableData.length
-      ).map((row, rowIndex) => {
-        const actualRowIndex = hasHeader ? rowIndex + 1 : rowIndex;
-        return /* @__PURE__ */ wp.element.createElement("tr", { key: `row-${actualRowIndex}` }, row.map((cell, colIndex) => /* @__PURE__ */ wp.element.createElement(
-          "td",
-          {
-            key: `cell-${actualRowIndex}-${colIndex}`,
-            "data-label": hasHeader && tableData[0] && tableData[0][colIndex] ? tableData[0][colIndex] : "",
-            onClick: () => handleCellClick(actualRowIndex, colIndex),
-            className: selectedCell.row === actualRowIndex && selectedCell.col === colIndex ? "digiblocks-selected-cell" : ""
-          },
-          /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-content" }, renderCellIcon(actualRowIndex, colIndex), /* @__PURE__ */ wp.element.createElement(
-            RichText,
-            {
-              tagName: "span",
-              value: cell,
-              onChange: (value) => updateCellContent(value, actualRowIndex, colIndex),
-              placeholder: __("Cell text", "digiblocks")
-            }
-          ))
-        )));
-      })), hasFooter && tableData.length > 1 && /* @__PURE__ */ wp.element.createElement("tfoot", null, /* @__PURE__ */ wp.element.createElement("tr", null, tableData[tableData.length - 1].map((cell, colIndex) => /* @__PURE__ */ wp.element.createElement(
-        "td",
-        {
-          key: `footer-${colIndex}`,
-          onClick: () => handleCellClick(tableData.length - 1, colIndex),
-          className: selectedCell.row === tableData.length - 1 && selectedCell.col === colIndex ? "digiblocks-selected-cell" : ""
-        },
-        /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-content" }, renderCellIcon(tableData.length - 1, colIndex), /* @__PURE__ */ wp.element.createElement(
-          RichText,
-          {
-            tagName: "span",
-            value: cell,
-            onChange: (value) => updateCellContent(value, tableData.length - 1, colIndex),
-            placeholder: __("Footer text", "digiblocks")
-          }
-        ))
-      )))));
-    };
-    const blockProps = useBlockProps({
-      className: `digiblocks-table-block ${id} ${customClasses || ""}`,
-      id: anchor || null
-      // Set the anchor as ID if provided
-    });
-    if (!tableData || !Array.isArray(tableData) || tableData.length === 0) {
-      return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("p", null, __("Initializing table...", "digiblocks")));
-    }
-    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(BlockControls, null, /* @__PURE__ */ wp.element.createElement(ToolbarGroup, null, /* @__PURE__ */ wp.element.createElement(
-      ToolbarButton,
-      {
-        icon: "table-row-before",
-        label: __("Add Row Before", "digiblocks"),
-        onClick: () => {
-          if (selectedCell.row >= 0) {
-            addRow(selectedCell.row - 1);
-          } else {
-            addRow(0);
-          }
-        }
-      }
-    ), /* @__PURE__ */ wp.element.createElement(
-      ToolbarButton,
-      {
-        icon: "table-row-after",
-        label: __("Add Row After", "digiblocks"),
-        onClick: () => {
-          if (selectedCell.row >= 0) {
-            addRow(selectedCell.row);
-          } else {
-            addRow(tableData.length - 1);
-          }
-        }
-      }
-    ), /* @__PURE__ */ wp.element.createElement(
-      ToolbarButton,
-      {
-        icon: "table-row-delete",
-        label: __("Delete Row", "digiblocks"),
-        onClick: () => {
-          if (selectedCell.row >= 0) {
-            deleteRow(selectedCell.row);
-            setSelectedCell({ row: -1, col: -1 });
-          }
-        },
-        disabled: tableData.length <= 1 || selectedCell.row < 0
-      }
-    )), /* @__PURE__ */ wp.element.createElement(ToolbarGroup, null, /* @__PURE__ */ wp.element.createElement(
-      ToolbarButton,
-      {
-        icon: "table-col-before",
-        label: __("Add Column Before", "digiblocks"),
-        onClick: () => {
-          if (selectedCell.col >= 0) {
-            addColumn(selectedCell.col - 1);
-          } else {
-            addColumn(0);
-          }
-        }
-      }
-    ), /* @__PURE__ */ wp.element.createElement(
-      ToolbarButton,
-      {
-        icon: "table-col-after",
-        label: __("Add Column After", "digiblocks"),
-        onClick: () => {
-          if (selectedCell.col >= 0) {
-            addColumn(selectedCell.col);
-          } else {
-            addColumn(tableData[0].length - 1);
-          }
-        }
-      }
-    ), /* @__PURE__ */ wp.element.createElement(
-      ToolbarButton,
-      {
-        icon: "table-col-delete",
-        label: __("Delete Column", "digiblocks"),
-        onClick: () => {
-          if (selectedCell.col >= 0) {
-            deleteColumn(selectedCell.col);
-            setSelectedCell({ row: -1, col: -1 });
-          }
-        },
-        disabled: tableData[0].length <= 1 || selectedCell.col < 0
-      }
-    ))), /* @__PURE__ */ wp.element.createElement(InspectorControls, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel,
-      {
-        tabs: tabList,
-        activeTab,
-        onSelect: setActiveTab
-      },
-      renderTabContent()
-    )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-table-instructions" }, /* @__PURE__ */ wp.element.createElement("p", null, __("Click on any cell to select it and add icons, checks, warnings, crosses, or star ratings.", "digiblocks"))), selectedCell.row !== -1 && selectedCell.col !== -1 && renderCellControlToolbar(), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-table-container" }, renderTableContent()), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-table-controls" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-row-controls" }, /* @__PURE__ */ wp.element.createElement(
-      Button,
-      {
-        isPrimary: true,
-        icon: "plus",
-        onClick: () => addRow(tableData.length - 1)
-      },
-      __("Add Row", "digiblocks")
-    )), /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-col-controls" }, /* @__PURE__ */ wp.element.createElement(
-      Button,
-      {
-        isPrimary: true,
-        icon: "plus",
-        onClick: () => addColumn(tableData[0].length - 1)
-      },
-      __("Add Column", "digiblocks")
-    )))));
-  };
-  var edit_default = TableEdit;
-
-  // blocks/table/save.js
-  var { __: __2 } = window.wp.i18n;
-  var { useBlockProps: useBlockProps2, RichText: RichText2 } = window.wp.blockEditor;
-  var TableSave = ({ attributes }) => {
-    const {
-      id,
-      anchor,
-      customClasses,
-      tableData,
-      hasHeader,
-      hasFooter,
-      responsiveMode,
-      animation,
-      cellControls
-    } = attributes;
-    const blockClasses = [
-      "digiblocks-table-block",
-      id,
-      `responsive-${responsiveMode}`,
-      animation !== "none" ? `animate-${animation}` : "",
-      customClasses || ""
-    ].filter(Boolean).join(" ");
-    const getCellControl = (row, col, controlType) => {
-      const cellKey = `${row}-${col}`;
-      if (cellControls[cellKey] && cellControls[cellKey][controlType]) {
-        return cellControls[cellKey][controlType];
-      }
-      return null;
-    };
-    const renderCellIcon = (row, col) => {
-      const cellKey = `${row}-${col}`;
-      if (!cellControls[cellKey]) {
-        return null;
-      }
-      if (cellControls[cellKey].icon) {
-        const icon = cellControls[cellKey].icon;
-        switch (icon) {
-          case "check":
-            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-check" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z" })));
-          case "warning":
-            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-warning" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z" })));
-          case "cross":
-            return /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-cell-icon digiblocks-cell-cross" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 512 512", width: "20", height: "20", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z" })));
-          default:
-            return null;
-        }
-      }
-      if (cellControls[cellKey].stars) {
-        const starCount = parseInt(cellControls[cellKey].stars);
-        const stars = [];
-        for (let i = 0; i < 5; i++) {
-          if (i < starCount) {
-            stars.push(
-              /* @__PURE__ */ wp.element.createElement("span", { key: `star-${i}`, className: "digiblocks-cell-icon" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327l4.898.696c.441.062.612.636.282.95l-3.522 3.356l.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" })))
-            );
-          } else {
-            stars.push(
-              /* @__PURE__ */ wp.element.createElement("span", { key: `star-empty-${i}`, className: "digiblocks-cell-icon" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor", opacity: "0.5" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256l4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73l3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L7.538.792c-.197-.39-.73-.39-.927 0L4.427 5.124l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73z" })))
-            );
-          }
-        }
-        return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-stars" }, stars);
-      }
-      return null;
-    };
-    const commonProps = {
-      className: blockClasses,
-      id: anchor || null
-    };
-    return /* @__PURE__ */ wp.element.createElement("div", { ...commonProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-table-container" }, /* @__PURE__ */ wp.element.createElement("table", { className: "digiblocks-table" }, hasHeader && /* @__PURE__ */ wp.element.createElement("thead", null, /* @__PURE__ */ wp.element.createElement("tr", null, tableData[0].map((cell, colIndex) => /* @__PURE__ */ wp.element.createElement("th", { key: `header-${colIndex}` }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-content" }, renderCellIcon(0, colIndex), /* @__PURE__ */ wp.element.createElement(
-      RichText2.Content,
-      {
-        tagName: "span",
-        value: cell
-      }
-    )))))), /* @__PURE__ */ wp.element.createElement("tbody", null, tableData.slice(hasHeader ? 1 : 0, hasFooter ? tableData.length - 1 : tableData.length).map((row, rowIndex) => {
-      const actualRowIndex = hasHeader ? rowIndex + 1 : rowIndex;
-      return /* @__PURE__ */ wp.element.createElement("tr", { key: `row-${actualRowIndex}` }, row.map((cell, colIndex) => /* @__PURE__ */ wp.element.createElement(
-        "td",
-        {
-          key: `cell-${actualRowIndex}-${colIndex}`,
-          "data-label": hasHeader ? tableData[0][colIndex] : ""
-        },
-        /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-content" }, renderCellIcon(actualRowIndex, colIndex), /* @__PURE__ */ wp.element.createElement(
-          RichText2.Content,
-          {
-            tagName: "span",
-            value: cell
-          }
-        ))
-      )));
-    })), hasFooter && /* @__PURE__ */ wp.element.createElement("tfoot", null, /* @__PURE__ */ wp.element.createElement("tr", null, tableData[tableData.length - 1].map((cell, colIndex) => /* @__PURE__ */ wp.element.createElement("td", { key: `footer-${colIndex}` }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-cell-content" }, renderCellIcon(tableData.length - 1, colIndex), /* @__PURE__ */ wp.element.createElement(
-      RichText2.Content,
-      {
-        tagName: "span",
-        value: cell
-      }
-    )))))))));
-  };
-  var save_default = TableSave;
-
-  // blocks/table/index.js
-  var { __: __3 } = window.wp.i18n;
-  var { registerBlockType } = window.wp.blocks;
-  registerBlockType("digiblocks/table", {
-    apiVersion: 2,
-    title: digiBlocksData.blocks["table"].title,
-    category: "digiblocks",
-    icon: {
-      src: () => {
-        const { viewbox, path } = digiBlocksData.blocks["table"].icon;
-        return /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: `0 0 ${viewbox}`, className: "digiblocks-editor-icons" }, /* @__PURE__ */ wp.element.createElement("path", { d: path }));
-      }
-    },
-    description: digiBlocksData.blocks["table"].description,
-    keywords: [__3("table", "digiblocks"), __3("comparison", "digiblocks"), __3("grid", "digiblocks"), __3("cells", "digiblocks")],
-    supports: {
-      html: false,
-      className: false,
-      customClassName: false,
-      anchor: false
-    },
-    attributes: {
-      id: {
-        type: "string",
-        default: ""
-      },
-      anchor: {
-        type: "string",
-        default: ""
-      },
-      visibility: {
-        type: "object",
-        default: {
-          desktop: false,
-          tablet: false,
-          mobile: false
-        }
-      },
-      customClasses: {
-        type: "string",
-        default: ""
-      },
-      tableData: {
-        type: "array",
-        default: [
-          ["Header 1", "Header 2", "Header 3"],
-          ["Cell 1,1", "Cell 1,2", "Cell 1,3"],
-          ["Cell 2,1", "Cell 2,2", "Cell 2,3"]
-        ]
-      },
-      hasHeader: {
-        type: "boolean",
-        default: true
-      },
-      hasFooter: {
-        type: "boolean",
-        default: false
-      },
-      tableBorderColor: {
-        type: "string",
-        default: "#e0e0e0"
-      },
-      tableBorderWidth: {
-        type: "number",
-        default: 1
-      },
-      tableBorderStyle: {
-        type: "string",
-        default: "solid"
-      },
-      cellPadding: {
-        type: "object",
-        default: {
-          desktop: { top: 15, right: 15, bottom: 15, left: 15, unit: "px" },
-          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
-          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
-        }
-      },
-      tableBorderCollapse: {
-        type: "string",
-        default: "collapse"
-      },
-      headerBackgroundColor: {
-        type: "string",
-        default: "#f8f9fa"
-      },
-      headerTextColor: {
-        type: "string",
-        default: "#333333"
-      },
-      headingTypography: {
-        type: "object",
-        default: {
-          fontFamily: "",
-          fontSize: { desktop: 18, tablet: "", mobile: "" },
-          fontSizeUnit: "px",
-          fontWeight: "600",
-          fontStyle: "normal",
-          textTransform: "none",
-          textDecoration: "none",
-          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
-          lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
-          letterSpacingUnit: "px"
-        }
-      },
-      bodyBackgroundColor: {
-        type: "string",
-        default: "#ffffff"
-      },
-      altRowBackgroundColor: {
-        type: "string",
-        default: ""
-      },
-      bodyTextColor: {
-        type: "string",
-        default: "#666666"
-      },
-      textTypography: {
-        type: "object",
-        default: {
-          fontFamily: "",
-          fontSize: { desktop: 16, tablet: "", mobile: "" },
-          fontSizeUnit: "px",
-          fontWeight: "",
-          fontStyle: "normal",
-          textTransform: "",
-          textDecoration: "",
-          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
-          lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
-          letterSpacingUnit: "px"
-        }
-      },
-      footerBackgroundColor: {
-        type: "string",
-        default: "#f8f9fa"
-      },
-      footerTextColor: {
-        type: "string",
-        default: "#333333"
-      },
-      contentTypography: {
-        type: "object",
-        default: {
-          fontFamily: "",
-          fontSize: { desktop: 16, tablet: "", mobile: "" },
-          fontSizeUnit: "px",
-          fontWeight: "600",
-          fontStyle: "normal",
-          textTransform: "none",
-          textDecoration: "none",
-          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
-          lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
-          letterSpacingUnit: "px"
-        }
-      },
-      borderRadius: {
-        type: "object",
-        default: {
-          desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: "px" },
-          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
-          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
-        }
-      },
-      boxShadow: {
-        type: "object",
-        default: {
-          enable: false,
-          color: "rgba(0, 0, 0, 0.1)",
-          horizontal: 0,
-          vertical: 2,
-          blur: 10,
-          spread: 0,
-          position: "outset"
-        }
-      },
-      boxShadowHover: {
-        type: "object",
-        default: {
-          enable: false,
-          color: "rgba(0, 0, 0, 0.2)",
-          horizontal: 0,
-          vertical: 10,
-          blur: 25,
-          spread: 0,
-          position: "outset"
-        }
-      },
-      margin: {
-        type: "object",
-        default: {
-          desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: "px" },
-          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
-          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
-        }
-      },
-      cellAlignment: {
-        type: "string",
-        default: "left"
-      },
-      headerAlignment: {
-        type: "string",
-        default: "left"
-      },
-      footerAlignment: {
-        type: "string",
-        default: "left"
-      },
-      tablePreset: {
-        type: "string",
-        default: "default"
-      },
-      responsiveMode: {
-        type: "string",
-        default: "stack"
-      },
-      animation: {
-        type: "string",
-        default: "none"
-      },
-      firstColHeader: {
-        type: "boolean",
-        default: false
-      },
-      cellControls: {
-        type: "object",
-        default: {}
-      }
-    },
-    example: {
-      attributes: {
-        tableData: [
-          ["Feature", "Basic", "Premium"],
-          ["Storage", "10GB", "1TB"],
-          ["Users", "1", "Unlimited"],
-          ["Support", "Email", "24/7 Phone"],
-          ["Price", "$9.99", "$29.99"]
-        ],
-        hasHeader: true,
-        headerBackgroundColor: "#f8f9fa",
-        bodyBackgroundColor: "#ffffff",
-        altRowBackgroundColor: "#f9f9f9"
-      }
-    },
-    edit: edit_default,
-    save: save_default
-  });
-})();
+			`:""}
+        `},Qe=()=>i.row===-1||i.col===-1?null:wp.element.createElement("div",{className:"digiblocks-cell-controls-toolbar"},wp.element.createElement("div",{className:"digiblocks-cell-controls-label"},o("Selected Cell:","digiblocks")," Row ",i.row+1,", Column ",i.col+1),wp.element.createElement("div",{className:"digiblocks-cell-controls-buttons"},wp.element.createElement("div",{className:"components-button-group"},wp.element.createElement(O,{className:"digiblocks-cell-control-check-button",icon:()=>wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 512 512",width:"20",height:"20",fill:"currentColor"},wp.element.createElement("path",{d:"M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"})),label:o("Add Check","digiblocks"),onClick:()=>{E(i.row,i.col,"stars"),oe(i.row,i.col,"icon","check")}}),wp.element.createElement(O,{className:"digiblocks-cell-control-warning-button",icon:()=>wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 512 512",width:"20",height:"20",fill:"currentColor"},wp.element.createElement("path",{d:"M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"})),label:o("Add Warning","digiblocks"),onClick:()=>{E(i.row,i.col,"stars"),oe(i.row,i.col,"icon","warning")}}),wp.element.createElement(O,{className:"digiblocks-cell-control-cross-button",icon:()=>wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 512 512",width:"20",height:"20",fill:"currentColor"},wp.element.createElement("path",{d:"M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"})),label:o("Add Cross","digiblocks"),onClick:()=>{E(i.row,i.col,"stars"),oe(i.row,i.col,"icon","cross")}}),wp.element.createElement(O,{className:"digiblocks-cell-control-rating-button",icon:()=>wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"16",height:"16",fill:"currentColor"},wp.element.createElement("path",{d:"M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327l4.898.696c.441.062.612.636.282.95l-3.522 3.356l.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"})),label:o("Add Rating","digiblocks"),onClick:()=>{E(i.row,i.col,"icon"),de(!0)}}),He(i.row,i.col,"icon")||He(i.row,i.col,"stars")?wp.element.createElement(O,{className:"digiblocks-cell-control-remove-button",icon:()=>wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 448 512",width:"16",height:"16",fill:"currentColor"},wp.element.createElement("path",{d:"M135.2 17.7L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-7.2-14.3C307.4 6.8 296.3 0 284.2 0L163.8 0c-12.1 0-23.2 6.8-28.6 17.7zM416 128L32 128 53.2 467c1.6 25.3 22.6 45 47.9 45l245.8 0c25.3 0 46.3-19.7 47.9-45L416 128z"})),label:o("Remove Icons","digiblocks"),onClick:()=>{E(i.row,i.col,"icon"),E(i.row,i.col,"stars")}}):null),Oe&&wp.element.createElement(to,{className:"digiblocks-cell-control-popover",onClose:()=>de(!1),position:"bottom center"},wp.element.createElement("div",{className:"digiblocks-rating-selector"},wp.element.createElement("h3",null,o("Select Rating","digiblocks")),wp.element.createElement(Y,{isBlock:!0,onChange:e=>{oe(i.row,i.col,"stars",e.toString()),de(!1)},__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0},[1,2,3,4,5].map(e=>wp.element.createElement($,{key:`star-${e}`,value:e,label:e.toString()}))))))),pe=(e,t)=>{if(!u)return null;let r=`${e}-${t}`;if(!u[r])return null;if(u[r].icon)switch(u[r].icon){case"check":return wp.element.createElement("span",{className:"digiblocks-cell-icon digiblocks-cell-check"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 512 512",width:"20",height:"20",fill:"currentColor"},wp.element.createElement("path",{d:"M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"})));case"warning":return wp.element.createElement("span",{className:"digiblocks-cell-icon digiblocks-cell-warning"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 512 512",width:"20",height:"20",fill:"currentColor"},wp.element.createElement("path",{d:"M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"})));case"cross":return wp.element.createElement("span",{className:"digiblocks-cell-icon digiblocks-cell-cross"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 512 512",width:"20",height:"20",fill:"currentColor"},wp.element.createElement("path",{d:"M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"})));default:return null}if(u[r].stars){let s=parseInt(u[r].stars)||0,d=[];for(let k=0;k<5;k++)k<s?d.push(wp.element.createElement("span",{key:`star-${k}`,className:"digiblocks-cell-icon"},wp.element.createElement("svg",{width:"16",height:"16",viewBox:"0 0 16 16",fill:"currentColor"},wp.element.createElement("path",{d:"M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327l4.898.696c.441.062.612.636.282.95l-3.522 3.356l.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"})))):d.push(wp.element.createElement("span",{key:`star-empty-${k}`,className:"digiblocks-cell-icon"},wp.element.createElement("svg",{width:"16",height:"16",viewBox:"0 0 16 16",fill:"currentColor",opacity:"0.5"},wp.element.createElement("path",{d:"M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256l4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73l3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L7.538.792c-.197-.39-.73-.39-.927 0L4.427 5.124l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73z"}))));return wp.element.createElement("div",{className:"digiblocks-cell-stars"},d)}return null},Xe=()=>{switch(_e){case"options":return wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(T,{tab:"options",name:"general-settings",title:o("Table Structure","digiblocks"),initialOpen:!0},wp.element.createElement(G,{label:o("Enable Header Row","digiblocks"),checked:H,onChange:()=>a({hasHeader:!H}),help:o("Display the first row as table header.","digiblocks"),__nextHasNoMarginBottom:!0}),wp.element.createElement(G,{label:o("Enable Footer Row","digiblocks"),checked:h,onChange:()=>a({hasFooter:!h}),help:o("Display the last row as table footer.","digiblocks"),__nextHasNoMarginBottom:!0}),wp.element.createElement(G,{label:o("First Column as Header","digiblocks"),checked:J,onChange:()=>a({firstColHeader:!J}),help:o("Use the first column as a header column.","digiblocks"),__nextHasNoMarginBottom:!0})),wp.element.createElement(T,{tab:"options",name:"preset-settings",title:o("Table Presets","digiblocks"),initialOpen:!1},wp.element.createElement(te,{label:o("Table Style Preset","digiblocks"),value:Le,options:Ee,onChange:e=>qe(e),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0})),wp.element.createElement(T,{tab:"options",name:"responsive-settings",title:o("Responsive Settings","digiblocks"),initialOpen:!1},wp.element.createElement(ie,{label:o("Mobile Behavior","digiblocks"),__nextHasNoMarginBottom:!0},wp.element.createElement(Y,{value:se,onChange:e=>a({responsiveMode:e}),help:o("How the table should behave on small screens.","digiblocks"),isBlock:!0,__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0},wp.element.createElement($,{value:"stack",label:o("Stack","digiblocks"),"aria-label":o("Stack Behavior","digiblocks")}),wp.element.createElement($,{value:"scroll",label:o("Scroll","digiblocks"),"aria-label":o("Scroll Behavior","digiblocks")})))));case"style":return wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(T,{tab:"style",name:"border-settings",title:o("Borders & Shadow","digiblocks"),initialOpen:!0},wp.element.createElement(te,{label:o("Border Style","digiblocks"),value:v,options:Ae,onChange:e=>a({tableBorderStyle:e}),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),v!=="none"&&wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(lo,{label:o("Border Width","digiblocks"),value:W,onChange:e=>a({tableBorderWidth:e}),min:1,max:10,step:1,__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),wp.element.createElement(le,{title:o("Border Color","digiblocks"),initialOpen:!0,enableAlpha:!0,colorSettings:[{value:z,onChange:e=>a({tableBorderColor:e}),label:o("Border Color","digiblocks")}]})),wp.element.createElement(te,{label:o("Border Collapse","digiblocks"),value:y,options:[{label:o("Collapse","digiblocks"),value:"collapse"},{label:o("Separate","digiblocks"),value:"separate"}],onChange:e=>a({tableBorderCollapse:e}),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),wp.element.createElement(Ce,{label:o("Border Radius","digiblocks")},wp.element.createElement(ve,{values:ne[F],onChange:e=>a({borderRadius:{...ne,[F]:e}}),units:[{label:"px",value:"px"},{label:"%",value:"%"}]})),wp.element.createElement(no,{label:o("Box Shadow","digiblocks"),normalValue:M,hoverValue:C,onNormalChange:e=>a({boxShadow:e}),onHoverChange:e=>a({boxShadowHover:e})})),wp.element.createElement(T,{tab:"style",name:"header-settings",title:o("Header Styles","digiblocks"),initialOpen:!1},wp.element.createElement(le,{title:o("Header Colors","digiblocks"),initialOpen:!0,enableAlpha:!0,colorSettings:[{value:b,onChange:e=>a({headerBackgroundColor:e}),label:o("Background Color","digiblocks")},{value:f,onChange:e=>a({headerTextColor:e}),label:o("Text Color","digiblocks")}]}),wp.element.createElement(ye,{label:o("Header Typography","digiblocks"),value:c,onChange:e=>a({headingTypography:e}),defaults:{fontSize:{desktop:18,tablet:16,mobile:15},fontSizeUnit:"px",lineHeight:{desktop:1.5,tablet:1.4,mobile:1.3},lineHeightUnit:"em"}}),wp.element.createElement(ie,{label:o("Text Alignment","digiblocks"),__nextHasNoMarginBottom:!0},wp.element.createElement(Y,{value:re,onChange:e=>a({headerAlignment:e}),isBlock:!0,__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0},wp.element.createElement($,{value:"left",label:o("Left","digiblocks"),"aria-label":o("Left","digiblocks")}),wp.element.createElement($,{value:"center",label:o("Center","digiblocks"),"aria-label":o("Center","digiblocks")}),wp.element.createElement($,{value:"right",label:o("Right","digiblocks"),"aria-label":o("Right","digiblocks")})))),wp.element.createElement(T,{tab:"style",name:"body-settings",title:o("Body Styles","digiblocks"),initialOpen:!1},wp.element.createElement(le,{title:o("Body Colors","digiblocks"),initialOpen:!0,enableAlpha:!0,colorSettings:[{value:_,onChange:e=>a({bodyBackgroundColor:e}),label:o("Background Color","digiblocks")},{value:R,onChange:e=>a({altRowBackgroundColor:e}),label:o("Alternate Row Color","digiblocks")},{value:we,onChange:e=>a({bodyTextColor:e}),label:o("Text Color","digiblocks")}]}),wp.element.createElement(ye,{label:o("Body Typography","digiblocks"),value:g,onChange:e=>a({textTypography:e}),defaults:{fontSize:{desktop:16,tablet:15,mobile:14},fontSizeUnit:"px",lineHeight:{desktop:1.5,tablet:1.4,mobile:1.3},lineHeightUnit:"em"}}),wp.element.createElement(ie,{label:o("Text Alignment","digiblocks"),__nextHasNoMarginBottom:!0},wp.element.createElement(Y,{value:Se,onChange:e=>a({cellAlignment:e}),isBlock:!0,__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0},wp.element.createElement($,{value:"left",label:o("Left","digiblocks"),"aria-label":o("Left","digiblocks")}),wp.element.createElement($,{value:"center",label:o("Center","digiblocks"),"aria-label":o("Center","digiblocks")}),wp.element.createElement($,{value:"right",label:o("Right","digiblocks"),"aria-label":o("Right","digiblocks")})))),h&&wp.element.createElement(T,{tab:"style",name:"footer-settings",title:o("Footer Styles","digiblocks"),initialOpen:!1},wp.element.createElement(le,{title:o("Footer Colors","digiblocks"),initialOpen:!0,enableAlpha:!0,colorSettings:[{value:$e,onChange:e=>a({footerBackgroundColor:e}),label:o("Background Color","digiblocks")},{value:Be,onChange:e=>a({footerTextColor:e}),label:o("Text Color","digiblocks")}]}),wp.element.createElement(ye,{label:o("Footer Typography","digiblocks"),value:p,onChange:e=>a({contentTypography:e}),defaults:{fontSize:{desktop:16,tablet:15,mobile:14},fontSizeUnit:"px",lineHeight:{desktop:1.5,tablet:1.4,mobile:1.3},lineHeightUnit:"em"}}),wp.element.createElement(ie,{label:o("Text Alignment","digiblocks"),__nextHasNoMarginBottom:!0},wp.element.createElement(Y,{value:Te,onChange:e=>a({footerAlignment:e}),isBlock:!0,__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0},wp.element.createElement($,{value:"left",label:o("Left","digiblocks"),"aria-label":o("Left","digiblocks")}),wp.element.createElement($,{value:"center",label:o("Center","digiblocks"),"aria-label":o("Center","digiblocks")}),wp.element.createElement($,{value:"right",label:o("Right","digiblocks"),"aria-label":o("Right","digiblocks")})))),wp.element.createElement(T,{tab:"style",name:"spacing",title:o("Spacing","digiblocks"),initialOpen:!1},wp.element.createElement(Ce,{label:o("Cell Padding","digiblocks")},wp.element.createElement(ve,{values:A&&A[F]?A[F]:{top:15,right:15,bottom:15,left:15,unit:"px"},onChange:e=>a({cellPadding:{...A,[F]:e}})})),wp.element.createElement(Ce,{label:o("Margin","digiblocks")},wp.element.createElement(ve,{values:q&&q[F]?q[F]:{top:0,right:0,bottom:30,left:0,unit:"px"},onChange:e=>a({margin:{...q,[F]:e}})}))));case"advanced":return wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(T,{tab:"advanced",name:"animation",title:o("Animation","digiblocks"),initialOpen:!0},wp.element.createElement(te,{label:o("Animation Effect","digiblocks"),value:x,options:Ge,onChange:e=>a({animation:e}),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),x&&x!=="none"&&wp.element.createElement("div",{style:{marginTop:"10px"}},wp.element.createElement(O,{variant:"secondary",isSecondary:!0,onClick:We,style:{width:"100%"}},o("Preview Animation","digiblocks")))),wp.element.createElement(T,{tab:"advanced",name:"visibility",title:o("Visibility","digiblocks"),initialOpen:!1},wp.element.createElement("div",{className:"components-base-control__help",style:{padding:"12px",backgroundColor:"#f0f6fc",border:"1px solid #c3ddfd",borderRadius:"4px",marginBottom:"16px"}},wp.element.createElement("strong",null,o("Editor Note:","digiblocks")),wp.element.createElement("br",null),o("Hidden elements appear with reduced opacity in the editor for easy editing. Visibility changes only take effect on the frontend.","digiblocks")),wp.element.createElement(G,{label:o("Hide on Desktop","digiblocks"),checked:m.desktop,onChange:e=>a({visibility:{...m,desktop:e}}),__nextHasNoMarginBottom:!0}),wp.element.createElement(G,{label:o("Hide on Tablet","digiblocks"),checked:m.tablet,onChange:e=>a({visibility:{...m,tablet:e}}),__nextHasNoMarginBottom:!0}),wp.element.createElement(G,{label:o("Hide on Mobile","digiblocks"),checked:m.mobile,onChange:e=>a({visibility:{...m,mobile:e}}),__nextHasNoMarginBottom:!0})),wp.element.createElement(T,{tab:"advanced",name:"additional",title:o("Additional","digiblocks"),initialOpen:!1},wp.element.createElement("div",{className:"components-base-control html-anchor-control"},wp.element.createElement("div",{className:"components-base-control__field"},wp.element.createElement("label",{className:"components-base-control__label",htmlFor:"html-anchor"},o("HTML anchor","digiblocks")),wp.element.createElement("input",{className:"components-text-control__input",type:"text",id:"html-anchor",value:B||"",onChange:e=>a({anchor:e.target.value}),"aria-describedby":"html-anchor-help",autoCapitalize:"none",autoComplete:"off"})),wp.element.createElement("p",{id:"html-anchor-help",className:"components-base-control__help"},o(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`,"digiblocks")," ",wp.element.createElement("a",{className:"components-external-link",href:"https://wordpress.org/documentation/article/page-jumps/",target:"_blank",rel:"external noreferrer noopener"},wp.element.createElement("span",{className:"components-external-link__contents"},o("Learn more about anchors","digiblocks")),wp.element.createElement("span",{className:"components-external-link__icon","aria-label":"(opens in a new tab)"},"\u2197")))),wp.element.createElement("div",{className:"components-base-control"},wp.element.createElement("div",{className:"components-base-control__field"},wp.element.createElement("label",{className:"components-base-control__label",htmlFor:"additional-css-classes"},o("Additional CSS class(es)","digiblocks")),wp.element.createElement("input",{className:"components-text-control__input",type:"text",id:"additional-css-classes",value:K||"",onChange:e=>a({customClasses:e.target.value}),"aria-describedby":"additional-css-classes-help",autoComplete:"off"})),wp.element.createElement("p",{id:"additional-css-classes-help",className:"components-base-control__help"},o("Separate multiple classes with spaces.","digiblocks")))));default:return null}},Ye=()=>wp.element.createElement("table",{className:"digiblocks-table"},H&&n.length>0&&wp.element.createElement("thead",null,wp.element.createElement("tr",null,n[0].map((e,t)=>wp.element.createElement("th",{key:`header-${t}`,onClick:()=>ge(0,t),className:i.row===0&&i.col===t?"digiblocks-selected-cell":""},wp.element.createElement("div",{className:"digiblocks-cell-content"},pe(0,t),wp.element.createElement(he,{tagName:"span",value:e,onChange:r=>be(r,0,t),placeholder:o("Header text","digiblocks")})))))),wp.element.createElement("tbody",null,n.slice(H?1:0,h?n.length-1:n.length).map((e,t)=>{let r=H?t+1:t;return wp.element.createElement("tr",{key:`row-${r}`},e.map((s,d)=>wp.element.createElement("td",{key:`cell-${r}-${d}`,"data-label":H&&n[0]&&n[0][d]?n[0][d]:"",onClick:()=>ge(r,d),className:i.row===r&&i.col===d?"digiblocks-selected-cell":""},wp.element.createElement("div",{className:"digiblocks-cell-content"},pe(r,d),wp.element.createElement(he,{tagName:"span",value:s,onChange:k=>be(k,r,d),placeholder:o("Cell text","digiblocks")})))))})),h&&n.length>1&&wp.element.createElement("tfoot",null,wp.element.createElement("tr",null,n[n.length-1].map((e,t)=>wp.element.createElement("td",{key:`footer-${t}`,onClick:()=>ge(n.length-1,t),className:i.row===n.length-1&&i.col===t?"digiblocks-selected-cell":""},wp.element.createElement("div",{className:"digiblocks-cell-content"},pe(n.length-1,t),wp.element.createElement(he,{tagName:"span",value:e,onChange:r=>be(r,n.length-1,t),placeholder:o("Footer text","digiblocks")}))))))),ze=Ie({className:`digiblocks-table-block ${l} ${K||""}`,id:B||null});return!n||!Array.isArray(n)||n.length===0?wp.element.createElement("div",{...ze},wp.element.createElement("p",null,o("Initializing table...","digiblocks"))):wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(oo,null,wp.element.createElement(Re,null,wp.element.createElement(j,{icon:"table-row-before",label:o("Add Row Before","digiblocks"),onClick:()=>{i.row>=0?Q(i.row-1):Q(0)}}),wp.element.createElement(j,{icon:"table-row-after",label:o("Add Row After","digiblocks"),onClick:()=>{i.row>=0?Q(i.row):Q(n.length-1)}}),wp.element.createElement(j,{icon:"table-row-delete",label:o("Delete Row","digiblocks"),onClick:()=>{i.row>=0&&(Ve(i.row),ce({row:-1,col:-1}))},disabled:n.length<=1||i.row<0})),wp.element.createElement(Re,null,wp.element.createElement(j,{icon:"table-col-before",label:o("Add Column Before","digiblocks"),onClick:()=>{i.col>=0?X(i.col-1):X(0)}}),wp.element.createElement(j,{icon:"table-col-after",label:o("Add Column After","digiblocks"),onClick:()=>{i.col>=0?X(i.col):X(n[0].length-1)}}),wp.element.createElement(j,{icon:"table-col-delete",label:o("Delete Column","digiblocks"),onClick:()=>{i.col>=0&&(Ke(i.col),ce({row:-1,col:-1}))},disabled:n[0].length<=1||i.col<0}))),wp.element.createElement(eo,null,wp.element.createElement(ro,{tabs:je,activeTab:_e,onSelect:Ue},Xe())),wp.element.createElement("style",{dangerouslySetInnerHTML:{__html:Je()}}),wp.element.createElement("div",{...ze},wp.element.createElement("div",{className:"digiblocks-table-instructions"},wp.element.createElement("p",null,o("Click on any cell to select it and add icons, checks, warnings, crosses, or star ratings.","digiblocks"))),i.row!==-1&&i.col!==-1&&Qe(),wp.element.createElement("div",{className:"digiblocks-table-container"},Ye()),wp.element.createElement("div",{className:"digiblocks-table-controls"},wp.element.createElement("div",{className:"digiblocks-row-controls"},wp.element.createElement(O,{isPrimary:!0,icon:"plus",onClick:()=>Q(n.length-1)},o("Add Row","digiblocks"))),wp.element.createElement("div",{className:"digiblocks-col-controls"},wp.element.createElement(O,{isPrimary:!0,icon:"plus",onClick:()=>X(n[0].length-1)},o("Add Column","digiblocks"))))))},De=so;var{__:ho}=window.wp.i18n,{useBlockProps:uo,RichText:xe}=window.wp.blockEditor,co=({attributes:V})=>{let{id:a,anchor:ee,customClasses:l,tableData:B,hasHeader:m,hasFooter:K,responsiveMode:n,animation:H,cellControls:h}=V,z=["digiblocks-table-block",a,`responsive-${n}`,H!=="none"?`animate-${H}`:"",l||""].filter(Boolean).join(" "),W=(y,b,f)=>{let c=`${y}-${b}`;return h[c]&&h[c][f]?h[c][f]:null},v=(y,b)=>{let f=`${y}-${b}`;if(!h[f])return null;if(h[f].icon)switch(h[f].icon){case"check":return wp.element.createElement("span",{className:"digiblocks-cell-icon digiblocks-cell-check"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 512 512",width:"20",height:"20",fill:"currentColor"},wp.element.createElement("path",{d:"M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"})));case"warning":return wp.element.createElement("span",{className:"digiblocks-cell-icon digiblocks-cell-warning"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 512 512",width:"20",height:"20",fill:"currentColor"},wp.element.createElement("path",{d:"M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-112c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"})));case"cross":return wp.element.createElement("span",{className:"digiblocks-cell-icon digiblocks-cell-cross"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 512 512",width:"20",height:"20",fill:"currentColor"},wp.element.createElement("path",{d:"M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"})));default:return null}if(h[f].stars){let c=parseInt(h[f].stars),_=[];for(let R=0;R<5;R++)R<c?_.push(wp.element.createElement("span",{key:`star-${R}`,className:"digiblocks-cell-icon"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:"16",height:"16",viewBox:"0 0 16 16",fill:"currentColor"},wp.element.createElement("path",{d:"M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327l4.898.696c.441.062.612.636.282.95l-3.522 3.356l.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"})))):_.push(wp.element.createElement("span",{key:`star-empty-${R}`,className:"digiblocks-cell-icon"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:"16",height:"16",viewBox:"0 0 16 16",fill:"currentColor",opacity:"0.5"},wp.element.createElement("path",{d:"M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256l4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73l3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L7.538.792c-.197-.39-.73-.39-.927 0L4.427 5.124l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73z"}))));return wp.element.createElement("div",{className:"digiblocks-cell-stars"},_)}return null};return wp.element.createElement("div",{...{className:z,id:ee||null}},wp.element.createElement("div",{className:"digiblocks-table-container"},wp.element.createElement("table",{className:"digiblocks-table"},m&&wp.element.createElement("thead",null,wp.element.createElement("tr",null,B[0].map((y,b)=>wp.element.createElement("th",{key:`header-${b}`},wp.element.createElement("div",{className:"digiblocks-cell-content"},v(0,b),wp.element.createElement(xe.Content,{tagName:"span",value:y})))))),wp.element.createElement("tbody",null,B.slice(m?1:0,K?B.length-1:B.length).map((y,b)=>{let f=m?b+1:b;return wp.element.createElement("tr",{key:`row-${f}`},y.map((c,_)=>wp.element.createElement("td",{key:`cell-${f}-${_}`,"data-label":m?B[0][_]:""},wp.element.createElement("div",{className:"digiblocks-cell-content"},v(f,_),wp.element.createElement(xe.Content,{tagName:"span",value:c})))))})),K&&wp.element.createElement("tfoot",null,wp.element.createElement("tr",null,B[B.length-1].map((y,b)=>wp.element.createElement("td",{key:`footer-${b}`},wp.element.createElement("div",{className:"digiblocks-cell-content"},v(B.length-1,b),wp.element.createElement(xe.Content,{tagName:"span",value:y})))))))))},Pe=co;var{__:ae}=window.wp.i18n,{registerBlockType:bo}=window.wp.blocks;bo("digiblocks/table",{apiVersion:2,title:digiBlocksData.blocks.table.title,category:"digiblocks",icon:{src:()=>{let{viewbox:V,path:a}=digiBlocksData.blocks.table.icon;return wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:`0 0 ${V}`,className:"digiblocks-editor-icons"},wp.element.createElement("path",{d:a}))}},description:digiBlocksData.blocks.table.description,keywords:[ae("table","digiblocks"),ae("comparison","digiblocks"),ae("grid","digiblocks"),ae("cells","digiblocks")],supports:{html:!1,className:!1,customClassName:!1,anchor:!1},attributes:{id:{type:"string",default:""},anchor:{type:"string",default:""},visibility:{type:"object",default:{desktop:!1,tablet:!1,mobile:!1}},customClasses:{type:"string",default:""},tableData:{type:"array",default:[["Header 1","Header 2","Header 3"],["Cell 1,1","Cell 1,2","Cell 1,3"],["Cell 2,1","Cell 2,2","Cell 2,3"]]},hasHeader:{type:"boolean",default:!0},hasFooter:{type:"boolean",default:!1},tableBorderColor:{type:"string",default:"#e0e0e0"},tableBorderWidth:{type:"number",default:1},tableBorderStyle:{type:"string",default:"solid"},cellPadding:{type:"object",default:{desktop:{top:15,right:15,bottom:15,left:15,unit:"px"},tablet:{top:"",right:"",bottom:"",left:"",unit:"px"},mobile:{top:"",right:"",bottom:"",left:"",unit:"px"}}},tableBorderCollapse:{type:"string",default:"collapse"},headerBackgroundColor:{type:"string",default:"#f8f9fa"},headerTextColor:{type:"string",default:"#333333"},headingTypography:{type:"object",default:{fontFamily:"",fontSize:{desktop:18,tablet:"",mobile:""},fontSizeUnit:"px",fontWeight:"600",fontStyle:"normal",textTransform:"none",textDecoration:"none",lineHeight:{desktop:1.5,tablet:"",mobile:""},lineHeightUnit:"em",letterSpacing:{desktop:0,tablet:"",mobile:""},letterSpacingUnit:"px"}},bodyBackgroundColor:{type:"string",default:"#ffffff"},altRowBackgroundColor:{type:"string",default:""},bodyTextColor:{type:"string",default:"#666666"},textTypography:{type:"object",default:{fontFamily:"",fontSize:{desktop:16,tablet:"",mobile:""},fontSizeUnit:"px",fontWeight:"",fontStyle:"normal",textTransform:"",textDecoration:"",lineHeight:{desktop:1.5,tablet:"",mobile:""},lineHeightUnit:"em",letterSpacing:{desktop:0,tablet:"",mobile:""},letterSpacingUnit:"px"}},footerBackgroundColor:{type:"string",default:"#f8f9fa"},footerTextColor:{type:"string",default:"#333333"},contentTypography:{type:"object",default:{fontFamily:"",fontSize:{desktop:16,tablet:"",mobile:""},fontSizeUnit:"px",fontWeight:"600",fontStyle:"normal",textTransform:"none",textDecoration:"none",lineHeight:{desktop:1.5,tablet:"",mobile:""},lineHeightUnit:"em",letterSpacing:{desktop:0,tablet:"",mobile:""},letterSpacingUnit:"px"}},borderRadius:{type:"object",default:{desktop:{top:8,right:8,bottom:8,left:8,unit:"px"},tablet:{top:"",right:"",bottom:"",left:"",unit:"px"},mobile:{top:"",right:"",bottom:"",left:"",unit:"px"}}},boxShadow:{type:"object",default:{enable:!1,color:"rgba(0, 0, 0, 0.1)",horizontal:0,vertical:2,blur:10,spread:0,position:"outset"}},boxShadowHover:{type:"object",default:{enable:!1,color:"rgba(0, 0, 0, 0.2)",horizontal:0,vertical:10,blur:25,spread:0,position:"outset"}},margin:{type:"object",default:{desktop:{top:0,right:0,bottom:30,left:0,unit:"px"},tablet:{top:"",right:"",bottom:"",left:"",unit:"px"},mobile:{top:"",right:"",bottom:"",left:"",unit:"px"}}},cellAlignment:{type:"string",default:"left"},headerAlignment:{type:"string",default:"left"},footerAlignment:{type:"string",default:"left"},tablePreset:{type:"string",default:"default"},responsiveMode:{type:"string",default:"stack"},animation:{type:"string",default:"none"},firstColHeader:{type:"boolean",default:!1},cellControls:{type:"object",default:{}}},example:{attributes:{tableData:[["Feature","Basic","Premium"],["Storage","10GB","1TB"],["Users","1","Unlimited"],["Support","Email","24/7 Phone"],["Price","$9.99","$29.99"]],hasHeader:!0,headerBackgroundColor:"#f8f9fa",bodyBackgroundColor:"#ffffff",altRowBackgroundColor:"#f9f9f9"}},edit:De,save:Pe});})();

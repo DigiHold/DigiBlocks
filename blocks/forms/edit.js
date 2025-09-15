@@ -422,7 +422,7 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
             
             const fontSize = getVal(typography.fontSize, activeDevice);
 			if (fontSize) {
-				typographyCSS += `font-size: ${fontSize}${typography.fontSizeUnit || 'px'};`;
+				mainTypographyCSS += `font-size: ${fontSize}${typography.fontSizeUnit || 'px'};`;
 			}
             
             if (typography.fontWeight) {
@@ -439,12 +439,12 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
             
             const lineHeight = getVal(typography.lineHeight, activeDevice);
 			if (lineHeight) {
-				typographyCSS += `line-height: ${lineHeight}${typography.lineHeightUnit || 'em'};`;
+				mainTypographyCSS += `line-height: ${lineHeight}${typography.lineHeightUnit || 'em'};`;
 			}
 			
 			const letterSpacing = getVal(typography.letterSpacing, activeDevice);
 			if (letterSpacing || letterSpacing === 0) {
-				typographyCSS += `letter-spacing: ${letterSpacing}${typography.letterSpacingUnit || 'px'};`;
+				mainTypographyCSS += `letter-spacing: ${letterSpacing}${typography.letterSpacingUnit || 'px'};`;
 			}
         }
         
@@ -1625,9 +1625,9 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                                 value={typography}
                                 onChange={(value) => setAttributes({ typography: value })}
                                 defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                                    fontSize: { desktop: '', tablet: '', mobile: '' },
                                     fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
                                     lineHeightUnit: 'em',
                                 }}
                             />
@@ -1637,9 +1637,9 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                                 value={textTypography}
                                 onChange={(value) => setAttributes({ textTypography: value })}
                                 defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                                    fontSize: { desktop: '', tablet: '', mobile: '' },
                                     fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
                                     lineHeightUnit: 'em',
                                 }}
                             />
@@ -1649,9 +1649,9 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                                 value={buttonTypography}
                                 onChange={(value) => setAttributes({ buttonTypography: value })}
                                 defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
+                                    fontSize: { desktop: '', tablet: '', mobile: '' },
                                     fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
+                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
                                     lineHeightUnit: 'em',
                                 }}
                             />

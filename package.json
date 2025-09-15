@@ -25,7 +25,7 @@
         "build:js-lottie": "mkdir -p assets/js && esbuild ./resources/js/lottie.js --bundle --minify --outfile=assets/js/lottie.js",
         "watch": "npm run clean && npm run clean:ds_store && npm run dev:css-admin & npm run dev:css-review-notice & npm run dev:css-blocks & npm run dev:js-admin & npm run dev:js-globals & npm run dev:js-blocks & npm run dev:js-animations & npm run dev:js-lottie",
         "build": "npm run clean && npm run clean:ds_store && npm run build:css-admin && npm run build:css-review-notice && npm run build:css-blocks && npm run build:js-admin && npm run build:js-globals && npm run build:js-blocks && npm run build:js-animations && npm run build:js-lottie",
-        "pack": "npm run build && find . -name '.DS_Store' -type f -delete && zip -r digiblocks.zip . -x '*node_modules*' -x '*/node_modules/*' -x '*/.*' -x '*.DS_Store' -x '*__MACOSX*' -x 'generate-blocks-index.js' -x 'generate-icons.js' -x 'package.json' -x 'package-lock.json' -x 'postcss.config.js' -x 'composer.json' -x 'composer.lock' -x '.prettierignore' -x 'CONTRIBUTING.md' -x 'README.md' -x '.gitattributes' -x '.gitignore' -x 'phpcs.xml' -x '.git/*' -x '.git/**/*'",
+        "pack": "npm run build && find . -name '.DS_Store' -type f -delete && zip -r digiblocks.zip . -x '*node_modules*' -x '*/node_modules/*' -x '*/.*' -x '*.DS_Store' -x '*__MACOSX*' -x 'generate-blocks-index.js' -x 'generate-icons.js' -x 'package.json' -x 'package-lock.json' -x 'postcss.config.js' -x 'prettier.config.js' -x 'composer.json' -x 'composer.lock' -x '.prettierignore' -x 'CONTRIBUTING.md' -x 'README.md' -x '.gitattributes' -x '.gitignore' -x 'phpcs.xml' -x '.git/*' -x '.git/**/*'",
         "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md,json}\""
     },
     "devDependencies": {

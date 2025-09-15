@@ -2597,99 +2597,158 @@ class DigiBlocks {
 			return '';
 		}
 		
+		// Use static caching to avoid re-processing on same request
+		static $cached_content = null;
+		static $cached_request_uri = null;
+		
+		$current_request = $_SERVER['REQUEST_URI'] ?? '';
+		if ( $cached_content !== null && $cached_request_uri === $current_request ) {
+			return $cached_content;
+		}
+		
 		$template_content = '';
+		$stylesheet = get_stylesheet(); // Cache stylesheet call
 		
 		try {
-			// Get the current template
-			$template = get_block_template( get_stylesheet() . '//' . get_page_template_slug() );
-			
-			// If no specific template, try to get the current template based on the query
-			if ( ! $template ) {
-				$template_hierarchy = array();
-				
-				if ( is_front_page() && is_home() ) {
-					$template_hierarchy[] = 'front-page';
-					$template_hierarchy[] = 'home';
-					$template_hierarchy[] = 'index';
-				} elseif ( is_front_page() ) {
-					$template_hierarchy[] = 'front-page';
-					$template_hierarchy[] = 'page';
-					$template_hierarchy[] = 'index';
-				} elseif ( is_home() ) {
-					$template_hierarchy[] = 'home';
-					$template_hierarchy[] = 'index';
-				} elseif ( is_singular() ) {
-					$post_type = get_post_type();
-					$template_hierarchy[] = "single-{$post_type}";
-					$template_hierarchy[] = 'single';
-					$template_hierarchy[] = 'index';
-				} elseif ( is_category() ) {
-					$category = get_queried_object();
-					$template_hierarchy[] = "category-{$category->slug}";
-					$template_hierarchy[] = "category-{$category->term_id}";
-					$template_hierarchy[] = 'category';
-					$template_hierarchy[] = 'archive';
-					$template_hierarchy[] = 'index';
-				} elseif ( is_tag() ) {
-					$tag = get_queried_object();
-					$template_hierarchy[] = "tag-{$tag->slug}";
-					$template_hierarchy[] = "tag-{$tag->term_id}";
-					$template_hierarchy[] = 'tag';
-					$template_hierarchy[] = 'archive';
-					$template_hierarchy[] = 'index';
-				} elseif ( is_author() ) {
-					$author = get_queried_object();
-					$template_hierarchy[] = "author-{$author->user_nicename}";
-					$template_hierarchy[] = "author-{$author->ID}";
-					$template_hierarchy[] = 'author';
-					$template_hierarchy[] = 'archive';
-					$template_hierarchy[] = 'index';
-				} elseif ( is_date() ) {
-					$template_hierarchy[] = 'date';
-					$template_hierarchy[] = 'archive';
-					$template_hierarchy[] = 'index';
-				} elseif ( is_archive() ) {
-					$post_type = get_post_type();
-					if ( $post_type ) {
-						$template_hierarchy[] = "archive-{$post_type}";
-					}
-					$template_hierarchy[] = 'archive';
-					$template_hierarchy[] = 'index';
-				} elseif ( is_search() ) {
-					$template_hierarchy[] = 'search';
-					$template_hierarchy[] = 'index';
-				} elseif ( is_404() ) {
-					$template_hierarchy[] = '404';
-					$template_hierarchy[] = 'index';
-				} else {
-					$template_hierarchy[] = 'index';
-				}
-				
-				// Try to get template from hierarchy
-				foreach ( $template_hierarchy as $template_slug ) {
-					$template = get_block_template( get_stylesheet() . '//' . $template_slug );
-					if ( $template ) {
-						break;
-					}
+			// Try custom page template first
+			$custom_template_slug = get_page_template_slug();
+			if ( $custom_template_slug ) {
+				$template = get_block_template( $stylesheet . '//' . $custom_template_slug );
+				if ( $template && ! empty( $template->content ) ) {
+					$template_content = $template->content;
+					$template_content .= $this->get_template_parts_content( $template_content );
+					
+					// Cache and return early
+					$cached_content = $template_content;
+					$cached_request_uri = $current_request;
+					return $template_content;
 				}
 			}
 			
-			// Get template content
-			if ( $template && isset( $template->content ) ) {
-				$template_content = $template->content;
+			// Build template hierarchy efficiently
+			$queried_object = get_queried_object();
+			$template_hierarchy = $this->get_optimized_template_hierarchy( $queried_object );
+			
+			// Try templates in hierarchy order with single loop
+			foreach ( $template_hierarchy as $template_slug ) {
+				$template = get_block_template( $stylesheet . '//' . $template_slug );
+				if ( $template && ! empty( $template->content ) ) {
+					$template_content = $template->content;
+					break; // Found template, stop searching
+				}
 			}
 			
-			// Also get template parts used in the template
+			// Get template parts content only if we have main content
 			if ( ! empty( $template_content ) ) {
 				$template_content .= $this->get_template_parts_content( $template_content );
 			}
 			
 		} catch ( Exception $e ) {
-			// Silently handle errors
-			return '';
+			// Minimal error handling for performance
+			$template_content = '';
 		}
 		
+		// Cache result
+		$cached_content = $template_content;
+		$cached_request_uri = $current_request;
+		
 		return $template_content;
+	}
+
+	/**
+	 * Get optimized template hierarchy array
+	 *
+	 * @param object|null $queried_object Cached queried object
+	 * @return array Template hierarchy
+	 */
+	private function get_optimized_template_hierarchy( $queried_object = null ) {
+		// Early return patterns for most common cases
+		if ( is_front_page() ) {
+			return is_home() 
+				? array( 'front-page', 'home', 'index' )
+				: array( 'front-page', 'page', 'singular', 'index' );
+		}
+		
+		if ( is_home() ) {
+			return array( 'home', 'index' );
+		}
+		
+		if ( is_404() ) {
+			return array( '404', 'index' );
+		}
+		
+		if ( is_search() ) {
+			return array( 'search', 'index' );
+		}
+		
+		// Handle pages
+		if ( is_page() ) {
+			$hierarchy = array();
+			if ( $queried_object && isset( $queried_object->post_name, $queried_object->ID ) ) {
+				$hierarchy[] = "page-{$queried_object->post_name}";
+				$hierarchy[] = "page-{$queried_object->ID}";
+			}
+			$hierarchy[] = 'page';
+			$hierarchy[] = 'singular';
+			$hierarchy[] = 'index';
+			return $hierarchy;
+		}
+		
+		// Handle other singular content
+		if ( is_singular() ) {
+			$hierarchy = array();
+			$post_type = get_post_type();
+			
+			if ( $queried_object && isset( $queried_object->post_name ) && $post_type ) {
+				$hierarchy[] = "single-{$post_type}-{$queried_object->post_name}";
+				$hierarchy[] = "single-{$post_type}";
+			}
+			$hierarchy[] = 'single';
+			$hierarchy[] = 'singular';
+			$hierarchy[] = 'index';
+			return $hierarchy;
+		}
+		
+		// Handle archives efficiently
+		if ( is_category() ) {
+			$hierarchy = array();
+			if ( $queried_object && isset( $queried_object->slug, $queried_object->term_id ) ) {
+				$hierarchy[] = "category-{$queried_object->slug}";
+				$hierarchy[] = "category-{$queried_object->term_id}";
+			}
+			return array_merge( $hierarchy, array( 'category', 'archive', 'index' ) );
+		}
+		
+		if ( is_tag() ) {
+			$hierarchy = array();
+			if ( $queried_object && isset( $queried_object->slug, $queried_object->term_id ) ) {
+				$hierarchy[] = "tag-{$queried_object->slug}";
+				$hierarchy[] = "tag-{$queried_object->term_id}";
+			}
+			return array_merge( $hierarchy, array( 'tag', 'archive', 'index' ) );
+		}
+		
+		if ( is_author() ) {
+			$hierarchy = array();
+			if ( $queried_object && isset( $queried_object->user_nicename, $queried_object->ID ) ) {
+				$hierarchy[] = "author-{$queried_object->user_nicename}";
+				$hierarchy[] = "author-{$queried_object->ID}";
+			}
+			return array_merge( $hierarchy, array( 'author', 'archive', 'index' ) );
+		}
+		
+		if ( is_date() ) {
+			return array( 'date', 'archive', 'index' );
+		}
+		
+		if ( is_archive() ) {
+			$post_type = get_post_type();
+			$hierarchy = $post_type ? array( "archive-{$post_type}" ) : array();
+			return array_merge( $hierarchy, array( 'archive', 'index' ) );
+		}
+		
+		// Fallback
+		return array( 'index' );
 	}
 
 	/**

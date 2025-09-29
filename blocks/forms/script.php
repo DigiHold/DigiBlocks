@@ -223,6 +223,8 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('email_footer', '<?php echo esc_js( $emailFooter ); ?>');
         formData.append('business_name', '<?php echo esc_js( $businessName ); ?>');
         formData.append('business_address', '<?php echo esc_js( $businessAddress ); ?>');
+		formData.append('success_message', '<?php echo esc_js( $successMessage ); ?>');
+		formData.append('error_message', '<?php echo esc_js( $errorMessage ); ?>');
         
         // Add reCAPTCHA token if enabled
         <?php if ( $enableRecaptcha ) : ?>

@@ -96,25 +96,41 @@ const TeamSave = ({ attributes }) => {
                         )}
                         
                         {/* Member Social Icons */}
-                        {showSocial && member.socials && member.socials.length > 0 && (
-                            <div className="digiblocks-team-member-social">
-                                {member.socials.map((social) => {
-                                    const SocialIcon = socialIconsSVG[social.network];
-                                    return (
-                                        <a 
-                                            key={social.id} 
-                                            href={social.url}
-                                            className="digiblocks-team-member-social-icon"
-                                            rel="noopener noreferrer"
-                                            target="_blank"
-                                            aria-label={social.network}
-                                        >
-                                            {SocialIcon}
-                                        </a>
-                                    );
-                                })}
-                            </div>
-                        )}
+						{showSocial && member.socials && member.socials.length > 0 && (
+							<div className="digiblocks-team-member-social">
+								{member.socials.map((social) => {
+									const SocialIcon = socialIconsSVG[social.network];
+									
+									// Process the URL based on social network type
+									let processedUrl = social.url;
+									let linkTarget = "_blank";
+									let linkRel = "noopener noreferrer";
+									
+									if (social.network === 'email') {
+										// Ensure mailto: prefix for email
+										if (social.url && !social.url.startsWith('mailto:')) {
+											processedUrl = `mailto:${social.url}`;
+										}
+										// Email links should not open in new tab
+										linkTarget = "_self";
+										linkRel = "";
+									}
+									
+									return (
+										<a 
+											key={social.id} 
+											href={processedUrl}
+											className="digiblocks-team-member-social-icon"
+											rel={linkRel}
+											target={linkTarget}
+											aria-label={social.network}
+										>
+											{SocialIcon}
+										</a>
+									);
+								})}
+							</div>
+						)}
                     </div>
                 </div>
             );

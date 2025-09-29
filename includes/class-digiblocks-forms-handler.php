@@ -70,6 +70,8 @@ class DigiBlocks_Forms_Handler {
 		$email_footer    = isset( $_POST['email_footer'] ) ? sanitize_text_field( wp_unslash( $_POST['email_footer'] ) ) : '';
 		$business_name   = isset( $_POST['business_name'] ) ? sanitize_text_field( wp_unslash( $_POST['business_name'] ) ) : '';
 		$business_address = isset( $_POST['business_address'] ) ? sanitize_text_field( wp_unslash( $_POST['business_address'] ) ) : '';
+		$success_message = isset( $_POST['success_message'] ) ? sanitize_text_field( wp_unslash( $_POST['success_message'] ) ) : '';
+		$error_message   = isset( $_POST['error_message'] ) ? sanitize_text_field( wp_unslash( $_POST['error_message'] ) ) : '';
 
 		// Validate reCAPTCHA if enabled.
 		if ( isset( $_POST['recaptcha_token'] ) && $this->get_recaptcha_secret_key() ) {
@@ -109,6 +111,8 @@ class DigiBlocks_Forms_Handler {
 			'email_footer'     => $email_footer,
 			'business_name'    => $business_name,
 			'business_address' => $business_address,
+			'success_message'  => $success_message,
+    		'error_message'    => $error_message,
 		) );
 
 		if ( $result['success'] ) {
@@ -193,10 +197,14 @@ class DigiBlocks_Forms_Handler {
 	 * @return array Processing result.
 	 */
 	private function process_contact_form( $form_name, $field_data, $field_labels = array(), $email_settings = array() ) {
+		// Get custom messages or use defaults.
+		$default_error_message = esc_html__( 'There was an error processing your contact form submission.', 'digiblocks' );
+		$error_message = ! empty( $email_settings['error_message'] ) ? $email_settings['error_message'] : $default_error_message;
+
 		// Set default values.
 		$result = array(
 			'success'      => false,
-			'message'      => esc_html__( 'There was an error processing your contact form submission.', 'digiblocks' ),
+			'message'      => $error_message,
 			'field_errors' => array(),
 		);
 
@@ -209,13 +217,13 @@ class DigiBlocks_Forms_Handler {
 		}
 
 		// Get email subject.
-		$subject = !empty( $email_settings['email_subject'] ) ? $email_settings['email_subject'] : sprintf( 
+		$subject = ! empty( $email_settings['email_subject'] ) ? $email_settings['email_subject'] : sprintf( 
 			/* translators: %s: Form name */
 			esc_html__( 'New submission from %s', 'digiblocks' ), 
 			$form_name 
 		);
 		
-		// Build email content
+		// Build email content.
 		$email_content = $this->generate_html_email( $form_name, $field_data, $field_labels, $email_settings );
 		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
 
@@ -229,9 +237,13 @@ class DigiBlocks_Forms_Handler {
 		$mail_sent = wp_mail( $recipient, $subject, $email_content, $headers );
 
 		if ( $mail_sent ) {
+			// Get custom success message or use default.
+			$default_success_message = esc_html__( 'Thank you for your message. It has been sent.', 'digiblocks' );
+			$success_message = ! empty( $email_settings['success_message'] ) ? $email_settings['success_message'] : $default_success_message;
+
 			$result = array(
 				'success'      => true,
-				'message'      => esc_html__( 'Thank you for your message. It has been sent.', 'digiblocks' ),
+				'message'      => $success_message,
 				'field_errors' => array(),
 			);
 

@@ -431,7 +431,7 @@ ob_start();
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-newsletter-input:focus + .digiblocks-newsletter-input-icon {
     opacity: 1;
-	fill: <?php echo esc_attr( $inputBorderFocusColor ?: $inputTextColor ); ?>;
+	fill: <?php echo esc_attr( $inputTextColor ); ?>;
 }
 
 /* Button Styles */

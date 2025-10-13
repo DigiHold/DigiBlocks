@@ -212,7 +212,9 @@ This plugin uses Google Maps API for the Google Map Block feature.
 
 = 1.0.2 =
 * Tweak: All defaults values for tablet and mobile removed to avoid issues
-* Fixed: Success and error messages issues for the Forms block
+* Tweak: Better readable way for the textareas for the Form block
+* Fixed: Form Success and Error messages was sent in the email
+* Fixed: Small issues
 
 = 1.0.1 - August 18, 2025 =
 * Tweak: Table block, warning icon added

@@ -182,6 +182,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Create form data
         const formData = new FormData(form);
+		
+		// Replace select values with their labels
+		form.querySelectorAll('select').forEach(select => {
+			if (select.selectedIndex >= 0) {
+				const selectedOption = select.options[select.selectedIndex];
+				formData.set(select.name, selectedOption.text);
+			}
+		});
+		
         formData.append('action', 'digiblocks_submit_form');
         formData.append('form_id', '<?php echo esc_attr( $id ); ?>');
         formData.append('form_name', '<?php echo esc_js( $formName ); ?>');

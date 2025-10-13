@@ -88,7 +88,8 @@ class DigiBlocks_Forms_Handler {
 		$excluded_fields = array( 
 			'action', 'form_id', 'form_name', 'form_nonce', 'recaptcha_token',
 			'field_labels', 'email_subject', 'use_site_logo', 'custom_logo',
-			'email_header', 'email_footer', 'business_name', 'business_address', 'recipient'
+			'email_header', 'email_footer', 'business_name', 'business_address', 
+			'recipient', 'success_message', 'error_message'
 		);
 		
 		// Process all form data
@@ -340,9 +341,27 @@ class DigiBlocks_Forms_Handler {
 				}
 				.form-data-table th {
 					text-align: left;
-					background-color: #f8fafc;
+					background-color: #fcfcfc;
 					font-weight: bold;
 					width: 30%;
+				}
+				.message-section {
+					margin-top: 25px;
+					padding: 20px;
+					background-color: #fcfcfc;
+					border-radius: 6px;
+				}
+				.message-section h3 {
+					margin: 0 0 15px 0;
+					color: #1a202c;
+					font-size: 18px;
+				}
+				.message-content {
+					color: #3d4852;
+					font-size: 16px;
+					line-height: 1.6;
+					white-space: pre-wrap;
+					word-wrap: break-word;
 				}
 				.footer-text {
 					font-size: 14px;
@@ -403,11 +422,22 @@ class DigiBlocks_Forms_Handler {
 		// Form data table
 		$html .= '<table class="form-data-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
 					<tbody>';
+
+		$message_field_id = '';
+		$message_content = '';
+		$message_label = '';
 		
 		// Loop through form fields
 		foreach ( $field_data as $field_id => $value ) {
 			// Skip empty fields
 			if (empty($value) && $value !== '0') {
+				continue;
+			}
+
+			if ( strpos( $field_id, 'message' ) !== false || strpos( $field_id, 'textarea' ) !== false ) {
+				$message_field_id = $field_id;
+				$message_content = $value;
+				$message_label = isset( $field_labels[ $field_id ] ) ? $field_labels[ $field_id ] : ucfirst( str_replace( array( '-', '_' ), ' ', $field_id ) );
 				continue;
 			}
 
@@ -425,7 +455,7 @@ class DigiBlocks_Forms_Handler {
 			}
 			
 			$html .= '<tr>
-						<th style="text-align: left; background-color: #f8fafc; font-weight: bold; border: 1px solid #e2e8f0; padding: 10px; width: 30%;">' . 
+						<th style="text-align: left; background-color: #fcfcfc; font-weight: bold; border: 1px solid #e2e8f0; padding: 10px; width: 30%;">' . 
 							esc_html( $label ) . 
 						'</th>
 						<td style="border: 1px solid #e2e8f0; padding: 10px;">' . 
@@ -435,6 +465,13 @@ class DigiBlocks_Forms_Handler {
 		}
 		
 		$html .= '</tbody></table>';
+
+		if ( ! empty( $message_content ) ) {
+			$html .= '<div class="message-section">
+						<h3>' . esc_html( $message_label ) . '</h3>
+						<div class="message-content">' . nl2br( esc_html( $message_content ) ) . '</div>
+					</div>';
+		}
 		
 		// Optional footer text
 		if ( !empty( $email_settings['email_footer'] ) ) {

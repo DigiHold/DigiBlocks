@@ -210,7 +210,7 @@ This plugin uses Google Maps API for the Google Map Block feature.
 
 == Changelog ==
 
-= 1.0.2 =
+= 1.0.2 - October 14, 2025 =
 * Tweak: All defaults values for tablet and mobile removed to avoid issues
 * Tweak: Better readable way for the textareas for the Form block
 * Fixed: Form Success and Error messages was sent in the email

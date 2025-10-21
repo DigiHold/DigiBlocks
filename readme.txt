@@ -4,7 +4,7 @@ Tags: blocks, gutenberg, editor, page builder, gutenberg blocks
 Requires at least: 5.8
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -209,6 +209,9 @@ This plugin uses Google Maps API for the Google Map Block feature.
 2. **Settings**: Configure what you need.
 
 == Changelog ==
+
+= 1.0.3 - October 21, 2025 =
+* Added: Settings and tab needed for new AI Image feature
 
 = 1.0.2 - October 14, 2025 =
 * Tweak: All defaults values for tablet and mobile removed to avoid issues

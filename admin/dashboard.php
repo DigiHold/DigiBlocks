@@ -26,6 +26,11 @@ $is_pro_active = defined( 'DIGIBLOCKS_PRO_VERSION' ) || class_exists( 'DigiBlock
 				<?php esc_html_e( 'Settings', 'digiblocks' ); ?>
 			</a>
 			<?php if ( $is_pro_active ) : ?>
+				<?php if ( digiblocks_pro_has_access() ) : ?>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=digiblocks-settings&tab=ai' ) ); ?>" class="<?php echo ( isset( $_GET['tab'] ) && 'ai' === $_GET['tab'] ) ? 'active' : ''; ?>">
+						<?php esc_html_e( 'AI', 'digiblocks-pro' ); ?>
+					</a>
+				<?php endif; ?>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=digiblocks-updates' ) ); ?>">
 					<?php esc_html_e( 'License', 'digiblocks' ); ?>
 				</a>

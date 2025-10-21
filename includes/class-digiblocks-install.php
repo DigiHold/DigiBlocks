@@ -36,11 +36,11 @@ class DigiBlocks_Install {
 	 * Theme configurations
 	 */
 	private $themes = array(
-		'digifusion' => array(
-			'name' => 'DigiFusion',
-			'slug' => 'digifusion',
-			'repo_slug' => 'digifusion',
-			'learn_more_url' => 'https://digihold.click/digifusion-site',
+		'digiflash' => array(
+			'name' => 'DigiFlash',
+			'slug' => 'digiflash',
+			'repo_slug' => 'digiflash',
+			'learn_more_url' => 'https://digihold.click/digiflash-site',
 		),
 	);
 

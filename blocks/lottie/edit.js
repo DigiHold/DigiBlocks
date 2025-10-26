@@ -18,6 +18,7 @@ const {
     RadioControl,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
+	__experimentalNumberControl: NumberControl,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 const { MediaUpload, MediaUploadCheck } = wp.blockEditor;
@@ -27,7 +28,7 @@ const { MediaUpload, MediaUploadCheck } = wp.blockEditor;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveControl, ResponsiveRangeControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
 
 // Track script loading state
 let dotLottieScriptLoaded = false;
@@ -103,8 +104,19 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
         borderWidth,
         borderRadius,
         borderColor,
-        shadow,
+		boxShadow,
+		boxShadowHover,
         animation,
+		animationDuration,
+		animationDelay,
+        position,
+        horizontalOrientation,
+        horizontalOffset,
+        verticalOrientation,
+        verticalOffset,
+        zIndex,
+		transform,
+        transformHover,
     } = attributes;
 
     // Create unique class
@@ -442,20 +454,228 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
         initializeAnimation();
     };
 
-    // Button click handler for animation preview
+    // Effect to trigger animation preview when animation attribute changes
+    useEffect(() => {
+        if (animation && animation !== 'none') {
+            const timeoutId = setTimeout(() => {
+                animationPreview(id, animation, animations, previewTimeoutRef, animationDuration, animationDelay);
+            }, 100);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [animation]);
+
+    // Button click handler
     const handlePreviewClick = () => {
-        animationPreview(id, animation, animations, previewTimeoutRef);
+        animationPreview(id, animation, animations, previewTimeoutRef, animationDuration, animationDelay);
     };
+
+    const getMaxValue = (unit) => {
+        switch (unit) {
+            case '%':
+                return 100;
+            case 'em':
+            case 'rem':
+                return 50;
+            case 'vw':
+            case 'vh':
+                return 100;
+            default:
+                return 2000;
+        }
+    };
+
+    const getStepValue = (unit) => {
+        switch (unit) {
+            case '%':
+            case 'vw':
+            case 'vh':
+                return 1;
+            case 'em':
+            case 'rem':
+                return 0.1;
+            default:
+                return 1;
+        }
+    };
+
+	const getTransformOrigin = (transform, device) => {
+        const xMap = { left: '0%', center: '50%', right: '100%' };
+        const yMap = { top: '0%', center: '50%', bottom: '100%' };
+        
+        const x = xMap[transform.xAnchor?.[device] || 'center'];
+        const y = yMap[transform.yAnchor?.[device] || 'center'];
+        
+        return `${x} ${y}`;
+    };
+
+	const getTransformCSS = (transform, device) => {
+		if (!transform) return '';
+		
+		const transforms = [];
+		
+		const getValue = (prop) => {
+			if (!prop) return '';
+			
+			let val = prop[device];
+			
+			// Check if value is empty
+			const isEmpty = (v) => {
+				if (v === '' || v === undefined || v === null) return true;
+				if (typeof v === 'object' && v !== null) {
+					return v.value === '' || v.value === undefined || v.value === null;
+				}
+				return false;
+			};
+			
+			// Tablet fallback to desktop
+			if (device === 'tablet' && isEmpty(val)) {
+				val = prop.desktop;
+			}
+			
+			// Mobile fallback to tablet, then desktop
+			if (device === 'mobile' && isEmpty(val)) {
+				val = prop.tablet;
+				if (isEmpty(val)) {
+					val = prop.desktop;
+				}
+			}
+			
+			return typeof val === 'object' && val !== null ? (val.value !== undefined ? val.value : '') : val;
+		};
+		
+		const rotateValue = getValue(transform.rotate);
+		if (rotateValue !== '' && rotateValue !== undefined && rotateValue !== null) {
+			if (transform.rotate3d) {
+				const perspectiveValue = getValue(transform.perspective);
+				if (perspectiveValue !== '' && perspectiveValue !== undefined && perspectiveValue !== null) {
+					transforms.push(`perspective(${perspectiveValue}px)`);
+				}
+			}
+			transforms.push(`rotate(${rotateValue}deg)`);
+		}
+		
+		if (transform.rotate3d) {
+			const rotateXValue = getValue(transform.rotateX);
+			if (rotateXValue !== '' && rotateXValue !== undefined && rotateXValue !== null) {
+				transforms.push(`rotateX(${rotateXValue}deg)`);
+			}
+			const rotateYValue = getValue(transform.rotateY);
+			if (rotateYValue !== '' && rotateYValue !== undefined && rotateYValue !== null) {
+				transforms.push(`rotateY(${rotateYValue}deg)`);
+			}
+		}
+		
+		const offsetXValue = transform.offsetX?.[device]?.value;
+		const offsetYValue = transform.offsetY?.[device]?.value;
+		const hasOffsetX = offsetXValue !== '' && offsetXValue !== undefined && offsetXValue !== null;
+		const hasOffsetY = offsetYValue !== '' && offsetYValue !== undefined && offsetYValue !== null;
+		
+		if (hasOffsetX || hasOffsetY) {
+			const x = hasOffsetX ? `${offsetXValue}${transform.offsetX[device].unit || 'px'}` : '0';
+			const y = hasOffsetY ? `${offsetYValue}${transform.offsetY[device].unit || 'px'}` : '0';
+			transforms.push(`translate(${x}, ${y})`);
+		}
+		
+		if (transform.keepProportions) {
+			const scaleValue = getValue(transform.scale);
+			if (scaleValue !== '' && scaleValue !== undefined && scaleValue !== null && scaleValue != 1) {
+				transforms.push(`scale(${scaleValue})`);
+			}
+		} else {
+			const scaleXValue = getValue(transform.scaleX);
+			const scaleYValue = getValue(transform.scaleY);
+			const scaleX = (scaleXValue !== '' && scaleXValue !== undefined && scaleXValue !== null) ? scaleXValue : 1;
+			const scaleY = (scaleYValue !== '' && scaleYValue !== undefined && scaleYValue !== null) ? scaleYValue : 1;
+			if (scaleX != 1 || scaleY != 1) {
+				transforms.push(`scale(${scaleX}, ${scaleY})`);
+			}
+		}
+		
+		const skewXValue = getValue(transform.skewX);
+		if (skewXValue !== '' && skewXValue !== undefined && skewXValue !== null) {
+			transforms.push(`skewX(${skewXValue}deg)`);
+		}
+		const skewYValue = getValue(transform.skewY);
+		if (skewYValue !== '' && skewYValue !== undefined && skewYValue !== null) {
+			transforms.push(`skewY(${skewYValue}deg)`);
+		}
+		
+		if (transform.flipHorizontal) {
+			transforms.push('scaleX(-1)');
+		}
+		if (transform.flipVertical) {
+			transforms.push('scaleY(-1)');
+		}
+		
+		return transforms.length > 0 ? transforms.join(' ') : '';
+	};
 
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = localActiveDevice;
-        
-        // Animation CSS if provided
-        let animationCSS = '';
-        if (animation && animation !== 'none' && animations[animation]) {
-            animationCSS = animations[animation].keyframes;
+
+        // Box shadow CSS
+        let boxShadowCSS = '';
+        if (boxShadow && boxShadow.enable) {
+            boxShadowCSS = `box-shadow: ${boxShadow.horizontal}px ${boxShadow.vertical}px ${boxShadow.blur}px ${boxShadow.spread}px ${boxShadow.color};`;
         }
+		
+		// Box shadow hover
+        let boxShadowHoverCSS = '';
+        if (boxShadowHover && boxShadowHover.enable) {
+            const insetHover = boxShadowHover.position === 'inset' ? 'inset ' : '';
+            boxShadowHoverCSS = `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
+        }
+
+        // Position styles
+        let positionCSS = '';
+        if (position && position !== 'default') {
+            positionCSS += `position: ${position} !important;`;
+            
+            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue !== '' && horizontalValue !== undefined) {
+                if (horizontalOrientation === 'left') {
+                    positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
+                } else {
+                    positionCSS += `right: ${horizontalValue}${horizontalUnit};`;
+                }
+            }
+            
+            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue !== '' && verticalValue !== undefined) {
+                if (verticalOrientation === 'top') {
+                    positionCSS += `top: ${verticalValue}${verticalUnit};`;
+                } else {
+                    positionCSS += `bottom: ${verticalValue}${verticalUnit};`;
+                }
+            }
+        }
+
+        if (zIndex !== '' && zIndex !== undefined && zIndex !== null) {
+            positionCSS += `z-index: ${zIndex};`;
+        }
+
+		// Transform
+		let transformCSS = '';
+		const transformValue = getTransformCSS(transform, activeDevice);
+		if (transformValue) {
+			transformCSS += `transform: ${transformValue};`;
+			transformCSS += `transform-origin: ${getTransformOrigin(transform, activeDevice)};`;
+		}
+
+		const transformHoverValue = getTransformCSS(transformHover, activeDevice);
+		if (transformHoverValue && transformHover && transformHover.transitionDuration !== '' && transformHover.transitionDuration !== undefined && transformHover.transitionDuration !== null) {
+			const duration = transformHover.transitionDuration;
+			transformCSS += `transition: transform ${duration}ms ease;`;
+		}
+
+		let transformHoverCSS = '';
+		if (transformHoverValue) {
+			transformHoverCSS += `transform: ${transformHoverValue};`;
+			transformHoverCSS += `transform-origin: ${getTransformOrigin(transformHover, activeDevice)};`;
+		}
         
         return `
             /* Lottie Block - ${id} */
@@ -465,6 +685,13 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                 width: 100%;
                 display: flex;
                 justify-content: ${alignment === 'left' ? 'flex-start' : (alignment === 'right' ? 'flex-end' : 'center')};
+                ${positionCSS}
+				${transformCSS}
+            }
+
+            .${id}:hover {
+                ${boxShadowHoverCSS}
+				${transformHoverCSS}
             }
             
             .${id} .digiblocks-lottie-container {
@@ -479,7 +706,12 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
 					${getDimensionCSS(borderWidth, 'border-width', activeDevice)}
                 ` : ''}
 				${getDimensionCSS(borderRadius, 'border-radius', activeDevice)}
-                ${shadow.enable ? `box-shadow: ${shadow.horizontal}px ${shadow.vertical}px ${shadow.blur}px ${shadow.spread}px ${shadow.color};` : ''}
+                ${boxShadowCSS}
+				transition: all 0.3s ease;
+            }
+            
+            .${id} .digiblocks-lottie-container:hover {
+                ${boxShadowHoverCSS}
             }
             
             .${id} canvas {
@@ -500,9 +732,6 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                 max-width: 90%;
                 padding: 10px;
             }
-            
-            /* Animation keyframes */
-            ${animationCSS}
 
 			/* Visibility Controls */
 			${visibility.desktop ? `
@@ -948,7 +1177,7 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                         <TabPanelBody
                             tab="style"
                             name="borders"
-                            title={__('Borders & Shadows', 'digiblocks')}
+                            title={__('Borders & Radius', 'digiblocks')}
                             initialOpen={false}
                         >
                             <SelectControl
@@ -997,19 +1226,31 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                                     ]}
                                 />
                             </ResponsiveControl>
-                            
-                            <BoxShadowControl
-                                label={__('Shadow', 'digiblocks')}
-                                normalValue={shadow}
-                                onNormalChange={(value) => setAttributes({ shadow: value })}
-                            />
                         </TabPanelBody>
-                        
+
                         <TabPanelBody
                             tab="style"
+                            name="shadow"
+                            title={__('Box Shadow', 'digiblocks')}
+                            initialOpen={false}
+                        >
+                            <BoxShadowControl
+                                normalValue={boxShadow}
+                                hoverValue={boxShadowHover}
+                                onNormalChange={(value) => setAttributes({ boxShadow: value })}
+                                onHoverChange={(value) => setAttributes({ boxShadowHover: value })}
+                            />
+                        </TabPanelBody>
+                    </>
+                );
+            case 'advanced':
+                return (
+                    <>
+                        <TabPanelBody
+                            tab="advanced"
                             name="spacing"
                             title={__('Spacing', 'digiblocks')}
-                            initialOpen={false}
+                            initialOpen={true}
                         >
                             <ResponsiveControl
                                 label={__('Padding', 'digiblocks')}
@@ -1043,16 +1284,130 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                                 />
                             </ResponsiveControl>
                         </TabPanelBody>
-                    </>
-                );
-            case 'advanced':
-                return (
-                    <>
+
                         <TabPanelBody
+                            tab="advanced"
+                            name="position"
+                            title={__("Position", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            <SelectControl
+                                label={__("Position", "digiblocks")}
+                                value={position}
+                                options={[
+                                    { label: __("Default", "digiblocks"), value: "default" },
+                                    { label: __("Relative", "digiblocks"), value: "relative" },
+                                    { label: __("Absolute", "digiblocks"), value: "absolute" },
+                                    { label: __("Fixed", "digiblocks"), value: "fixed" },
+                                ]}
+                                onChange={(value) => setAttributes({ position: value })}
+                                __nextHasNoMarginBottom={true}
+                            />
+
+                            {position !== 'default' && (
+                                <>
+                                    <ToggleGroupControl
+                                        label={__("Horizontal Orientation", "digiblocks")}
+                                        value={horizontalOrientation}
+                                        isBlock
+                                        onChange={(value) => setAttributes({ horizontalOrientation: value })}
+                                        __nextHasNoMarginBottom={true}
+                                    >
+                                        <ToggleGroupControlOption
+                                            value="left"
+                                            label={__("Left", "digiblocks")}
+                                        />
+                                        <ToggleGroupControlOption
+                                            value="right"
+                                            label={__("Right", "digiblocks")}
+                                        />
+                                    </ToggleGroupControl>
+
+                                    <ResponsiveRangeControl
+                                        label={__("Offset", "digiblocks")}
+                                        value={horizontalOffset}
+                                        onChange={(value) => setAttributes({ horizontalOffset: value })}
+                                        units={[
+                                            { label: 'px', value: 'px' },
+                                            { label: '%', value: '%' },
+                                            { label: 'em', value: 'em' },
+                                            { label: 'rem', value: 'rem' },
+                                            { label: 'vw', value: 'vw' },
+                                            { label: 'vh', value: 'vh' },
+                                        ]}
+                                        defaultUnit="px"
+                                        min={0}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                    />
+
+                                    <ToggleGroupControl
+                                        label={__("Vertical Orientation", "digiblocks")}
+                                        value={verticalOrientation}
+                                        isBlock
+                                        onChange={(value) => setAttributes({ verticalOrientation: value })}
+                                        __nextHasNoMarginBottom={true}
+                                    >
+                                        <ToggleGroupControlOption
+                                            value="top"
+                                            label={__("Top", "digiblocks")}
+                                        />
+                                        <ToggleGroupControlOption
+                                            value="bottom"
+                                            label={__("Bottom", "digiblocks")}
+                                        />
+                                    </ToggleGroupControl>
+
+                                    <ResponsiveRangeControl
+                                        label={__("Offset", "digiblocks")}
+                                        value={verticalOffset}
+                                        onChange={(value) => setAttributes({ verticalOffset: value })}
+                                        units={[
+                                            { label: 'px', value: 'px' },
+                                            { label: '%', value: '%' },
+                                            { label: 'em', value: 'em' },
+                                            { label: 'rem', value: 'rem' },
+                                            { label: 'vw', value: 'vw' },
+                                            { label: 'vh', value: 'vh' },
+                                        ]}
+                                        defaultUnit="px"
+                                        min={0}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                    />
+                                </>
+                            )}
+
+                            <RangeControl
+                                label={__("Z-Index", "digiblocks")}
+                                value={zIndex}
+                                onChange={(value) => setAttributes({ zIndex: value })}
+                                min={-999}
+                                max={9999}
+                                allowReset={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                        </TabPanelBody>
+
+						<TabPanelBody
+                            tab="advanced"
+                            name="transform"
+                            title={__('Transform', 'digiblocks')}
+                            initialOpen={false}
+                        >
+                            <TransformControl
+                                normalValue={transform}
+                                hoverValue={transformHover}
+                                onNormalChange={(value) => setAttributes({ transform: value })}
+                                onHoverChange={(value) => setAttributes({ transformHover: value })}
+                            />
+                        </TabPanelBody>
+
+						<TabPanelBody
                             tab="advanced"
                             name="animation"
                             title={__('Animation', 'digiblocks')}
-                            initialOpen={true}
+                            initialOpen={false}
                         >
                             <SelectControl
                                 label={__('Animation Effect', 'digiblocks')}
@@ -1062,6 +1417,33 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                                 __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
                             />
+
+							{animation && animation !== 'none' && (
+								<>
+									<SelectControl
+										label={__("Animation Duration", "digiblocks")}
+										value={animationDuration}
+										options={[
+											{ label: __("Slow", "digiblocks"), value: "slow" },
+											{ label: __("Normal", "digiblocks"), value: "normal" },
+											{ label: __("Fast", "digiblocks"), value: "fast" }
+										]}
+										onChange={(value) => setAttributes({ animationDuration: value })}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+									
+									<NumberControl
+										label={__("Animation Delay (ms)", "digiblocks")}
+										value={animationDelay || 0}
+										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										min={0}
+										step={100}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+								</>
+							)}
                             
                             {/* Animation Preview Button */}
                             {animation && animation !== 'none' && (

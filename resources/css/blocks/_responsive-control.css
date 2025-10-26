@@ -12,6 +12,10 @@ body .editor-styles-wrapper {
     padding: 0;
 }
 
+.digiblocks-responsive-control-inner .components-base-control__label {
+    display: none;
+}
+
 /* Responsive label wrap */
 .digiblocks-responsive-label-wrap {
     display: flex;

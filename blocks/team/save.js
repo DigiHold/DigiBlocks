@@ -32,6 +32,8 @@ const TeamSave = ({ attributes }) => {
         layout,
         alignment,
         animation,
+        animationDuration,
+        animationDelay,
         anchor,
         customClasses,
         showName,
@@ -41,13 +43,19 @@ const TeamSave = ({ attributes }) => {
     } = attributes;
 
     // Get block classes
-    const blockClass = `digiblocks-team-block ${id} layout-${layout} align-${alignment} ${animation !== 'none' ? `animate-${animation}` : ''} ${customClasses || ''}`;
+    const blockClass = `digiblocks-team-block ${id} layout-${layout} align-${alignment} ${animation !== 'none' ? `animate-${animation} digi-animate-hidden` : ''} ${customClasses || ''}`;
 
     // Block props
     const blockProps = useBlockProps.save({
         className: blockClass,
         id: anchor || null,
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     /**
      * Render team members

@@ -17,7 +17,7 @@ const { useState, useEffect } = wp.element;
  */
 const { useBlockId } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, CustomTabPanel } = digi.components;
+const { ResponsiveControl, ResponsiveRangeControl, CustomTabPanel, TabPanelBody } = digi.components;
 
 /**
  * Edit function for the Spacer block
@@ -28,7 +28,15 @@ const SpacerEdit = ({ attributes, setAttributes, clientId }) => {
         anchor,
 		visibility,
         customClasses,
-        height
+        height,
+        position,
+        horizontalOrientation,
+        horizontalOffset,
+        verticalOrientation,
+        verticalOffset,
+        zIndex,
+		transform,
+        transformHover,
     } = attributes;
 
 	// Create unique class
@@ -71,19 +79,240 @@ const SpacerEdit = ({ attributes, setAttributes, clientId }) => {
         }
     ];
 
+	const getVal = (obj, device) => {
+		if (!obj) return '';
+		const val = obj[device];
+		if (val && val.value !== '' && val.value !== undefined && val.value !== null) {
+			return `${val.value}${val.unit || 'px'}`;
+		}
+		if (device === 'tablet' && obj.desktop) {
+			return obj.desktop.value !== '' && obj.desktop.value !== undefined && obj.desktop.value !== null 
+				? `${obj.desktop.value}${obj.desktop.unit || 'px'}` 
+				: '';
+		}
+		if (device === 'mobile') {
+			if (obj.tablet && obj.tablet.value !== '' && obj.tablet.value !== undefined && obj.tablet.value !== null) {
+				return `${obj.tablet.value}${obj.tablet.unit || 'px'}`;
+			}
+			if (obj.desktop) {
+				return obj.desktop.value !== '' && obj.desktop.value !== undefined && obj.desktop.value !== null 
+					? `${obj.desktop.value}${obj.desktop.unit || 'px'}` 
+					: '';
+			}
+		}
+		return '';
+	};
+
+    const getMaxValue = (unit) => {
+        switch (unit) {
+            case '%':
+                return 100;
+            case 'em':
+            case 'rem':
+                return 50;
+            case 'vw':
+            case 'vh':
+                return 100;
+            default:
+                return 2000;
+        }
+    };
+
+    const getStepValue = (unit) => {
+        switch (unit) {
+            case '%':
+            case 'vw':
+            case 'vh':
+                return 1;
+            case 'em':
+            case 'rem':
+                return 0.1;
+            default:
+                return 1;
+        }
+    };
+
+	const getTransformOrigin = (transform, device) => {
+        const xMap = { left: '0%', center: '50%', right: '100%' };
+        const yMap = { top: '0%', center: '50%', bottom: '100%' };
+        
+        const x = xMap[transform.xAnchor?.[device] || 'center'];
+        const y = yMap[transform.yAnchor?.[device] || 'center'];
+        
+        return `${x} ${y}`;
+    };
+
+	const getTransformCSS = (transform, device) => {
+		if (!transform) return '';
+		
+		const transforms = [];
+		
+		const getValue = (prop) => {
+			if (!prop) return '';
+			
+			let val = prop[device];
+			
+			// Check if value is empty
+			const isEmpty = (v) => {
+				if (v === '' || v === undefined || v === null) return true;
+				if (typeof v === 'object' && v !== null) {
+					return v.value === '' || v.value === undefined || v.value === null;
+				}
+				return false;
+			};
+			
+			// Tablet fallback to desktop
+			if (device === 'tablet' && isEmpty(val)) {
+				val = prop.desktop;
+			}
+			
+			// Mobile fallback to tablet, then desktop
+			if (device === 'mobile' && isEmpty(val)) {
+				val = prop.tablet;
+				if (isEmpty(val)) {
+					val = prop.desktop;
+				}
+			}
+			
+			return typeof val === 'object' && val !== null ? (val.value !== undefined ? val.value : '') : val;
+		};
+		
+		const rotateValue = getValue(transform.rotate);
+		if (rotateValue !== '' && rotateValue !== undefined && rotateValue !== null) {
+			if (transform.rotate3d) {
+				const perspectiveValue = getValue(transform.perspective);
+				if (perspectiveValue !== '' && perspectiveValue !== undefined && perspectiveValue !== null) {
+					transforms.push(`perspective(${perspectiveValue}px)`);
+				}
+			}
+			transforms.push(`rotate(${rotateValue}deg)`);
+		}
+		
+		if (transform.rotate3d) {
+			const rotateXValue = getValue(transform.rotateX);
+			if (rotateXValue !== '' && rotateXValue !== undefined && rotateXValue !== null) {
+				transforms.push(`rotateX(${rotateXValue}deg)`);
+			}
+			const rotateYValue = getValue(transform.rotateY);
+			if (rotateYValue !== '' && rotateYValue !== undefined && rotateYValue !== null) {
+				transforms.push(`rotateY(${rotateYValue}deg)`);
+			}
+		}
+		
+		const offsetXValue = transform.offsetX?.[device]?.value;
+		const offsetYValue = transform.offsetY?.[device]?.value;
+		const hasOffsetX = offsetXValue !== '' && offsetXValue !== undefined && offsetXValue !== null;
+		const hasOffsetY = offsetYValue !== '' && offsetYValue !== undefined && offsetYValue !== null;
+		
+		if (hasOffsetX || hasOffsetY) {
+			const x = hasOffsetX ? `${offsetXValue}${transform.offsetX[device].unit || 'px'}` : '0';
+			const y = hasOffsetY ? `${offsetYValue}${transform.offsetY[device].unit || 'px'}` : '0';
+			transforms.push(`translate(${x}, ${y})`);
+		}
+		
+		if (transform.keepProportions) {
+			const scaleValue = getValue(transform.scale);
+			if (scaleValue !== '' && scaleValue !== undefined && scaleValue !== null && scaleValue != 1) {
+				transforms.push(`scale(${scaleValue})`);
+			}
+		} else {
+			const scaleXValue = getValue(transform.scaleX);
+			const scaleYValue = getValue(transform.scaleY);
+			const scaleX = (scaleXValue !== '' && scaleXValue !== undefined && scaleXValue !== null) ? scaleXValue : 1;
+			const scaleY = (scaleYValue !== '' && scaleYValue !== undefined && scaleYValue !== null) ? scaleYValue : 1;
+			if (scaleX != 1 || scaleY != 1) {
+				transforms.push(`scale(${scaleX}, ${scaleY})`);
+			}
+		}
+		
+		const skewXValue = getValue(transform.skewX);
+		if (skewXValue !== '' && skewXValue !== undefined && skewXValue !== null) {
+			transforms.push(`skewX(${skewXValue}deg)`);
+		}
+		const skewYValue = getValue(transform.skewY);
+		if (skewYValue !== '' && skewYValue !== undefined && skewYValue !== null) {
+			transforms.push(`skewY(${skewYValue}deg)`);
+		}
+		
+		if (transform.flipHorizontal) {
+			transforms.push('scaleX(-1)');
+		}
+		if (transform.flipVertical) {
+			transforms.push('scaleY(-1)');
+		}
+		
+		return transforms.length > 0 ? transforms.join(' ') : '';
+	};
+
     // Generate CSS for all styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
         
         // Determine current height
-        const currentHeight = height[activeDevice] || (activeDevice === 'tablet' ? 60 : activeDevice === 'mobile' ? 40 : 80);
+        const currentHeight = getVal(height, localActiveDevice);
+
+        // Position styles
+        let positionCSS = '';
+        if (position && position !== 'default') {
+            positionCSS += `position: ${position} !important;`;
+            
+            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue !== '' && horizontalValue !== undefined) {
+                if (horizontalOrientation === 'left') {
+                    positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
+                } else {
+                    positionCSS += `right: ${horizontalValue}${horizontalUnit};`;
+                }
+            }
+            
+            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue !== '' && verticalValue !== undefined) {
+                if (verticalOrientation === 'top') {
+                    positionCSS += `top: ${verticalValue}${verticalUnit};`;
+                } else {
+                    positionCSS += `bottom: ${verticalValue}${verticalUnit};`;
+                }
+            }
+        }
+
+        if (zIndex !== '' && zIndex !== undefined && zIndex !== null) {
+            positionCSS += `z-index: ${zIndex};`;
+        }
+
+		// Transform
+		let transformCSS = '';
+		const transformValue = getTransformCSS(transform, activeDevice);
+		if (transformValue) {
+			transformCSS += `transform: ${transformValue};`;
+			transformCSS += `transform-origin: ${getTransformOrigin(transform, activeDevice)};`;
+		}
+
+		const transformHoverValue = getTransformCSS(transformHover, activeDevice);
+		if (transformHoverValue && transformHover && transformHover.transitionDuration !== '' && transformHover.transitionDuration !== undefined && transformHover.transitionDuration !== null) {
+			const duration = transformHover.transitionDuration;
+			transformCSS += `transition: transform ${duration}ms ease;`;
+		}
+
+		let transformHoverCSS = '';
+		if (transformHoverValue) {
+			transformHoverCSS += `transform: ${transformHoverValue};`;
+			transformHoverCSS += `transform-origin: ${getTransformOrigin(transformHover, activeDevice)};`;
+		}
         
         // Assemble the full CSS
         return `
             /* Spacer Block Styles */
             .${id} {
-                height: ${currentHeight}px;
+                height: ${currentHeight};
                 position: relative;
+                ${positionCSS}
+				${transformCSS}
+            }
+
+            .${id}:hover {
+				${transformHoverCSS}
             }
             
             /* Editor-only styles */
@@ -138,26 +367,21 @@ const SpacerEdit = ({ attributes, setAttributes, clientId }) => {
                 return (
 					<>
 						<div className="components-panel__body is-opened">
-							<ResponsiveControl
-                                label={__("Height", "digiblocks")}
-                            >
-                                <RangeControl
-                                    value={height[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            height: {
-                                                ...height,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    min={1}
-                                    max={500}
-                                    step={1}
-                                    __next40pxDefaultSize={true}
-                                    __nextHasNoMarginBottom={true}
-                                />
-                            </ResponsiveControl>
+							<ResponsiveRangeControl
+								label={__("Height", "digiblocks")}
+								value={height}
+								onChange={(value) => setAttributes({ height: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: 'em', value: 'em' },
+									{ label: 'rem', value: 'rem' },
+									{ label: 'vh', value: 'vh' },
+								]}
+								defaultUnit="px"
+								min={0}
+								max={getMaxValue(height?.[localActiveDevice]?.unit)}
+								step={getStepValue(height?.[localActiveDevice]?.unit)}
+							/>
 						</div>
                     </>
                 );

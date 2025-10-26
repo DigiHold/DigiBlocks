@@ -205,7 +205,7 @@ registerBlockType('digiblocks/table', {
         margin: {
             type: 'object',
             default: {
-                desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px' },
+                desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: 'px', isLinked: false, },
                 tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
                 mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
             }
@@ -234,6 +234,14 @@ registerBlockType('digiblocks/table', {
             type: 'string',
             default: 'none'
         },
+		animationDuration: {
+			type: 'string',
+			default: 'normal'
+		},
+		animationDelay: {
+			type: 'number',
+			default: ''
+		},
         firstColHeader: {
             type: 'boolean',
             default: false
@@ -241,7 +249,85 @@ registerBlockType('digiblocks/table', {
         cellControls: {
             type: 'object',
             default: {}
-        }
+        },
+        position: {
+            type: 'string',
+            default: 'default',
+        },
+        horizontalOrientation: {
+            type: 'string',
+            default: 'left',
+        },
+        horizontalOffset: {
+            type: 'object',
+            default: {
+                desktop: { value: 0, unit: 'px' },
+                tablet: { value: 0, unit: 'px' },
+                mobile: { value: 0, unit: 'px' },
+            },
+        },
+        verticalOrientation: {
+            type: 'string',
+            default: 'top',
+        },
+        verticalOffset: {
+            type: 'object',
+            default: {
+                desktop: { value: 0, unit: 'px' },
+                tablet: { value: 0, unit: 'px' },
+                mobile: { value: 0, unit: 'px' },
+            },
+        },
+        zIndex: {
+            type: 'number',
+            default: '',
+        },
+		transform: {
+            type: 'object',
+            default: {
+                rotate: { desktop: '', tablet: '', mobile: '' },
+                rotate3d: false,
+                rotateX: { desktop: '', tablet: '', mobile: '' },
+                rotateY: { desktop: '', tablet: '', mobile: '' },
+                perspective: { desktop: '', tablet: '', mobile: '' },
+                offsetX: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                offsetY: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                keepProportions: true,
+                scale: { desktop: '', tablet: '', mobile: '' },
+                scaleX: { desktop: '', tablet: '', mobile: '' },
+                scaleY: { desktop: '', tablet: '', mobile: '' },
+                skewX: { desktop: '', tablet: '', mobile: '' },
+                skewY: { desktop: '', tablet: '', mobile: '' },
+                flipHorizontal: false,
+                flipVertical: false,
+                xAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                yAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                transitionDuration: ''
+            }
+        },
+        transformHover: {
+            type: 'object',
+            default: {
+                rotate: { desktop: '', tablet: '', mobile: '' },
+                rotate3d: false,
+                rotateX: { desktop: '', tablet: '', mobile: '' },
+                rotateY: { desktop: '', tablet: '', mobile: '' },
+                perspective: { desktop: '', tablet: '', mobile: '' },
+                offsetX: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                offsetY: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                keepProportions: true,
+                scale: { desktop: '', tablet: '', mobile: '' },
+                scaleX: { desktop: '', tablet: '', mobile: '' },
+                scaleY: { desktop: '', tablet: '', mobile: '' },
+                skewX: { desktop: '', tablet: '', mobile: '' },
+                skewY: { desktop: '', tablet: '', mobile: '' },
+                flipHorizontal: false,
+                flipVertical: false,
+                xAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                yAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                transitionDuration: ''
+            }
+        },
     },
     example: {
         attributes: {

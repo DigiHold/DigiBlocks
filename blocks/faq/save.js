@@ -17,6 +17,8 @@ const FAQSave = ({ attributes }) => {
         questionPrefix,
         answerPrefix,
         animation,
+        animationDuration,
+        animationDelay,
         allowMultipleOpen,
         iconType,
     } = attributes;
@@ -27,7 +29,7 @@ const FAQSave = ({ attributes }) => {
 		id,
         layout || 'boxed',
         customClasses || "",
-        animation !== "none" ? `animate-${animation}` : ""
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
     ]
         .filter(Boolean)
         .join(" ");
@@ -104,6 +106,12 @@ const FAQSave = ({ attributes }) => {
         id: anchor || null,
         "data-allow-multiple": allowMultipleOpen ? "true" : "false"
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     // Render FAQ items
     const renderFAQItems = () => {

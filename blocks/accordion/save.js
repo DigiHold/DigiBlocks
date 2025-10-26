@@ -15,7 +15,9 @@ const AccordionSave = ({ attributes }) => {
         iconPosition,
         iconType,
         allowMultipleOpen,
-        animation
+        animation,
+        animationDuration,
+        animationDelay,
     } = attributes;
 
     // Function to render icons based on iconType and state
@@ -43,7 +45,7 @@ const AccordionSave = ({ attributes }) => {
 		id,
         iconPosition === 'left' ? "icon-position-left" : "icon-position-right",
         allowMultipleOpen ? "allow-multiple-open" : "single-open",
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         customClasses || ""
     ]
         .filter(Boolean)
@@ -55,6 +57,12 @@ const AccordionSave = ({ attributes }) => {
         id: anchor || null,
         "data-icon-type": iconType,
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     return (
         <div {...blockProps}>

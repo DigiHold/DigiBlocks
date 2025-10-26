@@ -5,9 +5,7 @@ const { __ } = wp.i18n;
 const { 
     SelectControl, 
     RangeControl, 
-    Button,
-    __experimentalToggleGroupControl: ToggleGroupControl,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption
+    Button
 } = wp.components;
 const { useState, useEffect } = wp.element;
 
@@ -22,6 +20,9 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
     const [isOpen, setIsOpen] = useState(() => {
         return window.digi.uiState.getPanelState('typography', controlId) ?? false;
     });
+
+	// Units selector
+	const UnitsSelector = window.digi?.utils?.UnitsSelector;
     
     // State for font weight options (will be dynamically updated based on selected font)
     const [fontWeightOptions, setFontWeightOptions] = useState([
@@ -303,7 +304,7 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                 <button 
                     type="button" 
                     aria-pressed={isOpen}
-                    className={`components-button digiblocks-typography-button digiblocks-control-popup__options--action-button ${isOpen ? 'is-pressed' : ''}`}
+                    className={`components-button digiblocks-pencil-button digiblocks-control-popup__options--action-button ${isOpen ? 'is-pressed' : ''}`}
                     onClick={toggleTypographyPanel}
                 >
                     <span className="dashicon dashicons dashicons-edit"></span>
@@ -311,7 +312,7 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
             </div>
             
             {isOpen && (
-                <div className="digiblocks-typography-advanced digiblocks-control-popup">
+                <div className="digiblocks-popover digiblocks-control-popup">
                     <div className="components-base-control digiblocks-font-family-searchable-select__wrapper">
                         <label className="components-input-control__label" htmlFor="font-family">
                             {__('Font Family', 'digiblocks')}
@@ -352,24 +353,14 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                                                     <span className="dashicon dashicons dashicons-image-rotate"></span>
                                                 </button>
                                             </div>
-                                            <ToggleGroupControl
-                                                value={values.fontSizeUnit}
-                                                onChange={(value) => updateTypographyValue('fontSizeUnit', value)}
-                                                isBlock
-                                                isSmall
-                                                hideLabelFromVision
-                                                aria-label={__("Select Units", "digiblocks")}
-                                                __next40pxDefaultSize={true}
-                                                __nextHasNoMarginBottom={true}
-                                            >
-                                                {fontSizeUnits.map(unit => (
-                                                    <ToggleGroupControlOption
-                                                        key={unit.value}
-                                                        value={unit.value}
-                                                        label={unit.label}
-                                                    />
-                                                ))}
-                                            </ToggleGroupControl>
+											{UnitsSelector && (
+												<UnitsSelector
+													value={values.fontSizeUnit}
+													onChange={(value) => updateTypographyValue('fontSizeUnit', value)}
+													units={fontSizeUnits}
+													ariaLabel={__("Select Units", "digiblocks")}
+												/>
+											)}
                                         </div>
                                     </div>
                                     <div className="digiblocks-range-control__mobile-controls">
@@ -460,24 +451,14 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                                                     <span className="dashicon dashicons dashicons-image-rotate"></span>
                                                 </button>
                                             </div>
-                                            <ToggleGroupControl
-                                                value={values.lineHeightUnit}
-                                                onChange={(value) => updateTypographyValue('lineHeightUnit', value)}
-                                                isBlock
-                                                isSmall
-                                                hideLabelFromVision
-                                                aria-label={__("Select Units", "digiblocks")}
-                                                __next40pxDefaultSize={true}
-                                                __nextHasNoMarginBottom={true}
-                                            >
-                                                {lineHeightUnits.map(unit => (
-                                                    <ToggleGroupControlOption
-                                                        key={unit.value}
-                                                        value={unit.value}
-                                                        label={unit.label}
-                                                    />
-                                                ))}
-                                            </ToggleGroupControl>
+											{UnitsSelector && (
+												<UnitsSelector
+													value={values.lineHeightUnit}
+													onChange={(value) => updateTypographyValue('lineHeightUnit', value)}
+													units={lineHeightUnits}
+													ariaLabel={__("Select Units", "digiblocks")}
+												/>
+											)}
                                         </div>
                                     </div>
                                     <div className="digiblocks-range-control__mobile-controls">
@@ -522,24 +503,14 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                                                     <span className="dashicon dashicons dashicons-image-rotate"></span>
                                                 </button>
                                             </div>
-                                            <ToggleGroupControl
-                                                value={values.letterSpacingUnit}
-                                                onChange={(value) => updateTypographyValue('letterSpacingUnit', value)}
-                                                isBlock
-                                                isSmall
-                                                hideLabelFromVision
-                                                aria-label={__("Select Units", "digiblocks")}
-                                                __next40pxDefaultSize={true}
-                                                __nextHasNoMarginBottom={true}
-                                            >
-                                                {letterSpacingUnits.map(unit => (
-                                                    <ToggleGroupControlOption
-                                                        key={unit.value}
-                                                        value={unit.value}
-                                                        label={unit.label}
-                                                    />
-                                                ))}
-                                            </ToggleGroupControl>
+											{UnitsSelector && (
+												<UnitsSelector
+													value={values.letterSpacingUnit}
+													onChange={(value) => updateTypographyValue('letterSpacingUnit', value)}
+													units={letterSpacingUnits}
+													ariaLabel={__("Select Units", "digiblocks")}
+												/>
+											)}
                                         </div>
                                     </div>
                                     <div className="digiblocks-range-control__mobile-controls">

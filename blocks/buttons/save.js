@@ -12,13 +12,15 @@ const ButtonsSave = ({ attributes }) => {
         anchor,
         customClasses,
         animation,
+        animationDuration,
+        animationDelay,
     } = attributes;
 
     // Build class names
     const blockClasses = [
         "digiblocks-buttons-block",
 		id,
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         customClasses || ""
     ]
         .filter(Boolean)
@@ -28,6 +30,12 @@ const ButtonsSave = ({ attributes }) => {
         className: blockClasses,
         id: anchor || null,
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     const innerBlocksProps = useInnerBlocksProps.save(blockProps);
 

@@ -12,6 +12,8 @@ const TextSave = ({ attributes }) => {
         htmlTag,
         content,
         animation,
+        animationDuration,
+        animationDelay,
         hoverEffect,
         anchor,
         customClasses,
@@ -21,7 +23,7 @@ const TextSave = ({ attributes }) => {
     const blockClasses = [
         "digiblocks-text",
         id,
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         hoverEffect !== "none" ? `has-hover-${hoverEffect}` : "",
         customClasses || "" // Add custom classes if they exist
     ]
@@ -33,6 +35,12 @@ const TextSave = ({ attributes }) => {
         className: blockClasses,
         id: anchor || null,
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     return (
         <RichText.Content

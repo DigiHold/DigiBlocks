@@ -17,6 +17,22 @@ $visibility                   = isset( $attrs['visibility'] ) ? $attrs['visibili
     'tablet'  => false,
     'mobile'  => false,
 ];
+$position                = isset( $attrs['position'] ) ? $attrs['position'] : 'default';
+$horizontalOrientation   = isset( $attrs['horizontalOrientation'] ) ? $attrs['horizontalOrientation'] : 'left';
+$horizontalOffset        = isset( $attrs['horizontalOffset'] ) ? $attrs['horizontalOffset'] : array(
+	'desktop' => array( 'value' => 0, 'unit' => 'px' ),
+	'tablet'  => array( 'value' => 0, 'unit' => 'px' ),
+	'mobile'  => array( 'value' => 0, 'unit' => 'px' ),
+);
+$verticalOrientation     = isset( $attrs['verticalOrientation'] ) ? $attrs['verticalOrientation'] : 'top';
+$verticalOffset          = isset( $attrs['verticalOffset'] ) ? $attrs['verticalOffset'] : array(
+	'desktop' => array( 'value' => 0, 'unit' => 'px' ),
+	'tablet'  => array( 'value' => 0, 'unit' => 'px' ),
+	'mobile'  => array( 'value' => 0, 'unit' => 'px' ),
+);
+$zIndex                  = isset( $attrs['zIndex'] ) ? $attrs['zIndex'] : '';
+$transform               = isset( $attrs['transform'] ) ? $attrs['transform'] : array();
+$transformHover          = isset( $attrs['transformHover'] ) ? $attrs['transformHover'] : array();
 $iconLayout                   = isset( $attrs['iconLayout'] ) ? $attrs['iconLayout'] : [
     'desktop' => 'above',
     'tablet'  => '',
@@ -26,6 +42,56 @@ $iconContentGap               = isset( $attrs['iconContentGap'] ) ? $attrs['icon
     'desktop' => array( 'value' => 20, 'unit' => 'px' ),
     'tablet'  => array( 'value' => '', 'unit' => 'px' ),
     'mobile'  => array( 'value' => '', 'unit' => 'px' ),
+);
+$iconPadding                  = isset( $attrs['iconPadding'] ) ? $attrs['iconPadding'] : digiblocks_get_default_dimensions('px');
+$iconMargin                   = isset( $attrs['iconMargin'] ) ? $attrs['iconMargin'] : digiblocks_get_default_dimensions('px');
+$titlePadding                 = isset( $attrs['titlePadding'] ) ? $attrs['titlePadding'] : digiblocks_get_default_dimensions('px');
+$titleMargin                  = isset( $attrs['titleMargin'] ) ? $attrs['titleMargin'] : array(
+	'desktop' => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => 10,
+		'left'   => '',
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+);
+$contentPadding               = isset( $attrs['contentPadding'] ) ? $attrs['contentPadding'] : digiblocks_get_default_dimensions('px');
+$contentMargin                = isset( $attrs['contentMargin'] ) ? $attrs['contentMargin'] : array(
+	'desktop' => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => 0,
+		'left'   => '',
+		'unit'   => 'px',
+	),
+	'tablet'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
+	'mobile'  => array(
+		'top'    => '',
+		'right'  => '',
+		'bottom' => '',
+		'left'   => '',
+		'unit'   => 'px',
+	),
 );
 $iconColor                    = isset( $attrs['iconColor'] ) ? $attrs['iconColor'] : null;
 $iconBackgroundColor          = isset( $attrs['iconBackgroundColor'] ) ? $attrs['iconBackgroundColor'] : null;
@@ -55,8 +121,6 @@ $iconBorderWidth              = isset( $attrs['iconBorderWidth'] ) ? $attrs['ico
 );
 $iconBorderRadius             = isset( $attrs['iconBorderRadius'] ) ? $attrs['iconBorderRadius'] : digiblocks_get_default_dimensions('px');
 $iconBorderColor              = isset( $attrs['iconBorderColor'] ) ? $attrs['iconBorderColor'] : null;
-$iconPadding                  = isset( $attrs['iconPadding'] ) ? $attrs['iconPadding'] : digiblocks_get_default_dimensions('px');
-$iconMargin                   = isset( $attrs['iconMargin'] ) ? $attrs['iconMargin'] : digiblocks_get_default_dimensions('px');
 $iconHoverColor               = isset( $attrs['iconHoverColor'] ) ? $attrs['iconHoverColor'] : null;
 $iconHoverBackgroundColor     = isset( $attrs['iconHoverBackgroundColor'] ) ? $attrs['iconHoverBackgroundColor'] : null;
 $iconHoverBorderColor         = isset( $attrs['iconHoverBorderColor'] ) ? $attrs['iconHoverBorderColor'] : null;
@@ -479,6 +543,21 @@ $desktop_align_css = digiblocks_get_alignment_css($desktop_align);
 $tablet_align_css = digiblocks_get_alignment_css($tablet_align);
 $mobile_align_css = digiblocks_get_alignment_css($mobile_align);
 
+// Get justify content for each device with proper fallback
+$justify_responsive = isset( $attrs['justifyContent'] ) ? $attrs['justifyContent'] : array(
+    'desktop' => 'center',
+    'tablet'  => '',
+    'mobile'  => '',
+);
+
+$desktop_justify = isset($justify_responsive['desktop']) ? $justify_responsive['desktop'] : 'center';
+$tablet_justify = isset($justify_responsive['tablet']) && $justify_responsive['tablet'] !== '' ? $justify_responsive['tablet'] : $desktop_justify;
+$mobile_justify = isset($justify_responsive['mobile']) && $justify_responsive['mobile'] !== '' ? $justify_responsive['mobile'] : $tablet_justify;
+
+$desktop_justify_css = digiblocks_get_justify_css($desktop_justify);
+$tablet_justify_css = digiblocks_get_justify_css($tablet_justify);
+$mobile_justify_css = digiblocks_get_justify_css($mobile_justify);
+
 // Create flex-direction mapping for each device with fallback
 $desktop_layout = isset($iconLayout['desktop']) ? $iconLayout['desktop'] : 'above';
 $tablet_layout = isset($iconLayout['tablet']) && $iconLayout['tablet'] !== '' ? $iconLayout['tablet'] : $desktop_layout;
@@ -501,6 +580,7 @@ ob_start();
 	display: flex;
 	position: relative;
 	<?php echo esc_attr( $desktop_align_css ); ?>
+	<?php echo esc_attr( $desktop_justify_css ); ?>
 	<?php echo esc_attr( digiblocks_get_css('flex-direction', $flexDirection, 'desktop') ); ?>
 	gap: <?php echo esc_attr( !empty($iconContentGap['desktop']['value']) ? ($iconContentGap['desktop']['value'] . $iconContentGap['desktop']['unit']) : '20px' ); ?>;
 	background-color: <?php echo esc_attr( $backgroundColor ); ?>;
@@ -524,20 +604,73 @@ ob_start();
 
 	<?php echo esc_attr( digiblocks_get_dimensions( $padding, 'padding', 'desktop' ) ); ?>
 	<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'desktop' ) ); ?>
-	transition: all 0.3s ease;
 	<?php if ( $linkEnabled && 'box' === $linkType ) : ?>
 		cursor: pointer;
 		text-decoration: none;
 	<?php endif; ?>
+    <?php if ( $position && 'default' !== $position ) : ?>
+        position: <?php echo esc_attr( $position ); ?>;
+        <?php
+        $h_value = isset( $horizontalOffset['desktop']['value'] ) && '' !== $horizontalOffset['desktop']['value'] ? $horizontalOffset['desktop']['value'] : '0';
+        $h_unit = isset( $horizontalOffset['desktop']['unit'] ) ? $horizontalOffset['desktop']['unit'] : 'px';
+        if ( '' !== $h_value ) :
+            if ( 'left' === $horizontalOrientation ) :
+        ?>
+        left: <?php echo esc_attr( $h_value . $h_unit ); ?>;
+        <?php else : ?>
+        right: <?php echo esc_attr( $h_value . $h_unit ); ?>;
+        <?php
+            endif;
+        endif;
+        
+        $v_value = isset( $verticalOffset['desktop']['value'] ) && '' !== $verticalOffset['desktop']['value'] ? $verticalOffset['desktop']['value'] : '0';
+        $v_unit = isset( $verticalOffset['desktop']['unit'] ) ? $verticalOffset['desktop']['unit'] : 'px';
+        if ( '' !== $v_value ) :
+            if ( 'top' === $verticalOrientation ) :
+        ?>
+        top: <?php echo esc_attr( $v_value . $v_unit ); ?>;
+        <?php else : ?>
+        bottom: <?php echo esc_attr( $v_value . $v_unit ); ?>;
+        <?php
+            endif;
+        endif;
+        ?>
+    <?php endif; ?>
+    <?php if ( '' !== $zIndex && null !== $zIndex ) : ?>
+        z-index: <?php echo esc_attr( $zIndex ); ?>;
+    <?php endif; ?>
+	<?php
+    $transform_value = digiblocks_get_transform_css( $transform, 'desktop' );
+    if ( ! empty( $transform_value ) ) :
+    ?>
+    transform: <?php echo esc_attr( $transform_value ); ?>;
+    transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'desktop' ); ?>;
+    <?php endif; ?>
+    <?php if ( ! empty( $transformHover ) && isset( $transformHover['transitionDuration'] ) && '' !== $transformHover['transitionDuration'] && null !== $transformHover['transitionDuration'] ) : ?>
+	transition: all <?php echo esc_attr( $transformHover['transitionDuration'] ); ?>ms ease;
+	<?php else : ?>
+    transition: all 0.3s ease;
+	<?php endif; ?>
 }
 
 /* Hover effects for the main block */
+<?php
+$has_background_hover  = ! empty( $backgroundHoverColor );
+$has_box_shadow_hover  = isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'];
+$has_hover_effect      = ! empty( $hoverEffect );
+$has_border_hover      = ( 'none' !== $borderStyle && ! empty( $borderHoverColor ) );
+
+$transform_hover_value = digiblocks_get_transform_css( $transformHover, 'desktop' );
+$has_transform_hover   = ! empty( $transform_hover_value ) && ! in_array( $hoverEffect, array( 'lift', 'scale' ), true );
+
+if ( $has_background_hover || $has_box_shadow_hover || $has_hover_effect || $has_border_hover || $has_transform_hover ) :
+?>
 .<?php echo esc_attr( $id ); ?>:hover {
-	<?php if ( $backgroundHoverColor ) : ?>
+	<?php if ( $has_background_hover ) : ?>
 		background-color: <?php echo esc_attr( $backgroundHoverColor ); ?>;
 	<?php endif; ?>
 		
-	<?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
+	<?php if ( $has_box_shadow_hover ) : ?>
 		box-shadow: <?php echo esc_attr( digiblocks_get_box_shadow_css( $boxShadowHover ) ); ?>;
 	<?php endif; ?>
 		
@@ -549,10 +682,16 @@ ob_start();
 		filter: brightness(1.1);
 	<?php endif; ?>
 
-	<?php if ( 'none' !== $borderStyle && $borderHoverColor ) : ?>
+	<?php if ( $has_border_hover ) : ?>
 		border-color: <?php echo esc_attr( $borderHoverColor ); ?>;
 	<?php endif; ?>
+
+	<?php if ( $has_transform_hover ) : ?>
+		transform: <?php echo esc_attr( $transform_hover_value ); ?>;
+		transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'desktop' ); ?>;
+	<?php endif; ?>
 }
+<?php endif; ?>
 
 /* Icon styles */
 .<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon {
@@ -626,8 +765,8 @@ ob_start();
     <?php if ( !empty($titleColor) ) : ?>
 	color: <?php echo esc_attr( $titleColor ); ?>;
     <?php endif; ?>
-	margin-top: 0;
-	margin-bottom: 10px;
+	<?php echo esc_attr( digiblocks_get_dimensions( $titlePadding, 'padding', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $titleMargin, 'margin', 'desktop' ) ); ?>
 
 	<?php if ( ! empty( $titleTypography['fontFamily'] ) ) : ?>
 		font-family: <?php echo esc_attr( $titleTypography['fontFamily'] ); ?>;
@@ -675,7 +814,8 @@ ob_start();
 <?php if ( $showContent ) : ?>
 /* Content styles */
 .<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-text {
-	margin: 0;
+	<?php echo esc_attr( digiblocks_get_dimensions( $contentPadding, 'padding', 'desktop' ) ); ?>
+	<?php echo esc_attr( digiblocks_get_dimensions( $contentMargin, 'margin', 'desktop' ) ); ?>
 	color: <?php echo esc_attr( $textColor ); ?>;
 
 	<?php if ( ! empty( $contentTypography['fontFamily'] ) ) : ?>
@@ -891,6 +1031,7 @@ ob_start();
 @media (max-width: 991px) {
 	.<?php echo esc_attr( $id ); ?> {
 		<?php echo esc_attr( $tablet_align_css ); ?>
+		<?php echo esc_attr( $tablet_justify_css ); ?>
 		<?php echo digiblocks_get_css('flex-direction', $flexDirection, 'tablet'); ?>
 		<?php if ( ! empty( $iconContentGap['tablet']['value'] ) ) : ?>
 		gap: <?php echo esc_attr( $iconContentGap['tablet']['value'] . $iconContentGap['tablet']['unit'] ); ?>;
@@ -909,7 +1050,51 @@ ob_start();
 		<?php if ( isset( $borderRadius['tablet'] ) ) : ?>
 			<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'tablet' ) ); ?>
 		<?php endif; ?>
+        <?php if ( $position && 'default' !== $position ) : ?>
+            <?php
+            $h_value_tablet = isset( $horizontalOffset['tablet']['value'] ) && '' !== $horizontalOffset['tablet']['value'] ? $horizontalOffset['tablet']['value'] : '0';
+            $h_unit_tablet = isset( $horizontalOffset['tablet']['unit'] ) ? $horizontalOffset['tablet']['unit'] : 'px';
+            if ( '' !== $h_value_tablet ) :
+                if ( 'left' === $horizontalOrientation ) :
+            ?>
+            left: <?php echo esc_attr( $h_value_tablet . $h_unit_tablet ); ?>;
+            <?php else : ?>
+            right: <?php echo esc_attr( $h_value_tablet . $h_unit_tablet ); ?>;
+            <?php
+                endif;
+            endif;
+            
+            $v_value_tablet = isset( $verticalOffset['tablet']['value'] ) && '' !== $verticalOffset['tablet']['value'] ? $verticalOffset['tablet']['value'] : '0';
+            $v_unit_tablet = isset( $verticalOffset['tablet']['unit'] ) ? $verticalOffset['tablet']['unit'] : 'px';
+            if ( '' !== $v_value_tablet ) :
+                if ( 'top' === $verticalOrientation ) :
+            ?>
+            top: <?php echo esc_attr( $v_value_tablet . $v_unit_tablet ); ?>;
+            <?php else : ?>
+            bottom: <?php echo esc_attr( $v_value_tablet . $v_unit_tablet ); ?>;
+            <?php
+                endif;
+            endif;
+            ?>
+        <?php endif; ?>
+		<?php
+        $transform_value_tablet = digiblocks_get_transform_css( $transform, 'tablet' );
+        if ( ! empty( $transform_value_tablet ) ) :
+        ?>
+        transform: <?php echo esc_attr( $transform_value_tablet ); ?>;
+    	transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'tablet' ); ?>;
+        <?php endif; ?>
 	}
+
+	<?php
+	$transform_hover_value_tablet = digiblocks_get_transform_css( $transformHover, 'tablet' );
+	if ( ! empty( $transform_hover_value_tablet ) ) :
+	?>
+		.<?php echo esc_attr( $id ); ?>:hover {
+			transform: <?php echo esc_attr( $transform_hover_value_tablet ); ?>;
+    		transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'tablet' ); ?>;
+		}
+	<?php endif; ?>
 
 	<?php if ( isset( $iconSize['tablet']['value'] ) ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon svg {
@@ -943,7 +1128,7 @@ ob_start();
 	<?php endif; ?>
 
 	<?php if ( $showTitle ) : ?>
-		<?php if ( isset( $titleTypography['fontSize']['tablet']) || isset( $titleTypography['lineHeight']['tablet']) || isset( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
+		<?php if ( isset( $titleTypography['fontSize']['tablet']) || isset( $titleTypography['lineHeight']['tablet']) || isset( $titleTypography['letterSpacing']['tablet'] ) || isset( $titlePadding['titlePadding']['tablet'] ) || isset( $titleMargin['titleMargin']['tablet'] ) ) : ?>
 			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-title {
 				<?php if ( isset( $titleTypography['fontSize']['tablet'] ) ) : ?>
 					font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ( $titleTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
@@ -954,12 +1139,14 @@ ob_start();
 				<?php if ( isset( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
 					letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['tablet'] . ( $titleTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
 				<?php endif; ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $titlePadding, 'padding', 'tablet' ) ); ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $titleMargin, 'margin', 'tablet' ) ); ?>
 			}
 		<?php endif; ?>
 	<?php endif; ?>
 
 	<?php if ( $showContent ) : ?>
-		<?php if ( isset( $contentTypography['fontSize']['tablet']) || isset( $contentTypography['lineHeight']['tablet']) || isset( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
+		<?php if ( isset( $contentTypography['fontSize']['tablet']) || isset( $contentTypography['lineHeight']['tablet']) || isset( $contentTypography['letterSpacing']['tablet'] ) || isset( $contentPadding['contentPadding']['tablet'] ) || isset( $contentMargin['contentMargin']['tablet'] ) ) : ?>
 			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-text {
 				<?php if ( isset( $contentTypography['fontSize']['tablet'] ) ) : ?>
 					font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
@@ -970,6 +1157,8 @@ ob_start();
 				<?php if ( isset( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
 					letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['tablet'] . ( $contentTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
 				<?php endif; ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $contentPadding, 'padding', 'tablet' ) ); ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $contentMargin, 'margin', 'tablet' ) ); ?>
 			}
 		<?php endif; ?>
 	<?php endif; ?>
@@ -1048,6 +1237,7 @@ ob_start();
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
 		<?php echo esc_attr( $mobile_align_css ); ?>
+		<?php echo esc_attr( $mobile_justify_css ); ?>
 		<?php echo digiblocks_get_css('flex-direction', $flexDirection, 'mobile'); ?>
 		<?php if ( ! empty( $iconContentGap['mobile']['value'] ) ) : ?>
 		gap: <?php echo esc_attr( $iconContentGap['mobile']['value'] . $iconContentGap['mobile']['unit'] ); ?>;
@@ -1066,7 +1256,51 @@ ob_start();
 		<?php if ( isset( $borderRadius['mobile'] ) ) : ?>
 			<?php echo esc_attr( digiblocks_get_dimensions( $borderRadius, 'border-radius', 'mobile' ) ); ?>
 		<?php endif; ?>
+    	<?php if ( $position && 'default' !== $position ) : ?>
+            <?php
+            $h_value_mobile = isset( $horizontalOffset['mobile']['value'] ) && '' !== $horizontalOffset['mobile']['value'] ? $horizontalOffset['mobile']['value'] : '0';
+            $h_unit_mobile = isset( $horizontalOffset['mobile']['unit'] ) ? $horizontalOffset['mobile']['unit'] : 'px';
+            if ( '' !== $h_value_mobile ) :
+                if ( 'left' === $horizontalOrientation ) :
+            ?>
+            left: <?php echo esc_attr( $h_value_mobile . $h_unit_mobile ); ?>;
+            <?php else : ?>
+            right: <?php echo esc_attr( $h_value_mobile . $h_unit_mobile ); ?>;
+            <?php
+                endif;
+            endif;
+            
+            $v_value_mobile = isset( $verticalOffset['mobile']['value'] ) && '' !== $verticalOffset['mobile']['value'] ? $verticalOffset['mobile']['value'] : '0';
+            $v_unit_mobile = isset( $verticalOffset['mobile']['unit'] ) ? $verticalOffset['mobile']['unit'] : 'px';
+            if ( '' !== $v_value_mobile ) :
+                if ( 'top' === $verticalOrientation ) :
+            ?>
+            top: <?php echo esc_attr( $v_value_mobile . $v_unit_mobile ); ?>;
+            <?php else : ?>
+            bottom: <?php echo esc_attr( $v_value_mobile . $v_unit_mobile ); ?>;
+            <?php
+                endif;
+            endif;
+            ?>
+        <?php endif; ?>
+		<?php
+        $transform_value_mobile = digiblocks_get_transform_css( $transform, 'mobile' );
+        if ( ! empty( $transform_value_mobile ) ) :
+        ?>
+        transform: <?php echo esc_attr( $transform_value_mobile ); ?>;
+    	transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'mobile' ); ?>;
+        <?php endif; ?>
     }
+
+	<?php
+	$transform_hover_value_mobile = digiblocks_get_transform_css( $transformHover, 'mobile' );
+	if ( ! empty( $transform_hover_value_mobile ) ) :
+	?>
+		.<?php echo esc_attr( $id ); ?>:hover {
+			transform: <?php echo esc_attr( $transform_hover_value_mobile ); ?>;
+    		transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'mobile' ); ?>;
+		}
+	<?php endif; ?>
     
 	<?php if ( isset( $iconSize['mobile']['value'] ) ) : ?>
 		.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-icon svg {
@@ -1100,7 +1334,7 @@ ob_start();
 	<?php endif; ?>
     
 	<?php if ( $showTitle ) : ?>
-		<?php if ( isset( $titleTypography['fontSize']['mobile']) || isset( $titleTypography['lineHeight']['mobile']) || isset( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
+		<?php if ( isset( $titleTypography['fontSize']['mobile']) || isset( $titleTypography['lineHeight']['mobile']) || isset( $titleTypography['letterSpacing']['mobile'] ) || isset( $titlePadding['titlePadding']['mobile'] ) || isset( $titleMargin['titleMargin']['mobile'] ) ) : ?>
 			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-title {
 				<?php if ( isset( $titleTypography['fontSize']['mobile'] ) ) : ?>
 					font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ( $titleTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
@@ -1111,12 +1345,14 @@ ob_start();
 				if ( isset( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
 					letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['mobile'] . ( $titleTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
 				<?php endif; ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $titlePadding, 'padding', 'mobile' ) ); ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $titleMargin, 'margin', 'mobile' ) ); ?>
 			}
 		<?php endif; ?>
 	<?php endif; ?>
 
 	<?php if ( $showContent ) : ?>
-		<?php if ( isset( $contentTypography['fontSize']['mobile']) || isset( $contentTypography['lineHeight']['mobile']) || isset( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
+		<?php if ( isset( $contentTypography['fontSize']['mobile']) || isset( $contentTypography['lineHeight']['mobile']) || isset( $contentTypography['letterSpacing']['mobile'] ) || isset( $contentPadding['contentPadding']['mobile'] ) || isset( $contentMargin['contentMargin']['mobile'] ) ) : ?>
 			.<?php echo esc_attr( $id ); ?> .digiblocks-icon-box-text {
 				<?php if ( isset( $contentTypography['fontSize']['mobile'] ) ) : ?>
 					font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
@@ -1127,6 +1363,8 @@ ob_start();
 				if ( isset( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
 					letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['mobile'] . ( $contentTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
 				<?php endif; ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $contentPadding, 'padding', 'mobile' ) ); ?>
+				<?php echo esc_attr( digiblocks_get_dimensions( $contentMargin, 'margin', 'mobile' ) ); ?>
 			}
 		<?php endif; ?>
 	<?php endif; ?>

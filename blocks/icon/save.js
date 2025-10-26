@@ -13,6 +13,8 @@ const IconSave = ({ attributes }) => {
 		customSvg,
         iconValue, 
         animation, 
+        animationDuration,
+        animationDelay,
         hoverEffect,
         anchor,
         customClasses,
@@ -25,7 +27,7 @@ const IconSave = ({ attributes }) => {
     const blockClasses = [
         "digiblocks-icon",
 		id,
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         hoverEffect !== "none" ? `has-hover-${hoverEffect}` : "",
         customClasses || "" // Add custom classes if they exist
     ]
@@ -33,10 +35,16 @@ const IconSave = ({ attributes }) => {
         .join(" ");
 
     // Build common props
-    const commonProps = {
+    const blockProps = {
         className: blockClasses,
         id: anchor || null,
     };
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     // Render icon
     const renderIcon = () => {
@@ -68,7 +76,7 @@ const IconSave = ({ attributes }) => {
                 href={linkUrl}
                 target={linkOpenInNewTab ? "_blank" : "_self"}
                 rel={linkOpenInNewTab ? "noopener noreferrer" : undefined}
-                {...commonProps}
+                {...blockProps}
             >
                 {renderIcon()}
             </a>
@@ -77,7 +85,7 @@ const IconSave = ({ attributes }) => {
 
     // Otherwise, render as a div
     return (
-        <div {...commonProps}>
+        <div {...blockProps}>
             {renderIcon()}
         </div>
     );

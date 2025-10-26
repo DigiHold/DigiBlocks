@@ -54,19 +54,19 @@ registerBlockType('digiblocks/spacer', {
             type: 'string',
             default: ''
         },
-        height: {
-            type: 'object',
-            default: {
-                desktop: 80,
-                tablet: 60,
-                mobile: 40
-            }
-        }
+		height: {
+			type: 'object',
+			default: {
+				desktop: { value: 80, unit: 'px' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			}
+		},
     },
     example: {
         attributes: {
             height: {
-                desktop: 80
+                desktop: { value: 80, unit: 'px' }
             }
         }
     },

@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "A collection of beautiful custom Gutenberg blocks for WordPress.",
     "scripts": {
-        "clean": "rm -rf assets/css/admin/* assets/js/admin/* assets/js/blocks/* assets/js/globals.js",
+        "clean": "rm -rf assets/css/admin/* assets/js/admin/* assets/js/blocks/* assets/js/globals.js assets/css/animations/*",
         "clean:ds_store": "find . -name '.DS_Store' -type f -delete",
         "generate:blocks": "node generate-blocks-index.js",
         "generate:icons": "node generate-icons.js",
@@ -13,6 +13,8 @@
         "build:css-review-notice": "postcss ./resources/css/admin/review-notice.css -o ./assets/css/admin/review-notice.css --env production",
         "dev:css-blocks": "postcss ./resources/css/blocks/editor.css -o ./assets/css/blocks/editor.css --watch",
         "build:css-blocks": "postcss ./resources/css/blocks/editor.css -o ./assets/css/blocks/editor.css --env production",
+        "dev:css-animations": "mkdir -p assets/css/animations && cp ./resources/css/animations/*.css ./assets/css/animations/",
+        "build:css-animations": "mkdir -p assets/css/animations && for file in ./resources/css/animations/*.css; do cleancss -o \"./assets/css/animations/$(basename \"$file\")\" \"$file\"; done",
         "dev:js-admin": "esbuild ./resources/js/admin/*.js --bundle --outdir=assets/js/admin --watch",
         "build:js-admin": "esbuild ./resources/js/admin/*.js --bundle --minify --outdir=assets/js/admin",
         "dev:js-globals": "mkdir -p assets/js && esbuild ./resources/js/globals.js --bundle --loader:.js=jsx --define:wp=window.wp --jsx-factory=wp.element.createElement --jsx-fragment=wp.element.Fragment --outfile=assets/js/globals.js --watch",
@@ -23,8 +25,8 @@
         "build:js-animations": "esbuild ./resources/js/front-animations.js --bundle --minify --outdir=assets/js",
         "dev:js-lottie": "mkdir -p assets/js && esbuild ./resources/js/lottie.js --bundle --outfile=assets/js/lottie.js --watch",
         "build:js-lottie": "mkdir -p assets/js && esbuild ./resources/js/lottie.js --bundle --minify --outfile=assets/js/lottie.js",
-        "watch": "npm run clean && npm run clean:ds_store && npm run dev:css-admin & npm run dev:css-review-notice & npm run dev:css-blocks & npm run dev:js-admin & npm run dev:js-globals & npm run dev:js-blocks & npm run dev:js-animations & npm run dev:js-lottie",
-        "build": "npm run clean && npm run clean:ds_store && npm run build:css-admin && npm run build:css-review-notice && npm run build:css-blocks && npm run build:js-admin && npm run build:js-globals && npm run build:js-blocks && npm run build:js-animations && npm run build:js-lottie",
+        "watch": "npm run clean && npm run clean:ds_store && npm run dev:css-animations && npm run dev:css-admin & npm run dev:css-review-notice & npm run dev:css-blocks & npm run dev:js-admin & npm run dev:js-globals & npm run dev:js-blocks & npm run dev:js-animations & npm run dev:js-lottie",
+        "build": "npm run clean && npm run clean:ds_store && npm run build:css-animations && npm run build:css-admin && npm run build:css-review-notice && npm run build:css-blocks && npm run build:js-admin && npm run build:js-globals && npm run build:js-blocks && npm run build:js-animations && npm run build:js-lottie",
         "pack": "npm run build && find . -name '.DS_Store' -type f -delete && zip -r digiblocks.zip . -x '*node_modules*' -x '*/node_modules/*' -x '*/.*' -x '*.DS_Store' -x '*__MACOSX*' -x 'generate-blocks-index.js' -x 'generate-icons.js' -x 'package.json' -x 'package-lock.json' -x 'postcss.config.js' -x 'prettier.config.js' -x 'composer.json' -x 'composer.lock' -x '.prettierignore' -x 'CONTRIBUTING.md' -x 'README.md' -x '.gitattributes' -x '.gitignore' -x 'phpcs.xml' -x '.git/*' -x '.git/**/*'",
         "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md,json}\""
     },

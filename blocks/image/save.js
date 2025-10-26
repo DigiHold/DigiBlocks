@@ -15,6 +15,8 @@ const ImageSave = ({ attributes }) => {
         altText,
         title,
         animation,
+        animationDuration,
+        animationDelay,
         url,
         opensInNewTab,
         rel,
@@ -25,7 +27,7 @@ const ImageSave = ({ attributes }) => {
     const blockClassNames = [
         'digiblocks-image',
         id,
-        animation !== 'none' ? `animate-${animation}` : '',
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         customClasses || '',
     ].filter(Boolean).join(' ');
 
@@ -34,6 +36,12 @@ const ImageSave = ({ attributes }) => {
         className: blockClassNames,
         id: anchor || undefined
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     // If no image, return null
     if (!imageUrl) {
@@ -69,9 +77,7 @@ const ImageSave = ({ attributes }) => {
 
     return (
         <div {...blockProps}>
-            <figure>
-                {imageContent}
-            </figure>
+            {imageContent}
         </div>
     );
 };

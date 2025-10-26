@@ -4,12 +4,7 @@
  */
 
 const { __ } = wp.i18n;
-const { 
-    Button, 
-    Dashicon, 
-    __experimentalToggleGroupControl: ToggleGroupControl, 
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption 
-} = wp.components;
+const { Button, Dashicon } = wp.components;
 const { useState, useEffect } = wp.element;
 
 /**
@@ -39,6 +34,9 @@ const DimensionControl = ({
 }) => {
     // Use the isLinked value from props, with fallback to true
     const [isLinked, setIsLinked] = useState(values.isLinked !== undefined ? values.isLinked : true);
+
+	// Units selector
+	const UnitsSelector = window.digi?.utils?.UnitsSelector;
     
     // Track if values are at default
     const [isDefault, setIsDefault] = useState(true);
@@ -239,24 +237,14 @@ const DimensionControl = ({
                             aria-label={__("Reset", "digiblocks")}
                         />
                     </div>
-                    <ToggleGroupControl
-                        value={values.unit}
-                        onChange={handleUnitChange}
-                        isSmall
-                        isBlock
-                        hideLabelFromVision
-                        aria-label={__("Select Units", "digiblocks")}
-                        __next40pxDefaultSize={true}
-                        __nextHasNoMarginBottom={true}
-                    >
-                        {units.map((unit) => (
-                            <ToggleGroupControlOption
-                                key={unit.value}
-                                value={unit.value}
-                                label={unit.label}
-                            />
-                        ))}
-                    </ToggleGroupControl>
+					{UnitsSelector && (
+						<UnitsSelector
+							value={values.unit}
+							onChange={handleUnitChange}
+							units={units}
+							ariaLabel={__("Select Units", "digiblocks")}
+						/>
+					)}
                 </div>
             </div>
             

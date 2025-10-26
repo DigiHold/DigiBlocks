@@ -253,31 +253,27 @@ export const getDimensionCSS = (dimensions, property, device = 'desktop', import
  * @param {string} animation - The animation name
  * @param {Object} animations - The animations object containing keyframes
  * @param {Object} previewTimeoutRef - useRef object to store timeout reference
+ * @param {Object} animationDuration - The animation duration
+ * @param {Object} animationDelay - The animation delay
  * @return {void}
  */
-export const animationPreview = (id, animation, animations, previewTimeoutRef) => {
-    // Only proceed if we have a valid animation
+export const animationPreview = (id, animation, animations, previewTimeoutRef, animationDuration = 'normal', animationDelay = 0) => {
     if (!animation || animation === 'none') {
         return;
     }
     
-    // Clear any existing timeout
     if (previewTimeoutRef.current) {
         clearTimeout(previewTimeoutRef.current);
     }
     
-    // Find the block element
     const blockElement = document.querySelector(`.${id}`);
     if (!blockElement) {
         return;
     }
     
-    // Generate a timestamp to ensure unique animation names on each click
     const timestamp = Date.now();
     
-    // Apply animation directly
     if (animations[animation]) {
-        // Extract the original animation name from the keyframes
         const originalKeyframes = animations[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
         
@@ -289,11 +285,9 @@ export const animationPreview = (id, animation, animations, previewTimeoutRef) =
         const originalAnimName = originalAnimNameMatch[1];
         const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
         
-        // Create a style element with a unique animation name to avoid conflicts
         const styleElement = document.createElement('style');
         styleElement.id = `animation-style-${id}_${timestamp}`;
         
-        // Replace the original animation name with our unique name
         const updatedKeyframes = originalKeyframes.replace(
             new RegExp(originalAnimName, 'g'),
             uniqueAnimName
@@ -303,37 +297,37 @@ export const animationPreview = (id, animation, animations, previewTimeoutRef) =
             ${updatedKeyframes}
             
             .${id} {
-                animation: none; /* Reset first */
+                animation: none;
             }
         `;
         
-        // Remove any existing animation style for this block
         document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
             el.remove();
         });
         
-        // Add the style to the document
         document.head.appendChild(styleElement);
         
-        // Force reflow to ensure animation reset
         blockElement.offsetHeight;
         
-        // Now apply the animation
+        const durationMap = { slow: '2s', normal: '1s', fast: '0.5s' };
+        const duration = durationMap[animationDuration] || '1s';
+        const delay = animationDelay ? `${animationDelay}ms` : '0ms';
+        
         const animationStyleElement = document.createElement('style');
         animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
         animationStyleElement.textContent = `
             .${id} {
-                animation: ${uniqueAnimName} 1.5s forwards !important;
+                animation: ${uniqueAnimName} ${duration} ${delay} forwards !important;
             }
         `;
         document.head.appendChild(animationStyleElement);
         
-        // Clean up after animation
+        const cleanupDelay = (animationDuration === 'slow' ? 2000 : animationDuration === 'fast' ? 500 : 1000) + animationDelay;
         previewTimeoutRef.current = setTimeout(() => {
             styleElement.remove();
             animationStyleElement.remove();
             blockElement.style.animation = '';
-        }, 1500);
+        }, cleanupDelay);
     }
 };
 

@@ -5,14 +5,25 @@
 @import "_dimension.css";
 @import "_gradient.css";
 @import "_range.css";
+@import "_units-selector.css";
 
 /* Blocks */
 @import "_container.css";
 @import "_row.css";
 @import "_social-icons.css";
+@import "_icon-list.css";
 
 .is-root-container * {
     box-sizing: border-box;
+}
+
+.block-editor-block-list__block .block-list-appender {
+    width: 100%;
+}
+
+label.components-base-control__label {
+    display: block;
+    margin-bottom: 5px;
 }
 
 .components-panel__body .digiblocks-control-tabs.first {

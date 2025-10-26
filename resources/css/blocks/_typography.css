@@ -2,17 +2,17 @@
 .digiblocks-typography-options {
     margin-bottom: 24px;
 
-	.digiblocks-select-control .components-select-control,
-	.digiblocks-typography-advanced > .components-base-control {
-		display: grid;
-		grid-template-columns: 50% 50%;
-		align-items: center;
-		gap: 0;
+    .digiblocks-select-control .components-select-control,
+    .digiblocks-popover > .components-base-control {
+        display: grid;
+        grid-template-columns: 50% 50%;
+        align-items: center;
+        gap: 0;
 
-		label {
-			margin-bottom: 0;
-		}
-	}
+        label {
+            margin-bottom: 0;
+        }
+    }
 }
 
 /* Typography toggle button and header */
@@ -23,7 +23,7 @@
     margin-bottom: 8px;
 }
 
-body .components-button.digiblocks-typography-button {
+body .components-button.digiblocks-pencil-button {
     background: transparent !important;
     border: none;
     cursor: pointer;
@@ -37,31 +37,40 @@ body .components-button.digiblocks-typography-button {
     color: #50575e;
 }
 
-body .components-button.digiblocks-typography-button .dashicons-edit {
+body .components-button.digiblocks-pencil-button .dashicons-edit {
     font-size: 15px;
     line-height: 20px;
-	outline: none;
+    outline: none;
 }
 
-body .components-button.digiblocks-typography-button:hover {
+body .components-button.digiblocks-pencil-button:hover {
     color: #007cba;
 }
 
-body .components-button.digiblocks-typography-button.is-pressed {
+body .components-button.digiblocks-pencil-button.is-pressed {
     color: #007cba;
     background-color: #fff;
 }
 
 /* Typography advanced settings panel */
-.digiblocks-typography-advanced {
+.digiblocks-popover {
     position: relative;
     top: 5px;
     width: 100%;
     border-radius: 2px;
     padding: 16px;
     margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
     background: #fff;
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset-block-start: -16px;
+        inset-inline-end: 8px;
+        border: 8px solid transparent;
+        border-block-end-color: #fff;
+    }
 }
 
 /* Font family control */
@@ -69,7 +78,8 @@ body .components-button.digiblocks-typography-button.is-pressed {
     margin-bottom: 15px;
 }
 
-.digiblocks-font-family-searchable-select__wrapper .components-input-control__label {
+.digiblocks-font-family-searchable-select__wrapper
+    .components-input-control__label {
     color: #50575e;
     font-size: 13px !important;
     line-height: 1.4em !important;
@@ -93,7 +103,7 @@ body .components-button.digiblocks-typography-button.is-pressed {
     width: 100%;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 .digiblocks-responsive-label-wrap {
@@ -103,7 +113,7 @@ body .components-button.digiblocks-typography-button.is-pressed {
 
 /* Range control actions and units */
 .digiblocks-control__header .digiblocks-control__actions {
-    gap: .25rem;
+    gap: 0.25rem;
 }
 
 /* Range control mobile controls */
@@ -111,9 +121,9 @@ body .components-button.digiblocks-typography-button.is-pressed {
     display: flex;
     align-items: center;
 
-	> .components-base-control {
-		width: 100%;
-	}
+    > .components-base-control {
+        width: 100%;
+    }
 }
 
 /* Select control layout */
@@ -136,10 +146,19 @@ body .components-button.digiblocks-typography-button.is-pressed {
     font-weight: 400 !important;
 }
 
-.digiblocks-select-control--layout-inline .components-select-control__input {
+body
+    .digiblocks-popover
+    .digiblocks-select-control
+    select.components-select-control__input {
     color: #50575e;
     text-transform: capitalize;
-    line-height: 30px;
+    height: 30px;
+    min-height: 30px;
+    padding: 0px 20px 0px 6px;
+
+    .components-input-control-suffix-wrapper {
+        padding-inline-end: 6px;
+    }
 }
 
 /* Typography decoration */

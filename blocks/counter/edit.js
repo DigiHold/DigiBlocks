@@ -18,6 +18,7 @@ const {
     Button,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
+	__experimentalNumberControl: NumberControl,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 
@@ -26,7 +27,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveControl, ResponsiveRangeControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
 
 /**
  * Edit function for the Counter block
@@ -72,6 +73,8 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
         margin,
         align,
         animation,
+		animationDataDuration,
+		animationDataDelay,
         boxShadow,
         boxShadowHover,
         borderStyle,
@@ -90,7 +93,15 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
         counterPrefixSpacing,
         counterSuffix,
         counterSuffixSpacing,
-        numberWithCommas
+        numberWithCommas,
+        position,
+        horizontalOrientation,
+        horizontalOffset,
+        verticalOrientation,
+        verticalOffset,
+        zIndex,
+		transform,
+        transformHover,
     } = attributes;
 
 	// Create unique class
@@ -179,7 +190,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
 	useEffect(() => {
 		if (animation && animation !== 'none') {
 			const timeoutId = setTimeout(() => {
-				animationPreview(id, animation, animations, previewTimeoutRef);
+				animationPreview(id, animation, animations, previewTimeoutRef, animationDataDuration, animationDataDelay);
 			}, 100);
 			return () => clearTimeout(timeoutId);
 		}
@@ -187,7 +198,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
 
 	// Button click handler
 	const handlePreviewClick = () => {
-		animationPreview(id, animation, animations, previewTimeoutRef);
+		animationPreview(id, animation, animations, previewTimeoutRef, animationDataDuration, animationDataDelay);
 	};
 
     // Counter animation preview
@@ -331,6 +342,147 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
             className: 'digiblocks-tab-2 hover'
         }
     ];
+
+    const getMaxValue = (unit) => {
+        switch (unit) {
+            case '%':
+                return 100;
+            case 'em':
+            case 'rem':
+                return 50;
+            case 'vw':
+            case 'vh':
+                return 100;
+            default:
+                return 2000;
+        }
+    };
+
+    const getStepValue = (unit) => {
+        switch (unit) {
+            case '%':
+            case 'vw':
+            case 'vh':
+                return 1;
+            case 'em':
+            case 'rem':
+                return 0.1;
+            default:
+                return 1;
+        }
+    };
+
+	const getTransformOrigin = (transform, device) => {
+        const xMap = { left: '0%', center: '50%', right: '100%' };
+        const yMap = { top: '0%', center: '50%', bottom: '100%' };
+        
+        const x = xMap[transform.xAnchor?.[device] || 'center'];
+        const y = yMap[transform.yAnchor?.[device] || 'center'];
+        
+        return `${x} ${y}`;
+    };
+
+	const getTransformCSS = (transform, device) => {
+		if (!transform) return '';
+		
+		const transforms = [];
+		
+		const getValue = (prop) => {
+			if (!prop) return '';
+			
+			let val = prop[device];
+			
+			// Check if value is empty
+			const isEmpty = (v) => {
+				if (v === '' || v === undefined || v === null) return true;
+				if (typeof v === 'object' && v !== null) {
+					return v.value === '' || v.value === undefined || v.value === null;
+				}
+				return false;
+			};
+			
+			// Tablet fallback to desktop
+			if (device === 'tablet' && isEmpty(val)) {
+				val = prop.desktop;
+			}
+			
+			// Mobile fallback to tablet, then desktop
+			if (device === 'mobile' && isEmpty(val)) {
+				val = prop.tablet;
+				if (isEmpty(val)) {
+					val = prop.desktop;
+				}
+			}
+			
+			return typeof val === 'object' && val !== null ? (val.value !== undefined ? val.value : '') : val;
+		};
+		
+		const rotateValue = getValue(transform.rotate);
+		if (rotateValue !== '' && rotateValue !== undefined && rotateValue !== null) {
+			if (transform.rotate3d) {
+				const perspectiveValue = getValue(transform.perspective);
+				if (perspectiveValue !== '' && perspectiveValue !== undefined && perspectiveValue !== null) {
+					transforms.push(`perspective(${perspectiveValue}px)`);
+				}
+			}
+			transforms.push(`rotate(${rotateValue}deg)`);
+		}
+		
+		if (transform.rotate3d) {
+			const rotateXValue = getValue(transform.rotateX);
+			if (rotateXValue !== '' && rotateXValue !== undefined && rotateXValue !== null) {
+				transforms.push(`rotateX(${rotateXValue}deg)`);
+			}
+			const rotateYValue = getValue(transform.rotateY);
+			if (rotateYValue !== '' && rotateYValue !== undefined && rotateYValue !== null) {
+				transforms.push(`rotateY(${rotateYValue}deg)`);
+			}
+		}
+		
+		const offsetXValue = transform.offsetX?.[device]?.value;
+		const offsetYValue = transform.offsetY?.[device]?.value;
+		const hasOffsetX = offsetXValue !== '' && offsetXValue !== undefined && offsetXValue !== null;
+		const hasOffsetY = offsetYValue !== '' && offsetYValue !== undefined && offsetYValue !== null;
+		
+		if (hasOffsetX || hasOffsetY) {
+			const x = hasOffsetX ? `${offsetXValue}${transform.offsetX[device].unit || 'px'}` : '0';
+			const y = hasOffsetY ? `${offsetYValue}${transform.offsetY[device].unit || 'px'}` : '0';
+			transforms.push(`translate(${x}, ${y})`);
+		}
+		
+		if (transform.keepProportions) {
+			const scaleValue = getValue(transform.scale);
+			if (scaleValue !== '' && scaleValue !== undefined && scaleValue !== null && scaleValue != 1) {
+				transforms.push(`scale(${scaleValue})`);
+			}
+		} else {
+			const scaleXValue = getValue(transform.scaleX);
+			const scaleYValue = getValue(transform.scaleY);
+			const scaleX = (scaleXValue !== '' && scaleXValue !== undefined && scaleXValue !== null) ? scaleXValue : 1;
+			const scaleY = (scaleYValue !== '' && scaleYValue !== undefined && scaleYValue !== null) ? scaleYValue : 1;
+			if (scaleX != 1 || scaleY != 1) {
+				transforms.push(`scale(${scaleX}, ${scaleY})`);
+			}
+		}
+		
+		const skewXValue = getValue(transform.skewX);
+		if (skewXValue !== '' && skewXValue !== undefined && skewXValue !== null) {
+			transforms.push(`skewX(${skewXValue}deg)`);
+		}
+		const skewYValue = getValue(transform.skewY);
+		if (skewYValue !== '' && skewYValue !== undefined && skewYValue !== null) {
+			transforms.push(`skewY(${skewYValue}deg)`);
+		}
+		
+		if (transform.flipHorizontal) {
+			transforms.push('scaleX(-1)');
+		}
+		if (transform.flipVertical) {
+			transforms.push('scaleY(-1)');
+		}
+		
+		return transforms.length > 0 ? transforms.join(' ') : '';
+	};
 
     // Generate CSS for block styling
     const generateCSS = () => {
@@ -544,6 +696,56 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
         } else if (hoverEffect === 'glow') {
             hoverCSS += 'filter: brightness(1.1);';
         }
+
+        // Position styles
+        let positionCSS = '';
+        if (position && position !== 'default') {
+            positionCSS += `position: ${position} !important;`;
+            
+            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue !== '' && horizontalValue !== undefined) {
+                if (horizontalOrientation === 'left') {
+                    positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
+                } else {
+                    positionCSS += `right: ${horizontalValue}${horizontalUnit};`;
+                }
+            }
+            
+            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue !== '' && verticalValue !== undefined) {
+                if (verticalOrientation === 'top') {
+                    positionCSS += `top: ${verticalValue}${verticalUnit};`;
+                } else {
+                    positionCSS += `bottom: ${verticalValue}${verticalUnit};`;
+                }
+            }
+        }
+
+        if (zIndex !== '' && zIndex !== undefined && zIndex !== null) {
+            positionCSS += `z-index: ${zIndex};`;
+        }
+
+		// Transform
+		let transformCSS = '';
+		const transformValue = getTransformCSS(transform, activeDevice);
+		if (transformValue) {
+			transformCSS += `transform: ${transformValue};`;
+			transformCSS += `transform-origin: ${getTransformOrigin(transform, activeDevice)};`;
+		}
+
+		const transformHoverValue = getTransformCSS(transformHover, activeDevice);
+		if (transformHoverValue && transformHover && transformHover.transitionDuration !== '' && transformHover.transitionDuration !== undefined && transformHover.transitionDuration !== null) {
+			const duration = transformHover.transitionDuration;
+			transformCSS += `transition: transform ${duration}ms ease;`;
+		}
+
+		let transformHoverCSS = '';
+		if (transformHoverValue) {
+			transformHoverCSS += `transform: ${transformHoverValue};`;
+			transformHoverCSS += `transform-origin: ${getTransformOrigin(transformHover, activeDevice)};`;
+		}
         
         // Set base styles for the block
         return `
@@ -556,12 +758,15 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                 ${borderCSS}
                 transition: all 0.3s ease;
                 text-align: ${align || 'center'};
+                ${positionCSS}
+				${transformCSS}
             }
             
             /* Hover effects */
             .${id}:hover {
                 ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
                 ${hoverCSS}
+				${transformHoverCSS}
             }
             
             /* Layout styles */
@@ -1329,7 +1534,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                         onChange={(value) => setAttributes({
                                             iconMargin: {
                                                 ...iconMargin || {
-                                                    desktop: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px' },
+                                                    desktop: { top: 0, right: 0, bottom: 20, left: 0, unit: 'px', isLinked: false, },
                                                     tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
                                                     mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
                                                 },
@@ -1373,7 +1578,7 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                         <TabPanelBody
                             tab="style"
                             name="border"
-                            title={__("Border & Shadow", "digiblocks")}
+                            title={__("Border & Radius", "digiblocks")}
                             initialOpen={false}
                         >
                             <SelectControl
@@ -1469,7 +1674,14 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                 __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
                             />
-                            
+                        </TabPanelBody>
+
+                        <TabPanelBody
+                            tab="style"
+                            name="shadow"
+                            title={__('Box Shadow', 'digiblocks')}
+                            initialOpen={false}
+                        >
                             <BoxShadowControl
                                 normalValue={boxShadow}
                                 hoverValue={boxShadowHover}
@@ -1477,12 +1689,16 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                 onHoverChange={(value) => setAttributes({ boxShadowHover: value })}
                             />
                         </TabPanelBody>
-                        
+                    </>
+                );
+            case 'advanced':
+                return (
+                    <>
                         <TabPanelBody
-                            tab="style"
+                            tab="advanced"
                             name="spacing"
-                            title={__("Spacing", "digiblocks")}
-                            initialOpen={false}
+                            title={__('Spacing', 'digiblocks')}
+                            initialOpen={true}
                         >
                             <ResponsiveControl
                                 label={__("Padding", "digiblocks")}
@@ -1516,16 +1732,130 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                 />
                             </ResponsiveControl>
                         </TabPanelBody>
-                    </>
-                );
-            case 'advanced':
-                return (
-                    <>
+
                         <TabPanelBody
                             tab="advanced"
+                            name="position"
+                            title={__("Position", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            <SelectControl
+                                label={__("Position", "digiblocks")}
+                                value={position}
+                                options={[
+                                    { label: __("Default", "digiblocks"), value: "default" },
+                                    { label: __("Relative", "digiblocks"), value: "relative" },
+                                    { label: __("Absolute", "digiblocks"), value: "absolute" },
+                                    { label: __("Fixed", "digiblocks"), value: "fixed" },
+                                ]}
+                                onChange={(value) => setAttributes({ position: value })}
+                                __nextHasNoMarginBottom={true}
+                            />
+
+                            {position !== 'default' && (
+                                <>
+                                    <ToggleGroupControl
+                                        label={__("Horizontal Orientation", "digiblocks")}
+                                        value={horizontalOrientation}
+                                        isBlock
+                                        onChange={(value) => setAttributes({ horizontalOrientation: value })}
+                                        __nextHasNoMarginBottom={true}
+                                    >
+                                        <ToggleGroupControlOption
+                                            value="left"
+                                            label={__("Left", "digiblocks")}
+                                        />
+                                        <ToggleGroupControlOption
+                                            value="right"
+                                            label={__("Right", "digiblocks")}
+                                        />
+                                    </ToggleGroupControl>
+
+                                    <ResponsiveRangeControl
+                                        label={__("Offset", "digiblocks")}
+                                        value={horizontalOffset}
+                                        onChange={(value) => setAttributes({ horizontalOffset: value })}
+                                        units={[
+                                            { label: 'px', value: 'px' },
+                                            { label: '%', value: '%' },
+                                            { label: 'em', value: 'em' },
+                                            { label: 'rem', value: 'rem' },
+                                            { label: 'vw', value: 'vw' },
+                                            { label: 'vh', value: 'vh' },
+                                        ]}
+                                        defaultUnit="px"
+                                        min={0}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                    />
+
+                                    <ToggleGroupControl
+                                        label={__("Vertical Orientation", "digiblocks")}
+                                        value={verticalOrientation}
+                                        isBlock
+                                        onChange={(value) => setAttributes({ verticalOrientation: value })}
+                                        __nextHasNoMarginBottom={true}
+                                    >
+                                        <ToggleGroupControlOption
+                                            value="top"
+                                            label={__("Top", "digiblocks")}
+                                        />
+                                        <ToggleGroupControlOption
+                                            value="bottom"
+                                            label={__("Bottom", "digiblocks")}
+                                        />
+                                    </ToggleGroupControl>
+
+                                    <ResponsiveRangeControl
+                                        label={__("Offset", "digiblocks")}
+                                        value={verticalOffset}
+                                        onChange={(value) => setAttributes({ verticalOffset: value })}
+                                        units={[
+                                            { label: 'px', value: 'px' },
+                                            { label: '%', value: '%' },
+                                            { label: 'em', value: 'em' },
+                                            { label: 'rem', value: 'rem' },
+                                            { label: 'vw', value: 'vw' },
+                                            { label: 'vh', value: 'vh' },
+                                        ]}
+                                        defaultUnit="px"
+                                        min={0}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                    />
+                                </>
+                            )}
+
+                            <RangeControl
+                                label={__("Z-Index", "digiblocks")}
+                                value={zIndex}
+                                onChange={(value) => setAttributes({ zIndex: value })}
+                                min={-999}
+                                max={9999}
+                                allowReset={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                        </TabPanelBody>
+
+						<TabPanelBody
+                            tab="advanced"
+                            name="transform"
+                            title={__('Transform', 'digiblocks')}
+                            initialOpen={false}
+                        >
+                            <TransformControl
+                                normalValue={transform}
+                                hoverValue={transformHover}
+                                onNormalChange={(value) => setAttributes({ transform: value })}
+                                onHoverChange={(value) => setAttributes({ transformHover: value })}
+                            />
+                        </TabPanelBody>
+
+						<TabPanelBody
+                            tab="advanced"
                             name="animation"
-                            title={__("Animation", "digiblocks")}
-                            initialOpen={true}
+                            title={__('Animation', 'digiblocks')}
+                            initialOpen={false}
                         >
                             <SelectControl
                                 label={__("Animation Effect", "digiblocks")}
@@ -1535,6 +1865,33 @@ const CounterEdit = ({ attributes, setAttributes, clientId }) => {
                                 __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
                             />
+
+							{animation && animation !== 'none' && (
+								<>
+									<SelectControl
+										label={__("Animation Duration", "digiblocks")}
+										value={animationDataDuration}
+										options={[
+											{ label: __("Slow", "digiblocks"), value: "slow" },
+											{ label: __("Normal", "digiblocks"), value: "normal" },
+											{ label: __("Fast", "digiblocks"), value: "fast" }
+										]}
+										onChange={(value) => setAttributes({ animationDataDuration: value })}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+									
+									<NumberControl
+										label={__("Animation Delay (ms)", "digiblocks")}
+										value={animationDataDelay || 0}
+										onChange={(value) => setAttributes({ animationDataDelay: parseInt(value) || 0 })}
+										min={0}
+										step={100}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+								</>
+							)}
                             
                             {/* Animation Preview Button */}
                             {animation && animation !== 'none' && (

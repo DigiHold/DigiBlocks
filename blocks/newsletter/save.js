@@ -22,10 +22,12 @@ const NewsletterSave = ({ attributes }) => {
         successMessage,
         errorMessage,
         animation,
+        animationDuration,
+        animationDelay,
     } = attributes;
 
     // Build class names
-    const animationClass = ('none' !== animation) ? ` animate-${animation}` : '';
+    const animationClass = ('none' !== animation) ? ` animate-${animation} digi-animate-hidden` : '';
     const blockClasses = `digiblocks-newsletter ${id}${animationClass} ${customClasses || ""}`;
 
     // Get the block props
@@ -33,6 +35,12 @@ const NewsletterSave = ({ attributes }) => {
         className: blockClasses,
         id: anchor || null,
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     return (
         <div {...blockProps}>

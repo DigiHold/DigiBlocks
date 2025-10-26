@@ -13,23 +13,21 @@ const HeadingSave = ({ attributes }) => {
         customClasses, 
         content,
         headingTag,
-        align,
         animation,
-        highlightText,
-        highlightType,
+        animationDuration,
+        animationDelay,
         displaySeparator,
         separatorStyle,
         linkEnabled,
         linkUrl,
-        linkOpenInNewTab,
-        linkRel
+        linkOpenInNewTab
     } = attributes;
 
     // Build class names
     const blockClasses = [
         "digiblocks-heading",
 		id,
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         displaySeparator ? `has-separator separator-${separatorStyle}` : "",
         customClasses || ""
     ]
@@ -37,39 +35,22 @@ const HeadingSave = ({ attributes }) => {
         .join(" ");
 
     // Build common props
-    const commonProps = {
+    const blockProps = {
         className: blockClasses,
         id: anchor || null,
     };
 
-    // Function to render highlighted content
-    const renderHeadingWithHighlight = () => {
-        if (!highlightText || highlightText.trim() === '') {
-            return content;
-        }
-
-        // Regular expression to escape special characters
-        const escapeRegExp = (string) => {
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
-
-        const parts = content.split(new RegExp(`(${escapeRegExp(highlightText)})`, 'g'));
-        
-        return parts.map((part, index) => {
-            if (part === highlightText) {
-                return `<span class="digiblocks-highlight">${part}</span>`;
-            }
-            return part;
-        }).join('');
-    };
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     // Create the proper heading tag
     const TagName = headingTag;
 
-    // Get processed content with highlights
-    const processedContent = highlightText && highlightText.trim() !== '' ? 
-        <span dangerouslySetInnerHTML={{ __html: renderHeadingWithHighlight() }} /> : 
-        <RichText.Content value={content} />;
+    // Get processed content
+    const processedContent = <RichText.Content value={content} />;
 
     // If link is enabled, make the entire heading a link
     if (linkEnabled && linkUrl) {
@@ -78,7 +59,7 @@ const HeadingSave = ({ attributes }) => {
                 href={linkUrl}
                 target={linkOpenInNewTab ? "_blank" : "_self"}
                 rel={linkOpenInNewTab ? "noopener noreferrer" : undefined}
-                {...commonProps}
+                {...blockProps}
             >
                 <TagName className="digiblocks-heading-text">
                     {processedContent}
@@ -89,7 +70,7 @@ const HeadingSave = ({ attributes }) => {
 
     // Otherwise, render as a div with the heading inside
     return (
-        <div {...commonProps}>
+        <div {...blockProps}>
             <TagName className="digiblocks-heading-text">
                 {processedContent}
             </TagName>

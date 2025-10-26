@@ -16,10 +16,12 @@ const RowSave = ({ attributes }) => {
         backgroundVideo,
         backgroundVideoFallbackImage,
         animation,
+        animationDuration,
+        animationDelay,
     } = attributes;
 
     // Build class names
-    const classNames = `digiblocks-row ${id} ${customClasses || ''} ${isNested ? 'is-nested' : ''}${animation !== 'none' ? ` animate-${animation}` : ''}`;
+    const classNames = `digiblocks-row ${id} ${customClasses || ''} ${isNested ? 'is-nested' : ''}${animation !== 'none' ? ` animate-${animation} digi-animate-hidden` : ''}`;
     
     // Configure block props and inner blocks props based on nesting
     let blockProps, innerBlocksProps;
@@ -42,6 +44,12 @@ const RowSave = ({ attributes }) => {
         innerBlocksProps = useInnerBlocksProps.save({
             className: 'digiblocks-row-inner'
         });
+    }
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
     }
 
     // Background video component

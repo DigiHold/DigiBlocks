@@ -17,6 +17,8 @@ const PricingTableSave = ({ attributes }) => {
         tableStyle,
         align,
         animation,
+        animationDuration,
+        animationDelay,
         showRibbon,
         ribbonStyle,
         ribbonPosition
@@ -27,16 +29,28 @@ const PricingTableSave = ({ attributes }) => {
         "digiblocks-pricing-table-block",
         id,
         `align-${align}`,
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         tableStyle ? `style-${tableStyle}` : "",
         customClasses || ""
     ]
         .filter(Boolean)
         .join(" ");
 
+    // Build common props
+    const blockProps = useBlockProps.save({
+        className: blockClasses,
+        id: anchor || null,
+    });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
+
     // Main wrapper with styles
     return (
-        <div className={blockClasses} id={anchor || null}>
+        <div {...blockProps}>
             <div className="digiblocks-pricing-tables-container">
                 {tables.map((table) => (
                     <div

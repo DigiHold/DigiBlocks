@@ -76,17 +76,17 @@ registerBlockType('digiblocks/container', {
 		contentWidth: {
 			type: 'object',
 			default: {
-				desktop: parseInt(digiBlocksData.contentWidth) || 1200,
-				tablet: '',
-				mobile: ''
+				desktop: { value: parseInt(digiBlocksData.contentWidth) || 1200, unit: 'px' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
 			}
 		},
 		contentMaxWidth: {
 			type: 'object',
 			default: {
-				desktop: parseInt(digiBlocksData.contentMaxWidth) || 90,
-				tablet: '',
-				mobile: ''
+				desktop: { value: parseInt(digiBlocksData.contentMaxWidth) || 90, unit: '%' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
 			}
 		},
 		heightType: {
@@ -95,6 +95,14 @@ registerBlockType('digiblocks/container', {
 				desktop: 'auto',
 				tablet: '',
 				mobile: ''
+			}
+		},
+		minHeight: {
+			type: 'object',
+			default: {
+				desktop: { value: 0, unit: 'px' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
 			}
 		},
 		horizontalAlign: {
@@ -121,14 +129,6 @@ registerBlockType('digiblocks/container', {
 				mobile: ''
 			}
 		},
-        minHeight: {
-            type: 'object',
-            default: {
-                desktop: 0,
-                tablet: '',
-                mobile: ''
-            }
-        },
 		columnGap: {
 			type: 'object',
 			default: {
@@ -160,10 +160,6 @@ registerBlockType('digiblocks/container', {
         overflowHidden: {
             type: 'boolean',
             default: false
-        },
-        zIndex: {
-            type: 'number',
-            default: 0
         },
         backgroundColor: {
             type: 'string',
@@ -300,6 +296,92 @@ registerBlockType('digiblocks/container', {
         animation: {
             type: 'string',
             default: 'none'
+        },
+		animationDuration: {
+			type: 'string',
+			default: 'normal'
+		},
+		animationDelay: {
+			type: 'number',
+			default: ''
+		},
+        position: {
+            type: 'string',
+            default: 'default',
+        },
+        horizontalOrientation: {
+            type: 'string',
+            default: 'left',
+        },
+        horizontalOffset: {
+            type: 'object',
+            default: {
+                desktop: { value: 0, unit: 'px' },
+                tablet: { value: 0, unit: 'px' },
+                mobile: { value: 0, unit: 'px' },
+            },
+        },
+        verticalOrientation: {
+            type: 'string',
+            default: 'top',
+        },
+        verticalOffset: {
+            type: 'object',
+            default: {
+                desktop: { value: 0, unit: 'px' },
+                tablet: { value: 0, unit: 'px' },
+                mobile: { value: 0, unit: 'px' },
+            },
+        },
+        zIndex: {
+            type: 'number',
+            default: '',
+        },
+		transform: {
+            type: 'object',
+            default: {
+                rotate: { desktop: '', tablet: '', mobile: '' },
+                rotate3d: false,
+                rotateX: { desktop: '', tablet: '', mobile: '' },
+                rotateY: { desktop: '', tablet: '', mobile: '' },
+                perspective: { desktop: '', tablet: '', mobile: '' },
+                offsetX: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                offsetY: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                keepProportions: true,
+                scale: { desktop: '', tablet: '', mobile: '' },
+                scaleX: { desktop: '', tablet: '', mobile: '' },
+                scaleY: { desktop: '', tablet: '', mobile: '' },
+                skewX: { desktop: '', tablet: '', mobile: '' },
+                skewY: { desktop: '', tablet: '', mobile: '' },
+                flipHorizontal: false,
+                flipVertical: false,
+                xAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                yAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                transitionDuration: ''
+            }
+        },
+        transformHover: {
+            type: 'object',
+            default: {
+                rotate: { desktop: '', tablet: '', mobile: '' },
+                rotate3d: false,
+                rotateX: { desktop: '', tablet: '', mobile: '' },
+                rotateY: { desktop: '', tablet: '', mobile: '' },
+                perspective: { desktop: '', tablet: '', mobile: '' },
+                offsetX: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                offsetY: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                keepProportions: true,
+                scale: { desktop: '', tablet: '', mobile: '' },
+                scaleX: { desktop: '', tablet: '', mobile: '' },
+                scaleY: { desktop: '', tablet: '', mobile: '' },
+                skewX: { desktop: '', tablet: '', mobile: '' },
+                skewY: { desktop: '', tablet: '', mobile: '' },
+                flipHorizontal: false,
+                flipVertical: false,
+                xAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                yAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                transitionDuration: ''
+            }
         },
     },
 	example: {

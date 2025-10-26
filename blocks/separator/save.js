@@ -18,7 +18,9 @@ const SeparatorSave = ({ attributes }) => {
         separatorStyle,
         primaryColor,
         secondaryColor,
-        animation
+        animation,
+        animationDuration,
+        animationDelay,
     } = attributes;
 
     // Helper function to render SVG for special separator styles
@@ -67,7 +69,7 @@ const SeparatorSave = ({ attributes }) => {
 		id,
         contentType !== 'none' && !['wave', 'zigzag', 'slant'].includes(separatorStyle) ? 'digiblocks-separator-has-content' : '',
         `align-${align}`,
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         customClasses || ""
     ]
         .filter(Boolean)
@@ -79,6 +81,12 @@ const SeparatorSave = ({ attributes }) => {
         id: anchor || null,
         "data-separator-style": separatorStyle,
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     return (
         <div {...blockProps}>

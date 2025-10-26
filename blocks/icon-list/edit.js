@@ -6,6 +6,7 @@ const {
     useBlockProps,
     RichText,
     InspectorControls,
+    BlockControls,
     PanelColorSettings,
     LinkControl,
 } = wp.blockEditor;
@@ -17,10 +18,15 @@ const {
     ToggleControl,
     Modal,
     Tooltip,
+    ToolbarGroup,
+    ToolbarButton,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
+	__experimentalNumberControl: NumberControl,
+    Draggable,
 } = wp.components;
-const { useState, useEffect, useRef } = wp.element;
+const { useState, useEffect, useRef, useMemo } = wp.element;
+const { __unstableStripHTML: stripHTML } = wp.dom;
 
 /**
  * Internal dependencies
@@ -29,12 +35,13 @@ const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils
 const { tabIcons } = digi.icons;
 const {
     ResponsiveControl,
+	ResponsiveRangeControl,
     DimensionControl,
     TypographyControl,
     BoxShadowControl,
     CustomTabPanel,
     TabPanelBody,
-    FontAwesomeControl,
+	TransformControl
 } = digi.components;
 
 /**
@@ -62,6 +69,8 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
         textColor,
         textHoverColor,
         animation,
+		animationDuration,
+		animationDelay,
         padding,
         margin,
         borderStyle,
@@ -74,6 +83,14 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
         backgroundColor,
         backgroundHoverColor,
         hoverEffect,
+        position,
+        horizontalOrientation,
+        horizontalOffset,
+        verticalOrientation,
+        verticalOffset,
+        zIndex,
+		transform,
+        transformHover,
     } = attributes;
 
 	// Create unique class
@@ -177,6 +194,9 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
     const [linkModalOpen, setLinkModalOpen] = useState(false);
     const [currentEditingItem, setCurrentEditingItem] = useState(null);
     const [isAnimating, setIsAnimating] = useState(false);
+	const [draggedItemIndex, setDraggedItemIndex] = useState(null);
+	const [dropTargetIndex, setDropTargetIndex] = useState(null);
+	const [expandedItemId, setExpandedItemId] = useState(null);
 
     // Subscribe to global device state changes
     useEffect(() => {
@@ -231,7 +251,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 	useEffect(() => {
 		if (animation && animation !== 'none') {
 			const timeoutId = setTimeout(() => {
-				animationPreview(id, animation, animations, previewTimeoutRef);
+				animationPreview(id, animation, animations, previewTimeoutRef, animationDuration, animationDelay);
 			}, 100);
 			return () => clearTimeout(timeoutId);
 		}
@@ -239,7 +259,7 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 
 	// Button click handler
 	const handlePreviewClick = () => {
-		animationPreview(id, animation, animations, previewTimeoutRef);
+		animationPreview(id, animation, animations, previewTimeoutRef, animationDuration, animationDelay);
 	};
 
     // Border style options
@@ -383,6 +403,471 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
     // Get FontAwesomeControl from the global object
     const FontAwesomeControl = componentsLoaded ? window.digi.components.FontAwesomeControl : null;
 
+	const handleDragStart = (index) => {
+		setDraggedItemIndex(index);
+	};
+
+	const handleDragEnd = () => {
+		setDraggedItemIndex(null);
+		setDropTargetIndex(null);
+	};
+
+	const handleDragEnter = (index) => {
+		if (draggedItemIndex === null || draggedItemIndex === index) return;
+		setDropTargetIndex(index);
+	};
+
+	const handleDrop = (index) => {
+		if (draggedItemIndex === null || draggedItemIndex === index) return;
+		
+		const newItems = [...items];
+		const [draggedItem] = newItems.splice(draggedItemIndex, 1);
+		newItems.splice(index, 0, draggedItem);
+		
+		setAttributes({ items: newItems });
+		setDraggedItemIndex(null);
+		setDropTargetIndex(null);
+	};
+
+	const toggleItemExpanded = (itemId) => {
+		setExpandedItemId(expandedItemId === itemId ? null : itemId);
+	};
+
+	const LinkControlWrapper = ({ item, index, updateListItem }) => {
+		const linkValue = useMemo(() => {
+			if (!item.linkUrl) {
+				return undefined;
+			}
+			return {
+				url: item.linkUrl,
+				opensInNewTab: item.linkOpenInNewTab || false,
+			};
+		}, [item.linkUrl, item.linkOpenInNewTab]);
+
+		const handleLinkChange = (newLink) => {
+			if (newLink && newLink.url !== undefined) {
+				const newItems = [...items];
+				newItems[index] = {
+					...newItems[index],
+					linkUrl: newLink.url,
+					linkOpenInNewTab: newLink.opensInNewTab || false,
+				};
+				setAttributes({ items: newItems });
+			}
+		};
+
+		const handleLinkRemove = () => {
+			const newItems = [...items];
+			newItems[index] = {
+				...newItems[index],
+				linkUrl: "",
+				linkOpenInNewTab: false,
+				linkRel: "",
+			};
+			setAttributes({ items: newItems });
+		};
+
+		const handleRelChange = (value) => {
+			const newItems = [...items];
+			newItems[index] = {
+				...newItems[index],
+				linkRel: value ? 'nofollow' : '',
+			};
+			setAttributes({ items: newItems });
+		};
+
+		return (
+			<>
+				<LinkControl
+					value={linkValue}
+					settings={[
+						{
+							id: "opensInNewTab",
+							title: __("Open in new tab", "digiblocks"),
+						},
+					]}
+					onChange={handleLinkChange}
+					onRemove={handleLinkRemove}
+					suggestionsQuery={{
+						type: 'post',
+						subtype: 'page',
+						perPage: 20,
+					}}
+					showInitialSuggestions={false}
+				/>
+				
+				{item.linkUrl && (
+					<ToggleControl
+						label={__('Add nofollow', 'digiblocks')}
+						checked={item.linkRel === 'nofollow'}
+						onChange={handleRelChange}
+						__nextHasNoMarginBottom={true}
+						style={{ marginTop: '12px' }}
+					/>
+				)}
+			</>
+		);
+	};
+
+	const renderStructurePanel = () => {
+		return (
+			<div className="digiblocks-structure-panel">
+				<div className="digiblocks-structure-list">
+					{items.map((item, index) => {
+						const isExpanded = expandedItemId === item.id;
+						const itemText = item.content ? stripHTML(item.content) : __('List Item', 'digiblocks');
+						
+						return (
+							<Draggable
+								key={item.id}
+								elementId={`structure-item-${item.id}`}
+								transferData={{
+									type: 'icon-list-item',
+									index: index,
+								}}
+								onDragStart={() => handleDragStart(index)}
+								onDragEnd={handleDragEnd}
+							>
+								{({ onDraggableStart, onDraggableEnd }) => (
+									<div
+										id={`structure-item-${item.id}`}
+										className={`digiblocks-structure-item ${
+											draggedItemIndex === index ? 'is-dragging' : ''
+										} ${dropTargetIndex === index ? 'drop-target' : ''} ${
+											isExpanded ? 'is-expanded' : ''
+										}`}
+										onDragEnter={() => handleDragEnter(index)}
+										onDragOver={(e) => e.preventDefault()}
+										onDrop={() => handleDrop(index)}
+									>
+										<div 
+											className="digiblocks-structure-item-header"
+											draggable
+											onDragStart={onDraggableStart}
+											onDragEnd={onDraggableEnd}
+										>
+											<button
+												className="digiblocks-structure-item-title"
+												onClick={() => toggleItemExpanded(item.id)}
+												type="button"
+											>
+												<span className="digiblocks-structure-item-icon">
+													{item.icon && item.icon.svg && (
+														<span dangerouslySetInnerHTML={{ __html: item.icon.svg }} />
+													)}
+												</span>
+												<span className="digiblocks-structure-item-text">
+													{itemText}
+												</span>
+											</button>
+											
+											<div className="digiblocks-structure-item-actions">
+												<Tooltip text={__("Duplicate", "digiblocks")}>
+													<button
+														className="digiblocks-structure-item-action"
+														onClick={(e) => {
+															e.stopPropagation();
+															duplicateItem(index);
+														}}
+														type="button"
+														aria-label={__("Duplicate", "digiblocks")}
+													>
+														<span className="dashicons dashicons-admin-page"></span>
+													</button>
+												</Tooltip>
+												<Tooltip text={__("Remove", "digiblocks")}>
+													<button
+														className="digiblocks-structure-item-action digiblocks-structure-item-action-remove"
+														onClick={(e) => {
+															e.stopPropagation();
+															removeListItem(index);
+														}}
+														type="button"
+														aria-label={__("Remove", "digiblocks")}
+													>
+														<span className="dashicons dashicons-no-alt"></span>
+													</button>
+												</Tooltip>
+											</div>
+										</div>
+										
+										{isExpanded && (
+											<div className="digiblocks-structure-item-content">
+												<div className="digiblocks-structure-item-control">
+													<label className="digiblocks-structure-item-label">
+														{__('Text', 'digiblocks')}
+													</label>
+													<RichText
+														tagName="div"
+														value={item.content}
+														onChange={(value) => updateListItem(index, "content", value)}
+														placeholder={__("List item text...", "digiblocks")}
+														className="digiblocks-structure-item-input"
+													/>
+												</div>
+												
+												<div className="digiblocks-structure-item-control">
+													<ToggleGroupControl
+														label={__("Icon Source", "digiblocks")}
+														value={item.iconSource || 'library'}
+														onChange={(value) => {
+															const newItems = [...items];
+															newItems[index].iconSource = value;
+															setAttributes({ items: newItems });
+														}}
+														isBlock
+														__next40pxDefaultSize={true}
+														__nextHasNoMarginBottom={true}
+													>
+														<ToggleGroupControlOption 
+															value="library" 
+															label={__("Library", "digiblocks")} 
+														/>
+														<ToggleGroupControlOption 
+															value="custom" 
+															label={__("Custom", "digiblocks")} 
+														/>
+													</ToggleGroupControl>
+
+													{(!item.iconSource || item.iconSource === 'library') && (
+														<>
+															{!componentsLoaded ? (
+																<div style={{ textAlign: 'center', padding: '20px 0' }}>
+																	<div className="components-spinner"></div>
+																	<p>{__('Loading icon selector...', 'digiblocks')}</p>
+																</div>
+															) : (
+																<FontAwesomeControl
+																	value={item.icon}
+																	onChange={(newIcon) => setItemIcon(index, newIcon)}
+																/>
+															)}
+														</>
+													)}
+
+													{item.iconSource === 'custom' && (
+														<div style={{ marginTop: '15px' }}>
+															<div className="components-base-control">
+																<label className="components-base-control__label" htmlFor={`custom-svg-input-${index}`}>
+																	{__('Custom SVG Code', 'digiblocks')}
+																</label>
+																<textarea
+																	id={`custom-svg-input-${index}`}
+																	className="components-textarea-control__input"
+																	value={item.customSvg || ''}
+																	onChange={(e) => {
+																		const newSvg = e.target.value;
+																		const newItems = [...items];
+																		
+																		const newIconValue = {
+																			id: 'custom-svg',
+																			name: 'Custom SVG',
+																			svg: newSvg,
+																			style: 'custom',
+																			categories: ['custom']
+																		};
+																		
+																		newItems[index].customSvg = newSvg;
+																		newItems[index].icon = newIconValue;
+																		
+																		setAttributes({ items: newItems });
+																	}}
+																	placeholder={__('Paste your SVG code here...', 'digiblocks')}
+																	rows={6}
+																	style={{ width: '100%', marginTop: '8px' }}
+																/>
+																<p className="components-base-control__help">
+																	{__('Paste your SVG code here. Make sure it only contains valid SVG markup.', 'digiblocks')}
+																</p>
+															</div>
+															
+															{item.customSvg && (
+																<div style={{ marginTop: '15px' }}>
+																	<p><strong>{__('Preview:', 'digiblocks')}</strong></p>
+																	<div style={{ padding: '20px', background: '#f0f0f1', borderRadius: '3px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+																		<div style={{ width: '50px', height: '50px' }} dangerouslySetInnerHTML={{ __html: item.customSvg }}></div>
+																	</div>
+																</div>
+															)}
+														</div>
+													)}
+												</div>
+												
+												<div className="digiblocks-structure-item-control">
+													<label className="digiblocks-structure-item-label">
+														{__('Link', 'digiblocks')}
+													</label>
+													<LinkControlWrapper 
+														key={`link-control-${item.id}`}
+														item={item}
+														index={index}
+														updateListItem={updateListItem}
+													/>
+												</div>
+											</div>
+										)}
+									</div>
+								)}
+							</Draggable>
+						);
+					})}
+				</div>
+				
+				<div className="digiblocks-structure-add-item">
+					<Button
+						variant="secondary"
+						icon="plus"
+						onClick={addListItem}
+						className="digiblocks-structure-add-button"
+					>
+						{__("Add Item", "digiblocks")}
+					</Button>
+				</div>
+			</div>
+		);
+	};
+
+    const getMaxValue = (unit) => {
+        switch (unit) {
+            case '%':
+                return 100;
+            case 'em':
+            case 'rem':
+                return 50;
+            case 'vw':
+            case 'vh':
+                return 100;
+            default:
+                return 2000;
+        }
+    };
+
+    const getStepValue = (unit) => {
+        switch (unit) {
+            case '%':
+            case 'vw':
+            case 'vh':
+                return 1;
+            case 'em':
+            case 'rem':
+                return 0.1;
+            default:
+                return 1;
+        }
+    };
+
+	const getTransformOrigin = (transform, device) => {
+        const xMap = { left: '0%', center: '50%', right: '100%' };
+        const yMap = { top: '0%', center: '50%', bottom: '100%' };
+        
+        const x = xMap[transform.xAnchor?.[device] || 'center'];
+        const y = yMap[transform.yAnchor?.[device] || 'center'];
+        
+        return `${x} ${y}`;
+    };
+
+	const getTransformCSS = (transform, device) => {
+		if (!transform) return '';
+		
+		const transforms = [];
+		
+		const getValue = (prop) => {
+			if (!prop) return '';
+			
+			let val = prop[device];
+			
+			// Check if value is empty
+			const isEmpty = (v) => {
+				if (v === '' || v === undefined || v === null) return true;
+				if (typeof v === 'object' && v !== null) {
+					return v.value === '' || v.value === undefined || v.value === null;
+				}
+				return false;
+			};
+			
+			// Tablet fallback to desktop
+			if (device === 'tablet' && isEmpty(val)) {
+				val = prop.desktop;
+			}
+			
+			// Mobile fallback to tablet, then desktop
+			if (device === 'mobile' && isEmpty(val)) {
+				val = prop.tablet;
+				if (isEmpty(val)) {
+					val = prop.desktop;
+				}
+			}
+			
+			return typeof val === 'object' && val !== null ? (val.value !== undefined ? val.value : '') : val;
+		};
+		
+		const rotateValue = getValue(transform.rotate);
+		if (rotateValue !== '' && rotateValue !== undefined && rotateValue !== null) {
+			if (transform.rotate3d) {
+				const perspectiveValue = getValue(transform.perspective);
+				if (perspectiveValue !== '' && perspectiveValue !== undefined && perspectiveValue !== null) {
+					transforms.push(`perspective(${perspectiveValue}px)`);
+				}
+			}
+			transforms.push(`rotate(${rotateValue}deg)`);
+		}
+		
+		if (transform.rotate3d) {
+			const rotateXValue = getValue(transform.rotateX);
+			if (rotateXValue !== '' && rotateXValue !== undefined && rotateXValue !== null) {
+				transforms.push(`rotateX(${rotateXValue}deg)`);
+			}
+			const rotateYValue = getValue(transform.rotateY);
+			if (rotateYValue !== '' && rotateYValue !== undefined && rotateYValue !== null) {
+				transforms.push(`rotateY(${rotateYValue}deg)`);
+			}
+		}
+		
+		const offsetXValue = transform.offsetX?.[device]?.value;
+		const offsetYValue = transform.offsetY?.[device]?.value;
+		const hasOffsetX = offsetXValue !== '' && offsetXValue !== undefined && offsetXValue !== null;
+		const hasOffsetY = offsetYValue !== '' && offsetYValue !== undefined && offsetYValue !== null;
+		
+		if (hasOffsetX || hasOffsetY) {
+			const x = hasOffsetX ? `${offsetXValue}${transform.offsetX[device].unit || 'px'}` : '0';
+			const y = hasOffsetY ? `${offsetYValue}${transform.offsetY[device].unit || 'px'}` : '0';
+			transforms.push(`translate(${x}, ${y})`);
+		}
+		
+		if (transform.keepProportions) {
+			const scaleValue = getValue(transform.scale);
+			if (scaleValue !== '' && scaleValue !== undefined && scaleValue !== null && scaleValue != 1) {
+				transforms.push(`scale(${scaleValue})`);
+			}
+		} else {
+			const scaleXValue = getValue(transform.scaleX);
+			const scaleYValue = getValue(transform.scaleY);
+			const scaleX = (scaleXValue !== '' && scaleXValue !== undefined && scaleXValue !== null) ? scaleXValue : 1;
+			const scaleY = (scaleYValue !== '' && scaleYValue !== undefined && scaleYValue !== null) ? scaleYValue : 1;
+			if (scaleX != 1 || scaleY != 1) {
+				transforms.push(`scale(${scaleX}, ${scaleY})`);
+			}
+		}
+		
+		const skewXValue = getValue(transform.skewX);
+		if (skewXValue !== '' && skewXValue !== undefined && skewXValue !== null) {
+			transforms.push(`skewX(${skewXValue}deg)`);
+		}
+		const skewYValue = getValue(transform.skewY);
+		if (skewYValue !== '' && skewYValue !== undefined && skewYValue !== null) {
+			transforms.push(`skewY(${skewYValue}deg)`);
+		}
+		
+		if (transform.flipHorizontal) {
+			transforms.push('scaleX(-1)');
+		}
+		if (transform.flipVertical) {
+			transforms.push('scaleY(-1)');
+		}
+		
+		return transforms.length > 0 ? transforms.join(' ') : '';
+	};
+
     // Generate CSS for block styling
     const generateCSS = () => {
         const activeDevice = window.digi.responsiveState.activeDevice;
@@ -473,6 +958,56 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
             hoverCSS += "filter: brightness(1.1);";
         }
 
+        // Position styles
+        let positionCSS = '';
+        if (position && position !== 'default') {
+            positionCSS += `position: ${position} !important;`;
+            
+            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue !== '' && horizontalValue !== undefined) {
+                if (horizontalOrientation === 'left') {
+                    positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
+                } else {
+                    positionCSS += `right: ${horizontalValue}${horizontalUnit};`;
+                }
+            }
+            
+            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue !== '' && verticalValue !== undefined) {
+                if (verticalOrientation === 'top') {
+                    positionCSS += `top: ${verticalValue}${verticalUnit};`;
+                } else {
+                    positionCSS += `bottom: ${verticalValue}${verticalUnit};`;
+                }
+            }
+        }
+
+        if (zIndex !== '' && zIndex !== undefined && zIndex !== null) {
+            positionCSS += `z-index: ${zIndex};`;
+        }
+
+		// Transform
+		let transformCSS = '';
+		const transformValue = getTransformCSS(transform, activeDevice);
+		if (transformValue) {
+			transformCSS += `transform: ${transformValue};`;
+			transformCSS += `transform-origin: ${getTransformOrigin(transform, activeDevice)};`;
+		}
+
+		const transformHoverValue = getTransformCSS(transformHover, activeDevice);
+		if (transformHoverValue && transformHover && transformHover.transitionDuration !== '' && transformHover.transitionDuration !== undefined && transformHover.transitionDuration !== null) {
+			const duration = transformHover.transitionDuration;
+			transformCSS += `transition: transform ${duration}ms ease;`;
+		}
+
+		let transformHoverCSS = '';
+		if (transformHoverValue) {
+			transformHoverCSS += `transform: ${transformHoverValue};`;
+			transformHoverCSS += `transform-origin: ${getTransformOrigin(transformHover, activeDevice)};`;
+		}
+
         return `
             /* Icon List Block - ${id} */
             .${id} {
@@ -482,12 +1017,15 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                 ${boxShadowCSS}
                 ${backgroundColor ? `background-color: ${backgroundColor};` : ""}
                 transition: all 0.3s ease;
+                ${positionCSS}
+				${transformCSS}
             }
             
             .${id}:hover {
                 ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ""}
                 ${borderHoverColor ? `border-color: ${borderHoverColor};` : ""}
                 ${hoverCSS}
+				${transformHoverCSS}
             }
             
             /* List container */
@@ -626,11 +1164,19 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
             case "options":
                 return (
                     <>
+						<TabPanelBody
+							tab="options"
+							name="structure"
+							title={__("Structure", "digiblocks")}
+							initialOpen={true}
+						>
+							{renderStructurePanel()}
+						</TabPanelBody>
                         <TabPanelBody
                             tab="options"
                             name="list-items"
                             title={__("List Items", "digiblocks")}
-                            initialOpen={true}
+                            initialOpen={false}
                         >
 							<ToggleGroupControl
 								label={__("Default Icon Source", "digiblocks")}
@@ -1145,23 +1691,23 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__("Box Shadow", "digiblocks")}
                             initialOpen={false}
                         >
-                            <BoxShadowControl
-                                normalValue={boxShadow}
-                                hoverValue={boxShadowHover}
-                                onNormalChange={(value) =>
-                                    setAttributes({ boxShadow: value })
-                                }
-                                onHoverChange={(value) =>
-                                    setAttributes({ boxShadowHover: value })
-                                }
-                            />
+							<BoxShadowControl
+								normalValue={boxShadow}
+								hoverValue={boxShadowHover}
+								onNormalChange={(value) => setAttributes({ boxShadow: value })}
+								onHoverChange={(value) => setAttributes({ boxShadowHover: value })}
+							/>
                         </TabPanelBody>
-
+                    </>
+                );
+            case "advanced":
+                return (
+                    <>
                         <TabPanelBody
-                            tab="style"
+                            tab="advanced"
                             name="spacing"
-                            title={__("Spacing", "digiblocks")}
-                            initialOpen={false}
+                            title={__('Spacing', 'digiblocks')}
+                            initialOpen={true}
                         >
                             <ResponsiveControl
                                 label={__("Padding", "digiblocks")}
@@ -1194,16 +1740,130 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                                 />
                             </ResponsiveControl>
                         </TabPanelBody>
-                    </>
-                );
-            case "advanced":
-                return (
-                    <>
+
                         <TabPanelBody
                             tab="advanced"
+                            name="position"
+                            title={__("Position", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            <SelectControl
+                                label={__("Position", "digiblocks")}
+                                value={position}
+                                options={[
+                                    { label: __("Default", "digiblocks"), value: "default" },
+                                    { label: __("Relative", "digiblocks"), value: "relative" },
+                                    { label: __("Absolute", "digiblocks"), value: "absolute" },
+                                    { label: __("Fixed", "digiblocks"), value: "fixed" },
+                                ]}
+                                onChange={(value) => setAttributes({ position: value })}
+                                __nextHasNoMarginBottom={true}
+                            />
+
+                            {position !== 'default' && (
+                                <>
+                                    <ToggleGroupControl
+                                        label={__("Horizontal Orientation", "digiblocks")}
+                                        value={horizontalOrientation}
+                                        isBlock
+                                        onChange={(value) => setAttributes({ horizontalOrientation: value })}
+                                        __nextHasNoMarginBottom={true}
+                                    >
+                                        <ToggleGroupControlOption
+                                            value="left"
+                                            label={__("Left", "digiblocks")}
+                                        />
+                                        <ToggleGroupControlOption
+                                            value="right"
+                                            label={__("Right", "digiblocks")}
+                                        />
+                                    </ToggleGroupControl>
+
+                                    <ResponsiveRangeControl
+                                        label={__("Offset", "digiblocks")}
+                                        value={horizontalOffset}
+                                        onChange={(value) => setAttributes({ horizontalOffset: value })}
+                                        units={[
+                                            { label: 'px', value: 'px' },
+                                            { label: '%', value: '%' },
+                                            { label: 'em', value: 'em' },
+                                            { label: 'rem', value: 'rem' },
+                                            { label: 'vw', value: 'vw' },
+                                            { label: 'vh', value: 'vh' },
+                                        ]}
+                                        defaultUnit="px"
+                                        min={0}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                    />
+
+                                    <ToggleGroupControl
+                                        label={__("Vertical Orientation", "digiblocks")}
+                                        value={verticalOrientation}
+                                        isBlock
+                                        onChange={(value) => setAttributes({ verticalOrientation: value })}
+                                        __nextHasNoMarginBottom={true}
+                                    >
+                                        <ToggleGroupControlOption
+                                            value="top"
+                                            label={__("Top", "digiblocks")}
+                                        />
+                                        <ToggleGroupControlOption
+                                            value="bottom"
+                                            label={__("Bottom", "digiblocks")}
+                                        />
+                                    </ToggleGroupControl>
+
+                                    <ResponsiveRangeControl
+                                        label={__("Offset", "digiblocks")}
+                                        value={verticalOffset}
+                                        onChange={(value) => setAttributes({ verticalOffset: value })}
+                                        units={[
+                                            { label: 'px', value: 'px' },
+                                            { label: '%', value: '%' },
+                                            { label: 'em', value: 'em' },
+                                            { label: 'rem', value: 'rem' },
+                                            { label: 'vw', value: 'vw' },
+                                            { label: 'vh', value: 'vh' },
+                                        ]}
+                                        defaultUnit="px"
+                                        min={0}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                    />
+                                </>
+                            )}
+
+                            <RangeControl
+                                label={__("Z-Index", "digiblocks")}
+                                value={zIndex}
+                                onChange={(value) => setAttributes({ zIndex: value })}
+                                min={-999}
+                                max={9999}
+                                allowReset={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                        </TabPanelBody>
+
+						<TabPanelBody
+                            tab="advanced"
+                            name="transform"
+                            title={__('Transform', 'digiblocks')}
+                            initialOpen={false}
+                        >
+                            <TransformControl
+                                normalValue={transform}
+                                hoverValue={transformHover}
+                                onNormalChange={(value) => setAttributes({ transform: value })}
+                                onHoverChange={(value) => setAttributes({ transformHover: value })}
+                            />
+                        </TabPanelBody>
+
+						<TabPanelBody
+                            tab="advanced"
                             name="animation"
-                            title={__("Animation", "digiblocks")}
-                            initialOpen={true}
+                            title={__('Animation', 'digiblocks')}
+                            initialOpen={false}
                         >
                             <SelectControl
                                 label={__("Animation Effect", "digiblocks")}
@@ -1215,6 +1875,33 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
                                 __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
                             />
+
+							{animation && animation !== 'none' && (
+								<>
+									<SelectControl
+										label={__("Animation Duration", "digiblocks")}
+										value={animationDuration}
+										options={[
+											{ label: __("Slow", "digiblocks"), value: "slow" },
+											{ label: __("Normal", "digiblocks"), value: "normal" },
+											{ label: __("Fast", "digiblocks"), value: "fast" }
+										]}
+										onChange={(value) => setAttributes({ animationDuration: value })}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+									
+									<NumberControl
+										label={__("Animation Delay (ms)", "digiblocks")}
+										value={animationDelay || 0}
+										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										min={0}
+										step={100}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+								</>
+							)}
 
                             {animation && animation !== "none" && (
                                 <div style={{ marginTop: "10px" }}>
@@ -1369,111 +2056,64 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Render list items
     const renderListItems = () => {
-        return items.map((item, index) => {
-            const isLast = index === items.length - 1;
+		return items.map((item, index) => {
+			const itemContent = item.content || "";
+			const itemLink = item.linkUrl || "";
+			const hasLink = !!itemLink;
 
-            const itemContent = (
-                <>
-                    {item.icon && item.icon.svg && (
-						<div className="digiblocks-icon-list-icon">
-							<span
-								dangerouslySetInnerHTML={{
-									__html: item.icon.svg,
-								}}
+			const ItemTag = "div";
+			const itemProps = {};
+
+			return (
+				<li key={item.id} className="digiblocks-icon-list-item">
+					<ItemTag className="digiblocks-icon-list-child" {...itemProps}>
+						<span className="digiblocks-icon-list-icon">
+							{item.icon && item.icon.svg && (
+								<span
+									dangerouslySetInnerHTML={{
+										__html: item.icon.svg,
+									}}
+								/>
+							)}
+						</span>
+						<RichText
+							tagName="span"
+							className="digiblocks-icon-list-content"
+							value={itemContent}
+							onChange={(value) =>
+								updateListItem(index, "content", value)
+							}
+							placeholder={__(
+								"List item text...",
+								"digiblocks"
+							)}
+							allowedFormats={[
+								"core/bold",
+								"core/italic",
+								"core/underline",
+							]}
+						/>
+					</ItemTag>
+					<div className="digiblocks-icon-list-item-controls">
+						<Tooltip text={__("Duplicate", "digiblocks")}>
+							<Button
+								icon="admin-page"
+								onClick={() => duplicateItem(index)}
+								isSmall
 							/>
-						</div>
-					)}
-                    <RichText
-                        className="digiblocks-icon-list-content"
-                        value={item.content}
-                        onChange={(value) =>
-                            updateListItem(index, "content", value)
-                        }
-                        placeholder={__(
-                            "Enter list item text...",
-                            "digiblocks"
-                        )}
-                        allowedFormats={[
-                            "core/bold",
-                            "core/italic",
-                            "core/inline-code",
-                        ]}
-                    />
-                </>
-            );
-
-            return (
-                <li
-                    key={item.id}
-                    className="digiblocks-icon-list-item"
-                    style={isLast ? { marginBottom: 0 } : {}}
-                >
-                    {item.linkUrl ? (
-                        <a href="#" onClick={(e) => e.preventDefault()} className="digiblocks-icon-list-child">{itemContent}</a>
-                    ) : (
-                        <div className="digiblocks-icon-list-child">{itemContent}</div>
-                    )}
-
-                    <div className="digiblocks-icon-list-item-controls">
-                        <Tooltip text={__("Edit Icon", "digiblocks")}>
-                            <Button
-                                icon="admin-customizer"
-                                onClick={() => {
-                                    setCurrentEditingItem(index);
-                                    setIconModalOpen(true);
-                                }}
-                                isSmall
-                            />
-                        </Tooltip>
-
-                        <Tooltip text={__("Link", "digiblocks")}>
-                            <Button
-                                icon="admin-links"
-                                onClick={() => {
-                                    setCurrentEditingItem(index);
-                                    setLinkModalOpen(true);
-                                }}
-                                isSmall
-                                variant={
-                                    item.linkUrl ? "primary" : "secondary"
-                                }
-                            />
-                        </Tooltip>
-                        <Tooltip text={__("Move Up", "digiblocks")}>
-                            <Button
-                                icon="arrow-up-alt2"
-                                onClick={() => moveItemUp(index)}
-                                disabled={index === 0}
-                                isSmall
-                            />
-                        </Tooltip>
-                        <Tooltip text={__("Move Down", "digiblocks")}>
-                            <Button
-                                icon="arrow-down-alt2"
-                                onClick={() => moveItemDown(index)}
-                                disabled={index === items.length - 1}
-                                isSmall
-                            />
-                        </Tooltip>
-                        <Tooltip text={__("Duplicate", "digiblocks")}>
-                            <Button
-                                icon="admin-page"
-                                onClick={() => duplicateItem(index)}
-                                isSmall
-                            />
-                        </Tooltip>
-                        <Tooltip text={__("Remove", "digiblocks")}>
-                            <Button
-                                icon="trash"
-                                onClick={() => removeListItem(index)}
-                                isSmall
-                            />
-                        </Tooltip>
-                    </div>
-                </li>
-            );
-        });
-    };
+						</Tooltip>
+						<Tooltip text={__("Remove", "digiblocks")}>
+							<Button
+								icon="trash"
+								onClick={() => removeListItem(index)}
+								isSmall
+							/>
+						</Tooltip>
+					</div>
+				</li>
+			);
+		});
+	};
 
     const blockProps = useBlockProps({
         className: `digiblocks-icon-list-block ${id} ${customClasses || ""}`,
@@ -1481,27 +2121,37 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
     });
 
     return (
-        <>
-            <InspectorControls>
-                <CustomTabPanel
-                    tabs={tabList}
-                    activeTab={activeTab}
-                    onSelect={setActiveTab}
-                >
-                    {renderTabContent()}
-                </CustomTabPanel>
-            </InspectorControls>
+		<>
+			<BlockControls>
+				<ToolbarGroup>
+					<ToolbarButton
+						icon="plus"
+						label={__("Add Icon List Item", "digiblocks")}
+						onClick={addListItem}
+					/>
+				</ToolbarGroup>
+			</BlockControls>
 
-            <style dangerouslySetInnerHTML={{ __html: generateCSS() }} />
+			<InspectorControls>
+				<CustomTabPanel
+					tabs={tabList}
+					activeTab={activeTab}
+					onSelect={setActiveTab}
+				>
+					{renderTabContent()}
+				</CustomTabPanel>
+			</InspectorControls>
 
-            <div {...blockProps}>
-                <div className="digiblocks-icon-list-wrapper">
-                    <ul className="digiblocks-icon-list">
-                        {renderListItems()}
-                    </ul>
-                </div>
+			<style dangerouslySetInnerHTML={{ __html: generateCSS() }} />
 
-                {iconModalOpen && currentEditingItem !== null && (
+			<div {...blockProps}>
+				<div className="digiblocks-icon-list-wrapper">
+					<ul className="digiblocks-icon-list">
+						{renderListItems()}
+					</ul>
+				</div>
+
+				{iconModalOpen && currentEditingItem !== null && (
 					<Modal
 						title={__("Choose Icon", "digiblocks")}
 						onRequestClose={() => setIconModalOpen(false)}
@@ -1529,7 +2179,6 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 							/>
 						</ToggleGroupControl>
 
-						{/* Library icon picker */}
 						{(!items[currentEditingItem].iconSource || items[currentEditingItem].iconSource === 'library') && (
 							<>
 								{!componentsLoaded ? (
@@ -1549,7 +2198,6 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 							</>
 						)}
 
-						{/* Custom SVG input */}
 						{items[currentEditingItem].iconSource === 'custom' && (
 							<div style={{ marginTop: '15px' }}>
 								<div className="components-base-control">
@@ -1564,7 +2212,6 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 											const newSvg = e.target.value;
 											const newItems = [...items];
 											
-											// Create an icon object with the custom SVG
 											const newIconValue = {
 												id: 'custom-svg',
 												name: 'Custom SVG',
@@ -1573,7 +2220,6 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 												categories: ['custom']
 											};
 											
-											// Update both the customSvg and the icon
 											newItems[currentEditingItem].customSvg = newSvg;
 											newItems[currentEditingItem].icon = newIconValue;
 											
@@ -1588,7 +2234,6 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 									</p>
 								</div>
 								
-								{/* Preview of custom SVG */}
 								{items[currentEditingItem].customSvg && (
 									<div style={{ marginTop: '15px', marginBottom: '15px' }}>
 										<p><strong>{__('Preview:', 'digiblocks')}</strong></p>
@@ -1610,72 +2255,9 @@ const IconListEdit = ({ attributes, setAttributes, clientId }) => {
 						)}
 					</Modal>
 				)}
-
-                {linkModalOpen && currentEditingItem !== null && (
-                    <Modal
-                        title={__("Link Settings", "digiblocks")}
-                        onRequestClose={() => setLinkModalOpen(false)}
-                        className="digiblocks-link-modal"
-                    >
-						<LinkControl
-							value={
-								items[currentEditingItem].linkUrl
-									? {
-										url: items[currentEditingItem].linkUrl,
-										opensInNewTab: items[currentEditingItem].linkOpenInNewTab,
-										rel: items[currentEditingItem].linkRel,
-									}
-									: undefined
-							}
-							settings={[
-								{
-									id: "opensInNewTab",
-									title: __("Open in new tab", "digiblocks"),
-								},
-								{
-									id: "rel",
-									title: __("Add nofollow", "digiblocks"),
-								},
-							]}
-							onChange={(newLink) => {
-								if (newLink && newLink.url) {
-									updateListItem(currentEditingItem, "linkUrl", newLink.url);
-									updateListItem(currentEditingItem, "linkOpenInNewTab", !!newLink.opensInNewTab);
-									updateListItem(currentEditingItem, "linkRel", newLink.rel || "");
-									setLinkModalOpen(false);
-								}
-							}}
-							onRemove={() => {
-								updateListItem(currentEditingItem, "linkUrl", "");
-								updateListItem(currentEditingItem, "linkOpenInNewTab", false);
-								updateListItem(currentEditingItem, "linkRel", "");
-								setLinkModalOpen(false);
-							}}
-							forceIsEditingLink={!items[currentEditingItem].linkUrl}
-							allowDirectEntry={true}
-							suggestionsQuery={{
-								type: 'post',
-								subtype: 'any'
-							}}
-						/>
-                    </Modal>
-                )}
-
-                <Button
-                    variant="primary"
-                    icon="plus"
-                    onClick={addListItem}
-                    style={{
-                        marginTop: "20px",
-                        width: "100%",
-                        justifyContent: "center",
-                    }}
-                >
-                    {__("Add Icon List Item", "digiblocks")}
-                </Button>
-            </div>
-        </>
-    );
+			</div>
+		</>
+	);
 };
 
 export default IconListEdit;

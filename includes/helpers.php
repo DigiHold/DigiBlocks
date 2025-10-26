@@ -134,6 +134,24 @@ if ( ! function_exists( 'digiblocks_get_alignment_css' ) ) {
 	}
 }
 
+if ( ! function_exists( 'digiblocks_get_justify_css' ) ) {
+    /**
+	 * Generate CSS for justify content.
+	 *
+	 * @param string $justify Justify Content value (flex-start, center, flex-end).
+	 */
+	function digiblocks_get_justify_css($justify) {
+		if ($justify === 'flex-start') {
+			return 'justify-content: flex-start;';
+		} elseif ($justify === 'center') {
+			return 'justify-content: center;';
+		} elseif ($justify === 'flex-end') {
+			return 'justify-content: flex-end';
+		}
+		return '';
+	}
+}
+
 if ( ! function_exists( 'digiblocks_get_gap_css' ) ) {
     /**
 	 * Get gap CSS.
@@ -442,3 +460,173 @@ function digiblocks_ajax_get_menu_items() {
 	wp_send_json_success( $menu_items );
 }
 add_action( 'wp_ajax_digiblocks_get_menu_items', 'digiblocks_ajax_get_menu_items' );
+
+if ( ! function_exists( 'digiblocks_get_transform_origin' ) ) {
+	/**
+	 * Get transform origin CSS value.
+	 *
+	 * @param array  $transform Transform settings.
+	 * @param string $device    Device (desktop, tablet, mobile).
+	 * @return string Transform origin value or empty string.
+	 */
+	function digiblocks_get_transform_origin( $transform, $device ) {
+		if ( empty( $transform ) ) {
+			return '';
+		}
+		
+		$x_map = array( 'left' => '0%', 'center' => '50%', 'right' => '100%' );
+		$y_map = array( 'top' => '0%', 'center' => '50%', 'bottom' => '100%' );
+		
+		$x_anchor = '';
+		$y_anchor = '';
+		
+		if ( $device === 'desktop' ) {
+			$x_anchor = isset( $transform['xAnchor']['desktop'] ) && $transform['xAnchor']['desktop'] !== '' 
+				? $transform['xAnchor']['desktop'] 
+				: 'center';
+			$y_anchor = isset( $transform['yAnchor']['desktop'] ) && $transform['yAnchor']['desktop'] !== '' 
+				? $transform['yAnchor']['desktop'] 
+				: 'center';
+		} elseif ( $device === 'tablet' ) {
+			$x_anchor = isset( $transform['xAnchor']['tablet'] ) && $transform['xAnchor']['tablet'] !== '' 
+				? $transform['xAnchor']['tablet'] 
+				: ( isset( $transform['xAnchor']['desktop'] ) && $transform['xAnchor']['desktop'] !== '' 
+					? $transform['xAnchor']['desktop'] 
+					: 'center' );
+			$y_anchor = isset( $transform['yAnchor']['tablet'] ) && $transform['yAnchor']['tablet'] !== '' 
+				? $transform['yAnchor']['tablet'] 
+				: ( isset( $transform['yAnchor']['desktop'] ) && $transform['yAnchor']['desktop'] !== '' 
+					? $transform['yAnchor']['desktop'] 
+					: 'center' );
+		} else {
+			$x_anchor = isset( $transform['xAnchor']['mobile'] ) && $transform['xAnchor']['mobile'] !== '' 
+				? $transform['xAnchor']['mobile'] 
+				: ( isset( $transform['xAnchor']['tablet'] ) && $transform['xAnchor']['tablet'] !== '' 
+					? $transform['xAnchor']['tablet'] 
+					: ( isset( $transform['xAnchor']['desktop'] ) && $transform['xAnchor']['desktop'] !== '' 
+						? $transform['xAnchor']['desktop'] 
+						: 'center' ) );
+			$y_anchor = isset( $transform['yAnchor']['mobile'] ) && $transform['yAnchor']['mobile'] !== '' 
+				? $transform['yAnchor']['mobile'] 
+				: ( isset( $transform['yAnchor']['tablet'] ) && $transform['yAnchor']['tablet'] !== '' 
+					? $transform['yAnchor']['tablet'] 
+					: ( isset( $transform['yAnchor']['desktop'] ) && $transform['yAnchor']['desktop'] !== '' 
+						? $transform['yAnchor']['desktop'] 
+						: 'center' ) );
+		}
+		
+		if ( ! isset( $x_map[ $x_anchor ] ) || ! isset( $y_map[ $y_anchor ] ) ) {
+			return '';
+		}
+		
+		return $x_map[ $x_anchor ] . ' ' . $y_map[ $y_anchor ];
+	}
+}
+
+if ( ! function_exists( 'digiblocks_get_transform_css' ) ) {
+	/**
+	 * Generate CSS transform property.
+	 *
+	 * @param array  $transform Transform settings.
+	 * @param string $device    Device (desktop, tablet, mobile).
+	 * @return string CSS transform value or empty string.
+	 */
+	function digiblocks_get_transform_css( $transform, $device ) {
+		if ( empty( $transform ) ) {
+			return '';
+		}
+		
+		$transforms = array();
+		
+		$rotate_value = isset( $transform['rotate'][ $device ] ) ? $transform['rotate'][ $device ] : '';
+		if ( is_array( $rotate_value ) && isset( $rotate_value['value'] ) ) {
+			$rotate_value = $rotate_value['value'];
+		}
+		
+		if ( $rotate_value !== '' && $rotate_value !== null ) {
+			if ( ! empty( $transform['rotate3d'] ) ) {
+				$perspective_value = isset( $transform['perspective'][ $device ] ) ? $transform['perspective'][ $device ] : '';
+				if ( is_array( $perspective_value ) && isset( $perspective_value['value'] ) ) {
+					$perspective_value = $perspective_value['value'];
+				}
+				if ( $perspective_value !== '' && $perspective_value !== null ) {
+					$transforms[] = 'perspective(' . $perspective_value . 'px)';
+				}
+			}
+			$transforms[] = 'rotate(' . $rotate_value . 'deg)';
+		}
+		
+		if ( ! empty( $transform['rotate3d'] ) ) {
+			$rotate_x_value = isset( $transform['rotateX'][ $device ] ) ? $transform['rotateX'][ $device ] : '';
+			if ( is_array( $rotate_x_value ) && isset( $rotate_x_value['value'] ) ) {
+				$rotate_x_value = $rotate_x_value['value'];
+			}
+			if ( $rotate_x_value !== '' && $rotate_x_value !== null ) {
+				$transforms[] = 'rotateX(' . $rotate_x_value . 'deg)';
+			}
+			
+			$rotate_y_value = isset( $transform['rotateY'][ $device ] ) ? $transform['rotateY'][ $device ] : '';
+			if ( is_array( $rotate_y_value ) && isset( $rotate_y_value['value'] ) ) {
+				$rotate_y_value = $rotate_y_value['value'];
+			}
+			if ( $rotate_y_value !== '' && $rotate_y_value !== null ) {
+				$transforms[] = 'rotateY(' . $rotate_y_value . 'deg)';
+			}
+		}
+		
+		if ( ! empty( $transform['offsetX'][ $device ]['value'] ) || ! empty( $transform['offsetY'][ $device ]['value'] ) ) {
+			$x = ! empty( $transform['offsetX'][ $device ] ) ? $transform['offsetX'][ $device ]['value'] . $transform['offsetX'][ $device ]['unit'] : '0';
+			$y = ! empty( $transform['offsetY'][ $device ] ) ? $transform['offsetY'][ $device ]['value'] . $transform['offsetY'][ $device ]['unit'] : '0';
+			$transforms[] = 'translate(' . $x . ', ' . $y . ')';
+		}
+		
+		if ( ! empty( $transform['keepProportions'] ) ) {
+			$scale_value = isset( $transform['scale'][ $device ] ) ? $transform['scale'][ $device ] : '';
+			if ( is_array( $scale_value ) && isset( $scale_value['value'] ) ) {
+				$scale_value = $scale_value['value'];
+			}
+			if ( $scale_value !== '' && $scale_value !== null && $scale_value != 1 ) {
+				$transforms[] = 'scale(' . $scale_value . ')';
+			}
+		} else {
+			$scale_x_value = isset( $transform['scaleX'][ $device ] ) ? $transform['scaleX'][ $device ] : 1;
+			if ( is_array( $scale_x_value ) && isset( $scale_x_value['value'] ) ) {
+				$scale_x_value = $scale_x_value['value'];
+			}
+			$scale_y_value = isset( $transform['scaleY'][ $device ] ) ? $transform['scaleY'][ $device ] : 1;
+			if ( is_array( $scale_y_value ) && isset( $scale_y_value['value'] ) ) {
+				$scale_y_value = $scale_y_value['value'];
+			}
+			$scale_x = ( $scale_x_value !== '' && $scale_x_value !== null ) ? $scale_x_value : 1;
+			$scale_y = ( $scale_y_value !== '' && $scale_y_value !== null ) ? $scale_y_value : 1;
+			if ( $scale_x != 1 || $scale_y != 1 ) {
+				$transforms[] = 'scale(' . $scale_x . ', ' . $scale_y . ')';
+			}
+		}
+		
+		$skew_x_value = isset( $transform['skewX'][ $device ] ) ? $transform['skewX'][ $device ] : '';
+		if ( is_array( $skew_x_value ) && isset( $skew_x_value['value'] ) ) {
+			$skew_x_value = $skew_x_value['value'];
+		}
+		if ( $skew_x_value !== '' && $skew_x_value !== null ) {
+			$transforms[] = 'skewX(' . $skew_x_value . 'deg)';
+		}
+		
+		$skew_y_value = isset( $transform['skewY'][ $device ] ) ? $transform['skewY'][ $device ] : '';
+		if ( is_array( $skew_y_value ) && isset( $skew_y_value['value'] ) ) {
+			$skew_y_value = $skew_y_value['value'];
+		}
+		if ( $skew_y_value !== '' && $skew_y_value !== null ) {
+			$transforms[] = 'skewY(' . $skew_y_value . 'deg)';
+		}
+		
+		if ( ! empty( $transform['flipHorizontal'] ) ) {
+			$transforms[] = 'scaleX(-1)';
+		}
+		if ( ! empty( $transform['flipVertical'] ) ) {
+			$transforms[] = 'scaleY(-1)';
+		}
+		
+		return ! empty( $transforms ) ? implode( ' ', $transforms ) : '';
+	}
+}

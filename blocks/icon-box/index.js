@@ -74,6 +74,14 @@ registerBlockType('digiblocks/icon-box', {
 				mobile: ''
 			}
 		},
+		justifyContent: {
+			type: 'object',
+			default: {
+				desktop: 'center',
+				tablet: '',
+				mobile: ''
+			}
+		},
 		iconLayout: {
 			type: 'object',
 			default: {
@@ -113,6 +121,54 @@ registerBlockType('digiblocks/icon-box', {
 		content: {
 			type: 'string',
 			default: __('Add your feature description here. Explain what makes this feature special.', 'digiblocks')
+		},
+		iconPadding: {
+			type: 'object',
+			default: {
+				desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+			}
+		},
+		iconMargin: {
+			type: 'object',
+			default: {
+				desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+			}
+		},
+		titlePadding: {
+			type: 'object',
+			default: {
+				desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+			}
+		},
+		titleMargin: {
+			type: 'object',
+			default: {
+				desktop: { top: '', right: '', bottom: '10', left: '', unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+			}
+		},
+		contentPadding: {
+			type: 'object',
+			default: {
+				desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+			}
+		},
+		contentMargin: {
+			type: 'object',
+			default: {
+				desktop: { top: '', right: '', bottom: '0', left: '', unit: 'px' },
+				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+			}
 		},
 		iconColor: {
 			type: 'string',
@@ -169,22 +225,6 @@ registerBlockType('digiblocks/icon-box', {
 		iconBorderColor: {
 			type: 'string',
 			default: '#e0e0e0'
-		},
-		iconPadding: {
-			type: 'object',
-			default: {
-				desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
-				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
-				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
-			}
-		},
-		iconMargin: {
-			type: 'object',
-			default: {
-				desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
-				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
-				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
-			}
 		},
 		iconHoverColor: {
 			type: 'string',
@@ -293,7 +333,7 @@ registerBlockType('digiblocks/icon-box', {
 		buttonPadding: {
 			type: 'object',
 			default: {
-				desktop: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px' },
+				desktop: { top: 10, right: 20, bottom: 10, left: 20, unit: 'px', isLinked: false, },
 				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
 				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 			}
@@ -301,7 +341,7 @@ registerBlockType('digiblocks/icon-box', {
 		buttonMargin: {
 			type: 'object',
 			default: {
-				desktop: { top: 15, right: 0, bottom: 0, left: 0, unit: 'px' },
+				desktop: { top: 15, right: 0, bottom: 0, left: 0, unit: 'px', isLinked: false, },
 				tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
 				mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
 			}
@@ -357,7 +397,7 @@ registerBlockType('digiblocks/icon-box', {
 		badgePadding: {
 			type: 'object',
 			default: {
-				desktop: { top: 0.25, right: 0.5, bottom: 0.25, left: 0.5, unit: 'rem' },
+				desktop: { top: 0.25, right: 0.5, bottom: 0.25, left: 0.5, unit: 'rem', isLinked: false, },
 				tablet: { top: '', right: '', bottom: '', left: '', unit: 'rem' },
 				mobile: { top: '', right: '', bottom: '', left: '', unit: 'rem' }
 			}
@@ -518,6 +558,14 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'string',
 			default: 'none'
 		},
+		animationDuration: {
+			type: 'string',
+			default: 'normal'
+		},
+		animationDelay: {
+			type: 'number',
+			default: ''
+		},
 		borderStyle: {
 			type: 'string',
 			default: 'default'
@@ -609,7 +657,85 @@ registerBlockType('digiblocks/icon-box', {
                 spread: 0,
                 position: 'outset'
             }
-        }
+        },
+        position: {
+            type: 'string',
+            default: 'default',
+        },
+        horizontalOrientation: {
+            type: 'string',
+            default: 'left',
+        },
+        horizontalOffset: {
+            type: 'object',
+            default: {
+                desktop: { value: 0, unit: 'px' },
+                tablet: { value: 0, unit: 'px' },
+                mobile: { value: 0, unit: 'px' },
+            },
+        },
+        verticalOrientation: {
+            type: 'string',
+            default: 'top',
+        },
+        verticalOffset: {
+            type: 'object',
+            default: {
+                desktop: { value: 0, unit: 'px' },
+                tablet: { value: 0, unit: 'px' },
+                mobile: { value: 0, unit: 'px' },
+            },
+        },
+        zIndex: {
+            type: 'number',
+            default: '',
+        },
+		transform: {
+            type: 'object',
+            default: {
+                rotate: { desktop: '', tablet: '', mobile: '' },
+                rotate3d: false,
+                rotateX: { desktop: '', tablet: '', mobile: '' },
+                rotateY: { desktop: '', tablet: '', mobile: '' },
+                perspective: { desktop: '', tablet: '', mobile: '' },
+                offsetX: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                offsetY: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                keepProportions: true,
+                scale: { desktop: '', tablet: '', mobile: '' },
+                scaleX: { desktop: '', tablet: '', mobile: '' },
+                scaleY: { desktop: '', tablet: '', mobile: '' },
+                skewX: { desktop: '', tablet: '', mobile: '' },
+                skewY: { desktop: '', tablet: '', mobile: '' },
+                flipHorizontal: false,
+                flipVertical: false,
+                xAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                yAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                transitionDuration: ''
+            }
+        },
+        transformHover: {
+            type: 'object',
+            default: {
+                rotate: { desktop: '', tablet: '', mobile: '' },
+                rotate3d: false,
+                rotateX: { desktop: '', tablet: '', mobile: '' },
+                rotateY: { desktop: '', tablet: '', mobile: '' },
+                perspective: { desktop: '', tablet: '', mobile: '' },
+                offsetX: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                offsetY: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                keepProportions: true,
+                scale: { desktop: '', tablet: '', mobile: '' },
+                scaleX: { desktop: '', tablet: '', mobile: '' },
+                scaleY: { desktop: '', tablet: '', mobile: '' },
+                skewX: { desktop: '', tablet: '', mobile: '' },
+                skewY: { desktop: '', tablet: '', mobile: '' },
+                flipHorizontal: false,
+                flipVertical: false,
+                xAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                yAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                transitionDuration: ''
+            }
+        },
 	},
 	example: {
 		attributes: {

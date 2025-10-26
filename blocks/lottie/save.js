@@ -24,6 +24,8 @@ const LottieSave = ({ attributes }) => {
         backgroundColor,
         showControls,
         animation,
+        animationDuration,
+        animationDelay,
         borderStyle,
         borderColor,
         borderWidth,
@@ -38,13 +40,19 @@ const LottieSave = ({ attributes }) => {
 
     // Build class names
     const blockClasses = `digiblocks-lottie ${id} ${customClasses || ""}`;
-    const animationClass = animation && animation !== 'none' ? ` animate-${animation}` : '';
+    const animationClass = animation && animation !== 'none' ? ` animate-${animation} digi-animate-hidden` : '';
 
     // Build block props
     const blockProps = useBlockProps.save({
         className: blockClasses + animationClass,
         id: anchor || undefined,
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     return (
         <div {...blockProps}>

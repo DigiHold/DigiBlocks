@@ -22,6 +22,9 @@ const ButtonSave = ({ attributes }) => {
         size,
         fill,
         onlyIcon,
+		animation,
+        animationDuration,
+        animationDelay,
     } = attributes;
 
     // Build class names
@@ -30,10 +33,23 @@ const ButtonSave = ({ attributes }) => {
 		id,
         size,
         fill ? 'is-fill' : '',
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         customClasses || ''
     ]
         .filter(Boolean)
         .join(" ");
+
+    // Build common props
+    const blockProps = useBlockProps.save({
+        className: blockClasses,
+        id: anchor || null,
+    });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
 	// Render icon
     const renderIcon = () => {
@@ -95,12 +111,7 @@ const ButtonSave = ({ attributes }) => {
     }
 
     return (
-        <div
-            {...useBlockProps.save({
-                className: blockClasses,
-                id: anchor || null,
-            })}
-        >
+        <div {...blockProps}>
             {buttonContent}
         </div>
     );

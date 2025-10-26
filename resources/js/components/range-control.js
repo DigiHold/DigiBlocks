@@ -2,11 +2,7 @@
  * WordPress dependencies
  */
 const { __ } = wp.i18n;
-const { 
-    Button,
-    __experimentalToggleGroupControl: ToggleGroupControl,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption
-} = wp.components;
+const { Button } = wp.components;
 const { useState, useEffect } = wp.element;
 
 /**
@@ -21,6 +17,7 @@ const ResponsiveRangeControl = ({
         { label: '%', value: '%' },
         { label: 'em', value: 'em' },
         { label: 'rem', value: 'rem' },
+        { label: 'vw', value: 'vw' },
         { label: 'vh', value: 'vh' },
     ],
     defaultUnit = 'px',
@@ -33,6 +30,9 @@ const ResponsiveRangeControl = ({
     const [localActiveDevice, setLocalActiveDevice] = useState(
         window.digi?.responsiveState?.activeDevice || 'desktop'
     );
+
+	// Units selector
+	const UnitsSelector = window.digi?.utils?.UnitsSelector;
     
     // State for current unit
     const [currentUnit, setCurrentUnit] = useState(defaultUnit);
@@ -234,33 +234,20 @@ const ResponsiveRangeControl = ({
                                         <span className="dashicon dashicons dashicons-image-rotate"></span>
                                     </button>
                                 </div>
-                                {units && units.length > 1 && (
-                                    <ToggleGroupControl
+                                {units && units.length > 1 && UnitsSelector && (
+                                    <UnitsSelector
                                         value={currentUnit}
                                         onChange={(unit) => {
                                             setCurrentUnit(unit);
-                                            // Update value with new unit
                                             const updatedValues = {
                                                 ...values,
                                                 [localActiveDevice]: { ...values[localActiveDevice], unit }
                                             };
                                             onChange(updatedValues);
                                         }}
-                                        isBlock
-                                        isSmall
-                                        hideLabelFromVision
-                                        aria-label={__("Select Units", "digiblocks")}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    >
-                                        {units.map(unit => (
-                                            <ToggleGroupControlOption
-                                                key={unit.value}
-                                                value={unit.value}
-                                                label={unit.label}
-                                            />
-                                        ))}
-                                    </ToggleGroupControl>
+                                        units={units}
+                                        ariaLabel={__("Select Units", "digiblocks")}
+                                    />
                                 )}
                             </div>
                         </div>

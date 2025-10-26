@@ -17,6 +17,22 @@ $visibility               = isset( $attrs['visibility'] ) ? $attrs['visibility']
     'tablet'  => false,
     'mobile'  => false,
 ];
+$position                = isset( $attrs['position'] ) ? $attrs['position'] : 'default';
+$horizontalOrientation   = isset( $attrs['horizontalOrientation'] ) ? $attrs['horizontalOrientation'] : 'left';
+$horizontalOffset        = isset( $attrs['horizontalOffset'] ) ? $attrs['horizontalOffset'] : array(
+	'desktop' => array( 'value' => 0, 'unit' => 'px' ),
+	'tablet'  => array( 'value' => 0, 'unit' => 'px' ),
+	'mobile'  => array( 'value' => 0, 'unit' => 'px' ),
+);
+$verticalOrientation     = isset( $attrs['verticalOrientation'] ) ? $attrs['verticalOrientation'] : 'top';
+$verticalOffset          = isset( $attrs['verticalOffset'] ) ? $attrs['verticalOffset'] : array(
+	'desktop' => array( 'value' => 0, 'unit' => 'px' ),
+	'tablet'  => array( 'value' => 0, 'unit' => 'px' ),
+	'mobile'  => array( 'value' => 0, 'unit' => 'px' ),
+);
+$zIndex                  = isset( $attrs['zIndex'] ) ? $attrs['zIndex'] : '';
+$transform               = isset( $attrs['transform'] ) ? $attrs['transform'] : array();
+$transformHover          = isset( $attrs['transformHover'] ) ? $attrs['transformHover'] : array();
 $endDate                  = isset( $attrs['endDate'] ) ? $attrs['endDate'] : '';
 $showDays                 = isset( $attrs['showDays'] ) ? $attrs['showDays'] : true;
 $showHours                = isset( $attrs['showHours'] ) ? $attrs['showHours'] : true;
@@ -106,7 +122,6 @@ $boxBorderWidth           = isset( $attrs['boxBorderWidth'] ) ? $attrs['boxBorde
 	),
 );
 $boxBorderColor           = isset( $attrs['boxBorderColor'] ) ? $attrs['boxBorderColor'] : '#e0e0e0';
-$showBoxShadow            = isset( $attrs['showBoxShadow'] ) ? $attrs['showBoxShadow'] : false;
 $boxShadow                = isset( $attrs['boxShadow'] ) ? $attrs['boxShadow'] : array(
 	'enable'     => false,
 	'color'      => 'rgba(0, 0, 0, 0.2)',
@@ -219,7 +234,58 @@ ob_start();
 	<?php echo esc_attr( digiblocks_get_dimensions( $boxMargin, 'margin', 'desktop' ) ); ?>
 	text-align: <?php echo esc_attr( $align ); ?>;
 	display: block;
+    <?php if ( $position && 'default' !== $position ) : ?>
+        position: <?php echo esc_attr( $position ); ?>;
+        <?php
+        $h_value = isset( $horizontalOffset['desktop']['value'] ) && '' !== $horizontalOffset['desktop']['value'] ? $horizontalOffset['desktop']['value'] : '0';
+        $h_unit = isset( $horizontalOffset['desktop']['unit'] ) ? $horizontalOffset['desktop']['unit'] : 'px';
+        if ( '' !== $h_value ) :
+            if ( 'left' === $horizontalOrientation ) :
+        ?>
+        left: <?php echo esc_attr( $h_value . $h_unit ); ?>;
+        <?php else : ?>
+        right: <?php echo esc_attr( $h_value . $h_unit ); ?>;
+        <?php
+            endif;
+        endif;
+        
+        $v_value = isset( $verticalOffset['desktop']['value'] ) && '' !== $verticalOffset['desktop']['value'] ? $verticalOffset['desktop']['value'] : '0';
+        $v_unit = isset( $verticalOffset['desktop']['unit'] ) ? $verticalOffset['desktop']['unit'] : 'px';
+        if ( '' !== $v_value ) :
+            if ( 'top' === $verticalOrientation ) :
+        ?>
+        top: <?php echo esc_attr( $v_value . $v_unit ); ?>;
+        <?php else : ?>
+        bottom: <?php echo esc_attr( $v_value . $v_unit ); ?>;
+        <?php
+            endif;
+        endif;
+        ?>
+    <?php endif; ?>
+    <?php if ( '' !== $zIndex && null !== $zIndex ) : ?>
+        z-index: <?php echo esc_attr( $zIndex ); ?>;
+    <?php endif; ?>
+	<?php
+    $transform_value = digiblocks_get_transform_css( $transform, 'desktop' );
+    if ( ! empty( $transform_value ) ) :
+    ?>
+    transform: <?php echo esc_attr( $transform_value ); ?>;
+    transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'desktop' ); ?>;
+    <?php endif; ?>
+    <?php if ( ! empty( $transformHover ) && isset( $transformHover['transitionDuration'] ) && '' !== $transformHover['transitionDuration'] && null !== $transformHover['transitionDuration'] ) : ?>
+	transition: all <?php echo esc_attr( $transformHover['transitionDuration'] ); ?>ms ease;
+	<?php endif; ?>
 }
+
+<?php
+$transform_hover_value = digiblocks_get_transform_css( $transformHover, 'desktop' );
+if ( ! empty( $transform_hover_value ) ) :
+?>
+.<?php echo esc_attr( $id ); ?>:hover {
+    transform: <?php echo esc_attr( $transform_hover_value ); ?>;
+    transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'desktop' ); ?>;
+}
+<?php endif; ?>
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-countdown-container {
 	display: inline-flex;
@@ -406,7 +472,7 @@ ob_start();
 			<?php endif; ?>
 			<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderRadius, 'border-radius', 'desktop' ) ); ?>
 			padding: <?php echo esc_attr( $boxPadding['desktop']['top'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['right'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['bottom'] . $boxPadding['desktop']['unit'] . ' ' . $boxPadding['desktop']['left'] . $boxPadding['desktop']['unit'] ); ?>;
-			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
+			<?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
 			<?php endif; ?>
@@ -421,7 +487,7 @@ ob_start();
 				color: <?php echo esc_attr( $digitHoverColor ); ?>;
 			<?php endif; ?>
 			
-			<?php if ( $showBoxShadow && isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
+			<?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
 				<?php $inset = isset( $boxShadowHover['position'] ) && 'inset' === $boxShadowHover['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadowHover['horizontal'] . 'px ' . $boxShadowHover['vertical'] . 'px ' . $boxShadowHover['blur'] . 'px ' . $boxShadowHover['spread'] . 'px ' . $boxShadowHover['color'] ); ?>;
 			<?php endif; ?>
@@ -437,7 +503,7 @@ ob_start();
 			border-color: <?php echo esc_attr( $boxBorderColor ); ?>;
 			<?php echo esc_attr( digiblocks_get_dimensions( $boxBorderRadius, 'border-radius', 'desktop' ) ); ?>
 			<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'desktop' ) ); ?>
-			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
+			<?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
 			<?php endif; ?>
@@ -452,7 +518,7 @@ ob_start();
 				color: <?php echo esc_attr( $digitHoverColor ); ?>;
 			<?php endif; ?>
 			
-			<?php if ( $showBoxShadow && isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
+			<?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
 				<?php $inset = isset( $boxShadowHover['position'] ) && 'inset' === $boxShadowHover['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadowHover['horizontal'] . 'px ' . $boxShadowHover['vertical'] . 'px ' . $boxShadowHover['blur'] . 'px ' . $boxShadowHover['spread'] . 'px ' . $boxShadowHover['color'] ); ?>;
 			<?php endif; ?>
@@ -465,7 +531,7 @@ ob_start();
 			<?php endif; ?>
 			border-radius: 50px;
 			<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'desktop' ) ); ?>
-			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
+			<?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
 			<?php endif; ?>
@@ -480,7 +546,7 @@ ob_start();
 				color: <?php echo esc_attr( $digitHoverColor ); ?>;
 			<?php endif; ?>
 			
-			<?php if ( $showBoxShadow && isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
+			<?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
 				<?php $inset = isset( $boxShadowHover['position'] ) && 'inset' === $boxShadowHover['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadowHover['horizontal'] . 'px ' . $boxShadowHover['vertical'] . 'px ' . $boxShadowHover['blur'] . 'px ' . $boxShadowHover['spread'] . 'px ' . $boxShadowHover['color'] ); ?>;
 			<?php endif; ?>
@@ -493,7 +559,7 @@ ob_start();
 			<?php endif; ?>
 			border-radius: 8px;
 			<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'desktop' ) ); ?>
-			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
+			<?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
 			<?php endif; ?>
@@ -508,7 +574,7 @@ ob_start();
 				color: <?php echo esc_attr( $digitHoverColor ); ?>;
 			<?php endif; ?>
 			
-			<?php if ( $showBoxShadow && isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
+			<?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
 				<?php $inset = isset( $boxShadowHover['position'] ) && 'inset' === $boxShadowHover['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadowHover['horizontal'] . 'px ' . $boxShadowHover['vertical'] . 'px ' . $boxShadowHover['blur'] . 'px ' . $boxShadowHover['spread'] . 'px ' . $boxShadowHover['color'] ); ?>;
 			<?php endif; ?>
@@ -525,7 +591,7 @@ ob_start();
 			justify-content: center;
 			align-items: center;
 			<?php echo esc_attr( digiblocks_get_dimensions( $boxPadding, 'padding', 'desktop' ) ); ?>
-			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
+			<?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
 			<?php endif; ?>
@@ -540,7 +606,7 @@ ob_start();
 				color: <?php echo esc_attr( $digitHoverColor ); ?>;
 			<?php endif; ?>
 			
-			<?php if ( $showBoxShadow && isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
+			<?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
 				<?php $inset = isset( $boxShadowHover['position'] ) && 'inset' === $boxShadowHover['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadowHover['horizontal'] . 'px ' . $boxShadowHover['vertical'] . 'px ' . $boxShadowHover['blur'] . 'px ' . $boxShadowHover['spread'] . 'px ' . $boxShadowHover['color'] ); ?>;
 			<?php endif; ?>
@@ -551,7 +617,7 @@ ob_start();
 			<?php if ( ! empty( $digitColor ) ) : ?>
 			color: <?php echo esc_attr( $digitColor ); ?>;
 			<?php endif; ?>
-			<?php if ( $showBoxShadow && isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
+			<?php if ( isset( $boxShadow['enable'] ) && $boxShadow['enable'] ) : ?>
 				<?php $inset = isset( $boxShadow['position'] ) && 'inset' === $boxShadow['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadow['horizontal'] . 'px ' . $boxShadow['vertical'] . 'px ' . $boxShadow['blur'] . 'px ' . $boxShadow['spread'] . 'px ' . $boxShadow['color'] ); ?>;
 			<?php endif; ?>
@@ -562,7 +628,7 @@ ob_start();
 				color: <?php echo esc_attr( $digitHoverColor ); ?>;
 			<?php endif; ?>
 			
-			<?php if ( $showBoxShadow && isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
+			<?php if ( isset( $boxShadowHover['enable'] ) && $boxShadowHover['enable'] ) : ?>
 				<?php $inset = isset( $boxShadowHover['position'] ) && 'inset' === $boxShadowHover['position'] ? 'inset ' : ''; ?>
 				box-shadow: <?php echo esc_attr( $inset . $boxShadowHover['horizontal'] . 'px ' . $boxShadowHover['vertical'] . 'px ' . $boxShadowHover['blur'] . 'px ' . $boxShadowHover['spread'] . 'px ' . $boxShadowHover['color'] ); ?>;
 			<?php endif; ?>
@@ -586,7 +652,51 @@ ob_start();
 @media (max-width: 991px) {
 	.<?php echo esc_attr( $id ); ?> {
 		<?php echo esc_attr( digiblocks_get_dimensions( $boxMargin, 'margin', 'tablet' ) ); ?>
+        <?php if ( $position && 'default' !== $position ) : ?>
+            <?php
+            $h_value_tablet = isset( $horizontalOffset['tablet']['value'] ) && '' !== $horizontalOffset['tablet']['value'] ? $horizontalOffset['tablet']['value'] : '0';
+            $h_unit_tablet = isset( $horizontalOffset['tablet']['unit'] ) ? $horizontalOffset['tablet']['unit'] : 'px';
+            if ( '' !== $h_value_tablet ) :
+                if ( 'left' === $horizontalOrientation ) :
+            ?>
+            left: <?php echo esc_attr( $h_value_tablet . $h_unit_tablet ); ?>;
+            <?php else : ?>
+            right: <?php echo esc_attr( $h_value_tablet . $h_unit_tablet ); ?>;
+            <?php
+                endif;
+            endif;
+            
+            $v_value_tablet = isset( $verticalOffset['tablet']['value'] ) && '' !== $verticalOffset['tablet']['value'] ? $verticalOffset['tablet']['value'] : '0';
+            $v_unit_tablet = isset( $verticalOffset['tablet']['unit'] ) ? $verticalOffset['tablet']['unit'] : 'px';
+            if ( '' !== $v_value_tablet ) :
+                if ( 'top' === $verticalOrientation ) :
+            ?>
+            top: <?php echo esc_attr( $v_value_tablet . $v_unit_tablet ); ?>;
+            <?php else : ?>
+            bottom: <?php echo esc_attr( $v_value_tablet . $v_unit_tablet ); ?>;
+            <?php
+                endif;
+            endif;
+            ?>
+        <?php endif; ?>
+		<?php
+        $transform_value_tablet = digiblocks_get_transform_css( $transform, 'tablet' );
+        if ( ! empty( $transform_value_tablet ) ) :
+        ?>
+        transform: <?php echo esc_attr( $transform_value_tablet ); ?>;
+    	transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'tablet' ); ?>;
+        <?php endif; ?>
 	}
+
+	<?php
+	$transform_hover_value_tablet = digiblocks_get_transform_css( $transformHover, 'tablet' );
+	if ( ! empty( $transform_hover_value_tablet ) ) :
+	?>
+		.<?php echo esc_attr( $id ); ?>:hover {
+			transform: <?php echo esc_attr( $transform_hover_value_tablet ); ?>;
+    		transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'tablet' ); ?>;
+		}
+	<?php endif; ?>
 	
 	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-container {
 		gap: <?php echo esc_attr( $itemSpacing['tablet'] ); ?>px;
@@ -659,7 +769,51 @@ ob_start();
 @media (max-width: 767px) {
 	.<?php echo esc_attr( $id ); ?> {
 		<?php echo esc_attr( digiblocks_get_dimensions( $boxMargin, 'margin', 'mobile' ) ); ?>
-	}
+		<?php if ( $position && 'default' !== $position ) : ?>
+            <?php
+            $h_value_mobile = isset( $horizontalOffset['mobile']['value'] ) && '' !== $horizontalOffset['mobile']['value'] ? $horizontalOffset['mobile']['value'] : '0';
+            $h_unit_mobile = isset( $horizontalOffset['mobile']['unit'] ) ? $horizontalOffset['mobile']['unit'] : 'px';
+            if ( '' !== $h_value_mobile ) :
+                if ( 'left' === $horizontalOrientation ) :
+            ?>
+            left: <?php echo esc_attr( $h_value_mobile . $h_unit_mobile ); ?>;
+            <?php else : ?>
+            right: <?php echo esc_attr( $h_value_mobile . $h_unit_mobile ); ?>;
+            <?php
+                endif;
+            endif;
+            
+            $v_value_mobile = isset( $verticalOffset['mobile']['value'] ) && '' !== $verticalOffset['mobile']['value'] ? $verticalOffset['mobile']['value'] : '0';
+            $v_unit_mobile = isset( $verticalOffset['mobile']['unit'] ) ? $verticalOffset['mobile']['unit'] : 'px';
+            if ( '' !== $v_value_mobile ) :
+                if ( 'top' === $verticalOrientation ) :
+            ?>
+            top: <?php echo esc_attr( $v_value_mobile . $v_unit_mobile ); ?>;
+            <?php else : ?>
+            bottom: <?php echo esc_attr( $v_value_mobile . $v_unit_mobile ); ?>;
+            <?php
+                endif;
+            endif;
+            ?>
+        <?php endif; ?>
+		<?php
+        $transform_value_mobile = digiblocks_get_transform_css( $transform, 'mobile' );
+        if ( ! empty( $transform_value_mobile ) ) :
+        ?>
+        transform: <?php echo esc_attr( $transform_value_mobile ); ?>;
+    	transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'mobile' ); ?>;
+        <?php endif; ?>
+    }
+
+	<?php
+	$transform_hover_value_mobile = digiblocks_get_transform_css( $transformHover, 'mobile' );
+	if ( ! empty( $transform_hover_value_mobile ) ) :
+	?>
+		.<?php echo esc_attr( $id ); ?>:hover {
+			transform: <?php echo esc_attr( $transform_hover_value_mobile ); ?>;
+    		transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'mobile' ); ?>;
+		}
+	<?php endif; ?>
 	
 	.<?php echo esc_attr( $id ); ?> .digiblocks-countdown-container {
 		gap: <?php echo esc_attr( $itemSpacing['mobile'] ); ?>px;

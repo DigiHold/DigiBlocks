@@ -12,6 +12,8 @@ const FormsSave = ({ attributes }) => {
         anchor,
         customClasses,
         animation,
+        animationDuration,
+        animationDelay,
         successMessage,
         errorMessage,
         submitButtonText,
@@ -20,13 +22,19 @@ const FormsSave = ({ attributes }) => {
     } = attributes;
 
     // Get block classes
-    const blockClass = `digiblocks-forms ${id} ${animation !== 'none' ? `animate-${animation}` : ''} ${customClasses || ''}`;
+    const blockClass = `digiblocks-forms ${id} ${animation !== 'none' ? `animate-${animation} digi-animate-hidden` : ''} ${customClasses || ''}`;
 
     // Build class names
     const blockProps = useBlockProps.save({
         className: blockClass,
         id: anchor || null,
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     // Function to render the form field
     const renderFormField = (field, index) => {

@@ -1,0 +1,11 @@
+@keyframes digiBlocksSlideInDown {
+    from {
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        transform: translate3d(0, 0, 0);
+    }
+}
+.digi-animated.animate-slide-in-down {
+    animation-name: digiBlocksSlideInDown;
+}

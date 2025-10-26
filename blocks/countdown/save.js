@@ -24,6 +24,8 @@ const CountdownSave = ({ attributes }) => {
         separatorType,
         expiredMessage,
         animation,
+        animationDuration,
+        animationDelay,
         align,
         style,
         boxesEqual,
@@ -35,7 +37,7 @@ const CountdownSave = ({ attributes }) => {
         "digiblocks-countdown",
 		id,
         `align-${align}`,
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         style === "boxes" ? "digiblocks-countdown-boxes" : "digiblocks-countdown-simple",
         boxesEqual ? "digiblocks-countdown-equal-width" : "",
         `digiblocks-countdown-labels-${labelPosition}`,
@@ -62,6 +64,12 @@ const CountdownSave = ({ attributes }) => {
         "data-expired-message": expiredMessage || "Time's up!",
         "data-label-position": labelPosition || "bottom",
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
     
     // Empty placeholder for the frontend JavaScript to populate
     return (

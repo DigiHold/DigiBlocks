@@ -7,7 +7,8 @@ const {
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption
 } = wp.components;
-const { useState, useEffect } = wp.element;
+const { useState, useEffect, useMemo } = wp.element;
+const { useSelect } = wp.data;
 
 /**
  * Responsive Button Group Control Component
@@ -16,53 +17,72 @@ const ResponsiveButtonGroup = ({
     label,
     value,
     onChange,
-    options = [],
-    defaultValue = options.length > 0 ? options[0].value : '',
-    defaultValues = null
+    options = []
 }) => {
-    // Use global responsive state for local rendering
     const [localActiveDevice, setLocalActiveDevice] = useState(
         window.digi?.responsiveState?.activeDevice || 'desktop'
     );
     
-    // Subscribe to global device state changes
+    const blockDefaults = useSelect((select) => {
+        const { getSelectedBlock } = select('core/block-editor');
+        const { getBlockType } = select('core/blocks');
+        
+        const selectedBlock = getSelectedBlock();
+        if (!selectedBlock) {
+            return null;
+        }
+        
+        const blockType = getBlockType(selectedBlock.name);
+        if (!blockType?.attributes) {
+            return null;
+        }
+        
+        const currentAttributes = selectedBlock.attributes;
+        
+        for (const [attrName, attrValue] of Object.entries(currentAttributes)) {
+            if (attrValue === value && blockType.attributes[attrName]?.default) {
+                const defaultValue = blockType.attributes[attrName].default;
+                
+                if (typeof defaultValue === 'object' && 
+                    defaultValue.desktop !== undefined &&
+                    defaultValue.tablet !== undefined &&
+                    defaultValue.mobile !== undefined) {
+                    return defaultValue;
+                }
+            }
+        }
+        
+        return null;
+    }, [value]);
+    
     useEffect(() => {
-        // Skip if global state doesn't exist
         if (!window.digi?.responsiveState?.subscribe) return;
         
         const unsubscribe = window.digi.responsiveState.subscribe((device) => {
             setLocalActiveDevice(device);
         });
         
-        // Cleanup subscription on unmount
         return unsubscribe;
     }, []);
 
-    // Ensure value is properly structured with device keys
     const ensureResponsiveValue = (val) => {
         if (!val || typeof val !== 'object') {
             return {
-                desktop: defaultValue,
-                tablet: defaultValue,
-                mobile: defaultValue
+                desktop: '',
+                tablet: '',
+                mobile: ''
             };
         }
         
-        const result = {};
-        ['desktop', 'tablet', 'mobile'].forEach(device => {
-            if (val[device] !== undefined) {
-                result[device] = val[device];
-            } else {
-                result[device] = defaultValue;
-            }
-        });
-        
-        return result;
+        return {
+            desktop: val.desktop !== undefined ? val.desktop : '',
+            tablet: val.tablet !== undefined ? val.tablet : '',
+            mobile: val.mobile !== undefined ? val.mobile : ''
+        };
     };
 
     const values = ensureResponsiveValue(value);
 
-    // Update value for current device
     const updateValue = (newValue) => {
         onChange({
             ...values,
@@ -70,59 +90,40 @@ const ResponsiveButtonGroup = ({
         });
     };
 
-    // Reset to default value
-	const resetValue = () => {
-		let defaultVal;
-		
-		if (defaultValues) {
-			// Use provided defaultValues
-			defaultVal = defaultValues[localActiveDevice] !== undefined ? 
-				defaultValues[localActiveDevice] : 
-				(defaultValues.default !== undefined ? defaultValues.default : options[0].value);
-		} else {
-			// Auto-detect defaults: desktop uses first option, tablet/mobile use empty string
-			defaultVal = localActiveDevice === 'desktop' ? options[0].value : '';
-		}
-		
-		updateValue(defaultVal);
-	};
+    const getDefaultValue = (device) => {
+        if (blockDefaults && blockDefaults[device] !== undefined) {
+            return blockDefaults[device];
+        }
+        return '';
+    };
 
-	// Determine if reset button should be disabled
-	const isResetDisabled = () => {
-		let expectedDefault;
-		
-		if (defaultValues) {
-			// Use provided defaultValues
-			expectedDefault = defaultValues[localActiveDevice] !== undefined ? 
-				defaultValues[localActiveDevice] : 
-				(defaultValues.default !== undefined ? defaultValues.default : options[0].value);
-		} else {
-			// Auto-detect defaults: desktop uses first option, tablet/mobile use empty string
-			expectedDefault = localActiveDevice === 'desktop' ? options[0].value : '';
-		}
-		
-		return values[localActiveDevice] === expectedDefault;
-	};
+    const resetValue = () => {
+        const defaultVal = getDefaultValue(localActiveDevice);
+        onChange({
+            ...values,
+            [localActiveDevice]: defaultVal
+        });
+    };
 
-    // THIS IS ALSO KEY - use the same handleToggleDevice approach as ResponsiveControl
+    const isResetDisabled = () => {
+        const expectedDefault = getDefaultValue(localActiveDevice);
+        return values[localActiveDevice] === expectedDefault;
+    };
+
     const handleToggleDevice = () => {
         if (window.digi?.responsiveState?.toggleDevice) {
             window.digi.responsiveState.toggleDevice();
         } else {
-            // Fallback toggle logic
             const nextDevice = localActiveDevice === "desktop" ? "tablet" : 
                               localActiveDevice === "tablet" ? "mobile" : "desktop";
             setLocalActiveDevice(nextDevice);
         }
     };
 
-    // Get device icon
     const getDeviceIcon = (device) => {
-        // If global icons exist, use them
         if (window.digi?.icons?.deviceIcons?.[device]) {
             return window.digi.icons.deviceIcons[device];
         }
-        // Fallback to a simple icon
         return <span className={`dashicon dashicons dashicons-${device}`}></span>;
     };
 

@@ -19,6 +19,8 @@ const IconBoxSave = ({ attributes }) => {
 		badgeText,
         content,
         animation,
+        animationDuration,
+        animationDelay,
         hoverEffect,
         anchor,
         customClasses,
@@ -34,7 +36,7 @@ const IconBoxSave = ({ attributes }) => {
     const blockClasses = [
         "digiblocks-icon-box",
         id,
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         hoverEffect !== "none" ? `has-hover-${hoverEffect}` : "",
         customClasses || "" // Add custom classes if they exist
     ]
@@ -46,6 +48,12 @@ const IconBoxSave = ({ attributes }) => {
         className: blockClasses,
         id: anchor || null,
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     // Render icon 
     const renderIcon = () => {

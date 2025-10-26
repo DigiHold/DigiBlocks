@@ -20,6 +20,8 @@ const CallToActionSave = ({ attributes }) => {
         backgroundType,
         align,
         animation,
+        animationDuration,
+        animationDelay,
         buttons,
         highlightText,
         highlightType,
@@ -31,11 +33,29 @@ const CallToActionSave = ({ attributes }) => {
         "digiblocks-cta",
 		id,
         `style-${style}`,
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         customClasses
     ]
         .filter(Boolean)
         .join(" ");
+
+    // Build common props
+    const blockProps = useBlockProps.save({
+        className: blockClasses,
+		id: anchor || null,
+		"data-style": style,
+		"data-background-type": backgroundType || 'color',
+		"data-align": align || 'left',
+		"data-highlight-text": highlightText || '',
+		"data-highlight-type": highlightType || 'none',
+		"data-highlight-color": highlightColor || '#ffde59'
+    });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     // Generate heading tag (h1-h6)
     const HeadingTag = headingTag || 'h2';
@@ -145,18 +165,7 @@ const CallToActionSave = ({ attributes }) => {
     };
 
     return (
-        <div 
-            {...useBlockProps.save({
-                className: blockClasses,
-                id: anchor || null,
-                "data-style": style,
-                "data-background-type": backgroundType || 'color',
-                "data-align": align || 'left',
-                "data-highlight-text": highlightText || '',
-                "data-highlight-type": highlightType || 'none',
-                "data-highlight-color": highlightColor || '#ffde59'
-            })}
-        >
+        <div {...blockProps}>
             {getBlockContent()}
         </div>
     );

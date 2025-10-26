@@ -11,15 +11,24 @@ const ColumnSave = ({ attributes }) => {
     const {
         id,
         backgroundOverlay,
+        animation,
+        animationDuration,
+        animationDelay,
     } = attributes;
 
     // Build class names
-    const classNames = `digiblocks-column ${id}`;
+    const classNames = `digiblocks-column ${id}${animation !== 'none' ? ` animate-${animation} digi-animate-hidden` : ''}`;
     
     // Save block props
     const blockProps = useBlockProps.save({
         className: classNames
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     // Save inner blocks props
     const innerBlocksProps = useInnerBlocksProps.save(blockProps);

@@ -14,6 +14,8 @@ const SocialIconsSave = ({ attributes }) => {
         icons,
         align,
         animation,
+        animationDuration,
+        animationDelay,
         showLabels,
         labelPosition
     } = attributes;
@@ -23,7 +25,7 @@ const SocialIconsSave = ({ attributes }) => {
         "digiblocks-social-icons",
 		id,
         `align-${align}`,
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         customClasses || ""
     ]
         .filter(Boolean)
@@ -34,6 +36,12 @@ const SocialIconsSave = ({ attributes }) => {
         className: blockClasses,
         id: anchor || null,
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     // Render social icons
     const renderSocialIcons = () => {

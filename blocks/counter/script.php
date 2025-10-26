@@ -77,8 +77,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get counter attributes
             const startValue = parseFloat(counter.getAttribute('data-start-value') || 0);
             const endValue = parseFloat(counter.getAttribute('data-end-value') || 0);
-            const duration = parseInt(counter.getAttribute('data-animation-duration') || 2000);
-            const delay = parseInt(counter.getAttribute('data-animation-delay') || 0);
+            const duration = parseInt(counter.getAttribute('data-duration') || 2000);
+            const delay = parseInt(counter.getAttribute('data-delay') || 0);
             
             // Get formatting options
             const thousandSeparator = counter.getAttribute('data-thousand-separator') || '';

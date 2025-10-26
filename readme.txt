@@ -48,6 +48,7 @@ DigiBlocks includes a comprehensive collection of blocks designed to address all
 
 = Pro Version Blocks =
 
+* **[AI Image](https://digiblocks.me/block/ai-image?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Generate beautiful images with AI.
 * **[Posts](https://digiblocks.me/block/posts?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Display your WordPress posts in beautiful grid and list layouts.
 * **[Money Back](https://digiblocks.me/block/money-back?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add a customizable money back guarantee.
 * **[Logo](https://digiblocks.me/block/logo?utm_source=wordpress.org&utm_medium=free%20plugin%20listing&utm_campaign=digiblocks)** - Add a customizable logo for your website header or footer.
@@ -209,6 +210,22 @@ This plugin uses Google Maps API for the Google Map Block feature.
 2. **Settings**: Configure what you need.
 
 == Changelog ==
+
+= 1.0.4 -  =
+* Added: Max Width field for the Heading block
+* Added: Position panel with settings to allow relative, absolute or fixed positioning with orientation fields
+* Added: Transform panel with settings like Rotate, Offset, Scale, which allow you to create unique design
+* Added: More Animations
+* Added: Margins fields for the Icon Box block to control title and content margin
+* Tweak: Many improvements for the Heading block
+* Tweak: Many improvements for the Text block
+* Tweak: Many improvements for the Container block
+* Tweak: Many improvements for the Column block
+* Tweak: Better Units selection design
+* Tweak: Better Typography UX
+* Tweak: Animations now only load the required JS dynamically instead of all animations
+* Tweak: Better panels organization
+
 
 = 1.0.3 - October 21, 2025 =
 * Added: Settings and tab needed for new AI Image feature

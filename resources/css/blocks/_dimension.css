@@ -8,19 +8,12 @@ body .components-base-control__field {
     flex-direction: column;
 }
 
-.digiblocks-control__header {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
 /* Control Actions */
 .digiblocks-control__actions {
     position: relative;
     top: 0;
     display: flex;
+    align-items: center;
     direction: initial;
 }
 

@@ -20,6 +20,8 @@ const GoogleMapSave = ({ attributes }) => {
         markers,
         address,
         animation,
+        animationDuration,
+        animationDelay,
         enableZoom,
         enableScroll,
         enableFullscreenControl,
@@ -31,7 +33,7 @@ const GoogleMapSave = ({ attributes }) => {
     const blockClasses = [
         "digiblocks-google-map",
 		id,
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         customClasses || ""
     ]
         .filter(Boolean)
@@ -52,6 +54,12 @@ const GoogleMapSave = ({ attributes }) => {
         "data-enable-streetview": enableStreetViewControl !== false ? "true" : "false",
         "data-enable-maptype": enableMapTypeControl !== false ? "true" : "false",
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     return (
         <div {...blockProps}>

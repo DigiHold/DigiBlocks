@@ -7,17 +7,17 @@ const {
     RichText,
     InspectorControls,
     PanelColorSettings,
-    LinkControl,
-    BlockControls,
-    AlignmentToolbar
+    LinkControl
 } = wp.blockEditor;
 const {
     SelectControl,
     RangeControl,
     ToggleControl,
+    TextControl,
     Button,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
+	__experimentalNumberControl: NumberControl,
     TabPanel,
     BaseControl
 } = wp.components;
@@ -28,12 +28,12 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveButtonGroup, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveControl, ResponsiveButtonGroup, ResponsiveRangeControl, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
 
 /**
  * Edit function for the Heading block
  */
-const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
+const HeadingEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onReplace }) => {
     const {
         id,
         anchor,
@@ -41,6 +41,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         customClasses,
         content,
         headingTag,
+        maxWidth,
         textColor,
         textHoverColor,
         backgroundColor,
@@ -50,9 +51,12 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         padding,
         margin,
         animation,
+		animationDuration,
+		animationDelay,
         highlightText,
         highlightColor,
         highlightType,
+		textEffect,
         displaySeparator,
         separatorColor,
         separatorSecondaryColor,
@@ -67,7 +71,15 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         linkOpenInNewTab,
         linkRel,
         shadowEnabled,
-        textShadow
+        textShadow,
+        position,
+        horizontalOrientation,
+        horizontalOffset,
+        verticalOrientation,
+        verticalOffset,
+        zIndex,
+		transform,
+        transformHover,
     } = attributes;
 
 	// Create unique class
@@ -75,9 +87,6 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Use global responsive state for local rendering instead of local state
     const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
-    
-    // State for animation preview
-    const [isAnimating, setIsAnimating] = useState(false);
     
     // Subscribe to global device state changes
     useEffect(() => {
@@ -106,7 +115,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
 	useEffect(() => {
 		if (animation && animation !== 'none') {
 			const timeoutId = setTimeout(() => {
-				animationPreview(id, animation, animations, previewTimeoutRef);
+				animationPreview(id, animation, animations, previewTimeoutRef, animationDuration, animationDelay);
 			}, 100);
 			return () => clearTimeout(timeoutId);
 		}
@@ -114,7 +123,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
 
 	// Button click handler
 	const handlePreviewClick = () => {
-		animationPreview(id, animation, animations, previewTimeoutRef);
+		animationPreview(id, animation, animations, previewTimeoutRef, animationDuration, animationDelay);
 	};
 
     // Animation options
@@ -128,6 +137,68 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         })),
     ];
 
+	const handleApplyHighlight = () => {
+		if (!highlightText || highlightText.trim() === '' || !content) {
+			return;
+		}
+
+		const tempDiv = document.createElement('div');
+		tempDiv.innerHTML = content;
+
+		const existingHighlights = tempDiv.querySelectorAll('.digiblocks-highlight');
+		existingHighlights.forEach((highlight) => {
+			const textNode = document.createTextNode(highlight.textContent);
+			highlight.parentNode.replaceChild(textNode, highlight);
+		});
+
+		tempDiv.normalize();
+
+		const walker = document.createTreeWalker(
+			tempDiv,
+			NodeFilter.SHOW_TEXT,
+			null
+		);
+
+		const nodesToProcess = [];
+		let currentNode;
+
+		while (currentNode = walker.nextNode()) {
+			if (currentNode.nodeValue && currentNode.nodeValue.includes(highlightText)) {
+				nodesToProcess.push(currentNode);
+			}
+		}
+
+		nodesToProcess.forEach((node) => {
+			const text = node.nodeValue;
+			const index = text.indexOf(highlightText);
+
+			if (index === -1) return;
+
+			const before = text.substring(0, index);
+			const match = text.substring(index, index + highlightText.length);
+			const after = text.substring(index + highlightText.length);
+
+			const fragment = document.createDocumentFragment();
+
+			if (before) {
+				fragment.appendChild(document.createTextNode(before));
+			}
+
+			const span = document.createElement('span');
+			span.className = 'digiblocks-highlight';
+			span.textContent = match;
+			fragment.appendChild(span);
+
+			if (after) {
+				fragment.appendChild(document.createTextNode(after));
+			}
+
+			node.parentNode.replaceChild(fragment, node);
+		});
+
+		setAttributes({ content: tempDiv.innerHTML });
+	};
+
     // Heading tags
     const headingTagOptions = [
         { label: __('H1', 'digiblocks'), value: 'h1' },
@@ -136,13 +207,6 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         { label: __('H4', 'digiblocks'), value: 'h4' },
         { label: __('H5', 'digiblocks'), value: 'h5' },
         { label: __('H6', 'digiblocks'), value: 'h6' },
-    ];
-
-    // Highlight type options
-    const highlightTypeOptions = [
-        { label: __('Background', 'digiblocks'), value: 'background' },
-        { label: __('Text Color', 'digiblocks'), value: 'color' },
-        { label: __('Underline', 'digiblocks'), value: 'underline' },
     ];
 
     // Define the tabs for our custom tab panel
@@ -177,6 +241,162 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
             className: 'digiblocks-tab-2 hover'
         }
     ];
+
+    // Change data attr in units
+	const getMaxValue = (unit) => {
+		switch(unit) {
+			case '%': return 100;
+			case 'em':
+			case 'rem': return 50;
+			case 'px':
+			default: return 1500;
+		}
+	};
+	
+	const getStepValue = (unit) => {
+		switch(unit) {
+			case '%': return 1;
+			case 'em':
+			case 'rem': return 0.1;
+			case 'px':
+			default: return 1;
+		}
+	};
+
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+		
+		if (device === 'mobile') {
+			return !isEmpty(obj.mobile) ? obj.mobile : 
+				!isEmpty(obj.tablet) ? obj.tablet : 
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
+		}
+		return obj.desktop;
+	};
+
+	const getTransformOrigin = (transform, device) => {
+        const xMap = { left: '0%', center: '50%', right: '100%' };
+        const yMap = { top: '0%', center: '50%', bottom: '100%' };
+        
+        const x = xMap[transform.xAnchor?.[device] || 'center'];
+        const y = yMap[transform.yAnchor?.[device] || 'center'];
+        
+        return `${x} ${y}`;
+    };
+
+	const getTransformCSS = (transform, device) => {
+		if (!transform) return '';
+		
+		const transforms = [];
+		
+		const getValue = (prop) => {
+			if (!prop) return '';
+			
+			let val = prop[device];
+			
+			// Check if value is empty
+			const isEmpty = (v) => {
+				if (v === '' || v === undefined || v === null) return true;
+				if (typeof v === 'object' && v !== null) {
+					return v.value === '' || v.value === undefined || v.value === null;
+				}
+				return false;
+			};
+			
+			// Tablet fallback to desktop
+			if (device === 'tablet' && isEmpty(val)) {
+				val = prop.desktop;
+			}
+			
+			// Mobile fallback to tablet, then desktop
+			if (device === 'mobile' && isEmpty(val)) {
+				val = prop.tablet;
+				if (isEmpty(val)) {
+					val = prop.desktop;
+				}
+			}
+			
+			return typeof val === 'object' && val !== null ? (val.value !== undefined ? val.value : '') : val;
+		};
+		
+		const rotateValue = getValue(transform.rotate);
+		if (rotateValue !== '' && rotateValue !== undefined && rotateValue !== null) {
+			if (transform.rotate3d) {
+				const perspectiveValue = getValue(transform.perspective);
+				if (perspectiveValue !== '' && perspectiveValue !== undefined && perspectiveValue !== null) {
+					transforms.push(`perspective(${perspectiveValue}px)`);
+				}
+			}
+			transforms.push(`rotate(${rotateValue}deg)`);
+		}
+		
+		if (transform.rotate3d) {
+			const rotateXValue = getValue(transform.rotateX);
+			if (rotateXValue !== '' && rotateXValue !== undefined && rotateXValue !== null) {
+				transforms.push(`rotateX(${rotateXValue}deg)`);
+			}
+			const rotateYValue = getValue(transform.rotateY);
+			if (rotateYValue !== '' && rotateYValue !== undefined && rotateYValue !== null) {
+				transforms.push(`rotateY(${rotateYValue}deg)`);
+			}
+		}
+		
+		const offsetXValue = transform.offsetX?.[device]?.value;
+		const offsetYValue = transform.offsetY?.[device]?.value;
+		const hasOffsetX = offsetXValue !== '' && offsetXValue !== undefined && offsetXValue !== null;
+		const hasOffsetY = offsetYValue !== '' && offsetYValue !== undefined && offsetYValue !== null;
+		
+		if (hasOffsetX || hasOffsetY) {
+			const x = hasOffsetX ? `${offsetXValue}${transform.offsetX[device].unit || 'px'}` : '0';
+			const y = hasOffsetY ? `${offsetYValue}${transform.offsetY[device].unit || 'px'}` : '0';
+			transforms.push(`translate(${x}, ${y})`);
+		}
+		
+		if (transform.keepProportions) {
+			const scaleValue = getValue(transform.scale);
+			if (scaleValue !== '' && scaleValue !== undefined && scaleValue !== null && scaleValue != 1) {
+				transforms.push(`scale(${scaleValue})`);
+			}
+		} else {
+			const scaleXValue = getValue(transform.scaleX);
+			const scaleYValue = getValue(transform.scaleY);
+			const scaleX = (scaleXValue !== '' && scaleXValue !== undefined && scaleXValue !== null) ? scaleXValue : 1;
+			const scaleY = (scaleYValue !== '' && scaleYValue !== undefined && scaleYValue !== null) ? scaleYValue : 1;
+			if (scaleX != 1 || scaleY != 1) {
+				transforms.push(`scale(${scaleX}, ${scaleY})`);
+			}
+		}
+		
+		const skewXValue = getValue(transform.skewX);
+		if (skewXValue !== '' && skewXValue !== undefined && skewXValue !== null) {
+			transforms.push(`skewX(${skewXValue}deg)`);
+		}
+		const skewYValue = getValue(transform.skewY);
+		if (skewYValue !== '' && skewYValue !== undefined && skewYValue !== null) {
+			transforms.push(`skewY(${skewYValue}deg)`);
+		}
+		
+		if (transform.flipHorizontal) {
+			transforms.push('scaleX(-1)');
+		}
+		if (transform.flipVertical) {
+			transforms.push('scaleY(-1)');
+		}
+		
+		return transforms.length > 0 ? transforms.join(' ') : '';
+	};
 
     // Generate CSS for block styling
     const generateCSS = () => {
@@ -227,12 +447,19 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
         // Padding and margin
         const paddingCSS = `${getDimensionCSS(padding, 'padding', activeDevice)}`;
         const marginCSS = `${getDimensionCSS(margin, 'margin', activeDevice, true)}`;
-
-        // Animation CSS if provided
-        let animationCSS = '';
-        if (animation && animation !== 'none' && animations[animation]) {
-            animationCSS = animations[animation].keyframes;
-        }
+		
+		// Content max width CSS
+		let maxWidthCSS = '';
+		const maxWidthValue = getVal(maxWidth, activeDevice);
+		const alignValue = getVal(align, activeDevice);
+		if (maxWidthValue && maxWidthValue.value) {
+			maxWidthCSS = `max-width: ${maxWidthValue.value}${maxWidthValue.unit};`;
+			if (alignValue === 'center') {
+				maxWidthCSS += 'margin-left: auto;margin-right: auto;';
+			} else if (alignValue === 'right') {
+				maxWidthCSS += 'margin-left: auto;';
+			}
+		}
         
         // Enhanced Separator CSS
         let separatorCSS = '';
@@ -484,6 +711,15 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 `;
             }
         }
+
+		let effectCSS = '';
+		if (textEffect && textEffect !== 'none') {
+			effectCSS = `
+				.${id} {
+					mix-blend-mode: ${textEffect};
+				}
+			`;
+		}
         
         // Link styles
         let linkCSS = '';
@@ -501,6 +737,56 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             `;
         }
+
+        // Position styles
+        let positionCSS = '';
+        if (position && position !== 'default') {
+            positionCSS += `position: ${position} !important;`;
+            
+            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue !== '' && horizontalValue !== undefined) {
+                if (horizontalOrientation === 'left') {
+                    positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
+                } else {
+                    positionCSS += `right: ${horizontalValue}${horizontalUnit};`;
+                }
+            }
+            
+            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue !== '' && verticalValue !== undefined) {
+                if (verticalOrientation === 'top') {
+                    positionCSS += `top: ${verticalValue}${verticalUnit};`;
+                } else {
+                    positionCSS += `bottom: ${verticalValue}${verticalUnit};`;
+                }
+            }
+        }
+
+        if (zIndex !== '' && zIndex !== undefined && zIndex !== null) {
+            positionCSS += `z-index: ${zIndex};`;
+        }
+
+		// Transform
+		let transformCSS = '';
+		const transformValue = getTransformCSS(transform, activeDevice);
+		if (transformValue) {
+			transformCSS += `transform: ${transformValue};`;
+			transformCSS += `transform-origin: ${getTransformOrigin(transform, activeDevice)};`;
+		}
+
+		const transformHoverValue = getTransformCSS(transformHover, activeDevice);
+		if (transformHoverValue && transformHover && transformHover.transitionDuration !== '' && transformHover.transitionDuration !== undefined && transformHover.transitionDuration !== null) {
+			const duration = transformHover.transitionDuration;
+			transformCSS += `transition: transform ${duration}ms ease;`;
+		}
+
+		let transformHoverCSS = '';
+		if (transformHoverValue) {
+			transformHoverCSS += `transform: ${transformHoverValue};`;
+			transformHoverCSS += `transform-origin: ${getTransformOrigin(transformHover, activeDevice)};`;
+		}
         
         // Set base styles for the block
         return `
@@ -509,18 +795,23 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 display: flex;
                 flex-direction: column;
                 position: relative;
-                text-align: ${align[activeDevice]};
+                text-align: ${alignValue};
                 ${backgroundColor ? `background-color: ${backgroundColor};` : ''}
                 ${paddingCSS}
                 ${marginCSS}
+                ${positionCSS}
                 transition: color 0.3s ease, background-color 0.3s ease;
+                ${positionCSS}
+				${transformCSS}
             }
 
             .${id} .digiblocks-heading-text {
                 ${typographyCSS}
+                margin: 0;
+                ${maxWidthCSS}
                 ${textShadowCSS}
                 color: ${textColor || 'inherit'};
-                margin: 0;
+				${transformHoverCSS}
             }
             
             /* Hover effects */
@@ -532,14 +823,14 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                 ${textHoverColor ? `color: ${textHoverColor};` : ''}
             }
             
-            /* Animation keyframes */
-            ${animationCSS}
-            
             /* Separator styles */
             ${separatorCSS}
             
             /* Highlight styles */
             ${highlightCSS}
+            
+            /* Effect */
+            ${effectCSS}
             
             /* Link styles */
             ${linkCSS}
@@ -569,27 +860,6 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
 				}
 			` : ''}
         `;
-    };
-
-    // Function to render highlighted content
-    const renderHeadingWithHighlight = () => {
-        if (!highlightText || highlightText.trim() === '') {
-            return content;
-        }
-
-        // Regular expression to escape special characters
-        const escapeRegExp = (string) => {
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
-
-        const parts = content.split(new RegExp(`(${escapeRegExp(highlightText)})`, 'g'));
-        
-        return parts.map((part, index) => {
-            if (part === highlightText) {
-                return `<span class="digiblocks-highlight">${part}</span>`;
-            }
-            return part;
-        }).join('');
     };
 
     // Separator styles preview component
@@ -862,6 +1132,22 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                     forceIsEditingLink={!linkUrl}
                                 />
                             )}
+
+							<ResponsiveRangeControl
+								label={__("Max Width", "digiblocks")}
+								value={maxWidth}
+								onChange={(value) => setAttributes({ maxWidth: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' },
+									{ label: 'em', value: 'em' },
+									{ label: 'rem', value: 'rem' },
+								]}
+								defaultUnit="px"
+								min={0}
+								max={getMaxValue(maxWidth?.[localActiveDevice]?.unit)}
+								step={getStepValue(maxWidth?.[localActiveDevice]?.unit)}
+							/>
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1025,50 +1311,40 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__("Text Highlight", "digiblocks")}
                             initialOpen={false}
                         >
-                            <div className="components-base-control">
-                                <div className="components-base-control__field">
-                                    <label className="components-base-control__label" htmlFor="highlight-text">
-                                        {__("Text to Highlight", "digiblocks")}
-                                    </label>
-                                    <input
-                                        className="components-text-control__input"
-                                        type="text"
-                                        id="highlight-text"
-                                        value={highlightText || ""}
-                                        onChange={(e) =>
-                                            setAttributes({ highlightText: e.target.value })
-                                        }
-                                        placeholder={__("Enter text to highlight", "digiblocks")}
-                                    />
-                                </div>
-                                <p className="components-base-control__help">
-                                    {__("The text you enter here will be highlighted in your heading.", "digiblocks")}
-                                </p>
-                            </div>
+                            <TextControl
+								label={__("Text to Highlight", "digiblocks")}
+								value={highlightText || ''}
+								onChange={(value) => setAttributes({ highlightText: value })}
+								placeholder={__("Enter text to highlight", "digiblocks")}
+								help={__("The text you enter here will be highlighted in your heading.", "digiblocks")}
+								__nextHasNoMarginBottom={true}
+							/>
+
+							{highlightText && highlightText.trim() !== '' && (
+								<div style={{ marginTop: '10px', marginBottom: '16px' }}>
+									<Button
+										variant="secondary"
+										onClick={handleApplyHighlight}
+										style={{ width: '100%' }}
+									>
+										{__("Apply Highlight", "digiblocks")}
+									</Button>
+								</div>
+							)}
 
                             {highlightText && highlightText.trim() !== '' && (
                                 <>
-                                    <ToggleGroupControl
-                                        label={__("Highlight Type", "digiblocks")}
-                                        value={highlightType}
-                                        onChange={(value) => setAttributes({ highlightType: value })}
-                                        isBlock
-                                        __next40pxDefaultSize={true}
+									<SelectControl
+										label={__("Highlight Type", "digiblocks")}
+										value={highlightType}
+										options={[
+											{ label: __("Background", "digiblocks"), value: "background" },
+											{ label: __("Text", "digiblocks"), value: "color" },
+											{ label: __("Underline", "digiblocks"), value: "underline" },
+										]}
+										onChange={(value) => setAttributes({ highlightType: value })}
 										__nextHasNoMarginBottom={true}
-                                    >
-                                        <ToggleGroupControlOption 
-                                            value="background" 
-                                            label={__("Background", "digiblocks")}
-                                        />
-                                        <ToggleGroupControlOption 
-                                            value="color" 
-                                            label={__("Text", "digiblocks")}
-                                        />
-                                        <ToggleGroupControlOption 
-                                            value="underline" 
-                                            label={__("Underline", "digiblocks")}
-                                        />
-                                    </ToggleGroupControl>
+									/>
                                     
                                     <PanelColorSettings
                                         title={__("Highlight Color", "digiblocks")}
@@ -1084,6 +1360,41 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                 </>
                             )}
                         </TabPanelBody>
+						
+						<TabPanelBody
+							tab="options"
+							name="effect"
+							title={__("Text Effect", "digiblocks")}
+							initialOpen={false}
+						>
+							<SelectControl
+								label={__("Blend Mode", "digiblocks")}
+								value={textEffect}
+								options={[
+									{ label: __("None", "digiblocks"), value: "none" },
+									{ label: __("Difference", "digiblocks"), value: "difference" },
+									{ label: __("Multiply", "digiblocks"), value: "multiply" },
+									{ label: __("Screen", "digiblocks"), value: "screen" },
+									{ label: __("Overlay", "digiblocks"), value: "overlay" },
+									{ label: __("Darken", "digiblocks"), value: "darken" },
+									{ label: __("Lighten", "digiblocks"), value: "lighten" },
+									{ label: __("Color Dodge", "digiblocks"), value: "color-dodge" },
+									{ label: __("Color Burn", "digiblocks"), value: "color-burn" },
+									{ label: __("Hard Light", "digiblocks"), value: "hard-light" },
+									{ label: __("Soft Light", "digiblocks"), value: "soft-light" },
+									{ label: __("Exclusion", "digiblocks"), value: "exclusion" },
+									{ label: __("Hue", "digiblocks"), value: "hue" },
+									{ label: __("Saturation", "digiblocks"), value: "saturation" },
+									{ label: __("Color", "digiblocks"), value: "color" },
+									{ label: __("Luminosity", "digiblocks"), value: "luminosity" },
+								]}
+								onChange={(value) => setAttributes({ textEffect: value })}
+								__nextHasNoMarginBottom={true}
+							/>
+							<p className="components-base-control__help">
+								{__("Apply a blend mode effect to the heading text.", "digiblocks")}
+							</p>
+						</TabPanelBody>
                     </>
                 );
             case 'style':
@@ -1255,12 +1566,17 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                 </>
                             )}
                         </TabPanelBody>
-                        
+                    </>
+                );
+                
+            case 'advanced':
+                return (
+                    <>
                         <TabPanelBody
-                            tab="style"
+                            tab="advanced"
                             name="spacing"
-                            title={__("Spacing", "digiblocks")}
-                            initialOpen={false}
+                            title={__('Spacing', 'digiblocks')}
+                            initialOpen={true}
                         >
                             <ResponsiveControl
                                 label={__("Padding", "digiblocks")}
@@ -1294,17 +1610,130 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                 />
                             </ResponsiveControl>
                         </TabPanelBody>
-                    </>
-                );
-                
-            case 'advanced':
-                return (
-                    <>
+
                         <TabPanelBody
                             tab="advanced"
+                            name="position"
+                            title={__("Position", "digiblocks")}
+                            initialOpen={false}
+                        >
+                            <SelectControl
+                                label={__("Position", "digiblocks")}
+                                value={position}
+                                options={[
+                                    { label: __("Default", "digiblocks"), value: "default" },
+                                    { label: __("Relative", "digiblocks"), value: "relative" },
+                                    { label: __("Absolute", "digiblocks"), value: "absolute" },
+                                    { label: __("Fixed", "digiblocks"), value: "fixed" },
+                                ]}
+                                onChange={(value) => setAttributes({ position: value })}
+                                __nextHasNoMarginBottom={true}
+                            />
+
+                            {position !== 'default' && (
+                                <>
+                                    <ToggleGroupControl
+                                        label={__("Horizontal Orientation", "digiblocks")}
+                                        value={horizontalOrientation}
+                                        isBlock
+                                        onChange={(value) => setAttributes({ horizontalOrientation: value })}
+                                        __nextHasNoMarginBottom={true}
+                                    >
+                                        <ToggleGroupControlOption
+                                            value="left"
+                                            label={__("Left", "digiblocks")}
+                                        />
+                                        <ToggleGroupControlOption
+                                            value="right"
+                                            label={__("Right", "digiblocks")}
+                                        />
+                                    </ToggleGroupControl>
+
+                                    <ResponsiveRangeControl
+                                        label={__("Offset", "digiblocks")}
+                                        value={horizontalOffset}
+                                        onChange={(value) => setAttributes({ horizontalOffset: value })}
+                                        units={[
+                                            { label: 'px', value: 'px' },
+                                            { label: '%', value: '%' },
+                                            { label: 'em', value: 'em' },
+                                            { label: 'rem', value: 'rem' },
+                                            { label: 'vw', value: 'vw' },
+                                            { label: 'vh', value: 'vh' },
+                                        ]}
+                                        defaultUnit="px"
+                                        min={0}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                    />
+
+                                    <ToggleGroupControl
+                                        label={__("Vertical Orientation", "digiblocks")}
+                                        value={verticalOrientation}
+                                        isBlock
+                                        onChange={(value) => setAttributes({ verticalOrientation: value })}
+                                        __nextHasNoMarginBottom={true}
+                                    >
+                                        <ToggleGroupControlOption
+                                            value="top"
+                                            label={__("Top", "digiblocks")}
+                                        />
+                                        <ToggleGroupControlOption
+                                            value="bottom"
+                                            label={__("Bottom", "digiblocks")}
+                                        />
+                                    </ToggleGroupControl>
+
+                                    <ResponsiveRangeControl
+                                        label={__("Offset", "digiblocks")}
+                                        value={verticalOffset}
+                                        onChange={(value) => setAttributes({ verticalOffset: value })}
+                                        units={[
+                                            { label: 'px', value: 'px' },
+                                            { label: '%', value: '%' },
+                                            { label: 'em', value: 'em' },
+                                            { label: 'rem', value: 'rem' },
+                                            { label: 'vw', value: 'vw' },
+                                            { label: 'vh', value: 'vh' },
+                                        ]}
+                                        defaultUnit="px"
+                                        min={0}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                    />
+                                </>
+                            )}
+
+                            <RangeControl
+                                label={__("Z-Index", "digiblocks")}
+                                value={zIndex}
+                                onChange={(value) => setAttributes({ zIndex: value })}
+                                min={-999}
+                                max={9999}
+                                allowReset={true}
+                                __nextHasNoMarginBottom={true}
+                            />
+                        </TabPanelBody>
+
+						<TabPanelBody
+                            tab="advanced"
+                            name="transform"
+                            title={__('Transform', 'digiblocks')}
+                            initialOpen={false}
+                        >
+                            <TransformControl
+                                normalValue={transform}
+                                hoverValue={transformHover}
+                                onNormalChange={(value) => setAttributes({ transform: value })}
+                                onHoverChange={(value) => setAttributes({ transformHover: value })}
+                            />
+                        </TabPanelBody>
+
+						<TabPanelBody
+                            tab="advanced"
                             name="animation"
-                            title={__("Animation", "digiblocks")}
-                            initialOpen={true}
+                            title={__('Animation', 'digiblocks')}
+                            initialOpen={false}
                         >
                             <SelectControl
                                 label={__("Animation Effect", "digiblocks")}
@@ -1314,6 +1743,33 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
                                 __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
                             />
+
+							{animation && animation !== 'none' && (
+								<>
+									<SelectControl
+										label={__("Animation Duration", "digiblocks")}
+										value={animationDuration}
+										options={[
+											{ label: __("Slow", "digiblocks"), value: "slow" },
+											{ label: __("Normal", "digiblocks"), value: "normal" },
+											{ label: __("Fast", "digiblocks"), value: "fast" }
+										]}
+										onChange={(value) => setAttributes({ animationDuration: value })}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+									
+									<NumberControl
+										label={__("Animation Delay (ms)", "digiblocks")}
+										value={animationDelay || 0}
+										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										min={0}
+										step={100}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+								</>
+							)}
                             
                             {/* Animation Preview Button */}
                             {animation && animation !== 'none' && (
@@ -1478,14 +1934,17 @@ const HeadingEdit = ({ attributes, setAttributes, clientId }) => {
             <style dangerouslySetInnerHTML={{ __html: generateCSS() }} />
 
             <div {...blockProps}>
-				<RichText
-					tagName={headingTag}
-					className="digiblocks-heading-text"
-					value={content}
-					onChange={(value) => setAttributes({ content: value })}
-					placeholder={__("Add Your Heading", "digiblocks")}
-					allowedFormats={['core/bold', 'core/italic']}
-				/>
+                <RichText
+                    identifier="content"
+                    tagName={headingTag}
+                    className="digiblocks-heading-text"
+                    value={content}
+                    onChange={(value) => setAttributes({ content: value })}
+                    onMerge={mergeBlocks}
+                    onReplace={onReplace}
+                    onRemove={onReplace ? () => onReplace([]) : undefined}
+                    placeholder={__("Add Your Heading", "digiblocks")}
+                />
             </div>
         </>
     );

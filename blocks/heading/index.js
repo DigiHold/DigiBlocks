@@ -7,12 +7,11 @@ const { registerBlockType } = wp.blocks;
 import HeadingEdit from './edit';
 import HeadingSave from './save';
 
-
 /**
  * Register Heading block
  */
 registerBlockType('digiblocks/heading', {
-    apiVersion: 2,
+    apiVersion: 3,
     title: digiBlocksData.blocks['heading'].title,
     category: 'digiblocks',
     icon: {
@@ -29,10 +28,40 @@ registerBlockType('digiblocks/heading', {
     keywords: [__('heading', 'digiblocks'), __('title', 'digiblocks'), __('header', 'digiblocks')],
     // Disable default controls and settings panels
     supports: {
-        html: false,
+        html: true,
         className: false,
         customClassName: false,
-        anchor: false
+        anchor: false,
+        splitting: true
+    },
+    transforms: {
+        from: [
+            {
+                type: 'block',
+                blocks: ['core/paragraph', 'digiblocks/text'],
+                transform: (attributes) => {
+                    return wp.blocks.createBlock('digiblocks/heading', {
+                        content: attributes.content,
+                    });
+                },
+            },
+        ],
+        to: [
+            {
+                type: 'block',
+                blocks: ['digiblocks/text'],
+                transform: (attributes) => {
+                    return wp.blocks.createBlock('digiblocks/text', {
+                        content: attributes.content,
+                    });
+                },
+            },
+        ],
+    },
+    merge: (attributes, attributesToMerge) => {
+        return {
+            content: (attributes.content || '') + (attributesToMerge.content || ''),
+        };
     },
     attributes: {
         id: {
@@ -56,13 +85,27 @@ registerBlockType('digiblocks/heading', {
             default: ''
         },
         content: {
-            type: 'string',
-            default: __('Add Your Heading', 'digiblocks')
+            type: 'rich-text',
+            source: 'rich-text',
+            selector: 'h1,h2,h3,h4,h5,h6',
+            role: 'content'
         },
         headingTag: {
             type: 'string',
             default: 'h2'
         },
+		textEffect: {
+			type: 'string',
+			default: 'none'
+		},
+		maxWidth: {
+			type: 'object',
+			default: {
+				desktop: { value: '', unit: 'px' },
+				tablet: { value: '', unit: 'px' },
+				mobile: { value: '', unit: 'px' }
+			}
+		},
         textColor: {
             type: 'string',
             default: ''
@@ -99,8 +142,8 @@ registerBlockType('digiblocks/heading', {
             type: 'object',
             default: {
                 desktop: 'left',
-                tablet: 'left',
-                mobile: 'left'
+                tablet: '',
+                mobile: ''
             }
         },
         padding: {
@@ -123,6 +166,14 @@ registerBlockType('digiblocks/heading', {
             type: 'string',
             default: 'none'
         },
+		animationDuration: {
+			type: 'string',
+			default: 'normal'
+		},
+		animationDelay: {
+			type: 'number',
+			default: ''
+		},
         highlightText: {
             type: 'string',
             default: ''
@@ -215,7 +266,85 @@ registerBlockType('digiblocks/heading', {
                 blur: 3,
                 color: 'rgba(0,0,0,0.3)'
             }
-        }
+        },
+        position: {
+            type: 'string',
+            default: 'default',
+        },
+        horizontalOrientation: {
+            type: 'string',
+            default: 'left',
+        },
+        horizontalOffset: {
+            type: 'object',
+            default: {
+                desktop: { value: 0, unit: 'px' },
+                tablet: { value: 0, unit: 'px' },
+                mobile: { value: 0, unit: 'px' },
+            },
+        },
+        verticalOrientation: {
+            type: 'string',
+            default: 'top',
+        },
+        verticalOffset: {
+            type: 'object',
+            default: {
+                desktop: { value: 0, unit: 'px' },
+                tablet: { value: 0, unit: 'px' },
+                mobile: { value: 0, unit: 'px' },
+            },
+        },
+        zIndex: {
+            type: 'number',
+            default: '',
+        },
+		transform: {
+            type: 'object',
+            default: {
+                rotate: { desktop: '', tablet: '', mobile: '' },
+                rotate3d: false,
+                rotateX: { desktop: '', tablet: '', mobile: '' },
+                rotateY: { desktop: '', tablet: '', mobile: '' },
+                perspective: { desktop: '', tablet: '', mobile: '' },
+                offsetX: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                offsetY: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                keepProportions: true,
+                scale: { desktop: '', tablet: '', mobile: '' },
+                scaleX: { desktop: '', tablet: '', mobile: '' },
+                scaleY: { desktop: '', tablet: '', mobile: '' },
+                skewX: { desktop: '', tablet: '', mobile: '' },
+                skewY: { desktop: '', tablet: '', mobile: '' },
+                flipHorizontal: false,
+                flipVertical: false,
+                xAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                yAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                transitionDuration: ''
+            }
+        },
+        transformHover: {
+            type: 'object',
+            default: {
+                rotate: { desktop: '', tablet: '', mobile: '' },
+                rotate3d: false,
+                rotateX: { desktop: '', tablet: '', mobile: '' },
+                rotateY: { desktop: '', tablet: '', mobile: '' },
+                perspective: { desktop: '', tablet: '', mobile: '' },
+                offsetX: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                offsetY: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
+                keepProportions: true,
+                scale: { desktop: '', tablet: '', mobile: '' },
+                scaleX: { desktop: '', tablet: '', mobile: '' },
+                scaleY: { desktop: '', tablet: '', mobile: '' },
+                skewX: { desktop: '', tablet: '', mobile: '' },
+                skewY: { desktop: '', tablet: '', mobile: '' },
+                flipHorizontal: false,
+                flipVertical: false,
+                xAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                yAnchor: { desktop: 'center', tablet: '', mobile: '' },
+                transitionDuration: ''
+            }
+        },
     },
     example: {
         attributes: {

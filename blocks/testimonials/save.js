@@ -15,6 +15,8 @@ const TestimonialsSave = ({ attributes }) => {
         showRating,
         showQuoteIcon,
         animation,
+        animationDuration,
+        animationDelay,
         columns,
         autoplay,
         autoplaySpeed,
@@ -28,7 +30,7 @@ const TestimonialsSave = ({ attributes }) => {
         "digiblocks-testimonials-block",
 		id,
         "grid",
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         customClasses || ""
     ]
         .filter(Boolean)
@@ -39,6 +41,12 @@ const TestimonialsSave = ({ attributes }) => {
         className: blockClasses,
         id: anchor || null,
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDuration || "normal";
+        blockProps["data-animation-delay"] = animationDelay || 0;
+    }
 
     // Generate rating stars
     const generateStars = (rating) => {

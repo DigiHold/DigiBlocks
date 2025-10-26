@@ -992,7 +992,27 @@ class DigiBlocks {
 		// Remove comments.
 		$css = preg_replace( '!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $css );
 		
-		// Ensure preg_replace didn't fail
+		if ( null === $css ) {
+			return '';
+		}
+
+		// Remove empty properties (e.g., "color: ;" or "margin: ;")
+		$css = preg_replace( '/[a-zA-Z-]+:\s*;/', '', $css );
+		
+		if ( null === $css ) {
+			return '';
+		}
+
+		// Remove empty CSS rules (e.g., ".class {}" or ".class { }")
+		$css = preg_replace( '/[^{}]+\{\s*\}/', '', $css );
+		
+		if ( null === $css ) {
+			return '';
+		}
+
+		// Remove empty media queries (e.g., "@media (max-width:767px) {}")
+		$css = preg_replace( '/@media[^{]+\{\s*\}/', '', $css );
+		
 		if ( null === $css ) {
 			return '';
 		}
@@ -1089,18 +1109,25 @@ class DigiBlocks {
 						$template_info = $this->analyze_template_structure( $template_blocks, $current_post );
 						
 						$template_parts_to_enqueue = array_merge( $template_parts_to_enqueue, $template_info['template_parts'] );
-						
+
 						$post_has_content = ! empty( $current_post->post_content ) && 
 							( false !== strpos( $current_post->post_content, '<!-- wp:digiblocks/' ) || 
 							false !== strpos( $current_post->post_content, '<!-- wp:block ' ) );
-						
+
 						if ( $template_info['has_post_content'] && $post_has_content ) {
 							$post_ids_to_check[] = $current_post_id;
-						} elseif ( ! $template_info['has_post_content'] || ! $post_has_content ) {
+						}
+
+						if ( ! $template_info['has_post_content'] || ! $post_has_content ) {
 							if ( ! empty( $template_info['template_content_blocks'] ) && 
 								$this->has_digiblocks_in_blocks( $template_info['template_content_blocks'] ) ) {
 								$template_content_for_post[ $current_post_id ] = $template_info['template_content_blocks'];
 							}
+						}
+
+						if ( $template_info['has_post_content'] && ! empty( $template_info['template_content_blocks'] ) && 
+							$this->has_digiblocks_in_blocks( $template_info['template_content_blocks'] ) ) {
+							$template_content_for_post[ 'template-' . $current_post_id ] = $template_info['template_content_blocks'];
 						}
 					}
 				} else {
@@ -1129,6 +1156,11 @@ class DigiBlocks {
 				if ( ! empty( $current_template_blocks ) ) {
 					$template_info = $this->analyze_template_structure( $current_template_blocks );
 					$template_parts_to_enqueue = array_merge( $template_parts_to_enqueue, $template_info['template_parts'] );
+					
+					if ( ! empty( $template_info['template_content_blocks'] ) && 
+						$this->has_digiblocks_in_blocks( $template_info['template_content_blocks'] ) ) {
+						$template_content_for_post[0] = $template_info['template_content_blocks'];
+					}
 				}
 			}
 		}
@@ -1188,9 +1220,9 @@ class DigiBlocks {
 					);
 					
 					$this->enqueue_consolidated_script_data( 'digiblocks-template-part-' . $part_hash, $part_info['blocks'] );
-					$all_blocks_for_global_assets = array_merge( $all_blocks_for_global_assets, $part_info['blocks'] );
 				}
 				
+				$all_blocks_for_global_assets = array_merge( $all_blocks_for_global_assets, $part_info['blocks'] );
 				$enqueued_template_parts[ $part_hash ] = true;
 			}
 		}
@@ -1232,9 +1264,9 @@ class DigiBlocks {
 					);
 					
 					$this->enqueue_consolidated_script_data( 'digiblocks-' . $post_id, $template_blocks );
-					$all_blocks_for_global_assets = array_merge( $all_blocks_for_global_assets, $template_blocks );
 				}
 				
+				$all_blocks_for_global_assets = array_merge( $all_blocks_for_global_assets, $template_blocks );
 				$enqueued_posts[ $post_id ] = true;
 			}
 		}
@@ -1291,8 +1323,17 @@ class DigiBlocks {
 				if ( $post && ! empty( $post->post_content ) ) {
 					$blocks = parse_blocks( $post->post_content );
 					$this->enqueue_consolidated_script_data( 'digiblocks-' . $post_id, $blocks );
-					$all_blocks_for_global_assets = array_merge( $all_blocks_for_global_assets, $blocks );
 				}
+			}
+
+			if ( ! isset( $blocks ) && ! $post ) {
+				$post = get_post( $post_id );
+			}
+			if ( ! isset( $blocks ) && $post && ! empty( $post->post_content ) ) {
+				$blocks = parse_blocks( $post->post_content );
+			}
+			if ( isset( $blocks ) ) {
+				$all_blocks_for_global_assets = array_merge( $all_blocks_for_global_assets, $blocks );
 			}
 			
 			$enqueued_posts[ $post_id ] = true;
@@ -1361,9 +1402,9 @@ class DigiBlocks {
 	 * @param array $all_blocks All blocks found on the page
 	 */
 	private function enqueue_global_digiblocks_assets( $all_blocks ) {
-		// Google Maps API
+		$settings = get_option( 'digiblocks_settings', array() );
+		
 		if ( $this->has_specific_block( $all_blocks, 'digiblocks/google-map' ) ) {
-			$settings = get_option( 'digiblocks_settings', array() );
 			$api_key = isset( $settings['google_maps_api_key'] ) ? $settings['google_maps_api_key'] : '';
 			
 			if ( ! empty( $api_key ) ) {
@@ -1377,7 +1418,6 @@ class DigiBlocks {
 			}
 		}
 		
-		// Lottie Player
 		if ( $this->has_specific_block( $all_blocks, 'digiblocks/lottie' ) ) {
 			wp_enqueue_script(
 				'digiblocks-lottie-player',
@@ -1388,14 +1428,30 @@ class DigiBlocks {
 			);
 		}
 		
-		// Animations
-		if ( $this->has_block_animations( $all_blocks ) ) {
-			wp_enqueue_script(
-				'digiblocks-animations',
-				DIGIBLOCKS_PLUGIN_URL . 'assets/js/front-animations.js',
+		$used_animations = $this->has_block_animations( $all_blocks );
+		if ( ! empty( $used_animations ) ) {
+			wp_enqueue_style(
+				'digiblocks-animations-base',
+				DIGIBLOCKS_PLUGIN_URL . 'assets/css/animations/animations.css',
 				array(),
-				DIGIBLOCKS_VERSION,
-				true
+				DIGIBLOCKS_VERSION
+			);
+			
+			foreach ( $used_animations as $anim_name ) {
+				wp_enqueue_style(
+					'digiblocks-animation-' . $anim_name,
+					DIGIBLOCKS_PLUGIN_URL . 'assets/css/animations/' . $anim_name . '.css',
+					array( 'digiblocks-animations-base' ),
+					DIGIBLOCKS_VERSION
+				);
+			}
+			
+			wp_enqueue_script( 
+				'digiblocks-animations', 
+				DIGIBLOCKS_PLUGIN_URL . 'assets/js/front-animations.js', 
+				array(), 
+				DIGIBLOCKS_VERSION, 
+				true 
 			);
 		}
 	}
@@ -1686,56 +1742,55 @@ class DigiBlocks {
 	}
 
 	/**
-	 * Check if any DigiBlocks with animations are present on the page.
+	 * Collect all animations used in DigiBlocks on the page.
 	 *
 	 * @param array $blocks Array of parsed blocks.
-	 * @return bool True if animations are found.
+	 * @return array Array of animation names used.
 	 */
 	private function has_block_animations( $blocks ) {
+		$animations = array();
+		
 		foreach ( $blocks as $block ) {
-			// Handle reusable blocks
 			if ( isset( $block['blockName'] ) && $block['blockName'] === 'core/block' ) {
 				if ( isset( $block['attrs']['ref'] ) ) {
 					$reusable_block_id = $block['attrs']['ref'];
 					
-					// Check cache first
 					$cached_result = $this->get_cached_reusable_processing( $reusable_block_id, 'animation' );
 					if ( false !== $cached_result ) {
-						if ( $cached_result ) {
-							return true;
+						if ( is_array( $cached_result ) ) {
+							$animations = array_merge( $animations, $cached_result );
 						}
 						continue;
 					}
 					
 					$reusable_blocks = $this->get_cached_reusable_block( $reusable_block_id );
 					if ( ! empty( $reusable_blocks ) ) {
-						$has_animations = $this->has_block_animations( $reusable_blocks );
-						$this->set_cached_reusable_processing( $reusable_block_id, 'animation', $has_animations );
-						if ( $has_animations ) {
-							return true;
+						$reusable_animations = $this->has_block_animations( $reusable_blocks );
+						$this->set_cached_reusable_processing( $reusable_block_id, 'animation', $reusable_animations );
+						if ( ! empty( $reusable_animations ) ) {
+							$animations = array_merge( $animations, $reusable_animations );
 						}
 					}
 				}
 				continue;
 			}
-	
-			// Check if this is a DigiBlocks block with animation attribute
+
 			if ( isset( $block['blockName'] ) && 
 				0 === strpos( $block['blockName'], 'digiblocks/' ) && 
 				isset( $block['attrs']['animation'] ) && 
 				$block['attrs']['animation'] !== 'none' ) {
-				return true;
+				$animations[] = $block['attrs']['animation'];
 			}
 			
-			// Check inner blocks recursively
 			if ( ! empty( $block['innerBlocks'] ) ) {
-				if ( $this->has_block_animations( $block['innerBlocks'] ) ) {
-					return true;
+				$inner_animations = $this->has_block_animations( $block['innerBlocks'] );
+				if ( ! empty( $inner_animations ) ) {
+					$animations = array_merge( $animations, $inner_animations );
 				}
 			}
 		}
 		
-		return false;
+		return array_unique( $animations );
 	}
 
 	/**

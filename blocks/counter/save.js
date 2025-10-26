@@ -22,6 +22,8 @@ const CounterSave = ({ attributes }) => {
         description,
         align,
         animation,
+        animationDataDuration,
+        animationDataDelay,
         layoutStyle,
         displayIcon,
         numberWithCommas,
@@ -38,7 +40,7 @@ const CounterSave = ({ attributes }) => {
         id,
         `align-${align || 'center'}`,
         `layout-${layoutStyle || 'stacked'}`,
-        animation !== "none" ? `animate-${animation}` : "",
+        animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         customClasses || ""
     ]
         .filter(Boolean)
@@ -50,12 +52,18 @@ const CounterSave = ({ attributes }) => {
         id: anchor || null,
         "data-start-value": startNumber || 0,
         "data-end-value": endNumber || 0,
-        "data-animation-duration": animationDuration || 2000,
-        "data-animation-delay": animationDelay || 0,
+        "data-duration": animationDuration || 2000,
+        "data-delay": animationDelay || 0,
         "data-thousand-separator": numberWithCommas ? (thousandSeparator || ',') : '',
         "data-decimal-places": decimalPlaces || 0,
         "data-decimal-separator": decimalSeparator || '.',
     });
+
+    // Add animation data attributes only if animation is active
+    if (animation && animation !== "none") {
+        blockProps["data-animation-duration"] = animationDataDuration || "normal";
+        blockProps["data-animation-delay"] = animationDataDelay || 0;
+    }
 
     // Render icon if provided
     const renderIcon = () => {

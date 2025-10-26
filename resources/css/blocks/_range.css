@@ -56,19 +56,19 @@
 }
 
 .input-wrapper {
-    margin-left: 16px;
-    width: 80px;
+    margin-left: 10px;
+    width: 60px;
 }
 
 .number-input[type="number"] {
     width: 100%;
-    height: 40px;
-    min-height: 40px;
+    height: 30px;
+    min-height: 30px;
     border: 1px solid #d5d5d5;
     border-radius: 2px;
     background-color: #fff;
     color: #1e1e1e;
-    padding: 0 12px;
+    padding: 0 6px;
     line-height: 1;
     font-size: 13px;
     box-shadow: none !important;
@@ -76,5 +76,21 @@
     &:focus {
         border-color: var(--wp-admin-theme-color, #3858e9);
         outline: none;
+    }
+}
+
+body .components-range-control .components-base-control__field {
+    .components-base-control {
+        margin-left: calc(10px) !important;
+    }
+
+    .components-input-control__container {
+        width: calc(60px);
+    }
+
+    .components-input-control__input {
+        height: 30px;
+        min-height: 30px;
+        padding: 0 6px;
     }
 }

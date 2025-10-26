@@ -1,0 +1,11 @@
+@keyframes digiBlocksFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+.digi-animated.animate-fade-in {
+    animation-name: digiBlocksFadeIn;
+}

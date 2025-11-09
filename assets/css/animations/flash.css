@@ -1,14 +1,1 @@
-@keyframes digiBlocksFlash {
-    0%,
-    50%,
-    100% {
-        opacity: 1;
-    }
-    25%,
-    75% {
-        opacity: 0;
-    }
-}
-.digi-animated.animate-flash {
-    animation-name: digiBlocksFlash;
-}
+@keyframes digiBlocksFlash{0%,100%,50%{opacity:1}25%,75%{opacity:0}}.digi-animated.animate-flash{animation-name:digiBlocksFlash}

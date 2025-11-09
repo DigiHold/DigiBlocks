@@ -12,19 +12,17 @@ const {
     PanelColorSettings,
 } = wp.blockEditor;
 const {
+    TextControl,
     TabPanel,
     Notice,
     SelectControl,
     ToggleControl,
     Button,
     RangeControl,
-    __experimentalUnitControl: UnitControl,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
     Spinner,
     Placeholder,
-    TextControl,
     PanelRow,
     Modal,
 } = wp.components;
@@ -35,7 +33,7 @@ const { useState, useEffect, useRef, useCallback } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, ResponsiveRangeControl, BoxShadowControl, TransformControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { DimensionControl, ResponsiveRangeControl, BoxShadowControl, TransformControl, CustomTabPanel, TabPanelBody } = digi.components;
 
 /**
  * Edit function for the Image block
@@ -54,9 +52,7 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
         containerWidth,
         caption,
         width,
-        widthUnit,
         height,
-        heightUnit,
         sizeSlug,
         align,
         alignTablet,
@@ -391,19 +387,20 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
         }
     ];
 
-    // Width unit options
-    const widthUnitOptions = [
-        { label: 'px', value: 'px' },
-        { label: '%', value: '%' },
-        { label: 'vw', value: 'vw' }
-    ];
-
-    // Height unit options
-    const heightUnitOptions = [
-        { label: 'px', value: 'px' },
-        { label: '%', value: '%' },
-        { label: 'vh', value: 'vh' }
-    ];
+	const getVal = (attribute, device = 'desktop') => {
+		if (!attribute || typeof attribute !== 'object') return '';
+		
+		const deviceValue = attribute[device];
+		if (!deviceValue) return '';
+		
+		if (typeof deviceValue === 'object' && deviceValue.value !== undefined) {
+			if (deviceValue.value === '' || deviceValue.value === null) return '';
+			const unit = deviceValue.unit || 'px';
+			return `${deviceValue.value}${unit}`;
+		}
+		
+		return deviceValue;
+	};
 
     const getMaxValue = (unit) => {
         switch (unit) {
@@ -591,17 +588,12 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
         let heightCSS = '';
 
         if (dimensionType === 'custom') {
-            const currentWidth = width[activeDevice] ? 
-                (width[activeDevice] === 'auto' ? 'auto' : `${width[activeDevice]}${widthUnit}`) : 
-                '100%';
-
-            const currentHeight = height[activeDevice] ? 
-                (height[activeDevice] === 'auto' ? 'auto' : `${height[activeDevice]}${heightUnit}`) : 
-                'auto';
-            
-            widthCSS = `width: ${currentWidth};`;
-            heightCSS = `height: ${currentHeight};`;
-        }
+			const currentWidth = getVal(width, activeDevice);
+			const currentHeight = getVal(height, activeDevice);
+			
+			widthCSS = currentWidth ? `width: ${currentWidth};` : '';
+			heightCSS = currentHeight ? `height: ${currentHeight};` : '';
+		}
 
         let containerWidthCSS = '';
 
@@ -703,8 +695,17 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -713,8 +714,17 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -1218,155 +1228,39 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                                 />
                             </ToggleGroupControl>
 
-                            {dimensionType === 'custom' && (
-                                <>
-                                    <div className="digiblocks-size-type-field-tabs">
-                                        <div className="digiblocks-responsive-control-inner">
-                                            <div className="components-base-control">
-                                                <div className="digiblocks-range-control digiblocks-size-type-field-tabs">
-                                                    <div className="digiblocks-control__header">
-                                                        <div className="digiblocks-responsive-label-wrap">
-                                                            <span className="digiblocks-control-label">{__('Width', 'digiblocks')}</span>
-                                                            <button 
-                                                                type="button" 
-                                                                aria-label={__(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks")}
-                                                                className={`components-button digiblocks-responsive-common-button digiblocks-device-${localActiveDevice}`}
-                                                                onClick={() => window.digi.responsiveState.toggleDevice()}
-                                                            >
-                                                                {window.digi.icons.deviceIcons[localActiveDevice]}
-                                                            </button>
-                                                        </div>
-                                                        <div className="digiblocks-range-control__actions digiblocks-control__actions">
-                                                            <div tabIndex="0">
-                                                                <button 
-                                                                    type="button" 
-                                                                    disabled={width[localActiveDevice] === 100}
-                                                                    className="components-button digiblocks-reset is-secondary is-small"
-                                                                    onClick={() => setAttributes({
-                                                                        width: {
-                                                                            ...width,
-                                                                            [localActiveDevice]: 100
-                                                                        }
-                                                                    })}
-                                                                >
-                                                                    <span className="dashicon dashicons dashicons-image-rotate"></span>
-                                                                </button>
-                                                            </div>
-                                                            <ToggleGroupControl
-                                                                value={widthUnit}
-                                                                onChange={(value) => setAttributes({ widthUnit: value })}
-                                                                isBlock
-                                                                isSmall
-                                                                hideLabelFromVision
-                                                                aria-label={__("Width Unit", "digiblocks")}
-                                                                __next40pxDefaultSize={true}
-                                                                __nextHasNoMarginBottom={true}
-                                                            >
-                                                                {widthUnitOptions.map(option => (
-                                                                    <ToggleGroupControlOption
-                                                                        key={option.value}
-                                                                        value={option.value}
-                                                                        label={option.label}
-                                                                    />
-                                                                ))}
-                                                            </ToggleGroupControl>
-                                                        </div>
-                                                    </div>
-                                                    <div className="digiblocks-range-control__mobile-controls">
-                                                        <RangeControl
-                                                            value={width[localActiveDevice]}
-                                                            onChange={(value) => setAttributes({
-                                                                width: {
-                                                                    ...width,
-                                                                    [localActiveDevice]: value
-                                                                }
-                                                            })}
-                                                            min={1}
-                                                            max={widthUnit === '%' ? 100 : 1000}
-                                                            step={1}
-                                                            __next40pxDefaultSize={true}
-                                                            __nextHasNoMarginBottom={true}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="digiblocks-size-type-field-tabs">
-                                        <div className="digiblocks-responsive-control-inner">
-                                            <div className="components-base-control">
-                                                <div className="digiblocks-range-control digiblocks-size-type-field-tabs">
-                                                    <div className="digiblocks-control__header">
-                                                        <div className="digiblocks-responsive-label-wrap">
-                                                            <span className="digiblocks-control-label">{__('Height', 'digiblocks')}</span>
-                                                            <button 
-                                                                type="button" 
-                                                                aria-label={__(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks")}
-                                                                className={`components-button digiblocks-responsive-common-button digiblocks-device-${localActiveDevice}`}
-                                                                onClick={() => window.digi.responsiveState.toggleDevice()}
-                                                            >
-                                                                {window.digi.icons.deviceIcons[localActiveDevice]}
-                                                            </button>
-                                                        </div>
-                                                        <div className="digiblocks-range-control__actions digiblocks-control__actions">
-                                                            <div tabIndex="0">
-                                                                <button 
-                                                                    type="button" 
-                                                                    disabled={height[localActiveDevice] === 300}
-                                                                    className="components-button digiblocks-reset is-secondary is-small"
-                                                                    onClick={() => setAttributes({
-                                                                        height: {
-                                                                            ...height,
-                                                                            [localActiveDevice]: 300
-                                                                        }
-                                                                    })}
-                                                                >
-                                                                    <span className="dashicon dashicons dashicons-image-rotate"></span>
-                                                                </button>
-                                                            </div>
-                                                            <ToggleGroupControl
-                                                                value={heightUnit}
-                                                                onChange={(value) => setAttributes({ heightUnit: value })}
-                                                                isBlock
-                                                                isSmall
-                                                                hideLabelFromVision
-                                                                aria-label={__("Height Unit", "digiblocks")}
-                                                                __next40pxDefaultSize={true}
-                                                                __nextHasNoMarginBottom={true}
-                                                            >
-                                                                {heightUnitOptions.map(option => (
-                                                                    <ToggleGroupControlOption
-                                                                        key={option.value}
-                                                                        value={option.value}
-                                                                        label={option.label}
-                                                                    />
-                                                                ))}
-                                                            </ToggleGroupControl>
-                                                        </div>
-                                                    </div>
-                                                    <div className="digiblocks-range-control__mobile-controls">
-                                                        <RangeControl
-                                                            value={height[localActiveDevice]}
-                                                            onChange={(value) => setAttributes({
-                                                                height: {
-                                                                    ...height,
-                                                                    [localActiveDevice]: value
-                                                                }
-                                                            })}
-                                                            min={1}
-                                                            max={heightUnit === '%' ? 100 : 1000}
-                                                            step={1}
-                                                            __next40pxDefaultSize={true}
-                                                            __nextHasNoMarginBottom={true}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </>
-                            )}
+							{dimensionType === 'custom' && (
+								<>
+									<ResponsiveRangeControl
+										label={__("Width", "digiblocks")}
+										value={width}
+										onChange={(value) => setAttributes({ width: value })}
+										units={[
+											{ label: 'px', value: 'px' },
+											{ label: '%', value: '%' },
+											{ label: 'vw', value: 'vw' },
+										]}
+										defaultValues={{ desktop: { value: 100, unit: '%' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } }}
+										min={0}
+										max={width?.[localActiveDevice]?.unit === '%' ? 100 : (width?.[localActiveDevice]?.unit === 'vw' ? 100 : 1000)}
+										step={1}
+									/>
+
+									<ResponsiveRangeControl
+										label={__("Height", "digiblocks")}
+										value={height}
+										onChange={(value) => setAttributes({ height: value })}
+										units={[
+											{ label: 'px', value: 'px' },
+											{ label: '%', value: '%' },
+											{ label: 'vh', value: 'vh' },
+										]}
+										defaultUnit="px"
+										min={0}
+										max={height?.[localActiveDevice]?.unit === '%' ? 100 : (height?.[localActiveDevice]?.unit === 'vh' ? 100 : 1000)}
+										step={1}
+									/>
+								</>
+							)}
 
                             <ToggleGroupControl
                                 label={__("Container Width", "digiblocks")}
@@ -1489,56 +1383,24 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                                                     />
                                                     
                                                     {/* Border Width */}
-                                                    <ResponsiveControl
+                                                    <DimensionControl
                                                         label={__("Border Width", "digiblocks")}
-                                                    >
-                                                        <DimensionControl
-                                                            values={borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : {
-                                                                top: 1,
-                                                                right: 1,
-                                                                bottom: 1,
-                                                                left: 1,
-                                                                unit: 'px'
-                                                            }}
-                                                            onChange={(value) =>
-                                                                setAttributes({
-                                                                    borderWidth: {
-                                                                        ...borderWidth,
-                                                                        [localActiveDevice]: value,
-                                                                    },
-                                                                })
-                                                            }
-                                                        />
-                                                    </ResponsiveControl>
+                                                        value={borderWidth}
+                                                        onChange={(value) => setAttributes({ borderWidth: value })}
+                                                    />
                                                 </>
                                             )}
                                             
                                             {/* Border Radius - show regardless of border style */}
-                                            <ResponsiveControl
+                                            <DimensionControl
                                                 label={__("Border Radius", "digiblocks")}
-                                            >
-                                                <DimensionControl
-                                                    values={borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
-                                                        top: 0,
-                                                        right: 0,
-                                                        bottom: 0,
-                                                        left: 0,
-                                                        unit: 'px'
-                                                    }}
-                                                    onChange={(value) =>
-                                                        setAttributes({
-                                                            borderRadius: {
-                                                                ...borderRadius,
-                                                                [localActiveDevice]: value,
-                                                            },
-                                                        })
-                                                    }
-                                                    units={[
-                                                        { label: 'px', value: 'px' },
-                                                        { label: '%', value: '%' }
-                                                    ]}
-                                                />
-                                            </ResponsiveControl>
+                                                value={borderRadius}
+                                                onChange={(value) => setAttributes({ borderRadius: value })}
+                                                units={[
+                                                    { label: 'px', value: 'px' },
+                                                    { label: '%', value: '%' }
+                                                ]}
+                                            />
                                         </>
                                     ) : (
                                         <>
@@ -1610,7 +1472,6 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                                 <>
                                     <PanelColorSettings
                                         title={__("Overlay Color", "digiblocks")}
-                                        initialOpen={true}
                                         enableAlpha={true}
                                         colorSettings={[
                                             {
@@ -1642,36 +1503,17 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
-                                label={__("Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={padding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
-                            <ResponsiveControl
-                                label={__("Margin", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={margin[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Padding", "digiblocks")}
+								value={padding}
+								onChange={(value) => setAttributes({ padding: value })}
+							/>
+
+                            <DimensionControl
+								label={__("Margin", "digiblocks")}
+								value={margin}
+								onChange={(value) => setAttributes({ margin: value })}
+							/>
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1726,8 +1568,8 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1761,8 +1603,8 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -1829,10 +1671,11 @@ const ImageEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

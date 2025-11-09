@@ -21,30 +21,28 @@ $position                = isset( $attrs['position'] ) ? $attrs['position'] : 'd
 $horizontalOrientation   = isset( $attrs['horizontalOrientation'] ) ? $attrs['horizontalOrientation'] : 'left';
 $horizontalOffset        = isset( $attrs['horizontalOffset'] ) ? $attrs['horizontalOffset'] : array(
 	'desktop' => array( 'value' => 0, 'unit' => 'px' ),
-	'tablet'  => array( 'value' => 0, 'unit' => 'px' ),
-	'mobile'  => array( 'value' => 0, 'unit' => 'px' ),
+	'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'value' => '', 'unit' => 'px' ),
 );
 $verticalOrientation     = isset( $attrs['verticalOrientation'] ) ? $attrs['verticalOrientation'] : 'top';
 $verticalOffset          = isset( $attrs['verticalOffset'] ) ? $attrs['verticalOffset'] : array(
 	'desktop' => array( 'value' => 0, 'unit' => 'px' ),
-	'tablet'  => array( 'value' => 0, 'unit' => 'px' ),
-	'mobile'  => array( 'value' => 0, 'unit' => 'px' ),
+	'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'value' => '', 'unit' => 'px' ),
 );
 $zIndex                  = isset( $attrs['zIndex'] ) ? $attrs['zIndex'] : '';
 $transform           = isset( $attrs['transform'] ) ? $attrs['transform'] : array();
 $transformHover      = isset( $attrs['transformHover'] ) ? $attrs['transformHover'] : array();
 $width               = isset( $attrs['width'] ) ? $attrs['width'] : [
-    'desktop' => 100,
-    'tablet'  => 100,
-    'mobile'  => 100,
+    'desktop' => [ 'value' => 100, 'unit' => '%' ],
+    'tablet'  => [ 'value' => '', 'unit' => '' ],
+    'mobile'  => [ 'value' => '', 'unit' => '' ],
 ];
-$widthUnit           = isset( $attrs['widthUnit'] ) ? $attrs['widthUnit'] : '%';
 $height              = isset( $attrs['height'] ) ? $attrs['height'] : [
-    'desktop' => 'auto',
-    'tablet'  => 'auto',
-    'mobile'  => 'auto',
+    'desktop' => [ 'value' => '', 'unit' => 'px' ],
+    'tablet'  => [ 'value' => '', 'unit' => '' ],
+    'mobile'  => [ 'value' => '', 'unit' => '' ],
 ];
-$heightUnit          = isset( $attrs['heightUnit'] ) ? $attrs['heightUnit'] : 'px';
 $align               = isset( $attrs['align'] ) ? $attrs['align'] : 'center';
 $objectFit           = isset( $attrs['objectFit'] ) ? $attrs['objectFit'] : 'cover';
 $borderStyle         = isset( $attrs['borderStyle'] ) ? $attrs['borderStyle'] : 'none';
@@ -103,26 +101,26 @@ ob_start();
     <?php if ( $position && 'default' !== $position ) : ?>
         position: <?php echo esc_attr( $position ); ?>;
         <?php
-        $h_value = isset( $horizontalOffset['desktop']['value'] ) && '' !== $horizontalOffset['desktop']['value'] ? $horizontalOffset['desktop']['value'] : '0';
-        $h_unit = isset( $horizontalOffset['desktop']['unit'] ) ? $horizontalOffset['desktop']['unit'] : 'px';
+        $h_value = isset( $horizontalOffset['desktop'] ) && is_array( $horizontalOffset['desktop'] ) && isset( $horizontalOffset['desktop']['value'] ) && '' !== $horizontalOffset['desktop']['value'] ? $horizontalOffset['desktop']['value'] : '0';
+        $h_unit = isset( $horizontalOffset['desktop'] ) && is_array( $horizontalOffset['desktop'] ) && isset( $horizontalOffset['desktop']['unit'] ) ? $horizontalOffset['desktop']['unit'] : 'px';
         if ( '' !== $h_value ) :
             if ( 'left' === $horizontalOrientation ) :
         ?>
-        left: <?php echo esc_attr( $h_value . $h_unit ); ?>;
+        left: <?php echo esc_attr( $h_value . ( $h_unit !== null ? $h_unit : '' ) ); ?>;
         <?php else : ?>
-        right: <?php echo esc_attr( $h_value . $h_unit ); ?>;
+        right: <?php echo esc_attr( $h_value . ( $h_unit !== null ? $h_unit : '' ) ); ?>;
         <?php
             endif;
         endif;
         
-        $v_value = isset( $verticalOffset['desktop']['value'] ) && '' !== $verticalOffset['desktop']['value'] ? $verticalOffset['desktop']['value'] : '0';
-        $v_unit = isset( $verticalOffset['desktop']['unit'] ) ? $verticalOffset['desktop']['unit'] : 'px';
+        $v_value = isset( $verticalOffset['desktop'] ) && is_array( $verticalOffset['desktop'] ) && isset( $verticalOffset['desktop']['value'] ) && '' !== $verticalOffset['desktop']['value'] ? $verticalOffset['desktop']['value'] : '0';
+        $v_unit = isset( $verticalOffset['desktop'] ) && is_array( $verticalOffset['desktop'] ) && isset( $verticalOffset['desktop']['unit'] ) ? $verticalOffset['desktop']['unit'] : 'px';
         if ( '' !== $v_value ) :
             if ( 'top' === $verticalOrientation ) :
         ?>
-        top: <?php echo esc_attr( $v_value . $v_unit ); ?>;
+        top: <?php echo esc_attr( $v_value . ( $v_unit !== null ? $v_unit : '' ) ); ?>;
         <?php else : ?>
-        bottom: <?php echo esc_attr( $v_value . $v_unit ); ?>;
+        bottom: <?php echo esc_attr( $v_value . ( $v_unit !== null ? $v_unit : '' ) ); ?>;
         <?php
             endif;
         endif;
@@ -136,7 +134,7 @@ ob_start();
     if ( ! empty( $transform_value ) ) :
     ?>
     transform: <?php echo esc_attr( $transform_value ); ?>;
-    transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'desktop' ); ?>;
+    transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transform, 'desktop' ) ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $transformHover ) && isset( $transformHover['transitionDuration'] ) && '' !== $transformHover['transitionDuration'] && null !== $transformHover['transitionDuration'] ) : ?>
 	transition: all <?php echo esc_attr( $transformHover['transitionDuration'] ); ?>ms ease;
@@ -151,7 +149,7 @@ if ( ! empty( $transform_hover_value ) ) :
 ?>
 .<?php echo esc_attr( $id ); ?>:hover {
     transform: <?php echo esc_attr( $transform_hover_value ); ?>;
-    transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'desktop' ); ?>;
+    transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transformHover, 'desktop' ) ); ?>;
 }
 <?php endif; ?>
 
@@ -159,9 +157,13 @@ if ( ! empty( $transform_hover_value ) ) :
 .<?php echo esc_attr( $id ); ?> img {
     display: flex;
     <?php if ( isset( $attrs['dimensionType'] ) && 'custom' === $attrs['dimensionType'] ) : ?>
-        width: <?php echo esc_attr( $width['desktop'] === 'auto' ? 'auto' : $width['desktop'] . $widthUnit ); ?>;
-        height: <?php echo esc_attr( $height['desktop'] === 'auto' ? 'auto' : $height['desktop'] . $heightUnit ); ?>;
-    <?php endif; ?>
+    	<?php if ( ! empty( (is_array($width['desktop']) && isset($width['desktop']['value']) ? $width['desktop']['value'] : 0) ) ) : ?>
+			width: <?php echo esc_attr( $width['desktop']['value'] . (is_array($width['desktop']) && array_key_exists('unit', $width['desktop']) ? $width['desktop']['unit'] : 'px') ); ?>;
+		<?php endif; ?>
+		<?php if ( ! empty( (is_array($height['desktop']) && isset($height['desktop']['value']) ? $height['desktop']['value'] : 0) ) ) : ?>
+			height: <?php echo esc_attr( $height['desktop']['value'] . (is_array($height['desktop']) && array_key_exists('unit', $height['desktop']) ? $height['desktop']['unit'] : 'px') ); ?>;
+		<?php endif; ?>
+	<?php endif; ?>
     max-width: 100%;
     object-fit: <?php echo esc_attr( $objectFit ); ?>;
     <?php if ( $hoverEffect === 'zoom-out' ) : ?>
@@ -198,7 +200,7 @@ if ( ! empty( $transform_hover_value ) ) :
     if ( ! empty( $transform_hover_value ) ) :
     ?>
     transform: <?php echo esc_attr( $transform_hover_value ); ?>;
-    transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'desktop' ); ?>;
+    transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transformHover, 'desktop' ) ); ?>;
     <?php endif; ?>
 }
 
@@ -248,8 +250,8 @@ if ( ! empty( $transform_hover_value ) ) :
 		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
         <?php if ( $position && 'default' !== $position ) : ?>
             <?php
-            $h_value_tablet = isset( $horizontalOffset['tablet']['value'] ) && '' !== $horizontalOffset['tablet']['value'] ? $horizontalOffset['tablet']['value'] : '0';
-            $h_unit_tablet = isset( $horizontalOffset['tablet']['unit'] ) ? $horizontalOffset['tablet']['unit'] : 'px';
+            $h_value_tablet = isset( $horizontalOffset['tablet'] ) && is_array( $horizontalOffset['tablet'] ) && isset( $horizontalOffset['tablet']['value'] ) && '' !== $horizontalOffset['tablet']['value'] ? $horizontalOffset['tablet']['value'] : '';
+            $h_unit_tablet = isset( $horizontalOffset['tablet'] ) && is_array( $horizontalOffset['tablet'] ) && isset( $horizontalOffset['tablet']['unit'] ) ? $horizontalOffset['tablet']['unit'] : 'px';
             if ( '' !== $h_value_tablet ) :
                 if ( 'left' === $horizontalOrientation ) :
             ?>
@@ -260,8 +262,8 @@ if ( ! empty( $transform_hover_value ) ) :
                 endif;
             endif;
             
-            $v_value_tablet = isset( $verticalOffset['tablet']['value'] ) && '' !== $verticalOffset['tablet']['value'] ? $verticalOffset['tablet']['value'] : '0';
-            $v_unit_tablet = isset( $verticalOffset['tablet']['unit'] ) ? $verticalOffset['tablet']['unit'] : 'px';
+            $v_value_tablet = isset( $verticalOffset['tablet'] ) && is_array( $verticalOffset['tablet'] ) && isset( $verticalOffset['tablet']['value'] ) && '' !== $verticalOffset['tablet']['value'] ? $verticalOffset['tablet']['value'] : '';
+            $v_unit_tablet = isset( $verticalOffset['tablet'] ) && is_array( $verticalOffset['tablet'] ) && isset( $verticalOffset['tablet']['unit'] ) ? $verticalOffset['tablet']['unit'] : 'px';
             if ( '' !== $v_value_tablet ) :
                 if ( 'top' === $verticalOrientation ) :
             ?>
@@ -278,7 +280,7 @@ if ( ! empty( $transform_hover_value ) ) :
         if ( ! empty( $transform_value_tablet ) ) :
         ?>
         transform: <?php echo esc_attr( $transform_value_tablet ); ?>;
-    	transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'tablet' ); ?>;
+    	transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transform, 'tablet' ) ); ?>;
         <?php endif; ?>
     }
 
@@ -288,15 +290,19 @@ if ( ! empty( $transform_hover_value ) ) :
 	?>
 		.<?php echo esc_attr( $id ); ?>:hover {
 			transform: <?php echo esc_attr( $transform_hover_value_tablet ); ?>;
-    		transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'tablet' ); ?>;
+    		transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transformHover, 'tablet' ) ); ?>;
 		}
 	<?php endif; ?>
     
     .<?php echo esc_attr( $id ); ?> img {
         <?php if ( isset( $attrs['dimensionType'] ) && 'custom' === $attrs['dimensionType'] ) : ?>
-            width: <?php echo esc_attr( $width['tablet'] === 'auto' ? 'auto' : $width['tablet'] . $widthUnit ); ?>;
-            height: <?php echo esc_attr( $height['tablet'] === 'auto' ? 'auto' : $height['tablet'] . $heightUnit ); ?>;
-        <?php endif; ?>
+			<?php if ( isset( $width['tablet'] ) && is_array( $width['tablet'] ) && ! empty( $width['tablet']['value'] ) ) : ?>
+				width: <?php echo esc_attr( ( isset( $width['tablet'] ) && is_array( $width['tablet'] ) && isset( $width['tablet']['value'] ) ? $width['tablet']['value'] : '' ) . ( isset( $width['tablet'] ) && is_array( $width['tablet'] ) && isset( $width['tablet']['unit'] ) ? $width['tablet']['unit'] : '' ) ); ?>;
+			<?php endif; ?>
+			<?php if ( isset( $height['tablet'] ) && is_array( $height['tablet'] ) && ! empty( $height['tablet']['value'] ) ) : ?>
+				height: <?php echo esc_attr( ( isset( $height['tablet'] ) && is_array( $height['tablet'] ) && isset( $height['tablet']['value'] ) ? $height['tablet']['value'] : '' ) . ( isset( $height['tablet'] ) && is_array( $height['tablet'] ) && isset( $height['tablet']['unit'] ) ? $height['tablet']['unit'] : '' ) ); ?>;
+			<?php endif; ?>
+		<?php endif; ?>
         <?php if ( $borderStyle !== 'none' ) : ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'tablet' ) ); ?>
         <?php endif; ?>
@@ -311,8 +317,8 @@ if ( ! empty( $transform_hover_value ) ) :
 		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'mobile' ) ); ?>
         <?php if ( $position && 'default' !== $position ) : ?>
             <?php
-            $h_value_mobile = isset( $horizontalOffset['mobile']['value'] ) && '' !== $horizontalOffset['mobile']['value'] ? $horizontalOffset['mobile']['value'] : '0';
-            $h_unit_mobile = isset( $horizontalOffset['mobile']['unit'] ) ? $horizontalOffset['mobile']['unit'] : 'px';
+            $h_value_mobile = isset( $horizontalOffset['mobile'] ) && is_array( $horizontalOffset['mobile'] ) && isset( $horizontalOffset['mobile']['value'] ) && '' !== $horizontalOffset['mobile']['value'] ? $horizontalOffset['mobile']['value'] : '';
+            $h_unit_mobile = isset( $horizontalOffset['mobile'] ) && is_array( $horizontalOffset['mobile'] ) && isset( $horizontalOffset['mobile']['unit'] ) ? $horizontalOffset['mobile']['unit'] : 'px';
             if ( '' !== $h_value_mobile ) :
                 if ( 'left' === $horizontalOrientation ) :
             ?>
@@ -323,8 +329,8 @@ if ( ! empty( $transform_hover_value ) ) :
                 endif;
             endif;
             
-            $v_value_mobile = isset( $verticalOffset['mobile']['value'] ) && '' !== $verticalOffset['mobile']['value'] ? $verticalOffset['mobile']['value'] : '0';
-            $v_unit_mobile = isset( $verticalOffset['mobile']['unit'] ) ? $verticalOffset['mobile']['unit'] : 'px';
+            $v_value_mobile = isset( $verticalOffset['mobile'] ) && is_array( $verticalOffset['mobile'] ) && isset( $verticalOffset['mobile']['value'] ) && '' !== $verticalOffset['mobile']['value'] ? $verticalOffset['mobile']['value'] : '';
+            $v_unit_mobile = isset( $verticalOffset['mobile'] ) && is_array( $verticalOffset['mobile'] ) && isset( $verticalOffset['mobile']['unit'] ) ? $verticalOffset['mobile']['unit'] : 'px';
             if ( '' !== $v_value_mobile ) :
                 if ( 'top' === $verticalOrientation ) :
             ?>
@@ -341,7 +347,7 @@ if ( ! empty( $transform_hover_value ) ) :
         if ( ! empty( $transform_value_mobile ) ) :
         ?>
         transform: <?php echo esc_attr( $transform_value_mobile ); ?>;
-    	transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'mobile' ); ?>;
+    	transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transform, 'mobile' ) ); ?>;
         <?php endif; ?>
     }
 
@@ -351,15 +357,19 @@ if ( ! empty( $transform_hover_value ) ) :
 	?>
 		.<?php echo esc_attr( $id ); ?>:hover {
 			transform: <?php echo esc_attr( $transform_hover_value_mobile ); ?>;
-    		transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'mobile' ); ?>;
+    		transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transformHover, 'mobile' ) ); ?>;
 		}
 	<?php endif; ?>
     
     .<?php echo esc_attr( $id ); ?> img {
         <?php if ( isset( $attrs['dimensionType'] ) && 'custom' === $attrs['dimensionType'] ) : ?>
-            width: <?php echo esc_attr( $width['mobile'] === 'auto' ? 'auto' : $width['mobile'] . $widthUnit ); ?>;
-            height: <?php echo esc_attr( $height['mobile'] === 'auto' ? 'auto' : $height['mobile'] . $heightUnit ); ?>;
-        <?php endif; ?>
+			<?php if ( isset( $width['mobile'] ) && is_array( $width['mobile'] ) && ! empty( $width['mobile']['value'] ) ) : ?>
+				width: <?php echo esc_attr( ( isset( $width['mobile'] ) && is_array( $width['mobile'] ) && isset( $width['mobile']['value'] ) ? $width['mobile']['value'] : '' ) . ( isset( $width['mobile'] ) && is_array( $width['mobile'] ) && isset( $width['mobile']['unit'] ) ? $width['mobile']['unit'] : '' ) ); ?>;
+			<?php endif; ?>
+			<?php if ( isset( $height['mobile'] ) && is_array( $height['mobile'] ) && ! empty( $height['mobile']['value'] ) ) : ?>
+				height: <?php echo esc_attr( ( isset( $height['mobile'] ) && is_array( $height['mobile'] ) && isset( $height['mobile']['value'] ) ? $height['mobile']['value'] : '' ) . ( isset( $height['mobile'] ) && is_array( $height['mobile'] ) && isset( $height['mobile']['unit'] ) ? $height['mobile']['unit'] : '' ) ); ?>;
+			<?php endif; ?>
+		<?php endif; ?>
         <?php if ( $borderStyle !== 'none' ) : ?>
 		<?php echo esc_attr( digiblocks_get_dimensions( $borderWidth, 'border-width', 'mobile' ) ); ?>
         <?php endif; ?>

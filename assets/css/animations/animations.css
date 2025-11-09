@@ -1,16 +1,1 @@
-.digi-animated {
-    animation-duration: 0.8s;
-    animation-fill-mode: forwards;
-}
-
-.digi-animated.digi-slow {
-    animation-duration: 2s;
-}
-
-.digi-animated.digi-fast {
-    animation-duration: 0.4s;
-}
-
-.digi-animate-hidden {
-    visibility: hidden;
-}
+.digi-animated{animation-duration:.8s;animation-fill-mode:forwards}.digi-animated.digi-slow{animation-duration:2s}.digi-animated.digi-fast{animation-duration:.4s}.digi-animate-hidden{visibility:hidden}

@@ -1,11 +1,1 @@
-@keyframes digiBlocksSlideInRight {
-    from {
-        transform: translate3d(100%, 0, 0);
-    }
-    to {
-        transform: translate3d(0, 0, 0);
-    }
-}
-.digi-animated.animate-slide-in-right {
-    animation-name: digiBlocksSlideInRight;
-}
+@keyframes digiBlocksSlideInRight{from{transform:translate3d(100%,0,0)}to{transform:translate3d(0,0,0)}}.digi-animated.animate-slide-in-right{animation-name:digiBlocksSlideInRight}

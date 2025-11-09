@@ -298,10 +298,9 @@ import {
 
 // Import components
 import ResponsiveControl from './components/responsive-control';
-import DimensionControl from './components/dimension-control';
-import GradientControl from './components/gradient-control';
-import TypographyControl from './components/typography-control';
 import ResponsiveRangeControl from './components/range-control';
+import DimensionControl from './components/dimension-control';
+import TypographyControl from './components/typography-control';
 import ResponsiveButtonGroup from './components/button-group-control';
 import BoxShadowControl from './components/box-shadow-control';
 import TransformControl from './components/transform-control';
@@ -401,10 +400,9 @@ window.digi.components.TabPanelBody = ({ tab, name, title, children, initialOpen
 
 // Assign components to the digi.components object
 window.digi.components.ResponsiveControl = ResponsiveControl;
-window.digi.components.DimensionControl = DimensionControl;
-window.digi.components.GradientControl = GradientControl;
-window.digi.components.TypographyControl = TypographyControl;
 window.digi.components.ResponsiveRangeControl = ResponsiveRangeControl;
+window.digi.components.DimensionControl = DimensionControl;
+window.digi.components.TypographyControl = TypographyControl;
 window.digi.components.ResponsiveButtonGroup = ResponsiveButtonGroup;
 window.digi.components.BoxShadowControl = BoxShadowControl;
 window.digi.components.TransformControl = TransformControl;

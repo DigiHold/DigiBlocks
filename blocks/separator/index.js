@@ -84,37 +84,29 @@ registerBlockType('digiblocks/separator', {
             default: '#333333'
         },
         width: {
-            type: 'object',
-            default: {
-                desktop: 100,
-                tablet: '',
-                mobile: ''
-            }
-        },
-        widthUnit: {
-            type: 'string',
-            default: '%'
-        },
-        height: {
-            type: 'object',
-            default: {
-                desktop: 3,
-                tablet: '',
-                mobile: ''
-            }
-        },
-        heightUnit: {
-            type: 'string',
-            default: 'px'
-        },
-        borderRadius: {
-            type: 'object',
-            default: {
-                desktop: 0,
-                tablet: '',
-                mobile: ''
-            }
-        },
+			type: 'object',
+			default: {
+				desktop: { value: 100, unit: '%' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			}
+		},
+		height: {
+			type: 'object',
+			default: {
+				desktop: { value: 3, unit: 'px' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			}
+		},
+		borderRadius: {
+			type: 'object',
+			default: {
+				desktop: { value: 0, unit: 'px' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			}
+		},
         margin: {
             type: 'object',
             default: {
@@ -155,16 +147,13 @@ registerBlockType('digiblocks/separator', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: '', mobile: '' },
-                fontSizeUnit: 'px',
+                fontSize: { desktop: { value: 16, unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
-                lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
-                letterSpacingUnit: 'px'
+                lineHeight: { desktop: { value: 1.5, unit: 'em' }, tablet: { value: '', unit: 'em' }, mobile: { value: '', unit: 'em' } },
+                letterSpacing: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } }
             }
         },
         iconSize: {
@@ -195,8 +184,8 @@ registerBlockType('digiblocks/separator', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         verticalOrientation: {
@@ -207,8 +196,8 @@ registerBlockType('digiblocks/separator', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         zIndex: {
@@ -263,17 +252,25 @@ registerBlockType('digiblocks/separator', {
         },
     },
     example: {
-        attributes: {
-            separatorStyle: 'gradient',
-            primaryColor: '#1e73be',
-            secondaryColor: '#f0f0f0',
-            width: { desktop: 80 },
-            height: { desktop: 4 },
-            contentType: 'text',
-            content: 'Section',
-            textColor: '#333333'
-        }
-    },
+		attributes: {
+			separatorStyle: 'gradient',
+			primaryColor: '#1e73be',
+			secondaryColor: '#f0f0f0',
+			width: { 
+				desktop: { value: 80, unit: '%' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			},
+			height: { 
+				desktop: { value: 4, unit: 'px' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			},
+			contentType: 'text',
+			content: 'Section',
+			textColor: '#333333'
+		}
+	},
     edit: SeparatorEdit,
     save: SeparatorSave,
 });

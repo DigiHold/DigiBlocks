@@ -8,22 +8,22 @@ const {
     InspectorControls,
 } = wp.blockEditor;
 const {
+    TextControl,
     SelectControl,
     RangeControl,
     ToggleControl,
     Button,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 
 /**
  * Internal dependencies
  */
-const { useBlockId, animations, animationPreview } = digi.utils;
+const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveRangeControl, ResponsiveButtonGroup, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
+const { ResponsiveControl, ResponsiveRangeControl, ResponsiveButtonGroup, CustomTabPanel, TabPanelBody, TransformControl, DimensionControl } = digi.components;
 
 /**
  * Edit function for the Buttons block
@@ -38,6 +38,9 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
         horizontalAlign,
         verticalAlign,
         buttonSpacing,
+        containerHeight,
+        padding,
+        margin,
         animation,
 		animationDuration,
 		animationDelay,
@@ -54,15 +57,22 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
 	// Get responsive value with fallback
 	const getVal = (obj, device) => {
 		if (!obj || typeof obj !== 'object') return null;
-		
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
 		if (device === 'mobile') {
-			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
-				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
 				obj.desktop;
 		}
 		if (device === 'tablet') {
-			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
-				obj.desktop;
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
 		}
 		return obj.desktop;
 	};
@@ -286,8 +296,17 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -296,8 +315,17 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -337,9 +365,12 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
                 display: flex;
                 flex-wrap: wrap;
                 ${layout === 'vertical' ? 'flex-direction: column;' : ''}
-                align-items: ${verticalAlign[activeDevice]};
-    			justify-content: ${horizontalAlign[activeDevice]};
+                align-items: ${getVal(verticalAlign, activeDevice)};
+    			justify-content: ${getVal(horizontalAlign, activeDevice)};
                 gap: ${getVal(buttonSpacing, activeDevice)}px;
+                ${containerHeight ? 'height: 100%;' : ''}
+                ${getDimensionCSS(padding, 'padding', activeDevice)}
+                ${getDimensionCSS(margin, 'margin', activeDevice, true)}
                 transition: all 0.3s ease;
                 ${positionCSS}
 				${transformCSS}
@@ -349,12 +380,19 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
 				${transformHoverCSS}
             }
 
+			${containerHeight ? `
+				.${id} > .digiblocks-button {
+					height: 100%;
+				}
+			` : ''}
+
 			/* Editor Style */
 			.digiblocks-button-inserter {
 				display: flex;
 				position: absolute;
 				bottom: 0;
 				right: 0;
+				z-index: 999;
 			}
 
 			/* Visibility Controls */
@@ -410,25 +448,26 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
                             </ToggleGroupControl>
                             
                             <ResponsiveButtonGroup
-								label={__("Horizontal Align", "digiblocks")}
+								label={__("Justify Content", "digiblocks")}
 								value={horizontalAlign}
 								onChange={(value) => setAttributes({ horizontalAlign: value })}
 								options={[
-									{ label: __("Left", "digiblocks"), value: "flex-start" },
+									{ label: __("Start", "digiblocks"), value: "flex-start" },
 									{ label: __("Center", "digiblocks"), value: "center" },
-									{ label: __("Right", "digiblocks"), value: "flex-end" },
+									{ label: __("End", "digiblocks"), value: "flex-end" },
 									{ label: __("Space", "digiblocks"), value: "space-between" }
 								]}
 							/>
 
 							<ResponsiveButtonGroup
-								label={__("Vertical Align", "digiblocks")}
+								label={__("Align Items", "digiblocks")}
 								value={verticalAlign}
 								onChange={(value) => setAttributes({ verticalAlign: value })}
 								options={[
-									{ label: __("Top", "digiblocks"), value: "flex-start" },
-									{ label: __("Middle", "digiblocks"), value: "center" },
-									{ label: __("Bottom", "digiblocks"), value: "flex-end" }
+									{ label: __("Start", "digiblocks"), value: "flex-start" },
+									{ label: __("Center", "digiblocks"), value: "center" },
+									{ label: __("End", "digiblocks"), value: "flex-end" },
+									{ label: __("Stretch", "digiblocks"), value: "stretch" },
 								]}
 							/>
                             
@@ -452,12 +491,38 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
                                     __nextHasNoMarginBottom={true}
                                 />
                             </ResponsiveControl>
+
+							<ToggleControl
+								label={__('Take Container Height', 'digiblocks')}
+								checked={containerHeight}
+								onChange={(value) => setAttributes({ containerHeight: value })}
+								__nextHasNoMarginBottom={true}
+							/>
                         </div>
                     </>
                 );
             case 'advanced':
                 return (
                     <>
+                        <TabPanelBody
+                            tab="advanced"
+                            name="spacing"
+                            title={__('Spacing', 'digiblocks')}
+                            initialOpen={false}
+                        >
+                            <DimensionControl
+                                label={__('Padding', 'digiblocks')}
+                                value={padding}
+                                onChange={(value) => setAttributes({ padding: value })}
+                            />
+
+                            <DimensionControl
+                                label={__('Margin', 'digiblocks')}
+                                value={margin}
+                                onChange={(value) => setAttributes({ margin: value })}
+                            />
+                        </TabPanelBody>
+
                         <TabPanelBody
                             tab="advanced"
                             name="position"
@@ -508,10 +573,10 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
                                             { label: 'vw', value: 'vw' },
                                             { label: 'vh', value: 'vh' },
                                         ]}
-                                        defaultUnit="px"
+                                        defaultValues={{ desktop: { value: 0, unit: 'px' }, tablet: { value: 0, unit: 'px' }, mobile: { value: 0, unit: 'px' } }}
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -543,10 +608,10 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
                                             { label: 'vw', value: 'vw' },
                                             { label: 'vh', value: 'vh' },
                                         ]}
-                                        defaultUnit="px"
+                                        defaultValues={{ desktop: { value: 0, unit: 'px' }, tablet: { value: 0, unit: 'px' }, mobile: { value: 0, unit: 'px' } }}
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -606,10 +671,11 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}
@@ -789,10 +855,10 @@ const ButtonsEdit = ({ attributes, setAttributes, clientId }) => {
 					{renderTabContent()}
 				</CustomTabPanel>
 			</InspectorControls>
-	
+
 			{/* Use dangerouslySetInnerHTML for the style tag */}
 			<style dangerouslySetInnerHTML={{ __html: generateCSS() }} />
-	
+
 			<div {...innerBlocksProps}>
 				{innerBlocksProps.children}
 				<div className="digiblocks-button-inserter">

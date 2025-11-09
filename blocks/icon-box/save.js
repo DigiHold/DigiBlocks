@@ -7,7 +7,7 @@ const { useBlockProps, RichText } = wp.blockEditor;
  * Save function for the Icon Box block
  */
 const IconBoxSave = ({ attributes }) => {
-    const { 
+    const {
         id,
         iconSource,
         customSvg,
@@ -29,7 +29,11 @@ const IconBoxSave = ({ attributes }) => {
         linkUrl,
         linkOpenInNewTab,
         linkRel,
-        buttonText
+        buttonText,
+        buttonIconSource,
+        buttonIcon,
+        buttonCustomSvg,
+        buttonIconPosition
     } = attributes;
 
     // Build class names
@@ -96,16 +100,36 @@ const IconBoxSave = ({ attributes }) => {
         if (!linkEnabled || linkType !== 'button') {
             return null;
         }
-        
+
+        let buttonIconElement = null;
+
+        if (buttonIconSource === 'library' && buttonIcon && buttonIcon.svg) {
+            buttonIconElement = (
+                <span
+                    className="digiblocks-button-icon"
+                    dangerouslySetInnerHTML={{ __html: buttonIcon.svg }}
+                />
+            );
+        } else if (buttonIconSource === 'custom' && buttonCustomSvg && buttonCustomSvg.trim() !== '') {
+            buttonIconElement = (
+                <span
+                    className="digiblocks-button-icon"
+                    dangerouslySetInnerHTML={{ __html: buttonCustomSvg }}
+                />
+            );
+        }
+
         return (
             <div className="digiblocks-button-wrapper">
-                <a 
+                <a
                     className="digiblocks-button"
                     href={linkUrl || '#'}
                     target={linkOpenInNewTab ? "_blank" : "_self"}
                     rel={linkOpenInNewTab ? (linkRel || "noopener noreferrer") : linkRel}
                 >
+                    {buttonIconPosition === 'before' && buttonIconElement}
                     <RichText.Content tagName="span" value={buttonText} />
+                    {buttonIconPosition === 'after' && buttonIconElement}
                 </a>
             </div>
         );

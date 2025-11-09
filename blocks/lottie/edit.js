@@ -18,7 +18,6 @@ const {
     RadioControl,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 const { MediaUpload, MediaUploadCheck } = wp.blockEditor;
@@ -28,7 +27,7 @@ const { MediaUpload, MediaUploadCheck } = wp.blockEditor;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveRangeControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
+const { ResponsiveRangeControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
 
 // Track script loading state
 let dotLottieScriptLoaded = false;
@@ -92,9 +91,7 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
         loop,
         speed,
         width,
-        widthUnit,
         height,
-        heightUnit,
         alignment,
         backgroundColor,
         showControls,
@@ -147,19 +144,6 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
     const controlsRef = useRef(null);
     const previewTimeoutRef = useRef(null);
     const isMounted = useRef(true);
-    
-    // Width and height unit options
-    const widthUnitOptions = [
-        { label: 'px', value: 'px' },
-        { label: '%', value: '%' },
-        { label: 'vw', value: 'vw' },
-    ];
-
-    const heightUnitOptions = [
-        { label: 'px', value: 'px' },
-        { label: '%', value: '%' },
-        { label: 'vh', value: 'vh' },
-    ];
 
     // Subscribe to device state changes
     useEffect(() => {
@@ -469,6 +453,32 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
         animationPreview(id, animation, animations, previewTimeoutRef, animationDuration, animationDelay);
     };
 
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+		
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+		
+		if (device === 'mobile') {
+			return !isEmpty(obj.mobile) ? 
+				(typeof obj.mobile === 'object' ? `${obj.mobile.value}${obj.mobile.unit}` : obj.mobile) : 
+				!isEmpty(obj.tablet) ? 
+					(typeof obj.tablet === 'object' ? `${obj.tablet.value}${obj.tablet.unit}` : obj.tablet) : 
+					(typeof obj.desktop === 'object' ? `${obj.desktop.value}${obj.desktop.unit}` : obj.desktop);
+		}
+		if (device === 'tablet') {
+			return !isEmpty(obj.tablet) ? 
+				(typeof obj.tablet === 'object' ? `${obj.tablet.value}${obj.tablet.unit}` : obj.tablet) : 
+				(typeof obj.desktop === 'object' ? `${obj.desktop.value}${obj.desktop.unit}` : obj.desktop);
+		}
+		return typeof obj.desktop === 'object' ? `${obj.desktop.value}${obj.desktop.unit}` : obj.desktop;
+	};
+
     const getMaxValue = (unit) => {
         switch (unit) {
             case '%':
@@ -614,6 +624,12 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
     const generateCSS = () => {
         const activeDevice = localActiveDevice;
 
+		const currentWidth = getVal(width, activeDevice);
+		const currentHeight = getVal(height, activeDevice);
+
+		widthCSS = currentWidth ? `width: ${currentWidth};` : '';
+		heightCSS = currentHeight ? `height: ${currentHeight};` : '';
+
         // Box shadow CSS
         let boxShadowCSS = '';
         if (boxShadow && boxShadow.enable) {
@@ -632,8 +648,17 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -642,8 +667,17 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -695,8 +729,8 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             .${id} .digiblocks-lottie-container {
-                width: ${width[activeDevice]}${widthUnit};
-                height: ${height[activeDevice]}${heightUnit};
+                ${widthCSS}
+                ${heightCSS}
                 ${backgroundColor ? `background-color: ${backgroundColor};` : ''}
                 overflow: hidden;
                 position: relative;
@@ -929,197 +963,35 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Dimensions', 'digiblocks')}
                             initialOpen={false}
                         >
-                            {/* Width control */}
-                            <div className="digiblocks-size-type-field-tabs">
-                                <div className="digiblocks-responsive-control-inner">
-                                    <div className="components-base-control">
-                                        <div className="digiblocks-range-control digiblocks-size-type-field-tabs">
-                                            <div className="digiblocks-control__header">
-                                                <div className="digiblocks-responsive-label-wrap">
-                                                    <span className="digiblocks-control-label">{__('Width', 'digiblocks')}</span>
-                                                    <button 
-                                                        type="button" 
-                                                        aria-label={__(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks")}
-                                                        className={`components-button digiblocks-responsive-common-button digiblocks-device-${localActiveDevice}`}
-                                                        onClick={() => window.digi.responsiveState.toggleDevice()}
-                                                    >
-                                                        {window.digi.icons.deviceIcons[localActiveDevice]}
-                                                    </button>
-                                                </div>
-                                                <div className="digiblocks-range-control__actions digiblocks-control__actions">
-                                                    <div tabIndex="0">
-                                                        <button 
-                                                            type="button" 
-                                                            disabled={width[localActiveDevice] === (widthUnit === '%' || widthUnit === 'vw' ? 100 : 300)}
-                                                            className="components-button digiblocks-reset is-secondary is-small"
-                                                            onClick={() => setAttributes({
-                                                                width: {
-                                                                    ...width,
-                                                                    [localActiveDevice]: widthUnit === '%' || widthUnit === 'vw' ? 100 : 300
-                                                                }
-                                                            })}
-                                                        >
-                                                            <span className="dashicon dashicons dashicons-image-rotate"></span>
-                                                        </button>
-                                                    </div>
-                                                    <ToggleGroupControl
-                                                        value={widthUnit}
-                                                        onChange={(value) => {
-                                                            // Get current width value
-                                                            const currentWidth = width[localActiveDevice];
-                                                            
-                                                            // If switching to percentage and value is over 100, cap it at 100
-                                                            let newWidth = currentWidth;
-                                                            if ((value === '%' || value === 'vw') && currentWidth > 100) {
-                                                                newWidth = 100;
-                                                            }
-                                                            // If switching from percentage to px and value is small, set reasonable default
-                                                            else if ((widthUnit === '%' || widthUnit === 'vw') && value === 'px' && currentWidth < 50) {
-                                                                newWidth = 300; // Default px width for small percentage values
-                                                            }
-                                                            
-                                                            // Update both unit and the width value if needed
-                                                            setAttributes({ 
-                                                                widthUnit: value,
-                                                                width: {
-                                                                    ...width,
-                                                                    [localActiveDevice]: newWidth
-                                                                }
-                                                            });
-                                                        }}
-                                                        isBlock
-                                                        isSmall
-                                                        hideLabelFromVision
-                                                        aria-label={__("Width Unit", "digiblocks")}
-                                                        __next40pxDefaultSize={true}
-                                                        __nextHasNoMarginBottom={true}
-                                                    >
-                                                        {widthUnitOptions.map(option => (
-                                                            <ToggleGroupControlOption
-                                                                key={option.value}
-                                                                value={option.value}
-                                                                label={option.label}
-                                                            />
-                                                        ))}
-                                                    </ToggleGroupControl>
-                                                </div>
-                                            </div>
-                                            <div className="digiblocks-range-control__mobile-controls">
-                                                <RangeControl
-                                                    value={width[localActiveDevice]}
-                                                    onChange={(value) => setAttributes({
-                                                        width: {
-                                                            ...width,
-                                                            [localActiveDevice]: value
-                                                        }
-                                                    })}
-                                                    min={10}
-                                                    max={widthUnit === '%' || widthUnit === 'vw' ? 100 : 1000}
-                                                    step={1}
-                                                    __next40pxDefaultSize={true}
-                                                    __nextHasNoMarginBottom={true}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <ResponsiveRangeControl
+								label={__("Width", "digiblocks")}
+								value={width}
+								onChange={(value) => setAttributes({ width: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' },
+									{ label: 'vw', value: 'vw' },
+								]}
+								defaultValues={{ desktop: { value: 300, unit: 'px' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } }}
+								min={0}
+								max={width?.[localActiveDevice]?.unit === '%' ? 100 : (width?.[localActiveDevice]?.unit === 'vw' ? 100 : 1000)}
+								step={1}
+							/>
 
-                            {/* Height control */}
-                            <div className="digiblocks-size-type-field-tabs">
-                                <div className="digiblocks-responsive-control-inner">
-                                    <div className="components-base-control">
-                                        <div className="digiblocks-range-control digiblocks-size-type-field-tabs">
-                                            <div className="digiblocks-control__header">
-                                                <div className="digiblocks-responsive-label-wrap">
-                                                    <span className="digiblocks-control-label">{__('Height', 'digiblocks')}</span>
-                                                    <button 
-                                                        type="button" 
-                                                        aria-label={__(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks")}
-                                                        className={`components-button digiblocks-responsive-common-button digiblocks-device-${localActiveDevice}`}
-                                                        onClick={() => window.digi.responsiveState.toggleDevice()}
-                                                    >
-                                                        {window.digi.icons.deviceIcons[localActiveDevice]}
-                                                    </button>
-                                                </div>
-                                                <div className="digiblocks-range-control__actions digiblocks-control__actions">
-                                                    <div tabIndex="0">
-                                                        <button 
-                                                            type="button" 
-                                                            disabled={height[localActiveDevice] === (heightUnit === '%' || heightUnit === 'vh' ? 100 : 300)}
-                                                            className="components-button digiblocks-reset is-secondary is-small"
-                                                            onClick={() => setAttributes({
-                                                                height: {
-                                                                    ...height,
-                                                                    [localActiveDevice]: heightUnit === '%' || heightUnit === 'vh' ? 100 : 300
-                                                                }
-                                                            })}
-                                                        >
-                                                            <span className="dashicon dashicons dashicons-image-rotate"></span>
-                                                        </button>
-                                                    </div>
-                                                    <ToggleGroupControl
-                                                        value={heightUnit}
-                                                        onChange={(value) => {
-                                                            // Get current height value
-                                                            const currentHeight = height[localActiveDevice];
-                                                            
-                                                            // If switching to percentage and value is over 100, cap it at 100
-                                                            let newHeight = currentHeight;
-                                                            if ((value === '%' || value === 'vh') && currentHeight > 100) {
-                                                                newHeight = 100;
-                                                            }
-                                                            // If switching from percentage to px and value is small, set reasonable default
-                                                            else if ((heightUnit === '%' || heightUnit === 'vh') && value === 'px' && currentHeight < 50) {
-                                                                newHeight = 300; // Default px height for small percentage values
-                                                            }
-                                                            
-                                                            // Update both unit and the height value if needed
-                                                            setAttributes({ 
-                                                                heightUnit: value,
-                                                                height: {
-                                                                    ...height,
-                                                                    [localActiveDevice]: newHeight
-                                                                }
-                                                            });
-                                                        }}
-                                                        isBlock
-                                                        isSmall
-                                                        hideLabelFromVision
-                                                        aria-label={__("Height Unit", "digiblocks")}
-                                                        __next40pxDefaultSize={true}
-                                                        __nextHasNoMarginBottom={true}
-                                                    >
-                                                        {heightUnitOptions.map(option => (
-                                                            <ToggleGroupControlOption
-                                                                key={option.value}
-                                                                value={option.value}
-                                                                label={option.label}
-                                                            />
-                                                        ))}
-                                                    </ToggleGroupControl>
-                                                </div>
-                                            </div>
-                                            <div className="digiblocks-range-control__mobile-controls">
-                                                <RangeControl
-                                                    value={height[localActiveDevice]}
-                                                    onChange={(value) => setAttributes({
-                                                        height: {
-                                                            ...height,
-                                                            [localActiveDevice]: value
-                                                        }
-                                                    })}
-                                                    min={10}
-                                                    max={heightUnit === '%' || heightUnit === 'vh' ? 100 : 1000}
-                                                    step={1}
-                                                    __next40pxDefaultSize={true}
-                                                    __nextHasNoMarginBottom={true}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+							<ResponsiveRangeControl
+								label={__("Height", "digiblocks")}
+								value={height}
+								onChange={(value) => setAttributes({ height: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' },
+									{ label: 'vh', value: 'vh' },
+								]}
+								defaultValues={{ desktop: { value: 300, unit: 'px' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } }}
+								min={0}
+								max={height?.[localActiveDevice]?.unit === '%' ? 100 : (height?.[localActiveDevice]?.unit === 'vh' ? 100 : 1000)}
+								step={1}
+							/>
                             
                             <ToggleGroupControl
                                 label={__("Alignment", "digiblocks")}
@@ -1190,42 +1062,19 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                             />
                             
                             {borderStyle !== 'none' && (
-                                <ResponsiveControl
-                                    label={__('Border Width', 'digiblocks')}
-                                >
-                                    <DimensionControl
-                                        values={borderWidth[localActiveDevice]}
-                                        onChange={(value) =>
-                                            setAttributes({
-                                                borderWidth: {
-                                                    ...borderWidth,
-                                                    [localActiveDevice]: value,
-                                                },
-                                            })
-                                        }
-                                    />
-                                </ResponsiveControl>
+                                <DimensionControl
+									label={__("Border Width", "digiblocks")}
+									value={borderWidth}
+									onChange={(value) => setAttributes({ borderWidth: value })}
+								/>
                             )}
                             
-                            <ResponsiveControl
-                                label={__('Border Radius', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={borderRadius[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            borderRadius: {
-                                                ...borderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    units={[
-                                        { label: 'px', value: 'px' },
-                                        { label: '%', value: '%' }
-                                    ]}
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Border Radius", "digiblocks")}
+								value={borderRadius}
+								onChange={(value) => setAttributes({ borderRadius: value })}
+								units={[ { label: 'px', value: 'px' }, { label: '%', value: '%' } ]}
+							/>
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1252,37 +1101,17 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
-                                label={__('Padding', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={padding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Padding", "digiblocks")}
+								value={padding}
+								onChange={(value) => setAttributes({ padding: value })}
+							/>
                             
-                            <ResponsiveControl
-                                label={__('Margin', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={margin[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Margin", "digiblocks")}
+								value={margin}
+								onChange={(value) => setAttributes({ margin: value })}
+							/>
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1337,8 +1166,8 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1372,8 +1201,8 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -1433,10 +1262,11 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}
@@ -1666,10 +1496,10 @@ const LottieEdit = ({ attributes, setAttributes, clientId }) => {
                         className="digiblocks-lottie-container" 
                         ref={containerRef} 
                         style={{
-                            width: `${width[localActiveDevice]}${widthUnit}`,
-                            height: `${height[localActiveDevice]}${heightUnit}`,
-                            position: 'relative'
-                        }}
+							width: getVal(width, localActiveDevice) || '300px',
+							height: getVal(height, localActiveDevice) || '300px',
+							position: 'relative'
+						}}
                     >
                         <canvas 
                             ref={canvasRef}

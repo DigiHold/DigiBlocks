@@ -10,14 +10,13 @@ const {
     LinkControl
 } = wp.blockEditor;
 const {
+    TextControl,
     SelectControl,
     RangeControl,
     ToggleControl,
-    TextControl,
     Button,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
     TabPanel,
     BaseControl
 } = wp.components;
@@ -408,33 +407,36 @@ const HeadingEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onRepla
             if (typography.fontFamily) {
                 typographyCSS += `font-family: ${typography.fontFamily};`;
             }
-            
-            if (typography.fontSize && typography.fontSize[activeDevice]) {
-                typographyCSS += `font-size: ${typography.fontSize[activeDevice]}${typography.fontSizeUnit || 'px'};`;
+
+            const fontSizeValue = getVal(typography.fontSize, activeDevice);
+            if (fontSizeValue && fontSizeValue.value !== "" && fontSizeValue.value !== null && fontSizeValue.value !== undefined) {
+                typographyCSS += `font-size: ${fontSizeValue.value}${fontSizeValue.unit !== null ? fontSizeValue.unit : ''};`;
             }
-            
+
             if (typography.fontWeight) {
                 typographyCSS += `font-weight: ${typography.fontWeight};`;
             }
-            
+
             if (typography.fontStyle) {
                 typographyCSS += `font-style: ${typography.fontStyle};`;
             }
-            
+
             if (typography.textTransform) {
                 typographyCSS += `text-transform: ${typography.textTransform};`;
             }
-            
+
             if (typography.textDecoration) {
                 typographyCSS += `text-decoration: ${typography.textDecoration};`;
             }
-            
-            if (typography.lineHeight && typography.lineHeight[activeDevice]) {
-                typographyCSS += `line-height: ${typography.lineHeight[activeDevice]}${typography.lineHeightUnit || 'em'};`;
+
+            const lineHeightValue = getVal(typography.lineHeight, activeDevice);
+            if (lineHeightValue && lineHeightValue.value !== "" && lineHeightValue.value !== null && lineHeightValue.value !== undefined) {
+                typographyCSS += `line-height: ${lineHeightValue.value}${lineHeightValue.unit !== null ? lineHeightValue.unit : ''};`;
             }
-            
-            if (typography.letterSpacing && typography.letterSpacing[activeDevice]) {
-                typographyCSS += `letter-spacing: ${typography.letterSpacing[activeDevice]}${typography.letterSpacingUnit || 'px'};`;
+
+            const letterSpacingValue = getVal(typography.letterSpacing, activeDevice);
+            if (letterSpacingValue && letterSpacingValue.value !== "" && letterSpacingValue.value !== null && letterSpacingValue.value !== undefined) {
+                typographyCSS += `letter-spacing: ${letterSpacingValue.value}${letterSpacingValue.unit !== null ? letterSpacingValue.unit : ''};`;
             }
         }
         
@@ -453,7 +455,7 @@ const HeadingEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onRepla
 		const maxWidthValue = getVal(maxWidth, activeDevice);
 		const alignValue = getVal(align, activeDevice);
 		if (maxWidthValue && maxWidthValue.value) {
-			maxWidthCSS = `max-width: ${maxWidthValue.value}${maxWidthValue.unit};`;
+			maxWidthCSS = `max-width: ${maxWidthValue.value}${maxWidthValue.unit !== null ? maxWidthValue.unit : ''};`;
 			if (alignValue === 'center') {
 				maxWidthCSS += 'margin-left: auto;margin-right: auto;';
 			} else if (alignValue === 'right') {
@@ -743,8 +745,17 @@ const HeadingEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onRepla
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -753,8 +764,17 @@ const HeadingEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onRepla
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -1275,31 +1295,15 @@ const HeadingEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onRepla
                                     </ResponsiveControl>
                                     
                                     {(['line-solid', 'line-gradient', 'line-double', 'line-dashed', 'line-dotted', 'glow', 'faded'].includes(separatorStyle)) && (
-                                        <ResponsiveControl
+                                        <DimensionControl
                                             label={__("Border Radius", "digiblocks")}
-                                        >
-                                            <DimensionControl
-                                                values={separatorBorderRadius && separatorBorderRadius[localActiveDevice] ? separatorBorderRadius[localActiveDevice] : {
-                                                    top: 0,
-                                                    right: 0,
-                                                    bottom: 0,
-                                                    left: 0,
-                                                    unit: 'px'
-                                                }}
-                                                onChange={(value) =>
-                                                    setAttributes({
-                                                        separatorBorderRadius: {
-                                                            ...separatorBorderRadius,
-                                                            [localActiveDevice]: value,
-                                                        },
-                                                    })
-                                                }
-                                                units={[
-                                                    { label: 'px', value: 'px' },
-                                                    { label: '%', value: '%' }
-                                                ]}
-                                            />
-                                        </ResponsiveControl>
+                                            value={separatorBorderRadius}
+                                            onChange={(value) => setAttributes({ separatorBorderRadius: value })}
+                                            units={[
+                                                { label: 'px', value: 'px' },
+                                                { label: '%', value: '%' }
+                                            ]}
+                                        />
                                     )}
                                 </>
                             )}
@@ -1467,12 +1471,6 @@ const HeadingEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onRepla
                                 label={__("Typography Settings", "digiblocks")}
                                 value={typography}
                                 onChange={(value) => setAttributes({ typography: value })}
-                                defaults={{
-                                    fontSize: { desktop: '', tablet: '', mobile: '' },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                         </TabPanelBody>
                         
@@ -1578,37 +1576,17 @@ const HeadingEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onRepla
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
-                                label={__("Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={padding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
-                            
-                            <ResponsiveControl
+							<DimensionControl
+								label={__("Padding", "digiblocks")}
+								value={padding}
+								onChange={(value) => setAttributes({ padding: value })}
+							/>
+
+                            <DimensionControl
                                 label={__("Margin", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={margin[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={margin}
+                                onChange={(value) => setAttributes({ margin: value })}
+                            />
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1663,8 +1641,8 @@ const HeadingEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onRepla
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1698,8 +1676,8 @@ const HeadingEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onRepla
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -1759,10 +1737,11 @@ const HeadingEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onRepla
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

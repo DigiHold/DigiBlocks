@@ -1,580 +1,24 @@
-(() => {
-  // blocks/faq/edit.js
-  var { __ } = window.wp.i18n;
-  var {
-    useBlockProps,
-    RichText,
-    InspectorControls,
-    PanelColorSettings
-  } = window.wp.blockEditor;
-  var {
-    SelectControl,
-    RangeControl,
-    ToggleControl,
-    Button,
-    TextControl,
-    Tooltip,
-    TabPanel,
-    __experimentalToggleGroupControl: ToggleGroupControl,
-    __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-    __experimentalNumberControl: NumberControl
-  } = window.wp.components;
-  var { useState, useEffect, useRef } = window.wp.element;
-  var { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
-  var { tabIcons } = digi.icons;
-  var { ResponsiveControl, ResponsiveRangeControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
-  var FAQEdit = ({ attributes, setAttributes, clientId }) => {
-    const {
-      id,
-      anchor,
-      visibility,
-      customClasses,
-      items,
-      titleColor,
-      titleHoverColor,
-      titleActiveColor,
-      backgroundColor,
-      backgroundHoverColor,
-      backgroundActiveColor,
-      contentColor,
-      contentBackgroundColor,
-      borderColor,
-      borderHoverColor,
-      borderRadius,
-      borderWidth,
-      borderStyle,
-      boxShadow,
-      boxShadowHover,
-      padding,
-      margin,
-      titleTypography,
-      contentTypography,
-      iconPosition,
-      iconColor,
-      iconHoverColor,
-      iconActiveColor,
-      iconSize,
-      animation,
-      animationDuration,
-      animationDelay,
-      allowMultipleOpen,
-      iconType,
-      titleTag,
-      questionPrefix,
-      questionPrefixColor,
-      answerPrefix,
-      answerPrefixColor,
-      layout,
-      itemsSpacing,
-      schemaType,
-      schemaName,
-      position,
-      horizontalOrientation,
-      horizontalOffset,
-      verticalOrientation,
-      verticalOffset,
-      zIndex,
-      transform,
-      transformHover
-    } = attributes;
-    useBlockId(id, clientId, setAttributes);
-    const getVal = (obj, device) => {
-      if (!obj || typeof obj !== "object")
-        return null;
-      if (device === "mobile") {
-        return obj.mobile !== "" && obj.mobile !== void 0 && obj.mobile !== null ? obj.mobile : obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
-      }
-      if (device === "tablet") {
-        return obj.tablet !== "" && obj.tablet !== void 0 && obj.tablet !== null ? obj.tablet : obj.desktop;
-      }
-      return obj.desktop;
-    };
-    const [activeTab, setActiveTab] = useState(() => {
-      if (window.digi.uiState) {
-        const savedTab = window.digi.uiState.getActiveTab(clientId);
-        if (savedTab)
-          return savedTab;
-      }
-      return "options";
-    });
-    const [localActiveDevice, setLocalActiveDevice] = useState(window.digi.responsiveState.activeDevice);
-    const [isAnimating, setIsAnimating] = useState(false);
-    useEffect(() => {
-      const unsubscribe = window.digi.responsiveState.subscribe((device) => {
-        setLocalActiveDevice(device);
-      });
-      return unsubscribe;
-    }, []);
-    useEffect(() => {
-      if (items && items.length > 0) {
-        const updatedItems = items.map((item, index) => {
-          if (!item.id) {
-            return { ...item, id: `faq-item-${clientId.substr(0, 8)}-${index}` };
-          }
-          return item;
-        });
-        if (JSON.stringify(updatedItems) !== JSON.stringify(items)) {
-          setAttributes({ items: updatedItems });
-        }
-      }
-    }, [clientId, items, setAttributes]);
-    const previewTimeoutRef = useRef(null);
-    useEffect(() => {
-      if (animation && animation !== "none") {
-        const timeoutId = setTimeout(() => {
-          animationPreview(id, animation, animations, previewTimeoutRef, animationDuration, animationDelay);
-        }, 100);
-        return () => clearTimeout(timeoutId);
-      }
-    }, [animation]);
-    const handlePreviewClick = () => {
-      animationPreview(id, animation, animations, previewTimeoutRef, animationDuration, animationDelay);
-    };
-    const borderStyleOptions = [
-      { label: __("Default", "digiblocks"), value: "default" },
-      { label: __("None", "digiblocks"), value: "none" },
-      { label: __("Solid", "digiblocks"), value: "solid" },
-      { label: __("Dotted", "digiblocks"), value: "dotted" },
-      { label: __("Dashed", "digiblocks"), value: "dashed" },
-      { label: __("Double", "digiblocks"), value: "double" },
-      { label: __("Groove", "digiblocks"), value: "groove" },
-      { label: __("Inset", "digiblocks"), value: "inset" },
-      { label: __("Outset", "digiblocks"), value: "outset" },
-      { label: __("Ridge", "digiblocks"), value: "ridge" }
-    ];
-    const animationOptions = [
-      { label: __("None", "digiblocks"), value: "none" },
-      ...Object.keys(animations).map((animation2) => ({
-        label: animation2.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
-        value: animation2
-      }))
-    ];
-    const iconTypeOptions = [
-      { label: __("Plus/Minus", "digiblocks"), value: "plusMinus" },
-      { label: __("Arrow", "digiblocks"), value: "arrow" },
-      { label: __("Chevron", "digiblocks"), value: "chevron" },
-      { label: __("Triangle", "digiblocks"), value: "triangle" },
-      { label: __("Circle Plus/Minus", "digiblocks"), value: "circlePlusMinus" }
-    ];
-    const iconPositionOptions = [
-      { label: __("Right", "digiblocks"), value: "right" },
-      { label: __("Left", "digiblocks"), value: "left" }
-    ];
-    const titleTagOptions = [
-      { label: __("H2", "digiblocks"), value: "h2" },
-      { label: __("H3", "digiblocks"), value: "h3" },
-      { label: __("H4", "digiblocks"), value: "h4" },
-      { label: __("H5", "digiblocks"), value: "h5" },
-      { label: __("H6", "digiblocks"), value: "h6" },
-      { label: __("p", "digiblocks"), value: "p" },
-      { label: __("div", "digiblocks"), value: "div" }
-    ];
-    const layoutOptions = [
-      { label: __("Boxed", "digiblocks"), value: "boxed" },
-      { label: __("Classic", "digiblocks"), value: "classic" },
-      { label: __("Separated", "digiblocks"), value: "separated" },
-      { label: __("Minimalist", "digiblocks"), value: "minimalist" },
-      { label: __("Bordered", "digiblocks"), value: "bordered" }
-    ];
-    const schemaTypeOptions = [
-      { label: __("Default FAQ Schema", "digiblocks"), value: "FAQPage" },
-      { label: __("Q&A Schema", "digiblocks"), value: "QAPage" }
-    ];
-    const tabList = [
-      {
-        name: "options",
-        title: __("Options", "digiblocks"),
-        icon: tabIcons.optionsIcon
-      },
-      {
-        name: "style",
-        title: __("Style", "digiblocks"),
-        icon: tabIcons.styleIcon
-      },
-      {
-        name: "advanced",
-        title: __("Advanced", "digiblocks"),
-        icon: tabIcons.advancedIcon
-      }
-    ];
-    const stateTabList = [
-      {
-        name: "normal",
-        title: __("Normal", "digiblocks"),
-        className: "digiblocks-tab-1 normal"
-      },
-      {
-        name: "hover",
-        title: __("Hover", "digiblocks"),
-        className: "digiblocks-tab-2 hover"
-      },
-      {
-        name: "active",
-        title: __("Active", "digiblocks"),
-        className: "digiblocks-tab-3 active"
-      }
-    ];
-    const addNewItem = () => {
-      const newItemIndex = items.length;
-      const newItem = {
-        id: `faq-item-${clientId.substr(0, 8)}-${newItemIndex}`,
-        title: __("New FAQ Question", "digiblocks"),
-        content: __("Add your answer here. Edit or remove this text inline or in the module Content settings.", "digiblocks"),
-        isOpen: false
-      };
-      setAttributes({
-        items: [...items, newItem]
-      });
-    };
-    const removeItem = (index) => {
-      const newItems = [...items];
-      newItems.splice(index, 1);
-      setAttributes({
-        items: newItems
-      });
-    };
-    const duplicateItem = (index) => {
-      const itemToDuplicate = items[index];
-      const timestamp = Date.now();
-      const newItem = {
-        ...itemToDuplicate,
-        id: `faq-item-${clientId.substr(0, 8)}-${timestamp}`,
-        isOpen: false
-      };
-      const newItems = [...items];
-      newItems.splice(index + 1, 0, newItem);
-      setAttributes({
-        items: newItems
-      });
-    };
-    const moveItemUp = (index) => {
-      if (index === 0)
-        return;
-      const newItems = [...items];
-      const item = newItems[index];
-      newItems.splice(index, 1);
-      newItems.splice(index - 1, 0, item);
-      setAttributes({
-        items: newItems
-      });
-    };
-    const moveItemDown = (index) => {
-      if (index === items.length - 1)
-        return;
-      const newItems = [...items];
-      const item = newItems[index];
-      newItems.splice(index, 1);
-      newItems.splice(index + 1, 0, item);
-      setAttributes({
-        items: newItems
-      });
-    };
-    const toggleItem = (index) => {
-      const newItems = items.map((item, i) => {
-        if (i === index) {
-          return { ...item, isOpen: !item.isOpen };
-        }
-        if (!allowMultipleOpen && i !== index && item.isOpen) {
-          return { ...item, isOpen: false };
-        }
-        return item;
-      });
-      setAttributes({
-        items: newItems
-      });
-    };
-    const updateItemTitle = (value, index) => {
-      const newItems = [...items];
-      newItems[index].title = value;
-      setAttributes({
-        items: newItems
-      });
-    };
-    const updateItemContent = (value, index) => {
-      const newItems = [...items];
-      newItems[index].content = value;
-      setAttributes({
-        items: newItems
-      });
-    };
-    const getIcon = (isOpen, type = iconType) => {
-      switch (type) {
-        case "plusMinus":
-          return isOpen ? /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-minus" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { fillRule: "evenodd", d: "M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z" }))) : /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-plus" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { fillRule: "evenodd", d: "M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" })));
-        case "arrow":
-          return /* @__PURE__ */ wp.element.createElement("span", { className: `digiblocks-faq-icon-arrow ${isOpen ? "is-open" : ""}` }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { fillRule: "evenodd", d: "M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" })));
-        case "chevron":
-          return /* @__PURE__ */ wp.element.createElement("span", { className: `digiblocks-faq-icon-chevron ${isOpen ? "is-open" : ""}` }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { fillRule: "evenodd", d: "M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z" })));
-        case "triangle":
-          return /* @__PURE__ */ wp.element.createElement("span", { className: `digiblocks-faq-icon-triangle ${isOpen ? "is-open" : ""}` }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { d: "m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" })));
-        case "circlePlusMinus":
-          return isOpen ? /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-circle-minus" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" }), /* @__PURE__ */ wp.element.createElement("path", { d: "M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z" }))) : /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-circle-plus" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" }), /* @__PURE__ */ wp.element.createElement("path", { d: "M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" })));
-        default:
-          return isOpen ? /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-minus" }, "\u2014") : /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-plus" }, "+");
-      }
-    };
-    const getMaxValue = (unit) => {
-      switch (unit) {
-        case "%":
-          return 100;
-        case "em":
-        case "rem":
-          return 50;
-        case "vw":
-        case "vh":
-          return 100;
-        default:
-          return 2e3;
-      }
-    };
-    const getStepValue = (unit) => {
-      switch (unit) {
-        case "%":
-        case "vw":
-        case "vh":
-          return 1;
-        case "em":
-        case "rem":
-          return 0.1;
-        default:
-          return 1;
-      }
-    };
-    const getTransformOrigin = (transform2, device) => {
-      const xMap = { left: "0%", center: "50%", right: "100%" };
-      const yMap = { top: "0%", center: "50%", bottom: "100%" };
-      const x = xMap[transform2.xAnchor?.[device] || "center"];
-      const y = yMap[transform2.yAnchor?.[device] || "center"];
-      return `${x} ${y}`;
-    };
-    const getTransformCSS = (transform2, device) => {
-      if (!transform2)
-        return "";
-      const transforms = [];
-      const getValue = (prop) => {
-        if (!prop)
-          return "";
-        let val = prop[device];
-        const isEmpty = (v) => {
-          if (v === "" || v === void 0 || v === null)
-            return true;
-          if (typeof v === "object" && v !== null) {
-            return v.value === "" || v.value === void 0 || v.value === null;
-          }
-          return false;
-        };
-        if (device === "tablet" && isEmpty(val)) {
-          val = prop.desktop;
-        }
-        if (device === "mobile" && isEmpty(val)) {
-          val = prop.tablet;
-          if (isEmpty(val)) {
-            val = prop.desktop;
-          }
-        }
-        return typeof val === "object" && val !== null ? val.value !== void 0 ? val.value : "" : val;
-      };
-      const rotateValue = getValue(transform2.rotate);
-      if (rotateValue !== "" && rotateValue !== void 0 && rotateValue !== null) {
-        if (transform2.rotate3d) {
-          const perspectiveValue = getValue(transform2.perspective);
-          if (perspectiveValue !== "" && perspectiveValue !== void 0 && perspectiveValue !== null) {
-            transforms.push(`perspective(${perspectiveValue}px)`);
-          }
-        }
-        transforms.push(`rotate(${rotateValue}deg)`);
-      }
-      if (transform2.rotate3d) {
-        const rotateXValue = getValue(transform2.rotateX);
-        if (rotateXValue !== "" && rotateXValue !== void 0 && rotateXValue !== null) {
-          transforms.push(`rotateX(${rotateXValue}deg)`);
-        }
-        const rotateYValue = getValue(transform2.rotateY);
-        if (rotateYValue !== "" && rotateYValue !== void 0 && rotateYValue !== null) {
-          transforms.push(`rotateY(${rotateYValue}deg)`);
-        }
-      }
-      const offsetXValue = transform2.offsetX?.[device]?.value;
-      const offsetYValue = transform2.offsetY?.[device]?.value;
-      const hasOffsetX = offsetXValue !== "" && offsetXValue !== void 0 && offsetXValue !== null;
-      const hasOffsetY = offsetYValue !== "" && offsetYValue !== void 0 && offsetYValue !== null;
-      if (hasOffsetX || hasOffsetY) {
-        const x = hasOffsetX ? `${offsetXValue}${transform2.offsetX[device].unit || "px"}` : "0";
-        const y = hasOffsetY ? `${offsetYValue}${transform2.offsetY[device].unit || "px"}` : "0";
-        transforms.push(`translate(${x}, ${y})`);
-      }
-      if (transform2.keepProportions) {
-        const scaleValue = getValue(transform2.scale);
-        if (scaleValue !== "" && scaleValue !== void 0 && scaleValue !== null && scaleValue != 1) {
-          transforms.push(`scale(${scaleValue})`);
-        }
-      } else {
-        const scaleXValue = getValue(transform2.scaleX);
-        const scaleYValue = getValue(transform2.scaleY);
-        const scaleX = scaleXValue !== "" && scaleXValue !== void 0 && scaleXValue !== null ? scaleXValue : 1;
-        const scaleY = scaleYValue !== "" && scaleYValue !== void 0 && scaleYValue !== null ? scaleYValue : 1;
-        if (scaleX != 1 || scaleY != 1) {
-          transforms.push(`scale(${scaleX}, ${scaleY})`);
-        }
-      }
-      const skewXValue = getValue(transform2.skewX);
-      if (skewXValue !== "" && skewXValue !== void 0 && skewXValue !== null) {
-        transforms.push(`skewX(${skewXValue}deg)`);
-      }
-      const skewYValue = getValue(transform2.skewY);
-      if (skewYValue !== "" && skewYValue !== void 0 && skewYValue !== null) {
-        transforms.push(`skewY(${skewYValue}deg)`);
-      }
-      if (transform2.flipHorizontal) {
-        transforms.push("scaleX(-1)");
-      }
-      if (transform2.flipVertical) {
-        transforms.push("scaleY(-1)");
-      }
-      return transforms.length > 0 ? transforms.join(" ") : "";
-    };
-    const generateCSS = () => {
-      const activeDevice = window.digi.responsiveState.activeDevice;
-      const itemSpacing = itemsSpacing[activeDevice] !== void 0 ? itemsSpacing[activeDevice] : 16;
-      let borderCSS = "";
-      if (borderStyle && borderStyle !== "default" && borderStyle !== "none") {
-        borderCSS = `
-				border-style: ${borderStyle};
-				border-color: ${borderColor || "#e0e0e0"};
-				${getDimensionCSS(borderWidth, "border-width", activeDevice)}
-				${getDimensionCSS(borderRadius, "border-radius", activeDevice)}
-			`;
-      } else {
-        borderCSS = "border: none;";
-      }
-      let boxShadowCSS = "box-shadow: none;";
-      if (boxShadow && boxShadow.enable) {
-        const inset = boxShadow.position === "inset" ? "inset " : "";
-        boxShadowCSS = `box-shadow: ${inset}${boxShadow.horizontal}px ${boxShadow.vertical}px ${boxShadow.blur}px ${boxShadow.spread}px ${boxShadow.color};`;
-      }
-      const paddingCSS = `${getDimensionCSS(padding, "padding", activeDevice)}`;
-      let titleTypographyCSS = "";
-      if (titleTypography) {
-        if (titleTypography.fontFamily) {
-          titleTypographyCSS += `font-family: ${titleTypography.fontFamily};`;
-        }
-        const titleFontSize = getVal(titleTypography.fontSize, activeDevice);
-        if (titleFontSize) {
-          titleTypographyCSS += `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || "px"};`;
-        }
-        if (titleTypography.fontWeight) {
-          titleTypographyCSS += `font-weight: ${titleTypography.fontWeight};`;
-        }
-        if (titleTypography.fontStyle) {
-          titleTypographyCSS += `font-style: ${titleTypography.fontStyle};`;
-        }
-        if (titleTypography.textTransform) {
-          titleTypographyCSS += `text-transform: ${titleTypography.textTransform};`;
-        }
-        if (titleTypography.textDecoration) {
-          titleTypographyCSS += `text-decoration: ${titleTypography.textDecoration};`;
-        }
-        const titleLineHeight = getVal(titleTypography.lineHeight, activeDevice);
-        if (titleLineHeight) {
-          titleTypographyCSS += `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || "em"};`;
-        }
-        const titleLetterSpacing = getVal(titleTypography.letterSpacing, activeDevice);
-        if (titleLetterSpacing || titleLetterSpacing === 0) {
-          titleTypographyCSS += `letter-spacing: ${titleLetterSpacing}${titleTypography.letterSpacingUnit || "px"};`;
-        }
-      }
-      let contentTypographyCSS = "";
-      if (contentTypography) {
-        if (contentTypography.fontFamily) {
-          contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
-        }
-        const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
-        if (contentFontSize) {
-          contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || "px"};`;
-        }
-        if (contentTypography.fontWeight) {
-          contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
-        }
-        if (contentTypography.fontStyle) {
-          contentTypographyCSS += `font-style: ${contentTypography.fontStyle};`;
-        }
-        if (contentTypography.textTransform) {
-          contentTypographyCSS += `text-transform: ${contentTypography.textTransform};`;
-        }
-        if (contentTypography.textDecoration) {
-          contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
-        }
-        const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
-        if (contentLineHeight) {
-          contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || "em"};`;
-        }
-        const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
-        if (contentLetterSpacing || contentLetterSpacing === 0) {
-          contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || "px"};`;
-        }
-      }
-      let boxShadowHoverCSS = "";
-      if (boxShadowHover && boxShadowHover.enable) {
-        const insetHover = boxShadowHover.position === "inset" ? "inset " : "";
-        boxShadowHoverCSS = `box-shadow: ${insetHover}${boxShadowHover.horizontal}px ${boxShadowHover.vertical}px ${boxShadowHover.blur}px ${boxShadowHover.spread}px ${boxShadowHover.color};`;
-      }
-      let positionCSS = "";
-      if (position && position !== "default") {
-        positionCSS += `position: ${position} !important;`;
-        const horizontalValue = horizontalOffset?.[activeDevice]?.value;
-        const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || "px";
-        if (horizontalValue !== "" && horizontalValue !== void 0) {
-          if (horizontalOrientation === "left") {
-            positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
-          } else {
-            positionCSS += `right: ${horizontalValue}${horizontalUnit};`;
-          }
-        }
-        const verticalValue = verticalOffset?.[activeDevice]?.value;
-        const verticalUnit = verticalOffset?.[activeDevice]?.unit || "px";
-        if (verticalValue !== "" && verticalValue !== void 0) {
-          if (verticalOrientation === "top") {
-            positionCSS += `top: ${verticalValue}${verticalUnit};`;
-          } else {
-            positionCSS += `bottom: ${verticalValue}${verticalUnit};`;
-          }
-        }
-      }
-      if (zIndex !== "" && zIndex !== void 0 && zIndex !== null) {
-        positionCSS += `z-index: ${zIndex};`;
-      }
-      let transformCSS = "";
-      const transformValue = getTransformCSS(transform, activeDevice);
-      if (transformValue) {
-        transformCSS += `transform: ${transformValue};`;
-        transformCSS += `transform-origin: ${getTransformOrigin(transform, activeDevice)};`;
-      }
-      const transformHoverValue = getTransformCSS(transformHover, activeDevice);
-      if (transformHoverValue && transformHover && transformHover.transitionDuration !== "" && transformHover.transitionDuration !== void 0 && transformHover.transitionDuration !== null) {
-        const duration = transformHover.transitionDuration;
-        transformCSS += `transition: transform ${duration}ms ease;`;
-      }
-      let transformHoverCSS = "";
-      if (transformHoverValue) {
-        transformHoverCSS += `transform: ${transformHoverValue};`;
-        transformHoverCSS += `transform-origin: ${getTransformOrigin(transformHover, activeDevice)};`;
-      }
-      const baseCSS = `
-			/* FAQ Block - ${id} */
-			.${id} {
-				${getDimensionCSS(margin, "margin", activeDevice)}
+(()=>{var{__:o}=window.wp.i18n,{useBlockProps:Ho,RichText:Re,InspectorControls:Mo,PanelColorSettings:j}=window.wp.blockEditor,{TextControl:ue,SelectControl:Q,RangeControl:ye,ToggleControl:ge,Button:oe,Tooltip:be,TabPanel:Ve,__experimentalToggleGroupControl:Ye,__experimentalToggleGroupControlOption:pe}=window.wp.components,{useState:qe,useEffect:Ce,useRef:Po}=window.wp.element,{useBlockId:Oo,getDimensionCSS:q,animations:Se,animationPreview:Xe}=digi.utils,{tabIcons:Ne}=digi.icons,{ResponsiveControl:je,ResponsiveRangeControl:Ee,DimensionControl:fe,TypographyControl:We,BoxShadowControl:Do,CustomTabPanel:Io,TabPanelBody:$,TransformControl:Fo}=digi.components,Ao=({attributes:te,setAttributes:l,clientId:L})=>{let{id:i,anchor:ee,visibility:S,customClasses:re,items:g,titleColor:ie,titleHoverColor:x,titleActiveColor:y,backgroundColor:E,backgroundHoverColor:P,backgroundActiveColor:O,contentColor:ce,contentBackgroundColor:D,borderColor:_,borderHoverColor:T,borderRadius:u,borderWidth:W,borderStyle:N,boxShadow:I,boxShadowHover:F,padding:R,margin:de,titleTypography:m,contentTypography:v,iconPosition:_e,iconColor:Te,iconHoverColor:me,iconActiveColor:Be,iconSize:G,animation:B,animationDuration:ve,animationDelay:he,allowMultipleOpen:ke,iconType:ze,titleTag:Je,questionPrefix:le,questionPrefixColor:xe,answerPrefix:ae,answerPrefixColor:$e,layout:U,itemsSpacing:Z,schemaType:Ke,schemaName:eo,position:ne,horizontalOrientation:He,horizontalOffset:z,verticalOrientation:Me,verticalOffset:H,zIndex:se,transform:we,transformHover:V}=te;Oo(i,L,l);let p=(e,t)=>{if(!e||typeof e!="object")return null;let n=r=>r===""||r===void 0||r===null?!0:typeof r=="object"&&r!==null?r.value===""||r.value===void 0||r.value===null:!1;return t==="mobile"?n(e.mobile)?n(e.tablet)?e.desktop:e.tablet:e.mobile:t==="tablet"?n(e.tablet)?e.desktop:e.tablet:e.desktop},[Pe,oo]=qe(()=>{if(window.digi.uiState){let e=window.digi.uiState.getActiveTab(L);if(e)return e}return"options"}),[Y,to]=qe(window.digi.responsiveState.activeDevice),[Vo,Yo]=qe(!1);Ce(()=>window.digi.responsiveState.subscribe(t=>{to(t)}),[]),Ce(()=>{if(g&&g.length>0){let e=g.map((t,n)=>t.id?t:{...t,id:`faq-item-${L.substr(0,8)}-${n}`});JSON.stringify(e)!==JSON.stringify(g)&&l({items:e})}},[L,g,l]);let Oe=Po(null);Ce(()=>{if(B&&B!=="none"){let e=setTimeout(()=>{Xe(i,B,Se,Oe,ve,he)},100);return()=>clearTimeout(e)}},[B]);let io=()=>{Xe(i,B,Se,Oe,ve,he)},lo=[{label:o("Default","digiblocks"),value:"default"},{label:o("None","digiblocks"),value:"none"},{label:o("Solid","digiblocks"),value:"solid"},{label:o("Dotted","digiblocks"),value:"dotted"},{label:o("Dashed","digiblocks"),value:"dashed"},{label:o("Double","digiblocks"),value:"double"},{label:o("Groove","digiblocks"),value:"groove"},{label:o("Inset","digiblocks"),value:"inset"},{label:o("Outset","digiblocks"),value:"outset"},{label:o("Ridge","digiblocks"),value:"ridge"}],ao=[{label:o("None","digiblocks"),value:"none"},...Object.keys(Se).map(e=>({label:e.replace(/-/g," ").replace(/\b\w/g,t=>t.toUpperCase()),value:e}))],no=[{label:o("Plus/Minus","digiblocks"),value:"plusMinus"},{label:o("Arrow","digiblocks"),value:"arrow"},{label:o("Chevron","digiblocks"),value:"chevron"},{label:o("Triangle","digiblocks"),value:"triangle"},{label:o("Circle Plus/Minus","digiblocks"),value:"circlePlusMinus"}],so=[{label:o("Right","digiblocks"),value:"right"},{label:o("Left","digiblocks"),value:"left"}],ro=[{label:o("H2","digiblocks"),value:"h2"},{label:o("H3","digiblocks"),value:"h3"},{label:o("H4","digiblocks"),value:"h4"},{label:o("H5","digiblocks"),value:"h5"},{label:o("H6","digiblocks"),value:"h6"},{label:o("p","digiblocks"),value:"p"},{label:o("div","digiblocks"),value:"div"}],co=[{label:o("Boxed","digiblocks"),value:"boxed"},{label:o("Classic","digiblocks"),value:"classic"},{label:o("Separated","digiblocks"),value:"separated"},{label:o("Minimalist","digiblocks"),value:"minimalist"},{label:o("Bordered","digiblocks"),value:"bordered"}],uo=[{label:o("Default FAQ Schema","digiblocks"),value:"FAQPage"},{label:o("Q&A Schema","digiblocks"),value:"QAPage"}],go=[{name:"options",title:o("Options","digiblocks"),icon:Ne.optionsIcon},{name:"style",title:o("Style","digiblocks"),icon:Ne.styleIcon},{name:"advanced",title:o("Advanced","digiblocks"),icon:Ne.advancedIcon}],De=[{name:"normal",title:o("Normal","digiblocks"),className:"digiblocks-tab-1 normal"},{name:"hover",title:o("Hover","digiblocks"),className:"digiblocks-tab-2 hover"},{name:"active",title:o("Active","digiblocks"),className:"digiblocks-tab-3 active"}],bo=()=>{let e=g.length,t={id:`faq-item-${L.substr(0,8)}-${e}`,title:o("New FAQ Question","digiblocks"),content:o("Add your answer here. Edit or remove this text inline or in the module Content settings.","digiblocks"),isOpen:!1};l({items:[...g,t]})},po=e=>{let t=[...g];t.splice(e,1),l({items:t})},fo=e=>{let t=g[e],n=Date.now(),r={...t,id:`faq-item-${L.substr(0,8)}-${n}`,isOpen:!1},f=[...g];f.splice(e+1,0,r),l({items:f})},mo=e=>{if(e===0)return;let t=[...g],n=t[e];t.splice(e,1),t.splice(e-1,0,n),l({items:t})},vo=e=>{if(e===g.length-1)return;let t=[...g],n=t[e];t.splice(e,1),t.splice(e+1,0,n),l({items:t})},ho=e=>{let t=g.map((n,r)=>r===e?{...n,isOpen:!n.isOpen}:!ke&&r!==e&&n.isOpen?{...n,isOpen:!1}:n);l({items:t})},ko=(e,t)=>{let n=[...g];n[t].title=e,l({items:n})},xo=(e,t)=>{let n=[...g];n[t].content=e,l({items:n})},$o=(e,t=ze)=>{switch(t){case"plusMinus":return e?wp.element.createElement("span",{className:"digiblocks-faq-icon-minus"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{fillRule:"evenodd",d:"M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z"}))):wp.element.createElement("span",{className:"digiblocks-faq-icon-plus"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{fillRule:"evenodd",d:"M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"})));case"arrow":return wp.element.createElement("span",{className:`digiblocks-faq-icon-arrow ${e?"is-open":""}`},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{fillRule:"evenodd",d:"M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"})));case"chevron":return wp.element.createElement("span",{className:`digiblocks-faq-icon-chevron ${e?"is-open":""}`},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{fillRule:"evenodd",d:"M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z"})));case"triangle":return wp.element.createElement("span",{className:`digiblocks-faq-icon-triangle ${e?"is-open":""}`},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{d:"m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"})));case"circlePlusMinus":return e?wp.element.createElement("span",{className:"digiblocks-faq-icon-circle-minus"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{d:"M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"}),wp.element.createElement("path",{d:"M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"}))):wp.element.createElement("span",{className:"digiblocks-faq-icon-circle-plus"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{d:"M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"}),wp.element.createElement("path",{d:"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"})));default:return e?wp.element.createElement("span",{className:"digiblocks-faq-icon-minus"},"\u2014"):wp.element.createElement("span",{className:"digiblocks-faq-icon-plus"},"+")}},Ie=e=>{switch(e){case"%":return 100;case"em":case"rem":return 50;case"vw":case"vh":return 100;default:return 2e3}},Fe=e=>{switch(e){case"%":case"vw":case"vh":return 1;case"em":case"rem":return .1;default:return 1}},Ae=(e,t)=>{let n={left:"0%",center:"50%",right:"100%"},r={top:"0%",center:"50%",bottom:"100%"},f=n[e.xAnchor?.[t]||"center"],k=r[e.yAnchor?.[t]||"center"];return`${f} ${k}`},Qe=(e,t)=>{if(!e)return"";let n=[],r=c=>{if(!c)return"";let d=c[t],X=h=>h===""||h===void 0||h===null?!0:typeof h=="object"&&h!==null?h.value===""||h.value===void 0||h.value===null:!1;return t==="tablet"&&X(d)&&(d=c.desktop),t==="mobile"&&X(d)&&(d=c.tablet,X(d)&&(d=c.desktop)),typeof d=="object"&&d!==null?d.value!==void 0?d.value:"":d},f=r(e.rotate);if(f!==""&&f!==void 0&&f!==null){if(e.rotate3d){let c=r(e.perspective);c!==""&&c!==void 0&&c!==null&&n.push(`perspective(${c}px)`)}n.push(`rotate(${f}deg)`)}if(e.rotate3d){let c=r(e.rotateX);c!==""&&c!==void 0&&c!==null&&n.push(`rotateX(${c}deg)`);let d=r(e.rotateY);d!==""&&d!==void 0&&d!==null&&n.push(`rotateY(${d}deg)`)}let k=e.offsetX?.[t]?.value,w=e.offsetY?.[t]?.value,J=k!==""&&k!==void 0&&k!==null,M=w!==""&&w!==void 0&&w!==null;if(J||M){let c=J?`${k}${e.offsetX[t].unit||"px"}`:"0",d=M?`${w}${e.offsetY[t].unit||"px"}`:"0";n.push(`translate(${c}, ${d})`)}if(e.keepProportions){let c=r(e.scale);c!==""&&c!==void 0&&c!==null&&c!=1&&n.push(`scale(${c})`)}else{let c=r(e.scaleX),d=r(e.scaleY),X=c!==""&&c!==void 0&&c!==null?c:1,h=d!==""&&d!==void 0&&d!==null?d:1;(X!=1||h!=1)&&n.push(`scale(${X}, ${h})`)}let A=r(e.skewX);A!==""&&A!==void 0&&A!==null&&n.push(`skewX(${A}deg)`);let K=r(e.skewY);return K!==""&&K!==void 0&&K!==null&&n.push(`skewY(${K}deg)`),e.flipHorizontal&&n.push("scaleX(-1)"),e.flipVertical&&n.push("scaleY(-1)"),n.length>0?n.join(" "):""},wo=()=>{let e=window.digi.responsiveState.activeDevice,t=Z[e]!==void 0?Z[e]:16,n="";N&&N!=="default"&&N!=="none"?n=`
+				border-style: ${N};
+				border-color: ${_||"#e0e0e0"};
+				${q(W,"border-width",e)}
+				${q(u,"border-radius",e)}
+			`:n="border: none;";let r="box-shadow: none;";I&&I.enable&&(r=`box-shadow: ${I.position==="inset"?"inset ":""}${I.horizontal}px ${I.vertical}px ${I.blur}px ${I.spread}px ${I.color};`);let f=`${q(R,"padding",e)}`,k="";if(m){m.fontFamily&&(k+=`font-family: ${m.fontFamily};`);let a=p(m.fontSize,e);a&&a.value!==""&&a.value!==null&&a.value!==void 0&&(k+=`font-size: ${a.value}${a.unit!==null?a.unit:""};`),m.fontWeight&&(k+=`font-weight: ${m.fontWeight};`),m.fontStyle&&(k+=`font-style: ${m.fontStyle};`),m.textTransform&&(k+=`text-transform: ${m.textTransform};`),m.textDecoration&&(k+=`text-decoration: ${m.textDecoration};`);let s=p(m.lineHeight,e);s&&s.value!==""&&s.value!==null&&s.value!==void 0&&(k+=`line-height: ${s.value}${s.unit!==null?s.unit:""};`);let b=p(m.letterSpacing,e);b&&b.value!==""&&b.value!==null&&b.value!==void 0&&(k+=`letter-spacing: ${b.value}${b.unit!==null?b.unit:""};`)}let w="";if(v){v.fontFamily&&(w+=`font-family: ${v.fontFamily};`);let a=p(v.fontSize,e);a&&a.value!==""&&a.value!==null&&a.value!==void 0&&(w+=`font-size: ${a.value}${a.unit!==null?a.unit:""};`),v.fontWeight&&(w+=`font-weight: ${v.fontWeight};`),v.fontStyle&&(w+=`font-style: ${v.fontStyle};`),v.textTransform&&(w+=`text-transform: ${v.textTransform};`),v.textDecoration&&(w+=`text-decoration: ${v.textDecoration};`);let s=p(v.lineHeight,e);s&&s.value!==""&&s.value!==null&&s.value!==void 0&&(w+=`line-height: ${s.value}${s.unit!==null?s.unit:""};`);let b=p(v.letterSpacing,e);b&&b.value!==""&&b.value!==null&&b.value!==void 0&&(w+=`letter-spacing: ${b.value}${b.unit!==null?b.unit:""};`)}let J="";F&&F.enable&&(J=`box-shadow: ${F.position==="inset"?"inset ":""}${F.horizontal}px ${F.vertical}px ${F.blur}px ${F.spread}px ${F.color};`);let M="";if(ne&&ne!=="default"){M+=`position: ${ne} !important;`;let a=z?.[e]?.value,s=z?.[e]?.unit||"px";(a===""||a===void 0)&&(e==="tablet"?a=z?.desktop?.value:e==="mobile"&&(a=z?.tablet?.value!==""&&z?.tablet?.value!==void 0?z?.tablet?.value:z?.desktop?.value)),a!==""&&a!==void 0&&(He==="left"?M+=`left: ${a}${s};`:M+=`right: ${a}${s};`);let b=H?.[e]?.value,Le=H?.[e]?.unit||"px";(b===""||b===void 0)&&(e==="tablet"?b=H?.desktop?.value:e==="mobile"&&(b=H?.tablet?.value!==""&&H?.tablet?.value!==void 0?H?.tablet?.value:H?.desktop?.value)),b!==""&&b!==void 0&&(Me==="top"?M+=`top: ${b}${Le};`:M+=`bottom: ${b}${Le};`)}se!==""&&se!==void 0&&se!==null&&(M+=`z-index: ${se};`);let A="",K=Qe(we,e);K&&(A+=`transform: ${K};`,A+=`transform-origin: ${Ae(we,e)};`);let c=Qe(V,e);if(c&&V&&V.transitionDuration!==""&&V.transitionDuration!==void 0&&V.transitionDuration!==null){let a=V.transitionDuration;A+=`transition: transform ${a}ms ease;`}let d="";c&&(d+=`transform: ${c};`,d+=`transform-origin: ${Ae(V,e)};`);let X=`
+			/* FAQ Block - ${i} */
+			.${i} {
+				${q(de,"margin",e)}
 				width: 100%;
-                ${positionCSS}
-				${transformCSS}
+                ${M}
+				${A}
 			}
 
-            .${id}:hover {
-                ${boxShadowHoverCSS}
-				${transformHoverCSS}
+            .${i}:hover {
+                ${J}
+				${d}
             }
 			
 			/* Base styles for questions and answers */
-			.${id} .digiblocks-faq-question {
+			.${i} .digiblocks-faq-question {
 				cursor: pointer;
 				-webkit-user-select: none;
 				-moz-user-select: none;
@@ -582,315 +26,294 @@
 				user-select: none;
 				display: flex;
 				align-items: center;
-				${iconPosition === "left" ? "flex-direction: row-reverse; justify-content: flex-end;" : "justify-content: space-between;"}
+				${_e==="left"?"flex-direction: row-reverse; justify-content: flex-end;":"justify-content: space-between;"}
 			}
 			
-			.${id} .digiblocks-faq-question-text {
-				color: ${titleColor};
-				${titleTypographyCSS}
+			.${i} .digiblocks-faq-question-text {
+				color: ${ie};
+				${k}
 				margin: 0;
 				flex: 1;
-				${questionPrefix ? "display: flex; align-items: center; gap: .5rem;" : ""}
+				${le?"display: flex; align-items: center; gap: .5rem;":""}
 				transition: color 0.3s ease;
 			}
 			
-			.${id} .digiblocks-faq-question-prefix {
-				${questionPrefixColor ? `color: ${questionPrefixColor};` : ""}
+			.${i} .digiblocks-faq-question-prefix {
+				${xe?`color: ${xe};`:""}
 				font-weight: bold;
 			}
 			
-			.${id} .digiblocks-faq-answer-prefix {
-				${answerPrefixColor ? `color: ${answerPrefixColor};` : ""}
+			.${i} .digiblocks-faq-answer-prefix {
+				${$e?`color: ${$e};`:""}
 				font-weight: bold;
 			}
 			
-			.${id} .digiblocks-faq-answer-content {
+			.${i} .digiblocks-faq-answer-content {
 				display: flex;
-				${answerPrefix ? "display: flex; gap: .5rem;" : ""}
-				color: ${contentColor};
-				${contentTypographyCSS}
+				${ae?"display: flex; gap: .5rem;":""}
+				color: ${ce};
+				${w}
 			}
 			
 			/* Handle answer display states */
-			.${id} .digiblocks-faq-answer {
+			.${i} .digiblocks-faq-answer {
 				overflow: hidden;
 				display: none;
 				transition: height 0.3s ease;
 			}
 			
-			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-answer {
+			.${i} .digiblocks-faq-item.is-active .digiblocks-faq-answer {
 				display: block;
 			}
 			
 			/* Icon styles */
-			.${id} .digiblocks-faq-question {
+			.${i} .digiblocks-faq-question {
 				gap: 15px;
 			}
 
-			.${id} .digiblocks-faq-question-icon {
+			.${i} .digiblocks-faq-question-icon {
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				color: ${iconColor};
+				color: ${Te};
 				transition: all 0.3s ease;
-				font-size: ${getVal(iconSize, activeDevice)}px;
+				font-size: ${p(G,e)}px;
 			}
 			
-			.${id} .digiblocks-faq-question-icon span {
+			.${i} .digiblocks-faq-question-icon span {
 				display: flex;
 				align-items: center;
 				justify-content: center;
 			}
 			
-			.${id} .digiblocks-faq-question-icon svg {
-				width: ${getVal(iconSize, activeDevice)}px;
-				height: ${getVal(iconSize, activeDevice)}px;
+			.${i} .digiblocks-faq-question-icon svg {
+				width: ${p(G,e)}px;
+				height: ${p(G,e)}px;
 				transition: transform 0.3s ease;
 				fill: currentColor;
 			}
 			
 			/* Rotate icons when active */
-			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-arrow,
-			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-chevron,
-			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-triangle {
+			.${i} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-arrow,
+			.${i} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-chevron,
+			.${i} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon .digiblocks-faq-icon-triangle {
 				transform: rotate(180deg);
 			}
 			
-			.${id} .digiblocks-faq-icon-arrow,
-			.${id} .digiblocks-faq-icon-chevron,
-			.${id} .digiblocks-faq-icon-triangle {
+			.${i} .digiblocks-faq-icon-arrow,
+			.${i} .digiblocks-faq-icon-chevron,
+			.${i} .digiblocks-faq-icon-triangle {
 				display: inline-flex;
 				transition: transform 0.3s ease;
 			}
 			
 			/* Handle hover state */
-			.${id} .digiblocks-faq-question:hover .digiblocks-faq-question-text {
-				${titleHoverColor ? `color: ${titleHoverColor};` : ""}
+			.${i} .digiblocks-faq-question:hover .digiblocks-faq-question-text {
+				${x?`color: ${x};`:""}
 			}
 			
-			.${id} .digiblocks-faq-question:hover .digiblocks-faq-question-icon {
-				${iconHoverColor ? `color: ${iconHoverColor};` : ""}
+			.${i} .digiblocks-faq-question:hover .digiblocks-faq-question-icon {
+				${me?`color: ${me};`:""}
 			}
 			
 			/* Handle active state */
-			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question-text {
-				color: ${titleActiveColor};
+			.${i} .digiblocks-faq-item.is-active .digiblocks-faq-question-text {
+				color: ${y};
 			}
 			
-			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon {
-				color: ${iconActiveColor};
+			.${i} .digiblocks-faq-item.is-active .digiblocks-faq-question-icon {
+				color: ${Be};
 			}
 
 			/* Visibility Controls */
-			${visibility.desktop ? `
+			${S.desktop?`
 				@media (min-width: 992px) {
-					.${id} {
+					.${i} {
 						opacity: 0.5 !important;
 					}
 				}
-			` : ""}
+			`:""}
 
-			${visibility.tablet ? `
+			${S.tablet?`
 				@media (min-width: 768px) and (max-width: 991px) {
-					.${id} {
+					.${i} {
 						opacity: 0.5 !important;
 					}
 				}
-			` : ""}
+			`:""}
 
-			${visibility.mobile ? `
+			${S.mobile?`
 				@media (max-width: 767px) {
-					.${id} {
+					.${i} {
 						opacity: 0.5 !important;
 					}
 				}
-			` : ""}
-		`;
-      let layoutCSS = "";
-      switch (layout) {
-        case "boxed":
-          layoutCSS = `
-					.${id} .digiblocks-faq-item {
-						${borderCSS}
-						${boxShadowCSS}
-						background-color: ${backgroundColor || "#ffffff"};
+			`:""}
+		`,h="";switch(U){case"boxed":h=`
+					.${i} .digiblocks-faq-item {
+						${n}
+						${r}
+						background-color: ${E||"#ffffff"};
 						transition: all 0.3s ease;
-						margin-bottom: ${itemSpacing}px;
+						margin-bottom: ${t}px;
 					}
 					
-					.${id} .digiblocks-faq-item:hover {
-						${boxShadowHoverCSS}
-						${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ""}
-						${borderHoverColor ? `border-color: ${borderHoverColor};` : ""}
+					.${i} .digiblocks-faq-item:hover {
+						${J}
+						${P?`background-color: ${P};`:""}
+						${T?`border-color: ${T};`:""}
 					}
 					
-					.${id} .digiblocks-faq-question {
-						${paddingCSS}
+					.${i} .digiblocks-faq-question {
+						${f}
 					}
 					
-					.${id} .digiblocks-faq-answer {
-						${paddingCSS}
-						border-top: 1px solid ${borderColor || "#e0e0e0"};
-						${contentBackgroundColor ? `background-color: ${contentBackgroundColor};` : ""}
+					.${i} .digiblocks-faq-answer {
+						${f}
+						border-top: 1px solid ${_||"#e0e0e0"};
+						${D?`background-color: ${D};`:""}
 					}
 					
-					.${id} .digiblocks-faq-item.is-active {
-						${backgroundActiveColor ? `background-color: ${backgroundActiveColor};` : ""}
+					.${i} .digiblocks-faq-item.is-active {
+						${O?`background-color: ${O};`:""}
 					}
-				`;
-          break;
-        case "classic":
-          layoutCSS = `
-					.${id} .digiblocks-faq-item {
+				`;break;case"classic":h=`
+					.${i} .digiblocks-faq-item {
 						border: none;
-						border-bottom: 1px solid ${borderColor || "#e0e0e0"};
+						border-bottom: 1px solid ${_||"#e0e0e0"};
 						background-color: transparent;
-						margin-bottom: ${itemSpacing}px;
+						margin-bottom: ${t}px;
 						transition: all 0.3s ease;
 					}
 					
-					.${id} .digiblocks-faq-question {
-						${paddingCSS}
+					.${i} .digiblocks-faq-question {
+						${f}
 					}
 					
-					.${id} .digiblocks-faq-answer {
-						${getDimensionCSS(padding, "padding", activeDevice)}
+					.${i} .digiblocks-faq-answer {
+						${q(R,"padding",e)}
 						padding-top: 0;
 					}
-				`;
-          break;
-        case "separated":
-          layoutCSS = `
-					.${id} .digiblocks-faq-item {
-						margin-bottom: ${itemSpacing}px;
+				`;break;case"separated":h=`
+					.${i} .digiblocks-faq-item {
+						margin-bottom: ${t}px;
 						transition: all 0.3s ease;
 					}
 					
-					.${id} .digiblocks-faq-question {
-						${paddingCSS}
-						${borderCSS}
-						${boxShadowCSS}
-						background-color: ${backgroundColor || "#ffffff"};
+					.${i} .digiblocks-faq-question {
+						${f}
+						${n}
+						${r}
+						background-color: ${E||"#ffffff"};
 					}
 					
-					.${id} .digiblocks-faq-question:hover {
-						${titleHoverColor ? `color: ${titleHoverColor};` : ""}
-						${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ""}
-						${borderHoverColor ? `border-color: ${borderHoverColor};` : ""}
-						${boxShadowHoverCSS}
+					.${i} .digiblocks-faq-question:hover {
+						${x?`color: ${x};`:""}
+						${P?`background-color: ${P};`:""}
+						${T?`border-color: ${T};`:""}
+						${J}
 					}
 					
-					.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question {
-						${titleActiveColor ? `color: ${titleActiveColor};` : ""}
-						${backgroundActiveColor ? `background-color: ${backgroundActiveColor};` : ""}
+					.${i} .digiblocks-faq-item.is-active .digiblocks-faq-question {
+						${y?`color: ${y};`:""}
+						${O?`background-color: ${O};`:""}
 					}
 					
-					.${id} .digiblocks-faq-answer {
-						${paddingCSS}
-						${contentBackgroundColor ? `background-color: ${contentBackgroundColor};` : ""}
-						${borderCSS}
+					.${i} .digiblocks-faq-answer {
+						${f}
+						${D?`background-color: ${D};`:""}
+						${n}
 						border-top: none;
 						border-top-left-radius: 0;
 						border-top-right-radius: 0;
-						border-bottom-left-radius: ${borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice].left + borderRadius[activeDevice].unit : "8px"};
-						border-bottom-right-radius: ${borderRadius && borderRadius[activeDevice] ? borderRadius[activeDevice].right + borderRadius[activeDevice].unit : "8px"};
+						border-bottom-left-radius: ${u&&u[e]?u[e].left+u[e].unit:"8px"};
+						border-bottom-right-radius: ${u&&u[e]?u[e].right+u[e].unit:"8px"};
 						margin-top: -1px;
 					}
-				`;
-          break;
-        case "minimalist":
-          layoutCSS = `
-					.${id} .digiblocks-faq-item {
-						margin-bottom: ${itemSpacing}px;
+				`;break;case"minimalist":h=`
+					.${i} .digiblocks-faq-item {
+						margin-bottom: ${t}px;
 						transition: all 0.3s ease;
 						background-color: transparent;
 					}
 					
-					.${id} .digiblocks-faq-question {
-						${paddingCSS}
-						border-bottom: 2px solid ${borderColor || "#e0e0e0"};
+					.${i} .digiblocks-faq-question {
+						${f}
+						border-bottom: 2px solid ${_||"#e0e0e0"};
 					}
 					
-					.${id} .digiblocks-faq-question:hover {
-						${titleHoverColor ? `color: ${titleHoverColor};` : ""}
-						border-color: ${titleHoverColor || borderHoverColor || "#cccccc"};
+					.${i} .digiblocks-faq-question:hover {
+						${x?`color: ${x};`:""}
+						border-color: ${x||T||"#cccccc"};
 					}
 					
-					.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question {
-						${titleActiveColor ? `color: ${titleActiveColor};` : ""}
-						border-color: ${titleActiveColor || "#1e73be"};
+					.${i} .digiblocks-faq-item.is-active .digiblocks-faq-question {
+						${y?`color: ${y};`:""}
+						border-color: ${y||"#1e73be"};
 					}
 					
-					.${id} .digiblocks-faq-answer {
-						${getDimensionCSS(padding, "padding", activeDevice)}
+					.${i} .digiblocks-faq-answer {
+						${q(R,"padding",e)}
 					}
-				`;
-          break;
-        case "bordered":
-          layoutCSS = `
-					.${id} .digiblocks-faq-item {
-						${borderCSS}
+				`;break;case"bordered":h=`
+					.${i} .digiblocks-faq-item {
+						${n}
 						background-color: transparent;
-						margin-bottom: ${itemSpacing}px;
+						margin-bottom: ${t}px;
 						transition: all 0.3s ease;
 						overflow: hidden;
 					}
 					
-					.${id} .digiblocks-faq-item:hover {
-						${borderHoverColor ? `border-color: ${borderHoverColor};` : ""}
+					.${i} .digiblocks-faq-item:hover {
+						${T?`border-color: ${T};`:""}
 					}
 					
-					.${id} .digiblocks-faq-question {
-						${paddingCSS}
-						background-color: ${backgroundColor || "#f8f9fa"};
+					.${i} .digiblocks-faq-question {
+						${f}
+						background-color: ${E||"#f8f9fa"};
 					}
 					
-					.${id} .digiblocks-faq-question:hover {
-						${titleHoverColor ? `color: ${titleHoverColor};` : ""}
-						${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ""}
+					.${i} .digiblocks-faq-question:hover {
+						${x?`color: ${x};`:""}
+						${P?`background-color: ${P};`:""}
 					}
 					
-					.${id} .digiblocks-faq-item.is-active .digiblocks-faq-question {
-						${titleActiveColor ? `color: ${titleActiveColor};` : ""}
-						${backgroundActiveColor ? `background-color: ${backgroundActiveColor};` : ""}
+					.${i} .digiblocks-faq-item.is-active .digiblocks-faq-question {
+						${y?`color: ${y};`:""}
+						${O?`background-color: ${O};`:""}
 					}
 					
-					.${id} .digiblocks-faq-answer {
-						${paddingCSS}
-						${contentBackgroundColor ? `background-color: ${contentBackgroundColor};` : ""}
+					.${i} .digiblocks-faq-answer {
+						${f}
+						${D?`background-color: ${D};`:""}
 					}
 					
-					.${id} .digiblocks-faq-item.is-active {
-						border-color: ${titleActiveColor || borderColor || "#1e73be"};
+					.${i} .digiblocks-faq-item.is-active {
+						border-color: ${y||_||"#1e73be"};
 					}
-				`;
-          break;
-        default:
-          layoutCSS = `
-					.${id} .digiblocks-faq-item {
-						${borderCSS}
-						${boxShadowCSS}
-						background-color: ${backgroundColor || "#ffffff"};
+				`;break;default:h=`
+					.${i} .digiblocks-faq-item {
+						${n}
+						${r}
+						background-color: ${E||"#ffffff"};
 						transition: all 0.3s ease;
-						margin-bottom: ${itemSpacing}px;
+						margin-bottom: ${t}px;
 					}
 					
-					.${id} .digiblocks-faq-question {
-						${paddingCSS}
+					.${i} .digiblocks-faq-question {
+						${f}
 					}
 					
-					.${id} .digiblocks-faq-answer {
-						${paddingCSS}
+					.${i} .digiblocks-faq-answer {
+						${f}
 						border-top: 1px solid #e0e0e0;
 					}
-				`;
-      }
-      const editorCSS = `
-			.${id} .digiblocks-faq-item {
+				`}let To=`
+			.${i} .digiblocks-faq-item {
 				position: relative;
 			}
 			
-			.${id} .digiblocks-faq-item-controls {
+			.${i} .digiblocks-faq-item-controls {
 				display: flex;
 				gap: 5px;
 				position: absolute;
@@ -904,1710 +327,118 @@
 			}
 		
 			/* Respect the is-active class for showing/hiding answers */
-			.${id} .digiblocks-faq-answer {
+			.${i} .digiblocks-faq-answer {
 				display: none;
 				transition: height 0.3s ease;
 			}
 			
-			.${id} .digiblocks-faq-item.is-active .digiblocks-faq-answer {
+			.${i} .digiblocks-faq-item.is-active .digiblocks-faq-answer {
 				display: block;
 			}
 			
-			.${id} .digiblocks-faq-schema {
+			.${i} .digiblocks-faq-schema {
 				margin-top: 15px;
 			}
-		`;
-      const tabletStyles = `
+		`,Bo=`
 			@media (max-width: 991px) {
-				.${id} {
-					${getDimensionCSS(margin, "margin", "tablet")}
+				.${i} {
+					${q(de,"margin","tablet")}
 				}
 				
-				.${id} .digiblocks-faq-item {
-					margin-bottom: ${getVal(itemsSpacing, "tablet") || itemSpacing}px;
+				.${i} .digiblocks-faq-item {
+					margin-bottom: ${p(Z,"tablet")||t}px;
 				}
 				
-				.${id} .digiblocks-faq-question,
-				.${id} .digiblocks-faq-answer {
-					${getDimensionCSS(padding, "padding", "tablet")}
+				.${i} .digiblocks-faq-question,
+				.${i} .digiblocks-faq-answer {
+					${q(R,"padding","tablet")}
 				}
 				
-				${layout === "minimalist" ? `
-				.${id} .digiblocks-faq-answer {
-					${getDimensionCSS(padding, "padding", "tablet")}
+				${U==="minimalist"?`
+				.${i} .digiblocks-faq-answer {
+					${q(R,"padding","tablet")}
 					padding-left: 0;
 					padding-right: 0;
 				}
-				` : ""}
+				`:""}
 				
-				${(() => {
-        const tabletIconSize = getVal(iconSize, "tablet");
-        return tabletIconSize ? `
-					.${id} .digiblocks-faq-question-icon {
-						font-size: ${tabletIconSize}px;
+				${(()=>{let a=p(G,"tablet");return a?`
+					.${i} .digiblocks-faq-question-icon {
+						font-size: ${a}px;
 					}
 					
-					.${id} .digiblocks-faq-question-icon svg {
-						width: ${tabletIconSize}px;
-						height: ${tabletIconSize}px;
+					.${i} .digiblocks-faq-question-icon svg {
+						width: ${a}px;
+						height: ${a}px;
 					}
-					` : "";
-      })()}
+					`:""})()}
 				
-				${(() => {
-        const titleFontSize = getVal(titleTypography?.fontSize, "tablet");
-        const titleLineHeight = getVal(titleTypography?.lineHeight, "tablet");
-        if (!titleFontSize && !titleLineHeight)
-          return "";
-        return `
-					.${id} .digiblocks-faq-question-text {
-						${titleFontSize ? `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || "px"};` : ""}
-						${titleLineHeight ? `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || "em"};` : ""}
+				${(()=>{let a=p(m?.fontSize,"tablet"),s=p(m?.lineHeight,"tablet");return!a&&!s?"":`
+					.${i} .digiblocks-faq-question-text {
+						${a?`font-size: ${a.value}${a.unit!==null?a.unit:""};`:""}
+						${s?`line-height: ${s.value}${s.unit!==null?s.unit:""};`:""}
 					}
-					`;
-      })()}
+					`})()}
 				
-				${(() => {
-        const contentFontSize = getVal(contentTypography?.fontSize, "tablet");
-        const contentLineHeight = getVal(contentTypography?.lineHeight, "tablet");
-        if (!contentFontSize && !contentLineHeight)
-          return "";
-        return `
-					.${id} .digiblocks-faq-answer-content {
-						${contentFontSize ? `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || "px"};` : ""}
-						${contentLineHeight ? `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || "em"};` : ""}
+				${(()=>{let a=p(v?.fontSize,"tablet"),s=p(v?.lineHeight,"tablet");return!a&&!s?"":`
+					.${i} .digiblocks-faq-answer-content {
+						${a?`font-size: ${a.value}${a.unit!==null?a.unit:""};`:""}
+						${s?`line-height: ${s.value}${s.unit!==null?s.unit:""};`:""}
 					}
-					`;
-      })()}
+					`})()}
 			}
-		`;
-      const mobileStyles = `
+		`,zo=`
 			@media (max-width: 767px) {
-				.${id} {
-					${getDimensionCSS(margin, "margin", "mobile")}
+				.${i} {
+					${q(de,"margin","mobile")}
 				}
 				
-				.${id} .digiblocks-faq-item {
-					margin-bottom: ${getVal(itemsSpacing, "mobile") || getVal(itemsSpacing, "tablet") || itemSpacing}px;
+				.${i} .digiblocks-faq-item {
+					margin-bottom: ${p(Z,"mobile")||p(Z,"tablet")||t}px;
 				}
 				
-				.${id} .digiblocks-faq-question,
-				.${id} .digiblocks-faq-answer {
-					${getDimensionCSS(padding, "padding", "mobile")}
+				.${i} .digiblocks-faq-question,
+				.${i} .digiblocks-faq-answer {
+					${q(R,"padding","mobile")}
 				}
 				
-				${layout === "minimalist" ? `
-				.${id} .digiblocks-faq-answer {
-					${getDimensionCSS(padding, "padding", "mobile")}
+				${U==="minimalist"?`
+				.${i} .digiblocks-faq-answer {
+					${q(R,"padding","mobile")}
 					padding-left: 0;
 					padding-right: 0;
 				}
-				` : ""}
+				`:""}
 				
-				${(() => {
-        const mobileIconSize = getVal(iconSize, "mobile");
-        return mobileIconSize ? `
-					.${id} .digiblocks-faq-question-icon {
-						font-size: ${mobileIconSize}px;
+				${(()=>{let a=p(G,"mobile");return a?`
+					.${i} .digiblocks-faq-question-icon {
+						font-size: ${a}px;
 					}
 					
-					.${id} .digiblocks-faq-question-icon svg {
-						width: ${mobileIconSize}px;
-						height: ${mobileIconSize}px;
+					.${i} .digiblocks-faq-question-icon svg {
+						width: ${a}px;
+						height: ${a}px;
 					}
-					` : "";
-      })()}
+					`:""})()}
 				
-				${(() => {
-        const titleFontSize = getVal(titleTypography?.fontSize, "mobile");
-        const titleLineHeight = getVal(titleTypography?.lineHeight, "mobile");
-        if (!titleFontSize && !titleLineHeight)
-          return "";
-        return `
-					.${id} .digiblocks-faq-question-text {
-						${titleFontSize ? `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || "px"};` : ""}
-						${titleLineHeight ? `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || "em"};` : ""}
+				${(()=>{let a=p(m?.fontSize,"mobile"),s=p(m?.lineHeight,"mobile");return!a&&!s?"":`
+					.${i} .digiblocks-faq-question-text {
+						${a?`font-size: ${a.value}${a.unit!==null?a.unit:""};`:""}
+						${s?`line-height: ${s.value}${s.unit!==null?s.unit:""};`:""}
 					}
-					`;
-      })()}
+					`})()}
 				
-				${(() => {
-        const contentFontSize = getVal(contentTypography?.fontSize, "mobile");
-        const contentLineHeight = getVal(contentTypography?.lineHeight, "mobile");
-        if (!contentFontSize && !contentLineHeight)
-          return "";
-        return `
-					.${id} .digiblocks-faq-answer-content {
-						${contentFontSize ? `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || "px"};` : ""}
-						${contentLineHeight ? `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || "em"};` : ""}
+				${(()=>{let a=p(v?.fontSize,"mobile"),s=p(v?.lineHeight,"mobile");return!a&&!s?"":`
+					.${i} .digiblocks-faq-answer-content {
+						${a?`font-size: ${a.value}${a.unit!==null?a.unit:""};`:""}
+						${s?`line-height: ${s.value}${s.unit!==null?s.unit:""};`:""}
 					}
-					`;
-      })()}
+					`})()}
 			}
-		`;
-      return `
-			${baseCSS}
-			${layoutCSS}
-			${editorCSS}
-			${tabletStyles}
-			${mobileStyles}
-		`;
-    };
-    const renderTitleTabContent = (tabName) => {
-      if (tabName === "normal") {
-        return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings,
-          {
-            title: __(
-              "Question Colors",
-              "digiblocks"
-            ),
-            initialOpen: true,
-            enableAlpha: true,
-            colorSettings: [
-              {
-                value: titleColor,
-                onChange: (value) => setAttributes({
-                  titleColor: value
-                }),
-                label: __(
-                  "Text Color",
-                  "digiblocks"
-                )
-              },
-              {
-                value: backgroundColor,
-                onChange: (value) => setAttributes({
-                  backgroundColor: value
-                }),
-                label: __(
-                  "Background Color",
-                  "digiblocks"
-                )
-              },
-              {
-                value: questionPrefixColor,
-                onChange: (value) => setAttributes({
-                  questionPrefixColor: value
-                }),
-                label: __(
-                  "Prefix Color",
-                  "digiblocks"
-                ),
-                disableCustomColors: !questionPrefix
-              }
-            ]
-          }
-        ));
-      } else if (tabName === "hover") {
-        return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings,
-          {
-            title: __(
-              "Question Hover Colors",
-              "digiblocks"
-            ),
-            initialOpen: true,
-            enableAlpha: true,
-            colorSettings: [
-              {
-                value: titleHoverColor,
-                onChange: (value) => setAttributes({
-                  titleHoverColor: value
-                }),
-                label: __(
-                  "Text Color",
-                  "digiblocks"
-                )
-              },
-              {
-                value: backgroundHoverColor,
-                onChange: (value) => setAttributes({
-                  backgroundHoverColor: value
-                }),
-                label: __(
-                  "Background Color",
-                  "digiblocks"
-                )
-              }
-            ]
-          }
-        ));
-      } else if (tabName === "active") {
-        return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings,
-          {
-            title: __(
-              "Question Active Colors",
-              "digiblocks"
-            ),
-            initialOpen: true,
-            enableAlpha: true,
-            colorSettings: [
-              {
-                value: titleActiveColor,
-                onChange: (value) => setAttributes({
-                  titleActiveColor: value
-                }),
-                label: __(
-                  "Text Color",
-                  "digiblocks"
-                )
-              },
-              {
-                value: backgroundActiveColor,
-                onChange: (value) => setAttributes({
-                  backgroundActiveColor: value
-                }),
-                label: __(
-                  "Background Color",
-                  "digiblocks"
-                )
-              }
-            ]
-          }
-        ));
-      }
-      return null;
-    };
-    const renderIconTabContent = (tabName) => {
-      if (tabName === "normal") {
-        return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings,
-          {
-            title: __(
-              "Icon Colors",
-              "digiblocks"
-            ),
-            initialOpen: true,
-            enableAlpha: true,
-            colorSettings: [
-              {
-                value: iconColor,
-                onChange: (value) => setAttributes({
-                  iconColor: value
-                }),
-                label: __(
-                  "Icon Color",
-                  "digiblocks"
-                )
-              }
-            ]
-          }
-        ));
-      } else if (tabName === "hover") {
-        return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings,
-          {
-            title: __(
-              "Icon Hover Colors",
-              "digiblocks"
-            ),
-            initialOpen: true,
-            enableAlpha: true,
-            colorSettings: [
-              {
-                value: iconHoverColor,
-                onChange: (value) => setAttributes({
-                  iconHoverColor: value
-                }),
-                label: __(
-                  "Icon Color",
-                  "digiblocks"
-                )
-              }
-            ]
-          }
-        ));
-      } else if (tabName === "active") {
-        return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-          PanelColorSettings,
-          {
-            title: __(
-              "Icon Active Colors",
-              "digiblocks"
-            ),
-            initialOpen: true,
-            enableAlpha: true,
-            colorSettings: [
-              {
-                value: iconActiveColor,
-                onChange: (value) => setAttributes({
-                  iconActiveColor: value
-                }),
-                label: __(
-                  "Icon Color",
-                  "digiblocks"
-                )
-              }
-            ]
-          }
-        ));
-      }
-      return null;
-    };
-    const renderContentTabContent = () => {
-      return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-        PanelColorSettings,
-        {
-          title: __(
-            "Answer Colors",
-            "digiblocks"
-          ),
-          initialOpen: true,
-          enableAlpha: true,
-          colorSettings: [
-            {
-              value: contentColor,
-              onChange: (value) => setAttributes({
-                contentColor: value
-              }),
-              label: __(
-                "Text Color",
-                "digiblocks"
-              )
-            },
-            {
-              value: contentBackgroundColor,
-              onChange: (value) => setAttributes({
-                contentBackgroundColor: value
-              }),
-              label: __(
-                "Background Color",
-                "digiblocks"
-              )
-            },
-            {
-              value: answerPrefixColor,
-              onChange: (value) => setAttributes({
-                answerPrefixColor: value
-              }),
-              label: __(
-                "Prefix Color",
-                "digiblocks"
-              ),
-              disableCustomColors: !answerPrefix
-            }
-          ]
-        }
-      ));
-    };
-    const renderTabContent = () => {
-      switch (activeTab) {
-        case "options":
-          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "options",
-              name: "content-settings",
-              title: __("Items", "digiblocks"),
-              initialOpen: true
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              ToggleControl,
-              {
-                label: __("Allow Multiple Open", "digiblocks"),
-                checked: allowMultipleOpen,
-                onChange: () => setAttributes({ allowMultipleOpen: !allowMultipleOpen }),
-                help: __("When enabled, multiple FAQ items can be open at the same time.", "digiblocks"),
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __("Layout", "digiblocks"),
-                value: layout,
-                options: layoutOptions,
-                onChange: (value) => setAttributes({ layout: value }),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { htmlFor: "question-prefix", className: "components-base-control__label" }, __("Question Prefix", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
-              TextControl,
-              {
-                id: "question-prefix",
-                value: questionPrefix || "",
-                onChange: (value) => setAttributes({ questionPrefix: value }),
-                placeholder: __("Example: Q:", "digiblocks"),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ), /* @__PURE__ */ wp.element.createElement("p", { className: "components-base-control__help" }, __("Add a prefix to questions (e.g., 'Q:').", "digiblocks")))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { htmlFor: "answer-prefix", className: "components-base-control__label" }, __("Answer Prefix", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
-              TextControl,
-              {
-                id: "answer-prefix",
-                value: answerPrefix || "",
-                onChange: (value) => setAttributes({ answerPrefix: value }),
-                placeholder: __("Example: A:", "digiblocks"),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ), /* @__PURE__ */ wp.element.createElement("p", { className: "components-base-control__help" }, __("Add a prefix to answers (e.g., 'A:').", "digiblocks")))),
-            /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl,
-              {
-                label: __("Items Spacing", "digiblocks")
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                RangeControl,
-                {
-                  value: itemsSpacing[localActiveDevice],
-                  onChange: (value) => setAttributes({
-                    itemsSpacing: {
-                      ...itemsSpacing,
-                      [localActiveDevice]: value
-                    }
-                  }),
-                  min: 0,
-                  max: 100,
-                  step: 1,
-                  __next40pxDefaultSize: true,
-                  __nextHasNoMarginBottom: true
-                }
-              )
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "options",
-              name: "icon-settings",
-              title: __("Icon Settings", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __("Icon Type", "digiblocks"),
-                value: iconType,
-                options: iconTypeOptions,
-                onChange: (value) => setAttributes({ iconType: value }),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __("Icon Position", "digiblocks"),
-                value: iconPosition,
-                options: iconPositionOptions,
-                onChange: (value) => setAttributes({ iconPosition: value }),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl,
-              {
-                label: __("Icon Size", "digiblocks")
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                RangeControl,
-                {
-                  value: iconSize[localActiveDevice],
-                  onChange: (value) => setAttributes({
-                    iconSize: {
-                      ...iconSize,
-                      [localActiveDevice]: value
-                    }
-                  }),
-                  min: 8,
-                  max: 100,
-                  step: 1,
-                  __next40pxDefaultSize: true,
-                  __nextHasNoMarginBottom: true
-                }
-              )
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "options",
-              name: "schema-settings",
-              title: __("SEO Schema", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __("Schema Type", "digiblocks"),
-                value: schemaType,
-                options: schemaTypeOptions,
-                onChange: (value) => setAttributes({ schemaType: value }),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              TextControl,
-              {
-                label: __("Schema Name", "digiblocks"),
-                value: schemaName,
-                onChange: (value) => setAttributes({ schemaName: value }),
-                placeholder: __("Example: Product FAQ", "digiblocks"),
-                help: __("Name for your FAQ schema (e.g., Company FAQ, Product FAQ).", "digiblocks"),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "options",
-              name: "heading-settings",
-              title: __("HTML Settings", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __("Question Tag", "digiblocks"),
-                value: titleTag,
-                options: titleTagOptions,
-                onChange: (value) => setAttributes({ titleTag: value }),
-                help: __("HTML tag for questions. Default is h3.", "digiblocks"),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            )
-          ));
-        case "style":
-          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "style",
-              name: "question-styles",
-              title: __("Question Styles", "digiblocks"),
-              initialOpen: true
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              TabPanel,
-              {
-                className: "digiblocks-control-tabs",
-                activeClass: "active-tab",
-                tabs: stateTabList
-              },
-              (tab) => renderTitleTabContent(tab.name)
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              TypographyControl,
-              {
-                label: __(
-                  "Question Typography",
-                  "digiblocks"
-                ),
-                value: titleTypography,
-                onChange: (value) => setAttributes({
-                  titleTypography: value
-                }),
-                defaults: {
-                  fontSize: { desktop: 18, tablet: 16, mobile: 15 },
-                  fontSizeUnit: "px",
-                  lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                  lineHeightUnit: "em"
-                }
-              }
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "style",
-              name: "answer-styles",
-              title: __("Answer Styles", "digiblocks"),
-              initialOpen: false
-            },
-            renderContentTabContent(),
-            /* @__PURE__ */ wp.element.createElement(
-              TypographyControl,
-              {
-                label: __(
-                  "Answer Typography",
-                  "digiblocks"
-                ),
-                value: contentTypography,
-                onChange: (value) => setAttributes({
-                  contentTypography: value
-                }),
-                defaults: {
-                  fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                  fontSizeUnit: "px",
-                  lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                  lineHeightUnit: "em"
-                }
-              }
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "style",
-              name: "icon-styles",
-              title: __("Icon Styles", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              TabPanel,
-              {
-                className: "digiblocks-control-tabs",
-                activeClass: "active-tab",
-                tabs: stateTabList
-              },
-              (tab) => renderIconTabContent(tab.name)
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "style",
-              name: "border-box",
-              title: __("Border & Radius", "digiblocks"),
-              initialOpen: false
-            },
-            layout !== "classic" && layout !== "minimalist" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __("Border Style", "digiblocks"),
-                value: borderStyle || "default",
-                options: borderStyleOptions,
-                onChange: (value) => {
-                  if (value !== "default" && value !== "none" && (borderStyle === "default" || borderStyle === "none" || !borderStyle)) {
-                    if (!borderWidth || Object.keys(borderWidth).length === 0) {
-                      setAttributes({
-                        borderWidth: {
-                          desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
-                          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
-                          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
-                        }
-                      });
-                    }
-                    if (!borderRadius || Object.keys(borderRadius).length === 0) {
-                      setAttributes({
-                        borderRadius: {
-                          desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: "px" },
-                          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
-                          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
-                        }
-                      });
-                    }
-                  }
-                  setAttributes({
-                    borderStyle: value
-                  });
-                },
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ), borderStyle && borderStyle !== "default" && borderStyle !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              PanelColorSettings,
-              {
-                title: __(
-                  "Border Colors",
-                  "digiblocks"
-                ),
-                enableAlpha: true,
-                colorSettings: [
-                  {
-                    value: borderColor,
-                    onChange: (value) => setAttributes({
-                      borderColor: value
-                    }),
-                    label: __(
-                      "Border Color",
-                      "digiblocks"
-                    )
-                  },
-                  {
-                    value: borderHoverColor,
-                    onChange: (value) => setAttributes({
-                      borderHoverColor: value
-                    }),
-                    label: __(
-                      "Border Hover Color",
-                      "digiblocks"
-                    )
-                  }
-                ]
-              }
-            ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl,
-              {
-                label: __("Border Width", "digiblocks")
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                DimensionControl,
-                {
-                  values: borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : {
-                    top: 1,
-                    right: 1,
-                    bottom: 1,
-                    left: 1,
-                    unit: "px"
-                  },
-                  onChange: (value) => setAttributes({
-                    borderWidth: {
-                      ...borderWidth,
-                      [localActiveDevice]: value
-                    }
-                  })
-                }
-              )
-            ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl,
-              {
-                label: __("Border Radius", "digiblocks")
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                DimensionControl,
-                {
-                  values: borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
-                    top: 8,
-                    right: 8,
-                    bottom: 8,
-                    left: 8,
-                    unit: "px"
-                  },
-                  onChange: (value) => setAttributes({
-                    borderRadius: {
-                      ...borderRadius,
-                      [localActiveDevice]: value
-                    }
-                  }),
-                  units: [
-                    { label: "px", value: "px" },
-                    { label: "%", value: "%" }
-                  ]
-                }
-              )
-            )))
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "style",
-              name: "shadow",
-              title: __("Box Shadow", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              BoxShadowControl,
-              {
-                normalValue: boxShadow,
-                hoverValue: boxShadowHover,
-                onNormalChange: (value) => setAttributes({ boxShadow: value }),
-                onHoverChange: (value) => setAttributes({ boxShadowHover: value })
-              }
-            )
-          ));
-        case "advanced":
-          return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "advanced",
-              name: "spacing",
-              title: __("Spacing", "digiblocks"),
-              initialOpen: true
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl,
-              {
-                label: __("Padding", "digiblocks")
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                DimensionControl,
-                {
-                  values: padding[localActiveDevice],
-                  onChange: (value) => setAttributes({
-                    padding: {
-                      ...padding,
-                      [localActiveDevice]: value
-                    }
-                  })
-                }
-              )
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              ResponsiveControl,
-              {
-                label: __("Margin", "digiblocks")
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                DimensionControl,
-                {
-                  values: margin[localActiveDevice],
-                  onChange: (value) => setAttributes({
-                    margin: {
-                      ...margin,
-                      [localActiveDevice]: value
-                    }
-                  })
-                }
-              )
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "advanced",
-              name: "position",
-              title: __("Position", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __("Position", "digiblocks"),
-                value: position,
-                options: [
-                  { label: __("Default", "digiblocks"), value: "default" },
-                  { label: __("Relative", "digiblocks"), value: "relative" },
-                  { label: __("Absolute", "digiblocks"), value: "absolute" },
-                  { label: __("Fixed", "digiblocks"), value: "fixed" }
-                ],
-                onChange: (value) => setAttributes({ position: value }),
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            position !== "default" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControl,
-              {
-                label: __("Horizontal Orientation", "digiblocks"),
-                value: horizontalOrientation,
-                isBlock: true,
-                onChange: (value) => setAttributes({ horizontalOrientation: value }),
-                __nextHasNoMarginBottom: true
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption,
-                {
-                  value: "left",
-                  label: __("Left", "digiblocks")
-                }
-              ),
-              /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption,
-                {
-                  value: "right",
-                  label: __("Right", "digiblocks")
-                }
-              )
-            ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveRangeControl,
-              {
-                label: __("Offset", "digiblocks"),
-                value: horizontalOffset,
-                onChange: (value) => setAttributes({ horizontalOffset: value }),
-                units: [
-                  { label: "px", value: "px" },
-                  { label: "%", value: "%" },
-                  { label: "em", value: "em" },
-                  { label: "rem", value: "rem" },
-                  { label: "vw", value: "vw" },
-                  { label: "vh", value: "vh" }
-                ],
-                defaultUnit: "px",
-                min: 0,
-                max: getMaxValue(horizontalOffset?.[localActiveDevice]?.unit),
-                step: getStepValue(horizontalOffset?.[localActiveDevice]?.unit)
-              }
-            ), /* @__PURE__ */ wp.element.createElement(
-              ToggleGroupControl,
-              {
-                label: __("Vertical Orientation", "digiblocks"),
-                value: verticalOrientation,
-                isBlock: true,
-                onChange: (value) => setAttributes({ verticalOrientation: value }),
-                __nextHasNoMarginBottom: true
-              },
-              /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption,
-                {
-                  value: "top",
-                  label: __("Top", "digiblocks")
-                }
-              ),
-              /* @__PURE__ */ wp.element.createElement(
-                ToggleGroupControlOption,
-                {
-                  value: "bottom",
-                  label: __("Bottom", "digiblocks")
-                }
-              )
-            ), /* @__PURE__ */ wp.element.createElement(
-              ResponsiveRangeControl,
-              {
-                label: __("Offset", "digiblocks"),
-                value: verticalOffset,
-                onChange: (value) => setAttributes({ verticalOffset: value }),
-                units: [
-                  { label: "px", value: "px" },
-                  { label: "%", value: "%" },
-                  { label: "em", value: "em" },
-                  { label: "rem", value: "rem" },
-                  { label: "vw", value: "vw" },
-                  { label: "vh", value: "vh" }
-                ],
-                defaultUnit: "px",
-                min: 0,
-                max: getMaxValue(verticalOffset?.[localActiveDevice]?.unit),
-                step: getStepValue(verticalOffset?.[localActiveDevice]?.unit)
-              }
-            )),
-            /* @__PURE__ */ wp.element.createElement(
-              RangeControl,
-              {
-                label: __("Z-Index", "digiblocks"),
-                value: zIndex,
-                onChange: (value) => setAttributes({ zIndex: value }),
-                min: -999,
-                max: 9999,
-                allowReset: true,
-                __nextHasNoMarginBottom: true
-              }
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "advanced",
-              name: "transform",
-              title: __("Transform", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              TransformControl,
-              {
-                normalValue: transform,
-                hoverValue: transformHover,
-                onNormalChange: (value) => setAttributes({ transform: value }),
-                onHoverChange: (value) => setAttributes({ transformHover: value })
-              }
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "advanced",
-              name: "animation",
-              title: __("Animation", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __("Animation Effect", "digiblocks"),
-                value: animation,
-                options: animationOptions,
-                onChange: (value) => setAttributes({ animation: value }),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(
-              SelectControl,
-              {
-                label: __("Animation Duration", "digiblocks"),
-                value: animationDuration,
-                options: [
-                  { label: __("Slow", "digiblocks"), value: "slow" },
-                  { label: __("Normal", "digiblocks"), value: "normal" },
-                  { label: __("Fast", "digiblocks"), value: "fast" }
-                ],
-                onChange: (value) => setAttributes({ animationDuration: value }),
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            ), /* @__PURE__ */ wp.element.createElement(
-              NumberControl,
-              {
-                label: __("Animation Delay (ms)", "digiblocks"),
-                value: animationDelay || 0,
-                onChange: (value) => setAttributes({ animationDelay: parseInt(value) || 0 }),
-                min: 0,
-                step: 100,
-                __next40pxDefaultSize: true,
-                __nextHasNoMarginBottom: true
-              }
-            )),
-            animation && animation !== "none" && /* @__PURE__ */ wp.element.createElement("div", { style: { marginTop: "10px" } }, /* @__PURE__ */ wp.element.createElement(
-              Button,
-              {
-                variant: "secondary",
-                isSecondary: true,
-                onClick: handlePreviewClick,
-                style: { width: "100%" }
-              },
-              __("Preview Animation", "digiblocks")
-            ))
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "advanced",
-              name: "visibility",
-              title: __("Visibility", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__help", style: {
-              padding: "12px",
-              backgroundColor: "#f0f6fc",
-              border: "1px solid #c3ddfd",
-              borderRadius: "4px",
-              marginBottom: "16px"
-            } }, /* @__PURE__ */ wp.element.createElement("strong", null, __("Editor Note:", "digiblocks")), /* @__PURE__ */ wp.element.createElement("br", null), __("Hidden elements appear with reduced opacity in the editor for easy editing. Visibility changes only take effect on the frontend.", "digiblocks")),
-            /* @__PURE__ */ wp.element.createElement(
-              ToggleControl,
-              {
-                label: __("Hide on Desktop", "digiblocks"),
-                checked: visibility.desktop,
-                onChange: (value) => setAttributes({
-                  visibility: {
-                    ...visibility,
-                    desktop: value
-                  }
-                }),
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              ToggleControl,
-              {
-                label: __("Hide on Tablet", "digiblocks"),
-                checked: visibility.tablet,
-                onChange: (value) => setAttributes({
-                  visibility: {
-                    ...visibility,
-                    tablet: value
-                  }
-                }),
-                __nextHasNoMarginBottom: true
-              }
-            ),
-            /* @__PURE__ */ wp.element.createElement(
-              ToggleControl,
-              {
-                label: __("Hide on Mobile", "digiblocks"),
-                checked: visibility.mobile,
-                onChange: (value) => setAttributes({
-                  visibility: {
-                    ...visibility,
-                    mobile: value
-                  }
-                }),
-                __nextHasNoMarginBottom: true
-              }
-            )
-          ), /* @__PURE__ */ wp.element.createElement(
-            TabPanelBody,
-            {
-              tab: "advanced",
-              name: "additional",
-              title: __("Additional", "digiblocks"),
-              initialOpen: false
-            },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control html-anchor-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "html-anchor" }, __("HTML anchor", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
-              "input",
-              {
-                className: "components-text-control__input",
-                type: "text",
-                id: "html-anchor",
-                value: anchor || "",
-                onChange: (e) => setAttributes({ anchor: e.target.value }),
-                "aria-describedby": "html-anchor-help",
-                autoCapitalize: "none",
-                autoComplete: "off"
-              }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "html-anchor-help", className: "components-base-control__help" }, __(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`, "digiblocks"), " ", /* @__PURE__ */ wp.element.createElement(
-              "a",
-              {
-                className: "components-external-link",
-                href: "https://wordpress.org/documentation/article/page-jumps/",
-                target: "_blank",
-                rel: "external noreferrer noopener"
-              },
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__contents" }, __("Learn more about anchors", "digiblocks")),
-              /* @__PURE__ */ wp.element.createElement("span", { className: "components-external-link__icon", "aria-label": "(opens in a new tab)" }, "\u2197")
-            ))),
-            /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control" }, /* @__PURE__ */ wp.element.createElement("div", { className: "components-base-control__field" }, /* @__PURE__ */ wp.element.createElement("label", { className: "components-base-control__label", htmlFor: "additional-css-classes" }, __("Additional CSS class(es)", "digiblocks")), /* @__PURE__ */ wp.element.createElement(
-              "input",
-              {
-                className: "components-text-control__input",
-                type: "text",
-                id: "additional-css-classes",
-                value: customClasses || "",
-                onChange: (e) => setAttributes({ customClasses: e.target.value }),
-                "aria-describedby": "additional-css-classes-help",
-                autoComplete: "off"
-              }
-            )), /* @__PURE__ */ wp.element.createElement("p", { id: "additional-css-classes-help", className: "components-base-control__help" }, __("Separate multiple classes with spaces.", "digiblocks")))
-          ));
-      }
-    };
-    const renderFAQItems = () => {
-      if (!items || items.length === 0) {
-        return /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-no-items" }, /* @__PURE__ */ wp.element.createElement("p", null, __("No FAQ items found. Please add some items.", "digiblocks")));
-      }
-      return items.map((item, index) => {
-        const isLast = index === items.length - 1;
-        return /* @__PURE__ */ wp.element.createElement(
-          "div",
-          {
-            key: item.id,
-            className: `digiblocks-faq-item ${item.isOpen ? "is-active" : ""}`,
-            style: isLast ? { marginBottom: 0 } : {}
-          },
-          /* @__PURE__ */ wp.element.createElement(
-            "div",
-            {
-              className: "digiblocks-faq-question",
-              onClick: () => toggleItem(index)
-            },
-            /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-question-text" }, questionPrefix && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-question-prefix" }, questionPrefix), /* @__PURE__ */ wp.element.createElement(
-              RichText,
-              {
-                tagName: "span",
-                value: item.title,
-                onChange: (value) => updateItemTitle(value, index),
-                placeholder: __("Enter question...", "digiblocks"),
-                allowedFormats: ["core/bold", "core/italic"],
-                className: "digiblocks-faq-question-text-content"
-              }
-            )),
-            /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-question-icon" }, getIcon(item.isOpen))
-          ),
-          /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-answer" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-answer-content" }, answerPrefix && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-answer-prefix" }, answerPrefix), /* @__PURE__ */ wp.element.createElement(
-            RichText,
-            {
-              tagName: "div",
-              value: item.content,
-              onChange: (value) => updateItemContent(value, index),
-              placeholder: __("Enter answer...", "digiblocks"),
-              allowedFormats: ["core/bold", "core/italic", "core/link", "core/image", "core/list"],
-              className: "digiblocks-faq-answer-text"
-            }
-          ))),
-          /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-item-controls" }, /* @__PURE__ */ wp.element.createElement(Tooltip, { text: __("Move Up", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-            Button,
-            {
-              className: "digiblocks-faq-item-move-up",
-              onClick: () => moveItemUp(index),
-              icon: "arrow-up-alt2",
-              disabled: index === 0,
-              isSmall: true
-            }
-          )), /* @__PURE__ */ wp.element.createElement(Tooltip, { text: __("Move Down", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-            Button,
-            {
-              className: "digiblocks-faq-item-move-down",
-              onClick: () => moveItemDown(index),
-              icon: "arrow-down-alt2",
-              disabled: index === items.length - 1,
-              isSmall: true
-            }
-          )), /* @__PURE__ */ wp.element.createElement(Tooltip, { text: __("Duplicate", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-            Button,
-            {
-              className: "digiblocks-faq-item-duplicate",
-              onClick: () => duplicateItem(index),
-              icon: "admin-page",
-              isSmall: true
-            }
-          )), /* @__PURE__ */ wp.element.createElement(Tooltip, { text: __("Remove", "digiblocks") }, /* @__PURE__ */ wp.element.createElement(
-            Button,
-            {
-              className: "digiblocks-faq-item-remove",
-              onClick: () => removeItem(index),
-              icon: "trash",
-              isSmall: true
-            }
-          )))
-        );
-      });
-    };
-    const blockProps = useBlockProps({
-      className: `digiblocks-faq-block ${id} ${layout || "boxed"} ${customClasses || ""}`,
-      id: anchor || null
-      // Set the anchor as ID if provided
-    });
-    return /* @__PURE__ */ wp.element.createElement(wp.element.Fragment, null, /* @__PURE__ */ wp.element.createElement(InspectorControls, null, /* @__PURE__ */ wp.element.createElement(
-      CustomTabPanel,
-      {
-        tabs: tabList,
-        activeTab,
-        onSelect: setActiveTab
-      },
-      renderTabContent()
-    )), /* @__PURE__ */ wp.element.createElement("style", { dangerouslySetInnerHTML: { __html: generateCSS() } }), /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-items" }, renderFAQItems()), /* @__PURE__ */ wp.element.createElement(
-      Button,
-      {
-        variant: "primary",
-        icon: "plus",
-        onClick: addNewItem,
-        style: { width: "100%", marginTop: "20px", justifyContent: "center" }
-      },
-      __("Add FAQ Item", "digiblocks")
-    )));
-  };
-  var edit_default = FAQEdit;
-
-  // blocks/faq/save.js
-  var { useBlockProps: useBlockProps2, RichText: RichText2 } = window.wp.blockEditor;
-  var FAQSave = ({ attributes }) => {
-    const {
-      id,
-      anchor,
-      customClasses,
-      items,
-      titleTag,
-      layout,
-      questionPrefix,
-      answerPrefix,
-      animation,
-      animationDuration,
-      animationDelay,
-      allowMultipleOpen,
-      iconType
-    } = attributes;
-    const blockClasses = [
-      "digiblocks-faq-block",
-      id,
-      layout || "boxed",
-      customClasses || "",
-      animation !== "none" ? `animate-${animation} digi-animate-hidden` : ""
-    ].filter(Boolean).join(" ");
-    const getIcon = (isOpen, type = iconType) => {
-      switch (type) {
-        case "plusMinus":
-          return isOpen ? /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-minus" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { fillRule: "evenodd", d: "M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z" }))) : /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-plus" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { fillRule: "evenodd", d: "M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" })));
-        case "arrow":
-          return /* @__PURE__ */ wp.element.createElement("span", { className: `digiblocks-faq-icon-arrow ${isOpen ? "is-open" : ""}` }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { fillRule: "evenodd", d: "M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" })));
-        case "chevron":
-          return /* @__PURE__ */ wp.element.createElement("span", { className: `digiblocks-faq-icon-chevron ${isOpen ? "is-open" : ""}` }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { fillRule: "evenodd", d: "M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z" })));
-        case "triangle":
-          return /* @__PURE__ */ wp.element.createElement("span", { className: `digiblocks-faq-icon-triangle ${isOpen ? "is-open" : ""}` }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { d: "m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" })));
-        case "circlePlusMinus":
-          return isOpen ? /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-circle-minus" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" }), /* @__PURE__ */ wp.element.createElement("path", { d: "M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z" }))) : /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-circle-plus" }, /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", width: "1em", height: "1em" }, /* @__PURE__ */ wp.element.createElement("path", { d: "M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" }), /* @__PURE__ */ wp.element.createElement("path", { d: "M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" })));
-        default:
-          return isOpen ? /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-minus" }, "\u2014") : /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-icon-plus" }, "+");
-      }
-    };
-    const blockProps = useBlockProps2.save({
-      className: blockClasses,
-      id: anchor || null,
-      "data-allow-multiple": allowMultipleOpen ? "true" : "false"
-    });
-    if (animation && animation !== "none") {
-      blockProps["data-animation-duration"] = animationDuration || "normal";
-      blockProps["data-animation-delay"] = animationDelay || 0;
-    }
-    const renderFAQItems = () => {
-      if (!items || items.length === 0) {
-        return null;
-      }
-      return items.map((item, index) => {
-        return /* @__PURE__ */ wp.element.createElement(
-          "div",
-          {
-            key: item.id,
-            className: `digiblocks-faq-item ${item.isOpen ? "is-active" : ""}`,
-            "data-item-id": item.id
-          },
-          /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-question" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-question-text" }, questionPrefix && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-question-prefix" }, questionPrefix), /* @__PURE__ */ wp.element.createElement(
-            RichText2.Content,
-            {
-              tagName: titleTag || "h3",
-              value: item.title,
-              className: "digiblocks-faq-question-text-content"
-            }
-          )), /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-question-icon" }, getIcon(item.isOpen))),
-          /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-answer" }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-answer-content" }, answerPrefix && /* @__PURE__ */ wp.element.createElement("span", { className: "digiblocks-faq-answer-prefix" }, answerPrefix), /* @__PURE__ */ wp.element.createElement(
-            RichText2.Content,
-            {
-              tagName: "div",
-              className: "digiblocks-faq-answer-text",
-              value: item.content
-            }
-          )))
-        );
-      });
-    };
-    return /* @__PURE__ */ wp.element.createElement("div", { ...blockProps }, /* @__PURE__ */ wp.element.createElement("div", { className: "digiblocks-faq-items" }, renderFAQItems()));
-  };
-  var save_default = FAQSave;
-
-  // blocks/faq/index.js
-  var { __: __2 } = window.wp.i18n;
-  var { registerBlockType } = window.wp.blocks;
-  registerBlockType("digiblocks/faq", {
-    apiVersion: 2,
-    title: digiBlocksData.blocks["faq"].title,
-    category: "digiblocks",
-    icon: {
-      src: () => {
-        const { viewbox, path } = digiBlocksData.blocks["faq"].icon;
-        return /* @__PURE__ */ wp.element.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: `0 0 ${viewbox}`, className: "digiblocks-editor-icons" }, /* @__PURE__ */ wp.element.createElement("path", { d: path }));
-      }
-    },
-    description: digiBlocksData.blocks["faq"].description,
-    keywords: [__2("faq", "digiblocks"), __2("questions", "digiblocks"), __2("answers", "digiblocks"), __2("schema", "digiblocks")],
-    // Disable all default controls and settings panels
-    supports: {
-      html: false,
-      className: false,
-      customClassName: false,
-      anchor: false
-    },
-    attributes: {
-      id: {
-        type: "string",
-        default: ""
-      },
-      anchor: {
-        type: "string",
-        default: ""
-      },
-      visibility: {
-        type: "object",
-        default: {
-          desktop: false,
-          tablet: false,
-          mobile: false
-        }
-      },
-      customClasses: {
-        type: "string",
-        default: ""
-      },
-      items: {
-        type: "array",
-        default: [
-          {
-            id: "faq-item-1",
-            title: __2("What is a frequently asked question?", "digiblocks"),
-            content: __2("A frequently asked question (FAQ) is a question that is commonly asked by users or customers. FAQs are typically displayed in a list with their answers to help visitors find information quickly.", "digiblocks"),
-            isOpen: true
-          },
-          {
-            id: "faq-item-2",
-            title: __2("How do I add more questions and answers?", "digiblocks"),
-            content: __2('Simply click the "Add FAQ Item" button below to add more questions and answers to your FAQ section. You can also reorder, edit, or remove existing items using the control buttons.', "digiblocks"),
-            isOpen: false
-          }
-        ]
-      },
-      titleColor: {
-        type: "string",
-        default: ""
-      },
-      titleHoverColor: {
-        type: "string",
-        default: ""
-      },
-      titleActiveColor: {
-        type: "string",
-        default: "#1e73be"
-      },
-      backgroundColor: {
-        type: "string",
-        default: "#ffffff"
-      },
-      backgroundHoverColor: {
-        type: "string",
-        default: ""
-      },
-      backgroundActiveColor: {
-        type: "string",
-        default: "#f7f7f7"
-      },
-      contentColor: {
-        type: "string",
-        default: "#666666"
-      },
-      contentBackgroundColor: {
-        type: "string",
-        default: ""
-      },
-      borderColor: {
-        type: "string",
-        default: "#e0e0e0"
-      },
-      borderHoverColor: {
-        type: "string",
-        default: ""
-      },
-      borderRadius: {
-        type: "object",
-        default: {
-          desktop: { top: 8, right: 8, bottom: 8, left: 8, unit: "px" },
-          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
-          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
-        }
-      },
-      borderWidth: {
-        type: "object",
-        default: {
-          desktop: { top: 1, right: 1, bottom: 1, left: 1, unit: "px" },
-          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
-          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
-        }
-      },
-      borderStyle: {
-        type: "string",
-        default: "solid"
-      },
-      boxShadow: {
-        type: "object",
-        default: {
-          enable: false,
-          color: "rgba(0, 0, 0, 0.2)",
-          horizontal: 0,
-          vertical: 0,
-          blur: 0,
-          spread: 0,
-          position: "outset"
-        }
-      },
-      boxShadowHover: {
-        type: "object",
-        default: {
-          enable: false,
-          color: "rgba(0, 0, 0, 0.2)",
-          horizontal: 0,
-          vertical: 0,
-          blur: 0,
-          spread: 0,
-          position: "outset"
-        }
-      },
-      padding: {
-        type: "object",
-        default: {
-          desktop: { top: 20, right: 20, bottom: 20, left: 20, unit: "px" },
-          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
-          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
-        }
-      },
-      margin: {
-        type: "object",
-        default: {
-          desktop: { top: 0, right: 0, bottom: 30, left: 0, unit: "px", isLinked: false },
-          tablet: { top: "", right: "", bottom: "", left: "", unit: "px" },
-          mobile: { top: "", right: "", bottom: "", left: "", unit: "px" }
-        }
-      },
-      titleTypography: {
-        type: "object",
-        default: {
-          fontFamily: "",
-          fontSize: { desktop: 18, tablet: "", mobile: "" },
-          fontSizeUnit: "px",
-          fontWeight: "600",
-          fontStyle: "normal",
-          textTransform: "none",
-          textDecoration: "none",
-          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
-          lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
-          letterSpacingUnit: "px"
-        }
-      },
-      contentTypography: {
-        type: "object",
-        default: {
-          fontFamily: "",
-          fontSize: { desktop: 16, tablet: "", mobile: "" },
-          fontSizeUnit: "px",
-          fontWeight: "",
-          fontStyle: "normal",
-          textTransform: "",
-          textDecoration: "",
-          lineHeight: { desktop: 1.5, tablet: "", mobile: "" },
-          lineHeightUnit: "em",
-          letterSpacing: { desktop: 0, tablet: "", mobile: "" },
-          letterSpacingUnit: "px"
-        }
-      },
-      iconPosition: {
-        type: "string",
-        default: "right"
-      },
-      iconColor: {
-        type: "string",
-        default: ""
-      },
-      iconHoverColor: {
-        type: "string",
-        default: ""
-      },
-      iconActiveColor: {
-        type: "string",
-        default: "#1e73be"
-      },
-      iconSize: {
-        type: "object",
-        default: {
-          desktop: 16,
-          tablet: "",
-          mobile: ""
-        }
-      },
-      animation: {
-        type: "string",
-        default: "none"
-      },
-      animationDuration: {
-        type: "string",
-        default: "normal"
-      },
-      animationDelay: {
-        type: "number",
-        default: ""
-      },
-      allowMultipleOpen: {
-        type: "boolean",
-        default: false
-      },
-      iconType: {
-        type: "string",
-        default: "plusMinus"
-      },
-      titleTag: {
-        type: "string",
-        default: "h3"
-      },
-      questionPrefix: {
-        type: "string",
-        default: ""
-      },
-      questionPrefixColor: {
-        type: "string",
-        default: ""
-      },
-      answerPrefix: {
-        type: "string",
-        default: ""
-      },
-      answerPrefixColor: {
-        type: "string",
-        default: ""
-      },
-      layout: {
-        type: "string",
-        default: "boxed"
-      },
-      itemsSpacing: {
-        type: "object",
-        default: {
-          desktop: 16,
-          tablet: "",
-          mobile: ""
-        }
-      },
-      schemaType: {
-        type: "string",
-        default: "FAQPage"
-      },
-      schemaName: {
-        type: "string",
-        default: ""
-      },
-      position: {
-        type: "string",
-        default: "default"
-      },
-      horizontalOrientation: {
-        type: "string",
-        default: "left"
-      },
-      horizontalOffset: {
-        type: "object",
-        default: {
-          desktop: { value: 0, unit: "px" },
-          tablet: { value: 0, unit: "px" },
-          mobile: { value: 0, unit: "px" }
-        }
-      },
-      verticalOrientation: {
-        type: "string",
-        default: "top"
-      },
-      verticalOffset: {
-        type: "object",
-        default: {
-          desktop: { value: 0, unit: "px" },
-          tablet: { value: 0, unit: "px" },
-          mobile: { value: 0, unit: "px" }
-        }
-      },
-      zIndex: {
-        type: "number",
-        default: ""
-      },
-      transform: {
-        type: "object",
-        default: {
-          rotate: { desktop: "", tablet: "", mobile: "" },
-          rotate3d: false,
-          rotateX: { desktop: "", tablet: "", mobile: "" },
-          rotateY: { desktop: "", tablet: "", mobile: "" },
-          perspective: { desktop: "", tablet: "", mobile: "" },
-          offsetX: { desktop: { value: "", unit: "px" }, tablet: { value: "", unit: "px" }, mobile: { value: "", unit: "px" } },
-          offsetY: { desktop: { value: "", unit: "px" }, tablet: { value: "", unit: "px" }, mobile: { value: "", unit: "px" } },
-          keepProportions: true,
-          scale: { desktop: "", tablet: "", mobile: "" },
-          scaleX: { desktop: "", tablet: "", mobile: "" },
-          scaleY: { desktop: "", tablet: "", mobile: "" },
-          skewX: { desktop: "", tablet: "", mobile: "" },
-          skewY: { desktop: "", tablet: "", mobile: "" },
-          flipHorizontal: false,
-          flipVertical: false,
-          xAnchor: { desktop: "center", tablet: "", mobile: "" },
-          yAnchor: { desktop: "center", tablet: "", mobile: "" },
-          transitionDuration: ""
-        }
-      },
-      transformHover: {
-        type: "object",
-        default: {
-          rotate: { desktop: "", tablet: "", mobile: "" },
-          rotate3d: false,
-          rotateX: { desktop: "", tablet: "", mobile: "" },
-          rotateY: { desktop: "", tablet: "", mobile: "" },
-          perspective: { desktop: "", tablet: "", mobile: "" },
-          offsetX: { desktop: { value: "", unit: "px" }, tablet: { value: "", unit: "px" }, mobile: { value: "", unit: "px" } },
-          offsetY: { desktop: { value: "", unit: "px" }, tablet: { value: "", unit: "px" }, mobile: { value: "", unit: "px" } },
-          keepProportions: true,
-          scale: { desktop: "", tablet: "", mobile: "" },
-          scaleX: { desktop: "", tablet: "", mobile: "" },
-          scaleY: { desktop: "", tablet: "", mobile: "" },
-          skewX: { desktop: "", tablet: "", mobile: "" },
-          skewY: { desktop: "", tablet: "", mobile: "" },
-          flipHorizontal: false,
-          flipVertical: false,
-          xAnchor: { desktop: "center", tablet: "", mobile: "" },
-          yAnchor: { desktop: "center", tablet: "", mobile: "" },
-          transitionDuration: ""
-        }
-      }
-    },
-    example: {
-      attributes: {
-        items: [
-          {
-            id: "faq-item-1",
-            title: __2("What is a frequently asked question?", "digiblocks"),
-            content: __2("A frequently asked question (FAQ) is a question that is commonly asked by users or customers.", "digiblocks"),
-            isOpen: true
-          },
-          {
-            id: "faq-item-2",
-            title: __2("How do I add more questions?", "digiblocks"),
-            content: __2('Click the "Add FAQ Item" button to add more questions and answers.', "digiblocks"),
-            isOpen: false
-          }
-        ],
-        layout: "boxed",
-        titleColor: "",
-        titleActiveColor: "#1e73be",
-        backgroundColor: "#ffffff"
-      }
-    },
-    edit: edit_default,
-    save: save_default
-  });
-})();
+		`;return`
+			${X}
+			${h}
+			${To}
+			${Bo}
+			${zo}
+		`},yo=e=>e==="normal"?wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(j,{title:o("Question Colors","digiblocks"),initialOpen:!0,enableAlpha:!0,colorSettings:[{value:ie,onChange:t=>l({titleColor:t}),label:o("Text Color","digiblocks")},{value:E,onChange:t=>l({backgroundColor:t}),label:o("Background Color","digiblocks")},{value:xe,onChange:t=>l({questionPrefixColor:t}),label:o("Prefix Color","digiblocks"),disableCustomColors:!le}]})):e==="hover"?wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(j,{title:o("Question Hover Colors","digiblocks"),initialOpen:!0,enableAlpha:!0,colorSettings:[{value:x,onChange:t=>l({titleHoverColor:t}),label:o("Text Color","digiblocks")},{value:P,onChange:t=>l({backgroundHoverColor:t}),label:o("Background Color","digiblocks")}]})):e==="active"?wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(j,{title:o("Question Active Colors","digiblocks"),initialOpen:!0,enableAlpha:!0,colorSettings:[{value:y,onChange:t=>l({titleActiveColor:t}),label:o("Text Color","digiblocks")},{value:O,onChange:t=>l({backgroundActiveColor:t}),label:o("Background Color","digiblocks")}]})):null,qo=e=>e==="normal"?wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(j,{title:o("Icon Colors","digiblocks"),initialOpen:!0,enableAlpha:!0,colorSettings:[{value:Te,onChange:t=>l({iconColor:t}),label:o("Icon Color","digiblocks")}]})):e==="hover"?wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(j,{title:o("Icon Hover Colors","digiblocks"),initialOpen:!0,enableAlpha:!0,colorSettings:[{value:me,onChange:t=>l({iconHoverColor:t}),label:o("Icon Color","digiblocks")}]})):e==="active"?wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(j,{title:o("Icon Active Colors","digiblocks"),initialOpen:!0,enableAlpha:!0,colorSettings:[{value:Be,onChange:t=>l({iconActiveColor:t}),label:o("Icon Color","digiblocks")}]})):null,Co=()=>wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(j,{title:o("Answer Colors","digiblocks"),initialOpen:!0,enableAlpha:!0,colorSettings:[{value:ce,onChange:e=>l({contentColor:e}),label:o("Text Color","digiblocks")},{value:D,onChange:e=>l({contentBackgroundColor:e}),label:o("Background Color","digiblocks")},{value:$e,onChange:e=>l({answerPrefixColor:e}),label:o("Prefix Color","digiblocks"),disableCustomColors:!ae}]})),So=()=>{switch(Pe){case"options":return wp.element.createElement(wp.element.Fragment,null,wp.element.createElement($,{tab:"options",name:"content-settings",title:o("Items","digiblocks"),initialOpen:!0},wp.element.createElement(ge,{label:o("Allow Multiple Open","digiblocks"),checked:ke,onChange:()=>l({allowMultipleOpen:!ke}),help:o("When enabled, multiple FAQ items can be open at the same time.","digiblocks"),__nextHasNoMarginBottom:!0}),wp.element.createElement(Q,{label:o("Layout","digiblocks"),value:U,options:co,onChange:e=>l({layout:e}),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),wp.element.createElement("div",{className:"components-base-control"},wp.element.createElement("div",{className:"components-base-control__field"},wp.element.createElement("label",{htmlFor:"question-prefix",className:"components-base-control__label"},o("Question Prefix","digiblocks")),wp.element.createElement(ue,{id:"question-prefix",value:le||"",onChange:e=>l({questionPrefix:e}),placeholder:o("Example: Q:","digiblocks"),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),wp.element.createElement("p",{className:"components-base-control__help"},o("Add a prefix to questions (e.g., 'Q:').","digiblocks")))),wp.element.createElement("div",{className:"components-base-control"},wp.element.createElement("div",{className:"components-base-control__field"},wp.element.createElement("label",{htmlFor:"answer-prefix",className:"components-base-control__label"},o("Answer Prefix","digiblocks")),wp.element.createElement(ue,{id:"answer-prefix",value:ae||"",onChange:e=>l({answerPrefix:e}),placeholder:o("Example: A:","digiblocks"),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),wp.element.createElement("p",{className:"components-base-control__help"},o("Add a prefix to answers (e.g., 'A:').","digiblocks")))),wp.element.createElement(je,{label:o("Items Spacing","digiblocks")},wp.element.createElement(ye,{value:Z[Y],onChange:e=>l({itemsSpacing:{...Z,[Y]:e}}),min:0,max:100,step:1,__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}))),wp.element.createElement($,{tab:"options",name:"icon-settings",title:o("Icon Settings","digiblocks"),initialOpen:!1},wp.element.createElement(Q,{label:o("Icon Type","digiblocks"),value:ze,options:no,onChange:e=>l({iconType:e}),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),wp.element.createElement(Q,{label:o("Icon Position","digiblocks"),value:_e,options:so,onChange:e=>l({iconPosition:e}),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),wp.element.createElement(je,{label:o("Icon Size","digiblocks")},wp.element.createElement(ye,{value:G[Y],onChange:e=>l({iconSize:{...G,[Y]:e}}),min:8,max:100,step:1,__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}))),wp.element.createElement($,{tab:"options",name:"schema-settings",title:o("SEO Schema","digiblocks"),initialOpen:!1},wp.element.createElement(Q,{label:o("Schema Type","digiblocks"),value:Ke,options:uo,onChange:e=>l({schemaType:e}),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),wp.element.createElement(ue,{label:o("Schema Name","digiblocks"),value:eo,onChange:e=>l({schemaName:e}),placeholder:o("Example: Product FAQ","digiblocks"),help:o("Name for your FAQ schema (e.g., Company FAQ, Product FAQ).","digiblocks"),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0})),wp.element.createElement($,{tab:"options",name:"heading-settings",title:o("HTML Settings","digiblocks"),initialOpen:!1},wp.element.createElement(Q,{label:o("Question Tag","digiblocks"),value:Je,options:ro,onChange:e=>l({titleTag:e}),help:o("HTML tag for questions. Default is h3.","digiblocks"),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0})));case"style":return wp.element.createElement(wp.element.Fragment,null,wp.element.createElement($,{tab:"style",name:"question-styles",title:o("Question Styles","digiblocks"),initialOpen:!0},wp.element.createElement(Ve,{className:"digiblocks-control-tabs",activeClass:"active-tab",tabs:De},e=>yo(e.name)),wp.element.createElement(We,{label:o("Question Typography","digiblocks"),value:m,onChange:e=>l({titleTypography:e})})),wp.element.createElement($,{tab:"style",name:"answer-styles",title:o("Answer Styles","digiblocks"),initialOpen:!1},Co(),wp.element.createElement(We,{label:o("Answer Typography","digiblocks"),value:v,onChange:e=>l({contentTypography:e})})),wp.element.createElement($,{tab:"style",name:"icon-styles",title:o("Icon Styles","digiblocks"),initialOpen:!1},wp.element.createElement(Ve,{className:"digiblocks-control-tabs",activeClass:"active-tab",tabs:De},e=>qo(e.name))),wp.element.createElement($,{tab:"style",name:"border-box",title:o("Border & Radius","digiblocks"),initialOpen:!1},U!=="classic"&&U!=="minimalist"&&wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(Q,{label:o("Border Style","digiblocks"),value:N||"default",options:lo,onChange:e=>{e!=="default"&&e!=="none"&&(N==="default"||N==="none"||!N)&&((!W||Object.keys(W).length===0)&&l({borderWidth:{desktop:{top:1,right:1,bottom:1,left:1,unit:"px"},tablet:{top:"",right:"",bottom:"",left:"",unit:"px"},mobile:{top:"",right:"",bottom:"",left:"",unit:"px"}}}),(!u||Object.keys(u).length===0)&&l({borderRadius:{desktop:{top:8,right:8,bottom:8,left:8,unit:"px"},tablet:{top:"",right:"",bottom:"",left:"",unit:"px"},mobile:{top:"",right:"",bottom:"",left:"",unit:"px"}}})),l({borderStyle:e})},__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),N&&N!=="default"&&N!=="none"&&wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(j,{title:o("Border Colors","digiblocks"),enableAlpha:!0,colorSettings:[{value:_,onChange:e=>l({borderColor:e}),label:o("Border Color","digiblocks")},{value:T,onChange:e=>l({borderHoverColor:e}),label:o("Border Hover Color","digiblocks")}]}),wp.element.createElement(fe,{label:o("Border Width","digiblocks"),value:W,onChange:e=>l({borderWidth:e})}),wp.element.createElement(fe,{label:o("Border Radius","digiblocks"),value:u,onChange:e=>l({borderRadius:e}),units:[{label:"px",value:"px"},{label:"%",value:"%"}]})))),wp.element.createElement($,{tab:"style",name:"shadow",title:o("Box Shadow","digiblocks"),initialOpen:!1},wp.element.createElement(Do,{normalValue:I,hoverValue:F,onNormalChange:e=>l({boxShadow:e}),onHoverChange:e=>l({boxShadowHover:e})})));case"advanced":return wp.element.createElement(wp.element.Fragment,null,wp.element.createElement($,{tab:"advanced",name:"spacing",title:o("Spacing","digiblocks"),initialOpen:!0},wp.element.createElement(fe,{label:o("Padding","digiblocks"),value:R,onChange:e=>l({padding:e})}),wp.element.createElement(fe,{label:o("Margin","digiblocks"),value:de,onChange:e=>l({margin:e})})),wp.element.createElement($,{tab:"advanced",name:"position",title:o("Position","digiblocks"),initialOpen:!1},wp.element.createElement(Q,{label:o("Position","digiblocks"),value:ne,options:[{label:o("Default","digiblocks"),value:"default"},{label:o("Relative","digiblocks"),value:"relative"},{label:o("Absolute","digiblocks"),value:"absolute"},{label:o("Fixed","digiblocks"),value:"fixed"}],onChange:e=>l({position:e}),__nextHasNoMarginBottom:!0}),ne!=="default"&&wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(Ye,{label:o("Horizontal Orientation","digiblocks"),value:He,isBlock:!0,onChange:e=>l({horizontalOrientation:e}),__nextHasNoMarginBottom:!0},wp.element.createElement(pe,{value:"left",label:o("Left","digiblocks")}),wp.element.createElement(pe,{value:"right",label:o("Right","digiblocks")})),wp.element.createElement(Ee,{label:o("Offset","digiblocks"),value:z,onChange:e=>l({horizontalOffset:e}),units:[{label:"px",value:"px"},{label:"%",value:"%"},{label:"em",value:"em"},{label:"rem",value:"rem"},{label:"vw",value:"vw"},{label:"vh",value:"vh"}],defaultUnit:"px",min:0,max:Ie(z?.[Y]?.unit||"px"),step:Fe(z?.[Y]?.unit||"px")}),wp.element.createElement(Ye,{label:o("Vertical Orientation","digiblocks"),value:Me,isBlock:!0,onChange:e=>l({verticalOrientation:e}),__nextHasNoMarginBottom:!0},wp.element.createElement(pe,{value:"top",label:o("Top","digiblocks")}),wp.element.createElement(pe,{value:"bottom",label:o("Bottom","digiblocks")})),wp.element.createElement(Ee,{label:o("Offset","digiblocks"),value:H,onChange:e=>l({verticalOffset:e}),units:[{label:"px",value:"px"},{label:"%",value:"%"},{label:"em",value:"em"},{label:"rem",value:"rem"},{label:"vw",value:"vw"},{label:"vh",value:"vh"}],defaultUnit:"px",min:0,max:Ie(H?.[Y]?.unit||"px"),step:Fe(H?.[Y]?.unit||"px")})),wp.element.createElement(ye,{label:o("Z-Index","digiblocks"),value:se,onChange:e=>l({zIndex:e}),min:-999,max:9999,allowReset:!0,__nextHasNoMarginBottom:!0})),wp.element.createElement($,{tab:"advanced",name:"transform",title:o("Transform","digiblocks"),initialOpen:!1},wp.element.createElement(Fo,{normalValue:we,hoverValue:V,onNormalChange:e=>l({transform:e}),onHoverChange:e=>l({transformHover:e})})),wp.element.createElement($,{tab:"advanced",name:"animation",title:o("Animation","digiblocks"),initialOpen:!1},wp.element.createElement(Q,{label:o("Animation Effect","digiblocks"),value:B,options:ao,onChange:e=>l({animation:e}),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),B&&B!=="none"&&wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(Q,{label:o("Animation Duration","digiblocks"),value:ve,options:[{label:o("Slow","digiblocks"),value:"slow"},{label:o("Normal","digiblocks"),value:"normal"},{label:o("Fast","digiblocks"),value:"fast"}],onChange:e=>l({animationDuration:e}),__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0}),wp.element.createElement(ue,{label:o("Animation Delay (ms)","digiblocks"),value:he||0,onChange:e=>l({animationDelay:parseInt(e)||0}),type:"number",min:0,step:100,__next40pxDefaultSize:!0,__nextHasNoMarginBottom:!0})),B&&B!=="none"&&wp.element.createElement("div",{style:{marginTop:"10px"}},wp.element.createElement(oe,{variant:"secondary",isSecondary:!0,onClick:io,style:{width:"100%"}},o("Preview Animation","digiblocks")))),wp.element.createElement($,{tab:"advanced",name:"visibility",title:o("Visibility","digiblocks"),initialOpen:!1},wp.element.createElement("div",{className:"components-base-control__help",style:{padding:"12px",backgroundColor:"#f0f6fc",border:"1px solid #c3ddfd",borderRadius:"4px",marginBottom:"16px"}},wp.element.createElement("strong",null,o("Editor Note:","digiblocks")),wp.element.createElement("br",null),o("Hidden elements appear with reduced opacity in the editor for easy editing. Visibility changes only take effect on the frontend.","digiblocks")),wp.element.createElement(ge,{label:o("Hide on Desktop","digiblocks"),checked:S.desktop,onChange:e=>l({visibility:{...S,desktop:e}}),__nextHasNoMarginBottom:!0}),wp.element.createElement(ge,{label:o("Hide on Tablet","digiblocks"),checked:S.tablet,onChange:e=>l({visibility:{...S,tablet:e}}),__nextHasNoMarginBottom:!0}),wp.element.createElement(ge,{label:o("Hide on Mobile","digiblocks"),checked:S.mobile,onChange:e=>l({visibility:{...S,mobile:e}}),__nextHasNoMarginBottom:!0})),wp.element.createElement($,{tab:"advanced",name:"additional",title:o("Additional","digiblocks"),initialOpen:!1},wp.element.createElement("div",{className:"components-base-control html-anchor-control"},wp.element.createElement("div",{className:"components-base-control__field"},wp.element.createElement("label",{className:"components-base-control__label",htmlFor:"html-anchor"},o("HTML anchor","digiblocks")),wp.element.createElement("input",{className:"components-text-control__input",type:"text",id:"html-anchor",value:ee||"",onChange:e=>l({anchor:e.target.value}),"aria-describedby":"html-anchor-help",autoCapitalize:"none",autoComplete:"off"})),wp.element.createElement("p",{id:"html-anchor-help",className:"components-base-control__help"},o(`Enter a word or two \u2014 without spaces \u2014 to make a unique web address just for this block, called an "anchor". Then, you'll be able to link directly to this section of your page.`,"digiblocks")," ",wp.element.createElement("a",{className:"components-external-link",href:"https://wordpress.org/documentation/article/page-jumps/",target:"_blank",rel:"external noreferrer noopener"},wp.element.createElement("span",{className:"components-external-link__contents"},o("Learn more about anchors","digiblocks")),wp.element.createElement("span",{className:"components-external-link__icon","aria-label":"(opens in a new tab)"},"\u2197")))),wp.element.createElement("div",{className:"components-base-control"},wp.element.createElement("div",{className:"components-base-control__field"},wp.element.createElement("label",{className:"components-base-control__label",htmlFor:"additional-css-classes"},o("Additional CSS class(es)","digiblocks")),wp.element.createElement("input",{className:"components-text-control__input",type:"text",id:"additional-css-classes",value:re||"",onChange:e=>l({customClasses:e.target.value}),"aria-describedby":"additional-css-classes-help",autoComplete:"off"})),wp.element.createElement("p",{id:"additional-css-classes-help",className:"components-base-control__help"},o("Separate multiple classes with spaces.","digiblocks")))))}},No=()=>!g||g.length===0?wp.element.createElement("div",{className:"digiblocks-no-items"},wp.element.createElement("p",null,o("No FAQ items found. Please add some items.","digiblocks"))):g.map((e,t)=>{let n=t===g.length-1;return wp.element.createElement("div",{key:e.id,className:`digiblocks-faq-item ${e.isOpen?"is-active":""}`,style:n?{marginBottom:0}:{}},wp.element.createElement("div",{className:"digiblocks-faq-question",onClick:()=>ho(t)},wp.element.createElement("div",{className:"digiblocks-faq-question-text"},le&&wp.element.createElement("span",{className:"digiblocks-faq-question-prefix"},le),wp.element.createElement(Re,{tagName:"span",value:e.title,onChange:r=>ko(r,t),placeholder:o("Enter question...","digiblocks"),allowedFormats:["core/bold","core/italic"],className:"digiblocks-faq-question-text-content"})),wp.element.createElement("span",{className:"digiblocks-faq-question-icon"},$o(e.isOpen))),wp.element.createElement("div",{className:"digiblocks-faq-answer"},wp.element.createElement("div",{className:"digiblocks-faq-answer-content"},ae&&wp.element.createElement("span",{className:"digiblocks-faq-answer-prefix"},ae),wp.element.createElement(Re,{tagName:"div",value:e.content,onChange:r=>xo(r,t),placeholder:o("Enter answer...","digiblocks"),allowedFormats:["core/bold","core/italic","core/link","core/image","core/list"],className:"digiblocks-faq-answer-text"}))),wp.element.createElement("div",{className:"digiblocks-faq-item-controls"},wp.element.createElement(be,{text:o("Move Up","digiblocks")},wp.element.createElement(oe,{className:"digiblocks-faq-item-move-up",onClick:()=>mo(t),icon:wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 384 512"},wp.element.createElement("path",{d:"M169.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L192 205.3 54.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"})),disabled:t===0,isSmall:!0})),wp.element.createElement(be,{text:o("Move Down","digiblocks")},wp.element.createElement(oe,{className:"digiblocks-faq-item-move-down",onClick:()=>vo(t),icon:wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 384 512"},wp.element.createElement("path",{d:"M169.4 374.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 306.7 54.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"})),disabled:t===g.length-1,isSmall:!0})),wp.element.createElement(be,{text:o("Duplicate","digiblocks")},wp.element.createElement(oe,{className:"digiblocks-faq-item-duplicate",onClick:()=>fo(t),icon:wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 448 512"},wp.element.createElement("path",{d:"M192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-200.6c0-17.4-7.1-34.1-19.7-46.2L370.6 17.8C358.7 6.4 342.8 0 326.3 0L192 0zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-16-64 0 0 16-192 0 0-256 16 0 0-64-16 0z"})),isSmall:!0})),wp.element.createElement(be,{text:o("Remove","digiblocks")},wp.element.createElement(oe,{className:"digiblocks-faq-item-remove",onClick:()=>po(t),icon:wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 448 512"},wp.element.createElement("path",{d:"M136.7 5.9L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-8.7-26.1C306.9-7.2 294.7-16 280.9-16L167.1-16c-13.8 0-26 8.8-30.4 21.9zM416 144L32 144 53.1 467.1C54.7 492.4 75.7 512 101 512L347 512c25.3 0 46.3-19.6 47.9-44.9L416 144z"})),isSmall:!0}))))}),_o=Ho({className:`digiblocks-faq-block ${i} ${U||"boxed"} ${re||""}`,id:ee||null});return wp.element.createElement(wp.element.Fragment,null,wp.element.createElement(Mo,null,wp.element.createElement(Io,{tabs:go,activeTab:Pe,onSelect:oo},So())),wp.element.createElement("style",{dangerouslySetInnerHTML:{__html:wo()}}),wp.element.createElement("div",{..._o},wp.element.createElement("div",{className:"digiblocks-faq-items"},No()),wp.element.createElement(oe,{variant:"primary",icon:"plus",onClick:bo,style:{width:"100%",marginTop:"20px",justifyContent:"center"}},o("Add FAQ Item","digiblocks"))))},Ge=Ao;var{useBlockProps:Qo,RichText:Ue}=window.wp.blockEditor,Lo=({attributes:te})=>{let{id:l,anchor:L,customClasses:i,items:ee,titleTag:S,layout:re,questionPrefix:g,answerPrefix:ie,animation:x,animationDuration:y,animationDelay:E,allowMultipleOpen:P,iconType:O}=te,ce=["digiblocks-faq-block",l,re||"boxed",i||"",x!=="none"?`animate-${x} digi-animate-hidden`:""].filter(Boolean).join(" "),D=(u,W=O)=>{switch(W){case"plusMinus":return u?wp.element.createElement("span",{className:"digiblocks-faq-icon-minus"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{fillRule:"evenodd",d:"M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z"}))):wp.element.createElement("span",{className:"digiblocks-faq-icon-plus"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{fillRule:"evenodd",d:"M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"})));case"arrow":return wp.element.createElement("span",{className:`digiblocks-faq-icon-arrow ${u?"is-open":""}`},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{fillRule:"evenodd",d:"M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"})));case"chevron":return wp.element.createElement("span",{className:`digiblocks-faq-icon-chevron ${u?"is-open":""}`},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{fillRule:"evenodd",d:"M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z"})));case"triangle":return wp.element.createElement("span",{className:`digiblocks-faq-icon-triangle ${u?"is-open":""}`},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{d:"m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"})));case"circlePlusMinus":return u?wp.element.createElement("span",{className:"digiblocks-faq-icon-circle-minus"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{d:"M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"}),wp.element.createElement("path",{d:"M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"}))):wp.element.createElement("span",{className:"digiblocks-faq-icon-circle-plus"},wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 16 16",width:"1em",height:"1em"},wp.element.createElement("path",{d:"M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"}),wp.element.createElement("path",{d:"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"})));default:return u?wp.element.createElement("span",{className:"digiblocks-faq-icon-minus"},"\u2014"):wp.element.createElement("span",{className:"digiblocks-faq-icon-plus"},"+")}},_=Qo.save({className:ce,id:L||null,"data-allow-multiple":P?"true":"false"});x&&x!=="none"&&(_["data-animation-duration"]=y||"normal",_["data-animation-delay"]=E||0);let T=()=>!ee||ee.length===0?null:ee.map((u,W)=>wp.element.createElement("div",{key:u.id,className:`digiblocks-faq-item ${u.isOpen?"is-active":""}`,"data-item-id":u.id},wp.element.createElement("div",{className:"digiblocks-faq-question"},wp.element.createElement("div",{className:"digiblocks-faq-question-text"},g&&wp.element.createElement("span",{className:"digiblocks-faq-question-prefix"},g),wp.element.createElement(Ue.Content,{tagName:S||"h3",value:u.title,className:"digiblocks-faq-question-text-content"})),wp.element.createElement("span",{className:"digiblocks-faq-question-icon"},D(u.isOpen))),wp.element.createElement("div",{className:"digiblocks-faq-answer"},wp.element.createElement("div",{className:"digiblocks-faq-answer-content"},ie&&wp.element.createElement("span",{className:"digiblocks-faq-answer-prefix"},ie),wp.element.createElement(Ue.Content,{tagName:"div",className:"digiblocks-faq-answer-text",value:u.content})))));return wp.element.createElement("div",{..._},wp.element.createElement("div",{className:"digiblocks-faq-items"},T()))},Ze=Lo;var{__:C}=window.wp.i18n,{registerBlockType:Ro}=window.wp.blocks;Ro("digiblocks/faq",{apiVersion:2,title:digiBlocksData.blocks.faq.title,category:"digiblocks",icon:{src:()=>{let{viewbox:te,path:l}=digiBlocksData.blocks.faq.icon;return wp.element.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",viewBox:`0 0 ${te}`,className:"digiblocks-editor-icons"},wp.element.createElement("path",{d:l}))}},description:digiBlocksData.blocks.faq.description,keywords:[C("faq","digiblocks"),C("questions","digiblocks"),C("answers","digiblocks"),C("schema","digiblocks")],supports:{html:!1,className:!1,customClassName:!1,anchor:!1},attributes:{id:{type:"string",default:""},anchor:{type:"string",default:""},visibility:{type:"object",default:{desktop:!1,tablet:!1,mobile:!1}},customClasses:{type:"string",default:""},items:{type:"array",default:[{id:"faq-item-1",title:C("What is a frequently asked question?","digiblocks"),content:C("A frequently asked question (FAQ) is a question that is commonly asked by users or customers. FAQs are typically displayed in a list with their answers to help visitors find information quickly.","digiblocks"),isOpen:!0},{id:"faq-item-2",title:C("How do I add more questions and answers?","digiblocks"),content:C('Simply click the "Add FAQ Item" button below to add more questions and answers to your FAQ section. You can also reorder, edit, or remove existing items using the control buttons.',"digiblocks"),isOpen:!1}]},titleColor:{type:"string",default:""},titleHoverColor:{type:"string",default:""},titleActiveColor:{type:"string",default:"#1e73be"},backgroundColor:{type:"string",default:"#ffffff"},backgroundHoverColor:{type:"string",default:""},backgroundActiveColor:{type:"string",default:"#f7f7f7"},contentColor:{type:"string",default:"#666666"},contentBackgroundColor:{type:"string",default:""},borderColor:{type:"string",default:"#e0e0e0"},borderHoverColor:{type:"string",default:""},borderRadius:{type:"object",default:{desktop:{top:8,right:8,bottom:8,left:8,unit:"px"},tablet:{top:"",right:"",bottom:"",left:"",unit:"px"},mobile:{top:"",right:"",bottom:"",left:"",unit:"px"}}},borderWidth:{type:"object",default:{desktop:{top:1,right:1,bottom:1,left:1,unit:"px"},tablet:{top:"",right:"",bottom:"",left:"",unit:"px"},mobile:{top:"",right:"",bottom:"",left:"",unit:"px"}}},borderStyle:{type:"string",default:"solid"},boxShadow:{type:"object",default:{enable:!1,color:"rgba(0, 0, 0, 0.2)",horizontal:0,vertical:0,blur:0,spread:0,position:"outset"}},boxShadowHover:{type:"object",default:{enable:!1,color:"rgba(0, 0, 0, 0.2)",horizontal:0,vertical:0,blur:0,spread:0,position:"outset"}},padding:{type:"object",default:{desktop:{top:20,right:20,bottom:20,left:20,unit:"px"},tablet:{top:"",right:"",bottom:"",left:"",unit:"px"},mobile:{top:"",right:"",bottom:"",left:"",unit:"px"}}},margin:{type:"object",default:{desktop:{top:0,right:0,bottom:30,left:0,unit:"px",isLinked:!1},tablet:{top:"",right:"",bottom:"",left:"",unit:"px"},mobile:{top:"",right:"",bottom:"",left:"",unit:"px"}}},titleTypography:{type:"object",default:{fontFamily:"",fontSize:{desktop:{value:18,unit:"px"},tablet:{value:"",unit:"px"},mobile:{value:"",unit:"px"}},fontWeight:"600",fontStyle:"normal",textTransform:"none",textDecoration:"none",lineHeight:{desktop:{value:1.5,unit:"em"},tablet:{value:"",unit:"em"},mobile:{value:"",unit:"em"}},letterSpacing:{desktop:{value:"",unit:"px"},tablet:{value:"",unit:"px"},mobile:{value:"",unit:"px"}}}},contentTypography:{type:"object",default:{fontFamily:"",fontSize:{desktop:{value:16,unit:"px"},tablet:{value:"",unit:"px"},mobile:{value:"",unit:"px"}},fontWeight:"",fontStyle:"normal",textTransform:"",textDecoration:"",lineHeight:{desktop:{value:1.5,unit:"em"},tablet:{value:"",unit:"em"},mobile:{value:"",unit:"em"}},letterSpacing:{desktop:{value:"",unit:"px"},tablet:{value:"",unit:"px"},mobile:{value:"",unit:"px"}}}},iconPosition:{type:"string",default:"right"},iconColor:{type:"string",default:""},iconHoverColor:{type:"string",default:""},iconActiveColor:{type:"string",default:"#1e73be"},iconSize:{type:"object",default:{desktop:16,tablet:"",mobile:""}},animation:{type:"string",default:"none"},animationDuration:{type:"string",default:"normal"},animationDelay:{type:"number",default:""},allowMultipleOpen:{type:"boolean",default:!1},iconType:{type:"string",default:"plusMinus"},titleTag:{type:"string",default:"h3"},questionPrefix:{type:"string",default:""},questionPrefixColor:{type:"string",default:""},answerPrefix:{type:"string",default:""},answerPrefixColor:{type:"string",default:""},layout:{type:"string",default:"boxed"},itemsSpacing:{type:"object",default:{desktop:16,tablet:"",mobile:""}},schemaType:{type:"string",default:"FAQPage"},schemaName:{type:"string",default:""},position:{type:"string",default:"default"},horizontalOrientation:{type:"string",default:"left"},horizontalOffset:{type:"object",default:{desktop:{value:0,unit:"px"},tablet:{value:"",unit:"px"},mobile:{value:"",unit:"px"}}},verticalOrientation:{type:"string",default:"top"},verticalOffset:{type:"object",default:{desktop:{value:0,unit:"px"},tablet:{value:"",unit:"px"},mobile:{value:"",unit:"px"}}},zIndex:{type:"number",default:""},transform:{type:"object",default:{rotate:{desktop:"",tablet:"",mobile:""},rotate3d:!1,rotateX:{desktop:"",tablet:"",mobile:""},rotateY:{desktop:"",tablet:"",mobile:""},perspective:{desktop:"",tablet:"",mobile:""},offsetX:{desktop:{value:"",unit:"px"},tablet:{value:"",unit:"px"},mobile:{value:"",unit:"px"}},offsetY:{desktop:{value:"",unit:"px"},tablet:{value:"",unit:"px"},mobile:{value:"",unit:"px"}},keepProportions:!0,scale:{desktop:"",tablet:"",mobile:""},scaleX:{desktop:"",tablet:"",mobile:""},scaleY:{desktop:"",tablet:"",mobile:""},skewX:{desktop:"",tablet:"",mobile:""},skewY:{desktop:"",tablet:"",mobile:""},flipHorizontal:!1,flipVertical:!1,xAnchor:{desktop:"center",tablet:"",mobile:""},yAnchor:{desktop:"center",tablet:"",mobile:""},transitionDuration:""}},transformHover:{type:"object",default:{rotate:{desktop:"",tablet:"",mobile:""},rotate3d:!1,rotateX:{desktop:"",tablet:"",mobile:""},rotateY:{desktop:"",tablet:"",mobile:""},perspective:{desktop:"",tablet:"",mobile:""},offsetX:{desktop:{value:"",unit:"px"},tablet:{value:"",unit:"px"},mobile:{value:"",unit:"px"}},offsetY:{desktop:{value:"",unit:"px"},tablet:{value:"",unit:"px"},mobile:{value:"",unit:"px"}},keepProportions:!0,scale:{desktop:"",tablet:"",mobile:""},scaleX:{desktop:"",tablet:"",mobile:""},scaleY:{desktop:"",tablet:"",mobile:""},skewX:{desktop:"",tablet:"",mobile:""},skewY:{desktop:"",tablet:"",mobile:""},flipHorizontal:!1,flipVertical:!1,xAnchor:{desktop:"center",tablet:"",mobile:""},yAnchor:{desktop:"center",tablet:"",mobile:""},transitionDuration:""}}},example:{attributes:{items:[{id:"faq-item-1",title:C("What is a frequently asked question?","digiblocks"),content:C("A frequently asked question (FAQ) is a question that is commonly asked by users or customers.","digiblocks"),isOpen:!0},{id:"faq-item-2",title:C("How do I add more questions?","digiblocks"),content:C('Click the "Add FAQ Item" button to add more questions and answers.',"digiblocks"),isOpen:!1}],layout:"boxed",titleColor:"",titleActiveColor:"#1e73be",backgroundColor:"#ffffff"}},edit:Ge,save:Ze});})();

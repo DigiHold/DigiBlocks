@@ -57,6 +57,14 @@ registerBlockType('digiblocks/container', {
 				mobile: ''
 			}
 		},
+		flexDirection: {
+			type: 'object',
+			default: {
+				desktop: '',
+				tablet: '',
+				mobile: ''
+			}
+		},
         anchor: {
             type: 'string',
             default: ''
@@ -100,7 +108,7 @@ registerBlockType('digiblocks/container', {
 		minHeight: {
 			type: 'object',
 			default: {
-				desktop: { value: 0, unit: 'px' },
+				desktop: { value: '', unit: 'px' },
 				tablet: { value: '', unit: '' },
 				mobile: { value: '', unit: '' }
 			}
@@ -166,18 +174,9 @@ registerBlockType('digiblocks/container', {
             default: ''
         },
         backgroundGradient: {
-            type: 'object',
-            default: {
-                enable: false,
-                type: 'linear',
-                angle: 90,
-                position: 'center center',
-                colors: [
-                    { color: '#667eea', position: 0 },
-                    { color: '#764ba2', position: 100 }
-                ]
-            }
-        },
+			type: 'string',
+			default: ''
+		},
         backgroundImage: {
             type: 'object',
             default: {
@@ -218,6 +217,10 @@ registerBlockType('digiblocks/container', {
             }
         },
         backgroundOverlay: {
+            type: 'string',
+            default: ''
+        },
+		backgroundOverlayGradient: {
             type: 'string',
             default: ''
         },
@@ -317,8 +320,8 @@ registerBlockType('digiblocks/container', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         verticalOrientation: {
@@ -329,8 +332,8 @@ registerBlockType('digiblocks/container', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         zIndex: {

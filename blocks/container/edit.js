@@ -11,6 +11,7 @@ const {
     MediaUploadCheck,
 } = wp.blockEditor;
 const {
+    TextControl,
     ToggleControl,
     SelectControl,
     RangeControl,
@@ -18,7 +19,7 @@ const {
 	Tooltip,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
+	GradientPicker,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 const { useDispatch, useSelect } = wp.data;
@@ -29,7 +30,7 @@ const { createBlock } = wp.blocks;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody, ResponsiveRangeControl, ResponsiveButtonGroup, GradientControl, TransformControl } = digi.components;
+const { DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody, ResponsiveRangeControl, ResponsiveButtonGroup, TransformControl } = digi.components;
 
 /**
  * Container layouts
@@ -139,6 +140,7 @@ const containerLayouts = [
 const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
     const {
 		flexWrap,
+		flexDirection,
         id,
         anchor,
 		visibility,
@@ -165,6 +167,7 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
         backgroundVideo,
         backgroundVideoFallbackImage,
         backgroundOverlay,
+		backgroundOverlayGradient,
         backgroundOverlayOpacity,
         backgroundOverlayBlendMode,
         padding,
@@ -194,15 +197,22 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 	// Get responsive value with fallback
 	const getVal = (obj, device) => {
 		if (!obj || typeof obj !== 'object') return null;
-		
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
 		if (device === 'mobile') {
-			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
-				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
 				obj.desktop;
 		}
 		if (device === 'tablet') {
-			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
-				obj.desktop;
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
 		}
 		return obj.desktop;
 	};
@@ -278,12 +288,51 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 		mobile: { value: '', unit: '' }
 	};
 
-	// Update isNested in attributes if it changed
+	// Track if we've initialized nested container widths
+	const hasInitializedNested = useRef(false);
+
+	// Update isNested in attributes and set 100% width for nested containers
 	useEffect(() => {
+		const updates = {};
+
 		if (attributes.isNested !== isNested) {
-			setAttributes({ isNested });
+			updates.isNested = isNested;
 		}
-	}, [isNested]);
+
+		if (isNested && !hasInitializedNested.current && !attributes.isNested) {
+			hasInitializedNested.current = true;
+			updates.contentWidth = {
+				desktop: { value: 100, unit: '%' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			};
+			updates.contentMaxWidth = {
+				desktop: { value: 100, unit: '%' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			};
+		}
+
+		if (isNested && !attributes.contentWidth) {
+			updates.contentWidth = {
+				desktop: { value: 100, unit: '%' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			};
+		}
+
+		if (isNested && !attributes.contentMaxWidth) {
+			updates.contentMaxWidth = {
+				desktop: { value: 100, unit: '%' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			};
+		}
+
+		if (Object.keys(updates).length > 0) {
+			setAttributes(updates);
+		}
+	}, [isNested, attributes.isNested, attributes.contentWidth, attributes.contentMaxWidth]);
 
 	// Track previous value to detect actual changes
 	const prevContentLayout = useRef(contentLayout);
@@ -295,9 +344,8 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 			prevContentLayout.current = contentLayout;
 			return;
 		}
-		
+
 		if (contentLayout === 'full' && prevContentLayout.current === 'boxed') {
-			// Switching from boxed to full - suggest 100%
 			setAttributes({
 				contentWidth: {
 					desktop: { value: 100, unit: '%' },
@@ -311,7 +359,6 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 				}
 			});
 		} else if (contentLayout === 'boxed' && prevContentLayout.current === 'full') {
-			// Switching from full to boxed - reset to defaults
 			setAttributes({
 				contentWidth: {
 					desktop: isNested ? { value: 100, unit: '%' } : { value: parseInt(digiBlocksData.contentWidth) || 1200, unit: 'px' },
@@ -325,7 +372,7 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 				}
 			});
 		}
-		
+
 		prevContentLayout.current = contentLayout;
 	}, [contentLayout, isNested]);
 
@@ -438,23 +485,6 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
         }
     }, [animation]);
 
-    // Generate gradient CSS
-    const generateGradientCSS = () => {
-        if (!backgroundGradient.enable || !backgroundGradient.colors.length) {
-            return '';
-        }
-
-        const colorStops = backgroundGradient.colors
-            .map(stop => `${stop.color} ${stop.position}%`)
-            .join(', ');
-
-        if (backgroundGradient.type === 'radial') {
-            return `background-image: radial-gradient(circle at ${backgroundGradient.position}, ${colorStops});`;
-        } else {
-            return `background-image: linear-gradient(${backgroundGradient.angle}deg, ${colorStops});`;
-        }
-    };
-
     // Animation options
     const animationOptions = [
         { label: __("None", "digiblocks"), value: "none" },
@@ -509,26 +539,6 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
         { label: __('Double', 'digiblocks'), value: 'double' },
     ];
 
-    // Blend mode options
-    const blendModeOptions = [
-        { label: __('Normal', 'digiblocks'), value: 'normal' },
-        { label: __('Multiply', 'digiblocks'), value: 'multiply' },
-        { label: __('Screen', 'digiblocks'), value: 'screen' },
-        { label: __('Overlay', 'digiblocks'), value: 'overlay' },
-        { label: __('Darken', 'digiblocks'), value: 'darken' },
-        { label: __('Lighten', 'digiblocks'), value: 'lighten' },
-        { label: __('Color Dodge', 'digiblocks'), value: 'color-dodge' },
-        { label: __('Color Burn', 'digiblocks'), value: 'color-burn' },
-        { label: __('Hard Light', 'digiblocks'), value: 'hard-light' },
-        { label: __('Soft Light', 'digiblocks'), value: 'soft-light' },
-        { label: __('Difference', 'digiblocks'), value: 'difference' },
-        { label: __('Exclusion', 'digiblocks'), value: 'exclusion' },
-        { label: __('Hue', 'digiblocks'), value: 'hue' },
-        { label: __('Saturation', 'digiblocks'), value: 'saturation' },
-        { label: __('Color', 'digiblocks'), value: 'color' },
-        { label: __('Luminosity', 'digiblocks'), value: 'luminosity' },
-    ];
-
     // Define the tabs for our custom tab panel
     const tabList = [
         { 
@@ -554,20 +564,27 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 	};
 
 	const getGapValue = (gapObj, device) => {
+		if (!gapObj || !gapObj.desktop) {
+			return {
+				value: '',
+				unit: 'px'
+			};
+		}
+
 		if (gapObj[device] && isValueSet(gapObj[device].value)) {
 			return {
 				value: gapObj[device].value,
 				unit: gapObj[device].unit || 'px'
 			};
 		}
-		
+
 		if (device === 'tablet') {
 			return {
 				value: gapObj.desktop.value,
 				unit: gapObj.desktop.unit || 'px'
 			};
 		}
-		
+
 		if (device === 'mobile') {
 			if (gapObj.tablet && isValueSet(gapObj.tablet.value)) {
 				return {
@@ -580,9 +597,9 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 				unit: gapObj.desktop.unit || 'px'
 			};
 		}
-		
+
 		return {
-			value: 0,
+			value: '',
 			unit: 'px'
 		};
 	};
@@ -741,51 +758,56 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         // Background gradient
-        const gradientCSS = generateGradientCSS();
-        if (gradientCSS) {
-            backgroundStyles += gradientCSS;
-        }
+        if (backgroundGradient) {
+			backgroundStyles += `background-image: ${backgroundGradient};`;
+		}
         
         // Background image (highest priority)
-        if (backgroundImage && backgroundImage.url) {
-            // If gradient is enabled, use comma to layer them
-            const imageCSS = `url(${backgroundImage.url})`;
-            if (gradientCSS) {
-                backgroundStyles = backgroundStyles.replace(
-                    /background-image: ([^;]+);/, 
-                    `background-image: ${imageCSS}, $1;`
-                );
-            } else {
-                backgroundStyles += `background-image: ${imageCSS};`;
-            }
-            backgroundStyles += `background-position: ${backgroundPosition};
-            background-repeat: ${backgroundRepeat};
-            background-size: ${backgroundSize};`;
-        }
+		if (backgroundImage && backgroundImage.url) {
+			const imageCSS = `url(${backgroundImage.url})`;
+			if (backgroundGradient) {
+				backgroundStyles = backgroundStyles.replace(
+					/background-image: ([^;]+);/, 
+					`background-image: ${imageCSS}, $1;`
+				);
+			} else {
+				backgroundStyles += `background-image: ${imageCSS};`;
+			}
+			backgroundStyles += `background-position: ${backgroundPosition};
+			background-repeat: ${backgroundRepeat};
+			background-size: ${backgroundSize};`;
+		}
         
         // Background overlay CSS
-        let overlayCSS = '';
-        if (backgroundOverlay) {
-            overlayCSS = `
-            .${id}:before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: ${backgroundOverlay};
-                opacity: ${backgroundOverlayOpacity};
-                mix-blend-mode: ${backgroundOverlayBlendMode};
-                z-index: 1;
-                pointer-events: none;
-                border-radius: inherit;
-            }
-            .${id} > * {
-                position: relative;
-                z-index: 2;
-            }`;
-        }
+		let overlayCSS = '';
+		if (backgroundOverlay || backgroundOverlayGradient) {
+			let overlayBackground = '';
+			if (backgroundOverlayGradient) {
+				overlayBackground = `background: ${backgroundOverlayGradient};`;
+			} else if (backgroundOverlay) {
+				overlayBackground = `background-color: ${backgroundOverlay};`;
+			}
+			
+			overlayCSS = `
+			.${id}:before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				${overlayBackground}
+				opacity: ${backgroundOverlayOpacity};
+				mix-blend-mode: ${backgroundOverlayBlendMode};
+				z-index: 1;
+				pointer-events: none;
+				border-radius: inherit;
+			}
+			.${id} > * {
+				position: relative;
+				z-index: 2;
+			}`;
+		}
         
         // Box shadow CSS
         let boxShadowCSS = '';
@@ -805,22 +827,31 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 		if (getVal(heightType, activeDevice) === 'full') {
 			heightCSS = 'height: 100vh;';
 		} else if (getVal(heightType, activeDevice) === 'custom') {
-			const minHeightValue = minHeight[activeDevice]?.value || minHeight.desktop?.value || 0;
-			const minHeightUnit = minHeight[activeDevice]?.unit || minHeight.desktop?.unit || 'px';
+			const minHeightValue = minHeight?.[activeDevice]?.value || minHeight?.desktop?.value || '';
+			const minHeightUnit = minHeight?.[activeDevice]?.unit || minHeight?.desktop?.unit || 'px';
 			heightCSS = minHeightValue ? `min-height: ${minHeightValue}${minHeightUnit} !important;` : '';
 		}
         
         // Content width CSS
-        const contentWidthCSS = `width: ${contentWidth.desktop.value}${contentWidth.desktop.unit};`;
-		const contentMaxWidthCSS = `max-width: ${contentMaxWidth.desktop.value}${contentMaxWidth.desktop.unit};`;
+        const contentWidthCSS = `width: ${contentWidth.desktop.value}${contentWidth.desktop.unit !== null ? contentWidth.desktop.unit : ''};`;
+		const contentMaxWidthCSS = `max-width: ${contentMaxWidth.desktop.value}${contentMaxWidth.desktop.unit !== null ? contentMaxWidth.desktop.unit : ''};`;
 
         // Position styles
         let positionCSS = '';
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
-            
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -828,9 +859,18 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                     positionCSS += `right: ${horizontalValue}${horizontalUnit};`;
                 }
             }
-            
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -893,6 +933,7 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 			.${id} > .digiblocks-container-inner {
                 display: flex;
 				flex-wrap: ${getVal(flexWrap, activeDevice)};
+				${getVal(flexDirection, activeDevice) ? `flex-direction: ${getVal(flexDirection, activeDevice)};` : ''}
 				align-items: ${getVal(verticalAlign, activeDevice)};
 				justify-content: ${getVal(horizontalAlign, activeDevice)};
 				gap: ${getGapValue(rowGap, 'desktop').value}${getGapValue(rowGap, 'desktop').unit} ${getGapValue(columnGap, 'desktop').value}${getGapValue(columnGap, 'desktop').unit};
@@ -934,19 +975,20 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                 .${id} {
 					${getDimensionCSS(padding, 'padding', 'tablet')}
 					${getDimensionCSS(margin, 'margin', 'tablet')}
-					${heightType['tablet'] === 'custom' && minHeight.tablet?.value ? `min-height: ${minHeight.tablet.value}${minHeight.tablet.unit};` : ''}
+					${heightType['tablet'] === 'custom' && minHeight?.tablet?.value ? `min-height: ${minHeight.tablet.value}${minHeight.tablet.unit};` : ''}
 					${getDimensionCSS(borderRadius, 'border-radius', 'tablet')}
 					${borderStyle !== 'none' ? `border-width: ${borderWidth['tablet'].top}${borderWidth['tablet'].unit} ${borderWidth['tablet'].right}${borderWidth['tablet'].unit} ${borderWidth['tablet'].bottom}${borderWidth['tablet'].unit} ${borderWidth['tablet'].left}${borderWidth['tablet'].unit};` : ''}
 				}
 
 				.${id} > .digiblocks-container-inner {
-					width: ${contentWidth.tablet.value !== '' 
-						? contentWidth.tablet.value + contentWidth.tablet.unit
-						: contentWidth.desktop.value + contentWidth.desktop.unit};
-					max-width: ${contentMaxWidth.tablet.value !== '' 
-						? contentMaxWidth.tablet.value + contentMaxWidth.tablet.unit
-						: contentMaxWidth.desktop.value + contentMaxWidth.desktop.unit};
+					width: ${contentWidth.tablet.value !== "" 
+						? contentWidth.tablet.value + (contentWidth.tablet.unit !== null ? contentWidth.tablet.unit : '')
+						: contentWidth.desktop.value + (contentWidth.desktop.unit !== null ? contentWidth.desktop.unit : '')};
+					max-width: ${contentMaxWidth.tablet.value !== ""
+						? contentMaxWidth.tablet.value + (contentMaxWidth.tablet.unit !== null ? contentMaxWidth.tablet.unit : '')
+						: contentMaxWidth.desktop.value + (contentMaxWidth.desktop.unit !== null ? contentMaxWidth.desktop.unit : '')};
 					flex-wrap: ${getVal(flexWrap, 'tablet')};
+					${getVal(flexDirection, 'tablet') ? `flex-direction: ${getVal(flexDirection, 'tablet')};` : ''}
 					align-items: ${getVal(verticalAlign, 'tablet')};
 					justify-content: ${getVal(horizontalAlign, 'tablet')};
 					gap: ${getGapValue(rowGap, 'tablet').value}${getGapValue(rowGap, 'tablet').unit} ${getGapValue(columnGap, 'tablet').value}${getGapValue(columnGap, 'tablet').unit};
@@ -959,23 +1001,24 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                 .${id} {
 					${getDimensionCSS(padding, 'padding', 'mobile')}
 					${getDimensionCSS(margin, 'margin', 'mobile')}
-					${heightType['mobile'] === 'custom' && minHeight.mobile?.value ? `min-height: ${minHeight.mobile.value}${minHeight.mobile.unit};` : ''}
+					${heightType['mobile'] === 'custom' && minHeight?.mobile?.value ? `min-height: ${minHeight.mobile.value}${minHeight.mobile.unit};` : ''}
 					${getDimensionCSS(borderRadius, 'border-radius', 'mobile')}
 					${borderStyle !== 'none' ? `border-width: ${borderWidth['mobile'].top}${borderWidth['mobile'].unit} ${borderWidth['mobile'].right}${borderWidth['mobile'].unit} ${borderWidth['mobile'].bottom}${borderWidth['mobile'].unit} ${borderWidth['mobile'].left}${borderWidth['mobile'].unit};` : ''}
 				}
 
 				.${id} > .digiblocks-container-inner {
-					width: ${contentWidth.mobile.value !== '' 
-						? contentWidth.mobile.value + contentWidth.mobile.unit
-						: (contentWidth.tablet.value !== '' 
-							? contentWidth.tablet.value + contentWidth.tablet.unit
-							: contentWidth.desktop.value + contentWidth.desktop.unit)};
-					max-width: ${contentMaxWidth.mobile.value !== '' 
-						? contentMaxWidth.mobile.value + contentMaxWidth.mobile.unit
-						: (contentMaxWidth.tablet.value !== '' 
-							? contentMaxWidth.tablet.value + contentMaxWidth.tablet.unit
-							: contentMaxWidth.desktop.value + contentMaxWidth.desktop.unit)};
+					width: ${contentWidth.mobile.value !== "" 
+						? contentWidth.mobile.value + (contentWidth.mobile.unit !== null ? contentWidth.mobile.unit : '')
+						: (contentWidth.tablet.value !== "" 
+							? contentWidth.tablet.value + (contentWidth.tablet.unit !== null ? contentWidth.tablet.unit : '')
+							: contentWidth.desktop.value + (contentWidth.desktop.unit !== null ? contentWidth.desktop.unit : ''))};
+					max-width: ${contentMaxWidth.mobile.value !== "" 
+						? contentMaxWidth.mobile.value + (contentMaxWidth.mobile.unit !== null ? contentMaxWidth.mobile.unit : '')
+						: (contentMaxWidth.tablet.value !== "" 
+							? contentMaxWidth.tablet.value + (contentMaxWidth.tablet.unit !== null ? contentMaxWidth.tablet.unit : '')
+							: contentMaxWidth.desktop.value + (contentMaxWidth.desktop.unit !== null ? contentMaxWidth.desktop.unit : ''))};
 					flex-wrap: ${getVal(flexWrap, 'mobile')};
+					${getVal(flexDirection, 'mobile') ? `flex-direction: ${getVal(flexDirection, 'mobile')};` : ''}
 					align-items: ${getVal(verticalAlign, 'mobile')};
 					justify-content: ${getVal(horizontalAlign, 'mobile')};
 					gap: ${getGapValue(rowGap, 'mobile').value}${getGapValue(rowGap, 'mobile').unit} ${getGapValue(columnGap, 'mobile').value}${getGapValue(columnGap, 'mobile').unit};
@@ -1104,10 +1147,13 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 									{ label: 'rem', value: 'rem' },
 									{ label: 'vw', value: 'vw' }
 								]}
-								defaultUnit={isNested ? '%' : 'px'}
+								defaultValues={isNested ?
+									{ desktop: { value: 100, unit: '%' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } } :
+									{ desktop: { value: 1200, unit: 'px' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } }
+								}
 								min={0}
-								max={getContentMaxValue(contentWidth[localActiveDevice]?.unit)}
-								step={getContentStepValue(contentWidth[localActiveDevice]?.unit)}
+								max={getContentMaxValue(contentWidth?.[localActiveDevice]?.unit || 'px')}
+								step={getContentStepValue(contentWidth?.[localActiveDevice]?.unit || 'px')}
 							/>
 
 							<ResponsiveRangeControl
@@ -1121,10 +1167,13 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 									{ label: 'rem', value: 'rem' },
 									{ label: 'vw', value: 'vw' }
 								]}
-								defaultUnit='%'
+								defaultValues={isNested ?
+									{ desktop: { value: 100, unit: '%' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } } :
+									{ desktop: { value: 90, unit: '%' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } }
+								}
 								min={0}
-								max={getContentMaxValue(contentMaxWidth[localActiveDevice]?.unit)}
-								step={getContentStepValue(contentMaxWidth[localActiveDevice]?.unit)}
+								max={getContentMaxValue(contentMaxWidth?.[localActiveDevice]?.unit || '%')}
+								step={getContentStepValue(contentMaxWidth?.[localActiveDevice]?.unit || '%')}
 							/>
 
 							<ResponsiveButtonGroup
@@ -1136,7 +1185,17 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 									{ label: __('Wrap', 'digiblocks'), value: 'wrap' },
 								]}
 							/>
-                            
+
+							<ResponsiveButtonGroup
+								label={__('Flex Direction', 'digiblocks')}
+								value={flexDirection}
+								onChange={(value) => setAttributes({ flexDirection: value })}
+								options={[
+									{ label: __('Row', 'digiblocks'), value: 'row' },
+									{ label: __('Column', 'digiblocks'), value: 'column' },
+								]}
+							/>
+
                             <ResponsiveButtonGroup
 								label={__("Height", "digiblocks")}
 								value={heightType}
@@ -1148,7 +1207,7 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 								]}
 							/>
 
-							{heightType[localActiveDevice] === 'custom' && (
+							{(heightType[localActiveDevice] === 'custom' || (!heightType[localActiveDevice] && (heightType.desktop === 'custom' || heightType.tablet === 'custom'))) && (
 								<ResponsiveRangeControl
 									label={__('Min Height', 'digiblocks')}
 									value={minHeight}
@@ -1159,33 +1218,33 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 										{ label: 'rem', value: 'rem' },
 										{ label: 'vh', value: 'vh' }
 									]}
-									defaultUnit='px'
 									min={0}
-									max={getContentMaxValue(minHeight[localActiveDevice]?.unit)}
-									step={getContentStepValue(minHeight[localActiveDevice]?.unit)}
+									max={getContentMaxValue(minHeight?.[localActiveDevice]?.unit || 'px')}
+									step={getContentStepValue(minHeight?.[localActiveDevice]?.unit || 'px')}
+									defaultUnit="px"
 								/>
 							)}
 
 							<ResponsiveButtonGroup
-								label={__("Horizontal Align", "digiblocks")}
+								label={__("Justify Content", "digiblocks")}
 								value={horizontalAlign}
 								onChange={(value) => setAttributes({ horizontalAlign: value })}
 								options={[
-									{ label: __("Left", "digiblocks"), value: "flex-start" },
+									{ label: __("Start", "digiblocks"), value: "flex-start" },
 									{ label: __("Center", "digiblocks"), value: "center" },
-									{ label: __("Right", "digiblocks"), value: "flex-end" },
+									{ label: __("End", "digiblocks"), value: "flex-end" },
 									{ label: __("Space", "digiblocks"), value: "space-between" }
 								]}
 							/>
 
 							<ResponsiveButtonGroup
-								label={__("Vertical Align", "digiblocks")}
+								label={__("Align Items", "digiblocks")}
 								value={verticalAlign}
 								onChange={(value) => setAttributes({ verticalAlign: value })}
 								options={[
-									{ label: __("Top", "digiblocks"), value: "flex-start" },
-									{ label: __("Middle", "digiblocks"), value: "center" },
-									{ label: __("Bottom", "digiblocks"), value: "flex-end" },
+									{ label: __("Start", "digiblocks"), value: "flex-start" },
+									{ label: __("Center", "digiblocks"), value: "center" },
+									{ label: __("End", "digiblocks"), value: "flex-end" },
 									{ label: __("Stretch", "digiblocks"), value: "stretch" }
 								]}
 							/>
@@ -1214,25 +1273,34 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 									{ label: 'em', value: 'em' },
 									{ label: 'rem', value: 'rem' },
 								]}
-								defaultUnit="px"
 								min={0}
 								max={100}
 								step={1}
+								defaultValues={{
+									desktop: { value: 20, unit: 'px' },
+									tablet: { value: '', unit: 'px' },
+									mobile: { value: '', unit: 'px' }
+								}}
 							/>
 
 							<ResponsiveRangeControl
 								label={__("Row Gap", "digiblocks")}
 								value={rowGap}
 								onChange={(value) => setAttributes({ rowGap: value })}
-								units={[ // no % unit as it doesn't work on Row Gap
+								units={[
 									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' },
 									{ label: 'em', value: 'em' },
 									{ label: 'rem', value: 'rem' },
 								]}
-								defaultUnit="px"
 								min={0}
 								max={100}
 								step={1}
+								defaultValues={{
+									desktop: { value: 20, unit: 'px' },
+									tablet: { value: '', unit: 'px' },
+									mobile: { value: '', unit: 'px' }
+								}}
 							/>
                         </TabPanelBody>
                         
@@ -1324,13 +1392,13 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                                                                 isPrimary
                                                                 onClick={open}
                                                             >
-                                                                <span class="dashicon dashicons dashicons-edit"></span>
+                                                                <span className="dashicon dashicons dashicons-edit"></span>
                                                             </Button>
                                                             <Button 
                                                                 isDestructive
                                                                 onClick={() => setAttributes({ backgroundImage: { url: '', id: 0, alt: '', size: '' } })}
                                                             >
-                                                                <span class="dashicon dashicons dashicons-trash"></span>
+                                                                <span className="dashicon dashicons dashicons-trash"></span>
                                                             </Button>
                                                         </div>
                                                     </div>
@@ -1381,17 +1449,57 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                             )}
                         </TabPanelBody>
 
-                        <TabPanelBody
-                            tab="background"
-                            name="gradient"
-                            title={__('Background Gradient', 'digiblocks')}
-                            initialOpen={false}
-                        >
-                            <GradientControl
-                                value={backgroundGradient}
-                                onChange={(value) => setAttributes({ backgroundGradient: value })}
-                            />
-                        </TabPanelBody>
+						<TabPanelBody
+							tab="background"
+							name="gradient"
+							title={__('Background Gradient', 'digiblocks')}
+							initialOpen={false}
+						>
+							<ToggleControl
+								label={__('Enable Gradient', 'digiblocks')}
+								checked={!!backgroundGradient}
+								onChange={(value) => {
+									if (value) {
+										setAttributes({ backgroundGradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)' });
+									} else {
+										setAttributes({ backgroundGradient: '' });
+									}
+								}}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							{backgroundGradient && (
+								<div style={{ marginTop: '12px' }}>
+									<label className="components-base-control__label" style={{ marginBottom: '8px', display: 'block' }}>
+										{__('Background Gradient', 'digiblocks')}
+									</label>
+									<GradientPicker
+										value={backgroundGradient || undefined}
+										onChange={(value) => setAttributes({ 
+											backgroundGradient: value || ''
+										})}
+										clearable={true}
+										gradients={[
+											{
+												name: 'Vivid cyan blue to vivid purple',
+												gradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)',
+												slug: 'vivid-cyan-blue-to-vivid-purple',
+											},
+											{
+												name: 'Light green cyan to vivid green cyan',
+												gradient: 'linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%)',
+												slug: 'light-green-cyan-to-vivid-green-cyan',
+											},
+											{
+												name: 'Luminous vivid amber to luminous vivid orange',
+												gradient: 'linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%)',
+												slug: 'luminous-vivid-amber-to-luminous-vivid-orange',
+											},
+										]}
+									/>
+								</div>
+							)}
+						</TabPanelBody>
                         
                         <TabPanelBody
                             tab="background"
@@ -1510,42 +1618,105 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Background Overlay', 'digiblocks')}
                             initialOpen={false}
                         >
-                            <PanelColorSettings
-                                title={__("Overlay Color", "digiblocks")}
-                                initialOpen={true}
+							<PanelColorSettings
+								title={__("Overlay Color", "digiblocks")}
 								enableAlpha={true}
-                                colorSettings={[
-                                    {
-                                        value: backgroundOverlay,
-                                        onChange: (value) => setAttributes({ backgroundOverlay: value }),
-                                        label: __("Overlay Color", "digiblocks"),
-                                    },
-                                ]}
-                            />
-                            
-                            {backgroundOverlay && (
-                                <>
-                                    <RangeControl
-                                        label={__('Overlay Opacity', 'digiblocks')}
-                                        value={backgroundOverlayOpacity}
-                                        onChange={(value) => setAttributes({ backgroundOverlayOpacity: value })}
-                                        min={0}
-                                        max={1}
-                                        step={0.01}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
-                                    
-                                    <SelectControl
-                                        label={__('Blend Mode', 'digiblocks')}
-                                        value={backgroundOverlayBlendMode}
-                                        options={blendModeOptions}
-                                        onChange={(value) => setAttributes({ backgroundOverlayBlendMode: value })}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
-                                </>
-                            )}
+								colorSettings={[
+									{
+										value: backgroundOverlay,
+										onChange: (value) => setAttributes({ 
+											backgroundOverlay: value,
+											backgroundOverlayGradient: ''
+										}),
+										label: __("Overlay Color", "digiblocks"),
+									},
+								]}
+							/>
+
+							<ToggleControl
+								label={__('Enable Gradient', 'digiblocks')}
+								checked={!!backgroundOverlayGradient}
+								onChange={(value) => {
+									if (value) {
+										setAttributes({ 
+											backgroundOverlayGradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)',
+											backgroundOverlay: ''
+										});
+									} else {
+										setAttributes({ backgroundOverlayGradient: '' });
+									}
+								}}
+								__nextHasNoMarginBottom={true}
+							/>
+
+							{backgroundOverlayGradient && (
+								<div style={{ marginTop: '12px' }}>
+									<label className="components-base-control__label" style={{ marginBottom: '8px', display: 'block' }}>
+										{__('Overlay Gradient', 'digiblocks')}
+									</label>
+									<GradientPicker
+										value={backgroundOverlayGradient || undefined}
+										onChange={(value) => setAttributes({ 
+											backgroundOverlayGradient: value || '',
+											backgroundOverlay: ''
+										})}
+										clearable={true}
+										gradients={[
+											{
+												name: 'Vivid cyan blue to vivid purple',
+												gradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)',
+												slug: 'vivid-cyan-blue-to-vivid-purple',
+											},
+											{
+												name: 'Light green cyan to vivid green cyan',
+												gradient: 'linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%)',
+												slug: 'light-green-cyan-to-vivid-green-cyan',
+											},
+											{
+												name: 'Luminous vivid amber to luminous vivid orange',
+												gradient: 'linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%)',
+												slug: 'luminous-vivid-amber-to-luminous-vivid-orange',
+											},
+										]}
+									/>
+								</div>
+							)}
+
+							{(backgroundOverlay || backgroundOverlayGradient) && (
+								<>
+									<RangeControl
+										label={__('Overlay Opacity', 'digiblocks')}
+										value={backgroundOverlayOpacity}
+										onChange={(value) => setAttributes({ backgroundOverlayOpacity: value })}
+										min={0}
+										max={1}
+										step={0.01}
+										__nextHasNoMarginBottom={true}
+									/>
+
+									<SelectControl
+										label={__('Blend Mode', 'digiblocks')}
+										value={backgroundOverlayBlendMode}
+										options={[
+											{ label: __('Normal', 'digiblocks'), value: 'normal' },
+											{ label: __('Multiply', 'digiblocks'), value: 'multiply' },
+											{ label: __('Screen', 'digiblocks'), value: 'screen' },
+											{ label: __('Overlay', 'digiblocks'), value: 'overlay' },
+											{ label: __('Darken', 'digiblocks'), value: 'darken' },
+											{ label: __('Lighten', 'digiblocks'), value: 'lighten' },
+											{ label: __('Color Dodge', 'digiblocks'), value: 'color-dodge' },
+											{ label: __('Color Burn', 'digiblocks'), value: 'color-burn' },
+											{ label: __('Hard Light', 'digiblocks'), value: 'hard-light' },
+											{ label: __('Soft Light', 'digiblocks'), value: 'soft-light' },
+											{ label: __('Difference', 'digiblocks'), value: 'difference' },
+											{ label: __('Exclusion', 'digiblocks'), value: 'exclusion' },
+										]}
+										onChange={(value) => setAttributes({ backgroundOverlayBlendMode: value })}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+								</>
+							)}
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1565,21 +1736,11 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                             
                             {borderStyle !== 'none' && (
                                 <>
-                                    <ResponsiveControl
+                                    <DimensionControl
                                         label={__('Border Width', 'digiblocks')}
-                                    >
-                                        <DimensionControl
-                                            values={borderWidth[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    borderWidth: {
-                                                        ...borderWidth,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                        />
-                                    </ResponsiveControl>
+                                        value={borderWidth}
+                                        onChange={(value) => setAttributes({ borderWidth: value })}
+                                    />
                                     
                                     <PanelColorSettings
                                         title=""
@@ -1595,26 +1756,16 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                                 </>
                             )}
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__('Border Radius', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={borderRadius[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            borderRadius: {
-                                                ...borderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    units={[
-                                        { label: 'px', value: 'px' },
-                                        { label: '%', value: '%' },
-                                        { label: 'em', value: 'em' },
-                                    ]}
-                                />
-                            </ResponsiveControl>
+                                value={borderRadius}
+                                onChange={(value) => setAttributes({ borderRadius: value })}
+                                units={[
+                                    { label: 'px', value: 'px' },
+                                    { label: '%', value: '%' },
+                                    { label: 'em', value: 'em' },
+                                ]}
+                            />
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1641,37 +1792,17 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__('Padding', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={padding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={padding}
+                                onChange={(value) => setAttributes({ padding: value })}
+                            />
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__('Margin', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={margin[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={margin}
+                                onChange={(value) => setAttributes({ margin: value })}
+                            />
                         </TabPanelBody>
                         
                         <TabPanelBody
@@ -1821,11 +1952,12 @@ const ContainerEdit = ({ attributes, setAttributes, clientId }) => {
 										__next40pxDefaultSize={true}
 										__nextHasNoMarginBottom={true}
 									/>
-									
-									<NumberControl
+
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

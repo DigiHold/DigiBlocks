@@ -3,11 +3,10 @@
  * Plugin Name: DigiBlocks
  * Plugin URI: https://digiblocks.me/
  * Description: A collection of beautiful custom Gutenberg blocks for WordPress.
- * Version: 1.0.3
+ * Version: 1.1.0
  * Author: DigiHold
  * Author URI: https://digihold.me?utm_source=wordpress.org&utm_medium=referral&utm_campaign=plugin_directory&utm_content=digiblocks
  * Text Domain: digiblocks
- * Domain Path: /languages
  * Requires at least: 6.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -25,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Define constants.
 if ( ! defined( 'DIGIBLOCKS_VERSION' ) ) {
-	define( 'DIGIBLOCKS_VERSION', '1.0.3' );
+	define( 'DIGIBLOCKS_VERSION', '1.1.0' );
 }
 if ( ! defined( 'DIGIBLOCKS_PLUGIN_DIR' ) ) {
 	define( 'DIGIBLOCKS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );

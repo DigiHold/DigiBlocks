@@ -12,23 +12,24 @@ const {
     ButtonBlockAppender
 } = wp.blockEditor;
 const {
+	TextControl,
 	ToggleControl,
     SelectControl,
     RangeControl,
     Button,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
+	GradientPicker,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
-const { useSelect, useDispatch } = wp.data;
+const { useSelect } = wp.data;
 
 /**
  * Internal dependencies
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveRangeControl, ResponsiveButtonGroup, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody, GradientControl, TransformControl } = digi.components;
+const { ResponsiveControl, ResponsiveRangeControl, ResponsiveButtonGroup, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
 
 /**
  * Column Block Edit Component
@@ -36,15 +37,20 @@ const { ResponsiveControl, ResponsiveRangeControl, ResponsiveButtonGroup, Dimens
 const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
     const {
         id,
+        anchor,
+        customClasses,
 		visibility,
         animation,
 		animationDuration,
 		animationDelay,
         width,
+        minHeight,
         order,
 		alignSelf,
+		justifyContent,
         columnGap,
         rowGap,
+        overflowHidden,
 		hoverEffect,
         backgroundColor,
         backgroundGradient,
@@ -53,6 +59,7 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
         backgroundRepeat,
         backgroundSize,
         backgroundOverlay,
+		backgroundOverlayGradient,
         backgroundOverlayOpacity,
         backgroundOverlayBlendMode,
         padding,
@@ -134,23 +141,32 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
 	// Get responsive value with fallback
 	const getVal = (obj, device) => {
 		if (!obj || typeof obj !== 'object') return null;
-		
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
 		if (device === 'mobile') {
-			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
-				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
 				obj.desktop;
 		}
 		if (device === 'tablet') {
-			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
-				obj.desktop;
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
 		}
 		return obj.desktop;
 	};
     
     // Get parent block info only
-	const { parentClientId, hasChildBlocks } = useSelect(
+	const {
+    parentClientId, hasChildBlocks } = useSelect(
 		(select) => {
-			const { getBlockParents, getBlockCount } = select('core/block-editor');
+			const {
+    getBlockParents, getBlockCount } = select('core/block-editor');
 			
 			// Get the parent container block
 			const parents = getBlockParents(clientId);
@@ -193,23 +209,6 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
         return unsubscribe;
     }, []);
 
-    // Generate gradient CSS
-    const generateGradientCSS = () => {
-        if (!backgroundGradient.enable || !backgroundGradient.colors.length) {
-            return '';
-        }
-
-        const colorStops = backgroundGradient.colors
-            .map(stop => `${stop.color} ${stop.position}%`)
-            .join(', ');
-
-        if (backgroundGradient.type === 'radial') {
-            return `background-image: radial-gradient(circle at ${backgroundGradient.position}, ${colorStops});`;
-        } else {
-            return `background-image: linear-gradient(${backgroundGradient.angle}deg, ${colorStops});`;
-        }
-    };
-
     // Background position options
     const bgPositionOptions = [
         { label: __('Top Left', 'digiblocks'), value: 'top left' },
@@ -248,26 +247,6 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
         { label: __('Double', 'digiblocks'), value: 'double' },
     ];
 
-    // Blend mode options
-    const blendModeOptions = [
-        { label: __('Normal', 'digiblocks'), value: 'normal' },
-        { label: __('Multiply', 'digiblocks'), value: 'multiply' },
-        { label: __('Screen', 'digiblocks'), value: 'screen' },
-        { label: __('Overlay', 'digiblocks'), value: 'overlay' },
-        { label: __('Darken', 'digiblocks'), value: 'darken' },
-        { label: __('Lighten', 'digiblocks'), value: 'lighten' },
-        { label: __('Color Dodge', 'digiblocks'), value: 'color-dodge' },
-        { label: __('Color Burn', 'digiblocks'), value: 'color-burn' },
-        { label: __('Hard Light', 'digiblocks'), value: 'hard-light' },
-        { label: __('Soft Light', 'digiblocks'), value: 'soft-light' },
-        { label: __('Difference', 'digiblocks'), value: 'difference' },
-        { label: __('Exclusion', 'digiblocks'), value: 'exclusion' },
-        { label: __('Hue', 'digiblocks'), value: 'hue' },
-        { label: __('Saturation', 'digiblocks'), value: 'saturation' },
-        { label: __('Color', 'digiblocks'), value: 'color' },
-        { label: __('Luminosity', 'digiblocks'), value: 'luminosity' },
-    ];
-
     // Hover effect options
     const hoverEffectOptions = [
         { label: __("None", "digiblocks"), value: "none" },
@@ -301,20 +280,29 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
 	};
 
 	const getGapValue = (gapObj, device) => {
+		if (!gapObj || typeof gapObj !== 'object') {
+			return {
+				value: 0,
+				unit: 'px'
+			};
+		}
+
 		if (gapObj[device] && isValueSet(gapObj[device].value)) {
 			return {
 				value: gapObj[device].value,
 				unit: gapObj[device].unit || 'px'
 			};
 		}
-		
+
 		if (device === 'tablet') {
-			return {
-				value: gapObj.desktop.value,
-				unit: gapObj.desktop.unit || 'px'
-			};
+			if (gapObj.desktop && isValueSet(gapObj.desktop.value)) {
+				return {
+					value: gapObj.desktop.value,
+					unit: gapObj.desktop.unit || 'px'
+				};
+			}
 		}
-		
+
 		if (device === 'mobile') {
 			if (gapObj.tablet && isValueSet(gapObj.tablet.value)) {
 				return {
@@ -322,12 +310,14 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
 					unit: gapObj.tablet.unit || 'px'
 				};
 			}
-			return {
-				value: gapObj.desktop.value,
-				unit: gapObj.desktop.unit || 'px'
-			};
+			if (gapObj.desktop && isValueSet(gapObj.desktop.value)) {
+				return {
+					value: gapObj.desktop.value,
+					unit: gapObj.desktop.unit || 'px'
+				};
+			}
 		}
-		
+
 		return {
 			value: 0,
 			unit: 'px'
@@ -479,6 +469,14 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
     const generateColumnCSS = () => {
         const activeDevice = localActiveDevice;
         
+        // Height CSS
+		let heightCSS = '';
+		if (minHeight?.[activeDevice]?.value !== "" && minHeight?.[activeDevice]?.value !== undefined) {
+			const minHeightValue = minHeight?.[activeDevice]?.value || minHeight?.desktop?.value || 0;
+			const minHeightUnit = minHeight?.[activeDevice]?.unit || minHeight?.desktop?.unit || 'px';
+			heightCSS = minHeightValue ? `min-height: ${minHeightValue}${minHeightUnit} !important;` : '';
+		}
+        
         // Background styles - priority: gradient > image > color
         let backgroundStyles = '';
         
@@ -488,21 +486,20 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         // Background gradient
-        const gradientCSS = generateGradientCSS();
-        if (gradientCSS) {
-            backgroundStyles += gradientCSS;
-        }
+		if (backgroundGradient) {
+			backgroundStyles += `background-image: ${backgroundGradient};`;
+		}
         
         // Background image (highest priority)
         if (backgroundImage && backgroundImage.url) {
             // If gradient is enabled, use comma to layer them
             const imageCSS = `url(${backgroundImage.url})`;
-            if (gradientCSS) {
-                backgroundStyles = backgroundStyles.replace(
-                    /background-image: ([^;]+);/, 
-                    `background-image: ${imageCSS}, $1;`
-                );
-            } else {
+            if (backgroundGradient) {
+				backgroundStyles = backgroundStyles.replace(
+					/background-image: ([^;]+);/, 
+					`background-image: ${imageCSS}, $1;`
+				);
+			} else {
                 backgroundStyles += `background-image: ${imageCSS};`;
             }
             backgroundStyles += `background-position: ${backgroundPosition};
@@ -511,31 +508,38 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         // Background overlay CSS
-        let overlayCSS = '';
-        if (backgroundOverlay) {
-            overlayCSS = `
-            .${id} {
-                position: relative !important;
-            }
-            .${id}:before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: ${backgroundOverlay};
-                opacity: ${backgroundOverlayOpacity};
-                mix-blend-mode: ${backgroundOverlayBlendMode};
-                z-index: 1;
-                pointer-events: none;
-                border-radius: inherit;
-            }
-            .${id} > * {
-                position: relative;
-                z-index: 2;
-            }`;
-        }
+		let overlayCSS = '';
+		if (backgroundOverlay || backgroundOverlayGradient) {
+			let overlayBackground = '';
+			if (backgroundOverlayGradient) {
+				overlayBackground = `background: ${backgroundOverlayGradient};`;
+			} else if (backgroundOverlay) {
+				overlayBackground = `background-color: ${backgroundOverlay};`;
+			}
+			
+			overlayCSS = `
+			.${id} {
+				position: relative !important;
+			}
+			.${id}:before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				${overlayBackground}
+				opacity: ${backgroundOverlayOpacity};
+				mix-blend-mode: ${backgroundOverlayBlendMode};
+				z-index: 1;
+				pointer-events: none;
+				border-radius: inherit;
+			}
+			.${id} > * {
+				position: relative;
+				z-index: 2;
+			}`;
+		}
         
         // Box shadow CSS
         let boxShadowCSS = '';
@@ -567,8 +571,17 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -577,8 +590,17 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -615,14 +637,16 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
         return `
             /* Column Block - ${id} */
             .${id} {
-                width: ${width[activeDevice]?.value !== '' && width[activeDevice]?.value !== undefined
+                width: ${width[activeDevice]?.value !== "" && width[activeDevice]?.value !== undefined
 					? width[activeDevice].value + width[activeDevice].unit
-					: width.desktop.value + width.desktop.unit};
+					: width.desktop.value + (width.desktop.unit !== null ? width.desktop.unit : '')};
+                ${heightCSS}
 				${getDimensionCSS(padding, 'padding', activeDevice)}
 				${getDimensionCSS(margin, 'margin', activeDevice)}
                 display: flex;
                 flex-direction: column;
                 ${getVal(alignSelf, activeDevice) ? `align-self: ${getVal(alignSelf, activeDevice)};` : ''}
+                ${getVal(justifyContent, activeDevice) ? `justify-content: ${getVal(justifyContent, activeDevice)};` : ''}
                 ${order[activeDevice] !== 0 ? `order: ${order[activeDevice]};` : ''}
                 ${backgroundStyles}
                 ${borderStyle !== 'none' ? `
@@ -635,6 +659,7 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                 ${positionCSS}
 				${transformCSS}
 				gap: ${getGapValue(rowGap, 'desktop').value}${getGapValue(rowGap, 'desktop').unit} ${getGapValue(columnGap, 'desktop').value}${getGapValue(columnGap, 'desktop').unit};
+                ${overflowHidden ? 'overflow: hidden;' : ''}
             }
             
             /* Hover effects */
@@ -648,13 +673,14 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
             /* Tablet styles */
             @media (max-width: 991px) {
                 .${id} {
-                    width: ${width.tablet?.value !== '' 
-						? width.tablet.value + width.tablet.unit
-						: width.desktop.value + width.desktop.unit};
+                    width: ${width.tablet?.value !== "" 
+						? width.tablet.value + (width.tablet.unit !== null ? width.tablet.unit : '')
+						: width.desktop.value + (width.desktop.unit !== null ? width.desktop.unit : '')};
 					${getDimensionCSS(padding, 'padding', 'tablet')}
 					${getDimensionCSS(margin, 'margin', 'tablet')}
                     ${order['tablet'] !== 0 ? `order: ${order['tablet']};` : ''}
 					${getVal(alignSelf, 'tablet') ? `align-self: ${getVal(alignSelf, 'tablet')};` : ''}
+					${getVal(justifyContent, 'tablet') ? `justify-content: ${getVal(justifyContent, 'tablet')};` : ''}
 					${getDimensionCSS(borderRadius, 'border-radius', 'tablet')}
                     ${borderStyle !== 'none' ? `${getDimensionCSS(borderWidth, 'border-width', 'tablet', true)}` : ''}
 					gap: ${getGapValue(rowGap, 'tablet').value}${getGapValue(rowGap, 'tablet').unit} ${getGapValue(columnGap, 'tablet').value}${getGapValue(columnGap, 'tablet').unit};
@@ -664,15 +690,16 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
             /* Mobile styles */
             @media (max-width: 767px) {
                 .${id} {
-                    width: ${width.mobile?.value !== '' 
-						? width.mobile.value + width.mobile.unit
-						: (width.tablet?.value !== '' 
-							? width.tablet.value + width.tablet.unit
-							: width.desktop.value + width.desktop.unit)};
+                    width: ${width.mobile?.value !== "" 
+						? width.mobile.value + (width.mobile.unit !== null ? width.mobile.unit : '')
+						: (width.tablet?.value !== "" 
+							? width.tablet.value + (width.tablet.unit !== null ? width.tablet.unit : '')
+							: width.desktop.value + (width.desktop.unit !== null ? width.desktop.unit : ''))};
 					${getDimensionCSS(padding, 'padding', 'mobile')}
 					${getDimensionCSS(margin, 'margin', 'mobile')}
                     ${order['mobile'] !== 0 ? `order: ${order['mobile']};` : ''}
 					${getVal(alignSelf, 'mobile') ? `align-self: ${getVal(alignSelf, 'mobile')};` : ''}
+					${getVal(justifyContent, 'mobile') ? `justify-content: ${getVal(justifyContent, 'mobile')};` : ''}
 					${getDimensionCSS(borderRadius, 'border-radius', 'mobile')}
                     ${borderStyle !== 'none' ? `${getDimensionCSS(borderWidth, 'border-width', 'mobile', true)}` : ''}
 					gap: ${getGapValue(rowGap, 'mobile').value}${getGapValue(rowGap, 'mobile').unit} ${getGapValue(columnGap, 'mobile').value}${getGapValue(columnGap, 'mobile').unit};
@@ -708,7 +735,8 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Generate block props
     const blockProps = useBlockProps({
-        className: `digiblocks-column ${id}`,
+        className: `digiblocks-column ${id} ${customClasses || ''}`,
+		id: anchor || null,
     });
 
     // Generate inner blocks props
@@ -742,10 +770,26 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
 									{ label: 'rem', value: 'rem' },
 									{ label: 'vw', value: 'vw' }
 								]}
-								defaultUnit='%'
+								defaultValues={{ desktop: { value: 100, unit: '%' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } }}
 								min={0}
 								max={getContentMaxValue(width[localActiveDevice]?.unit)}
 								step={getContentStepValue(width[localActiveDevice]?.unit)}
+							/>
+
+							<ResponsiveRangeControl
+								label={__('Min Height', 'digiblocks')}
+								value={minHeight}
+								onChange={(value) => setAttributes({ minHeight: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: 'em', value: 'em' },
+									{ label: 'rem', value: 'rem' },
+									{ label: 'vh', value: 'vh' }
+								]}
+								defaultUnit='px'
+								min={0}
+								max={getContentMaxValue(minHeight[localActiveDevice]?.unit)}
+								step={getContentStepValue(minHeight[localActiveDevice]?.unit)}
 							/>
                             
                             <ResponsiveControl
@@ -776,9 +820,22 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
 								value={alignSelf}
 								onChange={(value) => setAttributes({ alignSelf: value })}
 								options={[
-									{ label: __("Top", "digiblocks"), value: "flex-start" },
-									{ label: __("Middle", "digiblocks"), value: "center" },
-									{ label: __("Bottom", "digiblocks"), value: "flex-end" },
+									{ label: __("Start", "digiblocks"), value: "flex-start" },
+									{ label: __("Center", "digiblocks"), value: "center" },
+									{ label: __("End", "digiblocks"), value: "flex-end" },
+									{ label: __("Stretch", "digiblocks"), value: "stretch" },
+								]}
+							/>
+
+							<ResponsiveButtonGroup
+								label={__("Justify Content", "digiblocks")}
+								value={justifyContent}
+								onChange={(value) => setAttributes({ justifyContent: value })}
+								options={[
+									{ label: __("Start", "digiblocks"), value: "flex-start" },
+									{ label: __("Center", "digiblocks"), value: "center" },
+									{ label: __("End", "digiblocks"), value: "flex-end" },
+									{ label: __("Space", "digiblocks"), value: "space-between" }
 								]}
 							/>
 
@@ -812,6 +869,21 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
 								max={100}
 								step={1}
 							/>
+                        </TabPanelBody>
+                        
+                        <TabPanelBody
+                            tab="style"
+                            name="advanced"
+                            title={__('Advanced', 'digiblocks')}
+                            initialOpen={false}
+                        >
+							<ToggleControl
+                                label={__('Overflow Hidden', 'digiblocks')}
+                                checked={overflowHidden}
+                                onChange={(value) => setAttributes({ overflowHidden: value })}
+                                help={__('Hide content that overflows the container boundaries.', 'digiblocks')}
+                                __nextHasNoMarginBottom={true}
+                            />
                         </TabPanelBody>
                     </>
                 );
@@ -863,13 +935,13 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                                                                 isPrimary
                                                                 onClick={open}
                                                             >
-                                                                <span class="dashicon dashicons dashicons-edit"></span>
+                                                                <span className="dashicon dashicons dashicons-edit"></span>
                                                             </Button>
                                                             <Button 
                                                                 isDestructive
                                                                 onClick={() => setAttributes({ backgroundImage: { url: '', id: 0, alt: '', size: '' } })}
                                                             >
-                                                                <span class="dashicon dashicons dashicons-trash"></span>
+                                                                <span className="dashicon dashicons dashicons-trash"></span>
                                                             </Button>
                                                         </div>
                                                     </div>
@@ -921,60 +993,164 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                         </TabPanelBody>
 
                         <TabPanelBody
-                            tab="background"
-                            name="gradient"
-                            title={__('Background Gradient', 'digiblocks')}
-                            initialOpen={false}
-                        >
-                            <GradientControl
-                                value={backgroundGradient}
-                                onChange={(value) => setAttributes({ backgroundGradient: value })}
-                            />
-                        </TabPanelBody>
+							tab="background"
+							name="gradient"
+							title={__('Background Gradient', 'digiblocks')}
+							initialOpen={false}
+						>
+							<ToggleControl
+								label={__('Enable Gradient', 'digiblocks')}
+								checked={!!backgroundGradient}
+								onChange={(value) => {
+									if (value) {
+										setAttributes({ backgroundGradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)' });
+									} else {
+										setAttributes({ backgroundGradient: '' });
+									}
+								}}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							{backgroundGradient && (
+								<div style={{ marginTop: '12px' }}>
+									<label className="components-base-control__label" style={{ marginBottom: '8px', display: 'block' }}>
+										{__('Background Gradient', 'digiblocks')}
+									</label>
+									<GradientPicker
+										value={backgroundGradient || undefined}
+										onChange={(value) => setAttributes({ 
+											backgroundGradient: value || ''
+										})}
+										clearable={true}
+										gradients={[
+											{
+												name: 'Vivid cyan blue to vivid purple',
+												gradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)',
+												slug: 'vivid-cyan-blue-to-vivid-purple',
+											},
+											{
+												name: 'Light green cyan to vivid green cyan',
+												gradient: 'linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%)',
+												slug: 'light-green-cyan-to-vivid-green-cyan',
+											},
+											{
+												name: 'Luminous vivid amber to luminous vivid orange',
+												gradient: 'linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%)',
+												slug: 'luminous-vivid-amber-to-luminous-vivid-orange',
+											},
+										]}
+									/>
+								</div>
+							)}
+						</TabPanelBody>
                         
-                        <TabPanelBody
-                            tab="background"
-                            name="overlay"
-                            title={__('Background Overlay', 'digiblocks')}
-                            initialOpen={false}
-                        >
-                            <PanelColorSettings
-                                title={__("Overlay Color", "digiblocks")}
-                                initialOpen={true}
+						<TabPanelBody
+							tab="background"
+							name="overlay"
+							title={__('Background Overlay', 'digiblocks')}
+							initialOpen={false}
+						>
+							<PanelColorSettings
+								title={__("Overlay Color", "digiblocks")}
 								enableAlpha={true}
-                                colorSettings={[
-                                    {
-                                        value: backgroundOverlay,
-                                        onChange: (value) => setAttributes({ backgroundOverlay: value }),
-                                        label: __("Overlay Color", "digiblocks"),
-                                    },
-                                ]}
-                            />
-                            
-                            {backgroundOverlay && (
-                                <>
-                                    <RangeControl
-                                        label={__('Overlay Opacity', 'digiblocks')}
-                                        value={backgroundOverlayOpacity}
-                                        onChange={(value) => setAttributes({ backgroundOverlayOpacity: value })}
-                                        min={0}
-                                        max={1}
-                                        step={0.01}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
-                                    
-                                    <SelectControl
-                                        label={__('Blend Mode', 'digiblocks')}
-                                        value={backgroundOverlayBlendMode}
-                                        options={blendModeOptions}
-                                        onChange={(value) => setAttributes({ backgroundOverlayBlendMode: value })}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
-                                </>
-                            )}
-                        </TabPanelBody>
+								colorSettings={[
+									{
+										value: backgroundOverlay,
+										onChange: (value) => setAttributes({ 
+											backgroundOverlay: value,
+											backgroundOverlayGradient: ''
+										}),
+										label: __("Overlay Color", "digiblocks"),
+									},
+								]}
+							/>
+							
+							<ToggleControl
+								label={__('Enable Gradient', 'digiblocks')}
+								checked={!!backgroundOverlayGradient}
+								onChange={(value) => {
+									if (value) {
+										setAttributes({ 
+											backgroundOverlayGradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)',
+											backgroundOverlay: ''
+										});
+									} else {
+										setAttributes({ backgroundOverlayGradient: '' });
+									}
+								}}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							{backgroundOverlayGradient && (
+								<div style={{ marginTop: '12px' }}>
+									<label className="components-base-control__label" style={{ marginBottom: '8px', display: 'block' }}>
+										{__('Overlay Gradient', 'digiblocks')}
+									</label>
+									<GradientPicker
+										value={backgroundOverlayGradient || undefined}
+										onChange={(value) => setAttributes({ 
+											backgroundOverlayGradient: value || '',
+											backgroundOverlay: ''
+										})}
+										clearable={true}
+										gradients={[
+											{
+												name: 'Vivid cyan blue to vivid purple',
+												gradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)',
+												slug: 'vivid-cyan-blue-to-vivid-purple',
+											},
+											{
+												name: 'Light green cyan to vivid green cyan',
+												gradient: 'linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%)',
+												slug: 'light-green-cyan-to-vivid-green-cyan',
+											},
+											{
+												name: 'Luminous vivid amber to luminous vivid orange',
+												gradient: 'linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%)',
+												slug: 'luminous-vivid-amber-to-luminous-vivid-orange',
+											},
+										]}
+									/>
+								</div>
+							)}
+							
+							{(backgroundOverlay || backgroundOverlayGradient) && (
+								<>
+									<RangeControl
+										label={__('Overlay Opacity', 'digiblocks')}
+										value={backgroundOverlayOpacity}
+										onChange={(value) => setAttributes({ backgroundOverlayOpacity: value })}
+										min={0}
+										max={1}
+										step={0.01}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+									
+									<SelectControl
+										label={__('Blend Mode', 'digiblocks')}
+										value={backgroundOverlayBlendMode}
+										options={[
+											{ label: __('Normal', 'digiblocks'), value: 'normal' },
+											{ label: __('Multiply', 'digiblocks'), value: 'multiply' },
+											{ label: __('Screen', 'digiblocks'), value: 'screen' },
+											{ label: __('Overlay', 'digiblocks'), value: 'overlay' },
+											{ label: __('Darken', 'digiblocks'), value: 'darken' },
+											{ label: __('Lighten', 'digiblocks'), value: 'lighten' },
+											{ label: __('Color Dodge', 'digiblocks'), value: 'color-dodge' },
+											{ label: __('Color Burn', 'digiblocks'), value: 'color-burn' },
+											{ label: __('Hard Light', 'digiblocks'), value: 'hard-light' },
+											{ label: __('Soft Light', 'digiblocks'), value: 'soft-light' },
+											{ label: __('Difference', 'digiblocks'), value: 'difference' },
+											{ label: __('Exclusion', 'digiblocks'), value: 'exclusion' },
+										]}
+										onChange={(value) => setAttributes({ backgroundOverlayBlendMode: value })}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+								</>
+							)}
+						</TabPanelBody>
 
                         <TabPanelBody
                             tab="style"
@@ -993,21 +1169,11 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                             
                             {borderStyle !== 'none' && (
                                 <>
-                                    <ResponsiveControl
+                                    <DimensionControl
                                         label={__('Border Width', 'digiblocks')}
-                                    >
-                                        <DimensionControl
-                                            values={borderWidth[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    borderWidth: {
-                                                        ...borderWidth,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                        />
-                                    </ResponsiveControl>
+                                        value={borderWidth}
+                                        onChange={(value) => setAttributes({ borderWidth: value })}
+                                    />
                                     
                                     <PanelColorSettings
                                         title=""
@@ -1023,26 +1189,16 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                                 </>
                             )}
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__('Border Radius', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={borderRadius[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            borderRadius: {
-                                                ...borderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    units={[
-                                        { label: 'px', value: 'px' },
-                                        { label: '%', value: '%' },
-                                        { label: 'em', value: 'em' },
-                                    ]}
-                                />
-                            </ResponsiveControl>
+                                value={borderRadius}
+                                onChange={(value) => setAttributes({ borderRadius: value })}
+                                units={[
+                                    { label: 'px', value: 'px' },
+                                    { label: '%', value: '%' },
+                                    { label: 'em', value: 'em' },
+                                ]}
+                            />
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1069,37 +1225,17 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__('Padding', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={padding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={padding}
+                                onChange={(value) => setAttributes({ padding: value })}
+                            />
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__('Margin', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={margin[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={margin}
+                                onChange={(value) => setAttributes({ margin: value })}
+                            />
                         </TabPanelBody>
 
 						<TabPanelBody
@@ -1154,8 +1290,8 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1189,8 +1325,8 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -1266,10 +1402,11 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}
@@ -1346,6 +1483,72 @@ const ColumnEdit = ({ attributes, setAttributes, clientId }) => {
 								__nextHasNoMarginBottom={true}
 							/>
 						</TabPanelBody>
+
+                        <TabPanelBody
+                            tab="advanced"
+                            name="additional"
+                            title={__('Additional', 'digiblocks')}
+                            initialOpen={false}
+                        >
+                            {/* HTML Anchor field */}
+                            <div className="components-base-control html-anchor-control">
+                                <div className="components-base-control__field">
+                                    <label className="components-base-control__label" htmlFor="html-anchor">
+                                        {__("HTML anchor", "digiblocks")}
+                                    </label>
+                                    <input
+                                        className="components-text-control__input"
+                                        type="text"
+                                        id="html-anchor"
+                                        value={anchor || ""}
+                                        onChange={(e) =>
+                                            setAttributes({ anchor: e.target.value })
+                                        }
+                                        aria-describedby="html-anchor-help"
+                                        autoCapitalize="none"
+                                        autoComplete="off"
+                                    />
+                                </div>
+                                <p id="html-anchor-help" className="components-base-control__help">
+                                    {__("Enter a word or two — without spaces — to make a unique web address just for this block, called an \"anchor\". Then, you'll be able to link directly to this section of your page.", "digiblocks")}
+                                    {' '}
+                                    <a 
+                                        className="components-external-link" 
+                                        href="https://wordpress.org/documentation/article/page-jumps/" 
+                                        target="_blank" 
+                                        rel="external noreferrer noopener"
+                                    >
+                                        <span className="components-external-link__contents">
+                                            {__("Learn more about anchors", "digiblocks")}
+                                        </span>
+                                        <span className="components-external-link__icon" aria-label="(opens in a new tab)">↗</span>
+                                    </a>
+                                </p>
+                            </div>
+
+                            {/* Additional CSS classes field */}
+                            <div className="components-base-control">
+                                <div className="components-base-control__field">
+                                    <label className="components-base-control__label" htmlFor="additional-css-classes">
+                                        {__("Additional CSS class(es)", "digiblocks")}
+                                    </label>
+                                    <input
+                                        className="components-text-control__input"
+                                        type="text"
+                                        id="additional-css-classes"
+                                        value={customClasses || ""}
+                                        onChange={(e) =>
+                                            setAttributes({ customClasses: e.target.value })
+                                        }
+                                        aria-describedby="additional-css-classes-help"
+                                        autoComplete="off"
+                                    />
+                                </div>
+                                <p id="additional-css-classes-help" className="components-base-control__help">
+                                    {__("Separate multiple classes with spaces.", "digiblocks")}
+                                </p>
+                            </div>
+                        </TabPanelBody>
                     </>
                 );
             default:

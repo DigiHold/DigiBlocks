@@ -10,10 +10,10 @@ const {
     MediaUploadCheck
 } = wp.blockEditor;
 const {
+    TextControl,
     SelectControl,
     RangeControl,
     ToggleControl,
-    TextControl,
     Button,
     TextareaControl,
     PanelBody,
@@ -21,7 +21,6 @@ const {
     Dashicon,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 const { useDispatch, useSelect } = wp.data;
@@ -104,15 +103,22 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
 	// Get responsive value with fallback
 	const getVal = (obj, device) => {
 		if (!obj || typeof obj !== 'object') return null;
-		
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
 		if (device === 'mobile') {
-			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
-				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
 				obj.desktop;
 		}
 		if (device === 'tablet') {
-			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
-				obj.desktop;
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
 		}
 		return obj.desktop;
 	};
@@ -567,8 +573,8 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const fontSize = getVal(typography.fontSize, activeDevice);
-			if (fontSize) {
-				mainTypographyCSS += `font-size: ${fontSize}${typography.fontSizeUnit || 'px'};`;
+			if (fontSize && fontSize.value !== "" && fontSize.value !== null && fontSize.value !== undefined) {
+				mainTypographyCSS += `font-size: ${fontSize.value}${fontSize.unit !== null ? fontSize.unit : ''};`;
 			}
             
             if (typography.fontWeight) {
@@ -584,13 +590,13 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const lineHeight = getVal(typography.lineHeight, activeDevice);
-			if (lineHeight) {
-				mainTypographyCSS += `line-height: ${lineHeight}${typography.lineHeightUnit || 'em'};`;
+			if (lineHeight && lineHeight.value !== "" && lineHeight.value !== null && lineHeight.value !== undefined) {
+				mainTypographyCSS += `line-height: ${lineHeight.value}${lineHeight.unit !== null ? lineHeight.unit : ''};`;
 			}
 			
 			const letterSpacing = getVal(typography.letterSpacing, activeDevice);
-			if (letterSpacing || letterSpacing === 0) {
-				mainTypographyCSS += `letter-spacing: ${letterSpacing}${typography.letterSpacingUnit || 'px'};`;
+			if (letterSpacing && letterSpacing.value !== "" && letterSpacing.value !== null && letterSpacing.value !== undefined) {
+				mainTypographyCSS += `letter-spacing: ${letterSpacing.value}${letterSpacing.unit !== null ? letterSpacing.unit : ''};`;
 			}
         }
         
@@ -602,8 +608,8 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const textFontSize = getVal(textTypography.fontSize, activeDevice);
-			if (textFontSize) {
-				textTypographyCSS += `font-size: ${textFontSize}${textTypography.fontSizeUnit || 'px'};`;
+			if (textFontSize && textFontSize.value !== "" && textFontSize.value !== null && textFontSize.value !== undefined) {
+				textTypographyCSS += `font-size: ${textFontSize.value}${textFontSize.unit !== null ? textFontSize.unit : ''};`;
 			}
             
             if (textTypography.fontWeight) {
@@ -619,13 +625,13 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const textLineHeight = getVal(textTypography.lineHeight, activeDevice);
-			if (textLineHeight) {
-				textTypographyCSS += `line-height: ${textLineHeight}${textTypography.lineHeightUnit || 'em'};`;
+			if (textLineHeight && textLineHeight.value !== "" && textLineHeight.value !== null && textLineHeight.value !== undefined) {
+				textTypographyCSS += `line-height: ${textLineHeight.value}${textLineHeight.unit !== null ? textLineHeight.unit : ''};`;
 			}
 			
 			const textLetterSpacing = getVal(textTypography.letterSpacing, activeDevice);
-			if (textLetterSpacing || textLetterSpacing === 0) {
-				textTypographyCSS += `letter-spacing: ${textLetterSpacing}${textTypography.letterSpacingUnit || 'px'};`;
+			if (textLetterSpacing && textLetterSpacing.value !== "" && textLetterSpacing.value !== null && textLetterSpacing.value !== undefined) {
+				textTypographyCSS += `letter-spacing: ${textLetterSpacing.value}${textLetterSpacing.unit !== null ? textLetterSpacing.unit : ''};`;
 			}
         }
         
@@ -637,8 +643,8 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const buttonFontSize = getVal(buttonTypography.fontSize, activeDevice);
-			if (buttonFontSize) {
-				buttonTypographyCSS += `font-size: ${buttonFontSize}${buttonTypography.fontSizeUnit || 'px'};`;
+			if (buttonFontSize && buttonFontSize.value !== "" && buttonFontSize.value !== null && buttonFontSize.value !== undefined) {
+				buttonTypographyCSS += `font-size: ${buttonFontSize.value}${buttonFontSize.unit !== null ? buttonFontSize.unit : ''};`;
 			}
             
             if (buttonTypography.fontWeight) {
@@ -654,13 +660,13 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const buttonLineHeight = getVal(buttonTypography.lineHeight, activeDevice);
-			if (buttonLineHeight) {
-				buttonTypographyCSS += `line-height: ${buttonLineHeight}${buttonTypography.lineHeightUnit || 'em'};`;
+			if (buttonLineHeight && buttonLineHeight.value !== "" && buttonLineHeight.value !== null && buttonLineHeight.value !== undefined) {
+				buttonTypographyCSS += `line-height: ${buttonLineHeight.value}${buttonLineHeight.unit !== null ? buttonLineHeight.unit : ''};`;
 			}
 			
 			const buttonLetterSpacing = getVal(buttonTypography.letterSpacing, activeDevice);
-			if (buttonLetterSpacing || buttonLetterSpacing === 0) {
-				buttonTypographyCSS += `letter-spacing: ${buttonLetterSpacing}${buttonTypography.letterSpacingUnit || 'px'};`;
+			if (buttonLetterSpacing && buttonLetterSpacing.value !== "" && buttonLetterSpacing.value !== null && buttonLetterSpacing.value !== undefined) {
+				buttonTypographyCSS += `letter-spacing: ${buttonLetterSpacing.value}${buttonLetterSpacing.unit !== null ? buttonLetterSpacing.unit : ''};`;
 			}
         }
         
@@ -686,8 +692,17 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -696,8 +711,17 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -1041,48 +1065,48 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
         return (
             <div className="digiblocks-field-actions">
                 <Tooltip text={__('Move Up', 'digiblocks')}>
-                    <Button 
+                    <Button
                         className="digiblocks-field-action-button"
                         onClick={(e) => {
                             e.stopPropagation();
                             moveFieldUp(index);
                         }}
-                        icon="arrow-up-alt2"
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M169.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L192 205.3 54.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"/></svg>}
                         disabled={index === 0}
                         isSmall
                     />
                 </Tooltip>
                 <Tooltip text={__('Move Down', 'digiblocks')}>
-                    <Button 
+                    <Button
                         className="digiblocks-field-action-button"
                         onClick={(e) => {
                             e.stopPropagation();
                             moveFieldDown(index);
                         }}
-                        icon="arrow-down-alt2"
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M169.4 374.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 306.7 54.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>}
                         disabled={index === fields.length - 1}
                         isSmall
                     />
                 </Tooltip>
                 <Tooltip text={__('Duplicate', 'digiblocks')}>
-                    <Button 
+                    <Button
                         className="digiblocks-field-action-button"
                         onClick={(e) => {
                             e.stopPropagation();
                             duplicateField(index);
                         }}
-                        icon="admin-page"
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-200.6c0-17.4-7.1-34.1-19.7-46.2L370.6 17.8C358.7 6.4 342.8 0 326.3 0L192 0zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-16-64 0 0 16-192 0 0-256 16 0 0-64-16 0z"/></svg>}
                         isSmall
                     />
                 </Tooltip>
                 <Tooltip text={__('Remove', 'digiblocks')}>
-                    <Button 
+                    <Button
                         className="digiblocks-field-action-button"
                         onClick={(e) => {
                             e.stopPropagation();
                             removeField(index);
                         }}
-                        icon="trash"
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M136.7 5.9L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-8.7-26.1C306.9-7.2 294.7-16 280.9-16L167.1-16c-13.8 0-26 8.8-30.4 21.9zM416 144L32 144 53.1 467.1C54.7 492.4 75.7 512 101 512L347 512c25.3 0 46.3-19.6 47.9-44.9L416 144z"/></svg>}
                         isDestructive
                         isSmall
                     />
@@ -1220,7 +1244,7 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                                         <Button
                                             isDestructive
                                             isSmall
-                                            icon="trash"
+                                            icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M136.7 5.9L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-8.7-26.1C306.9-7.2 294.7-16 280.9-16L167.1-16c-13.8 0-26 8.8-30.4 21.9zM416 144L32 144 53.1 467.1C54.7 492.4 75.7 512 101 512L347 512c25.3 0 46.3-19.6 47.9-44.9L416 144z"/></svg>}
                                             onClick={() => removeFieldOption(fieldIndex, optionIndex)}
                                             style={{ alignSelf: 'flex-end', marginBottom: '8px' }}
                                         />
@@ -1824,36 +1848,18 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Form Typography", "digiblocks")}
                                 value={typography}
                                 onChange={(value) => setAttributes({ typography: value })}
-                                defaults={{
-                                    fontSize: { desktop: '', tablet: '', mobile: '' },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                             
                             <TypographyControl
                                 label={__("Label Typography", "digiblocks")}
                                 value={textTypography}
                                 onChange={(value) => setAttributes({ textTypography: value })}
-                                defaults={{
-                                    fontSize: { desktop: '', tablet: '', mobile: '' },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                             
                             <TypographyControl
                                 label={__("Button Typography", "digiblocks")}
                                 value={buttonTypography}
                                 onChange={(value) => setAttributes({ buttonTypography: value })}
-                                defaults={{
-                                    fontSize: { desktop: '', tablet: '', mobile: '' },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                         </TabPanelBody>
                         
@@ -1874,27 +1880,17 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                             
                             {borderStyle !== 'none' && (
                                 <>
-                                    <ResponsiveControl
-                                        label={__("Border Width", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={borderWidth[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    borderWidth: {
-                                                        ...borderWidth,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                            units={[
-                                                { label: 'px', value: 'px' },
-                                                { label: 'rem', value: 'rem' },
-                                                { label: 'em', value: 'em' },
-                                                { label: '%', value: '%' }
-                                            ]}
-                                        />
-                                    </ResponsiveControl>
+                                    <DimensionControl
+										label={__("Border Width", "digiblocks")}
+										value={borderWidth}
+										onChange={(value) => setAttributes({ borderWidth: value })}
+										units={[
+											{ label: 'px', value: 'px' },
+											{ label: 'rem', value: 'rem' },
+											{ label: 'em', value: 'em' },
+											{ label: '%', value: '%' }
+										]}
+									/>
                                     
                                     <PanelColorSettings
                                         title={__("Border Color", "digiblocks")}
@@ -1909,25 +1905,15 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                     />
                                     
-                                    <ResponsiveControl
-                                        label={__("Border Radius", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={borderRadius[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    borderRadius: {
-                                                        ...borderRadius,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                            units={[
-                                                { label: 'px', value: 'px' },
-                                                { label: '%', value: '%' }
-                                            ]}
-                                        />
-                                    </ResponsiveControl>
+                                    <DimensionControl
+										label={__("Border Radius", "digiblocks")}
+										value={borderRadius}
+										onChange={(value) => setAttributes({ borderRadius: value })}
+										units={[
+											{ label: 'px', value: 'px' },
+											{ label: '%', value: '%' }
+										]}
+									/>
                                 </>
                             )}
                         </TabPanelBody>
@@ -1963,77 +1949,35 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                             
                             {inputBorderStyle !== 'none' && (
                                 <>
-                                	<ResponsiveControl
-                                        label={__("Input Border Width", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={inputBorderWidth[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    inputBorderWidth: {
-                                                        ...inputBorderWidth,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                            units={[
-                                                { label: 'px', value: 'px' },
-                                                { label: 'rem', value: 'rem' },
-                                                { label: 'em', value: 'em' },
-                                                { label: '%', value: '%' }
-                                            ]}
-                                        />
-                                    </ResponsiveControl>
+                                	<DimensionControl
+										label={__("Input Border Width", "digiblocks")}
+										value={inputBorderWidth}
+										onChange={(value) => setAttributes({ inputBorderWidth: value })}
+										units={[
+											{ label: 'px', value: 'px' },
+											{ label: 'rem', value: 'rem' },
+											{ label: 'em', value: 'em' },
+											{ label: '%', value: '%' }
+										]}
+									/>
                                     
-                                    <ResponsiveControl
-                                        label={__("Input Border Radius", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={inputBorderRadius && inputBorderRadius[localActiveDevice] ? inputBorderRadius[localActiveDevice] : {
-                                                top: 4,
-                                                right: 4,
-                                                bottom: 4,
-                                                left: 4,
-                                                unit: 'px'
-                                            }}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    inputBorderRadius: {
-                                                        ...inputBorderRadius,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                            units={[
-                                                { label: 'px', value: 'px' },
-                                                { label: '%', value: '%' }
-                                            ]}
-                                        />
-                                    </ResponsiveControl>
+                                    <DimensionControl
+										label={__("Input Border Radius", "digiblocks")}
+										value={inputBorderRadius}
+										onChange={(value) => setAttributes({ inputBorderRadius: value })}
+										units={[
+											{ label: 'px', value: 'px' },
+											{ label: '%', value: '%' }
+										]}
+									/>
                                 </>
                             )}
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Input Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={inputPadding && inputPadding[localActiveDevice] ? inputPadding[localActiveDevice] : {
-                                        top: 12,
-                                        right: 15,
-                                        bottom: 12,
-                                        left: 15,
-                                        unit: 'px'
-                                    }}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            inputPadding: {
-                                                ...inputPadding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={inputPadding}
+                                onChange={(value) => setAttributes({ inputPadding: value })}
+                            />
                         </TabPanelBody>
                     </>
                 );
@@ -2047,49 +1991,17 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={padding && padding[localActiveDevice] ? padding[localActiveDevice] : {
-                                        top: 30,
-                                        right: 30,
-                                        bottom: 30,
-                                        left: 30,
-                                        unit: 'px'
-                                    }}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={padding}
+                                onChange={(value) => setAttributes({ padding: value })}
+                            />
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Margin", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={margin && margin[localActiveDevice] ? margin[localActiveDevice] : {
-                                        top: 0,
-                                        right: 0,
-                                        bottom: 30,
-                                        left: 0,
-                                        unit: 'px'
-                                    }}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={margin}
+                                onChange={(value) => setAttributes({ margin: value })}
+                            />
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -2144,8 +2056,8 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -2179,8 +2091,8 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -2240,10 +2152,11 @@ const FormsEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

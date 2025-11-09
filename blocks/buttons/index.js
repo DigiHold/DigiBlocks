@@ -62,16 +62,16 @@ registerBlockType('digiblocks/buttons', {
 			type: 'object',
 			default: {
 				desktop: 'center',
-				tablet: 'center',
-				mobile: 'center'
+				tablet: '',
+				mobile: ''
 			}
 		},
 		verticalAlign: {
 			type: 'object',
 			default: {
 				desktop: 'flex-start',
-				tablet: 'flex-start',
-				mobile: 'flex-start'
+				tablet: '',
+				mobile: ''
 			}
 		},
         buttonSpacing: {
@@ -82,6 +82,27 @@ registerBlockType('digiblocks/buttons', {
                 mobile: ''
             }
         },
+        containerHeight: {
+            type: 'boolean',
+            default: false
+        },
+        padding: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        margin: {
+            type: 'object',
+            default: {
+                desktop: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                tablet: { top: '', right: '', bottom: '', left: '', unit: 'px' },
+                mobile: { top: '', right: '', bottom: '', left: '', unit: 'px' }
+            }
+        },
+        
         animation: {
             type: 'string',
             default: 'none'
@@ -106,8 +127,8 @@ registerBlockType('digiblocks/buttons', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         verticalOrientation: {
@@ -118,8 +139,8 @@ registerBlockType('digiblocks/buttons', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         zIndex: {

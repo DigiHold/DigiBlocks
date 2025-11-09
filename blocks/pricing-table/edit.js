@@ -10,6 +10,7 @@ const {
 	LinkControl,
 } = wp.blockEditor;
 const {
+    TextControl,
     SelectControl,
     RangeControl,
     ToggleControl,
@@ -17,7 +18,6 @@ const {
     Tooltip,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 
@@ -26,7 +26,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveRangeControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
+const { ResponsiveRangeControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
 
 /**
  * Edit function for the Pricing Table block
@@ -91,15 +91,22 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 	// Get responsive value with fallback
 	const getVal = (obj, device) => {
 		if (!obj || typeof obj !== 'object') return null;
-		
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
 		if (device === 'mobile') {
-			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
-				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
 				obj.desktop;
 		}
 		if (device === 'tablet') {
-			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
-				obj.desktop;
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
 		}
 		return obj.desktop;
 	};
@@ -221,42 +228,32 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                 showRibbon: true,
                 ribbonStyle: 'corner',
                 ribbonPosition: 'right',titleTypography: titleTypography || {
-					fontSize: { desktop: 24, tablet: 20, mobile: 18 },
-					fontSizeUnit: 'px',
-					lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
-					lineHeightUnit: 'em',
+					fontSize: { desktop: { value: 24, unit: 'px' }, tablet: { value: 20, unit: 'px' }, mobile: { value: 18, unit: 'px' } },
+					lineHeight: { desktop: { value: 1.4, unit: 'em' }, tablet: { value: 1.3, unit: 'em' }, mobile: { value: 1.2, unit: 'em' } },
 					fontWeight: '',
 					fontFamily: '',
 				},
 				headingTypography: headingTypography || {
-					fontSize: { desktop: 36, tablet: 30, mobile: 26 },
-					fontSizeUnit: 'px',
-					lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
-					lineHeightUnit: 'em',
+					fontSize: { desktop: { value: 36, unit: 'px' }, tablet: { value: 30, unit: 'px' }, mobile: { value: 26, unit: 'px' } },
+					lineHeight: { desktop: { value: 1.2, unit: 'em' }, tablet: { value: 1.2, unit: 'em' }, mobile: { value: 1.2, unit: 'em' } },
 					fontWeight: 'bold',
 					fontFamily: '',
 				},
 				textTypography: textTypography || {
-					fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-					fontSizeUnit: 'px',
-					lineHeight: { desktop: 1.6, tablet: 1.5, mobile: 1.4 },
-					lineHeightUnit: 'em',
+					fontSize: { desktop: { value: 16, unit: 'px' }, tablet: { value: 15, unit: 'px' }, mobile: { value: 14, unit: 'px' } },
+					lineHeight: { desktop: { value: 1.6, unit: 'em' }, tablet: { value: 1.5, unit: 'em' }, mobile: { value: 1.4, unit: 'em' } },
 					fontWeight: '',
 					fontFamily: '',
 				},
 				contentTypography: contentTypography || {
-					fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-					fontSizeUnit: 'px',
-					lineHeight: { desktop: 1.6, tablet: 1.5, mobile: 1.4 },
-					lineHeightUnit: 'em',
+					fontSize: { desktop: { value: 16, unit: 'px' }, tablet: { value: 15, unit: 'px' }, mobile: { value: 14, unit: 'px' } },
+					lineHeight: { desktop: { value: 1.6, unit: 'em' }, tablet: { value: 1.5, unit: 'em' }, mobile: { value: 1.4, unit: 'em' } },
 					fontWeight: '',
 					fontFamily: '',
 				},
 				buttonTypography: buttonTypography || {
-					fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-					fontSizeUnit: 'px',
-					lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-					lineHeightUnit: 'em',
+					fontSize: { desktop: { value: 16, unit: 'px' }, tablet: { value: 15, unit: 'px' }, mobile: { value: 14, unit: 'px' } },
+					lineHeight: { desktop: { value: 1.5, unit: 'em' }, tablet: { value: 1.4, unit: 'em' }, mobile: { value: 1.3, unit: 'em' } },
 					fontWeight: '',
 					fontFamily: '',
 				}
@@ -857,8 +854,8 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const titleFontSize = getVal(titleTypography.fontSize, localActiveDevice);
-			if (titleFontSize) {
-				titleTypographyCSS += `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || 'px'};`;
+			if (titleFontSize && titleFontSize.value !== "" && titleFontSize.value !== null && titleFontSize.value !== undefined) {
+				titleTypographyCSS += `font-size: ${titleFontSize.value}${titleFontSize.unit !== null ? titleFontSize.unit : ''};`;
 			}
 			
 			if (titleTypography.fontWeight) {
@@ -878,13 +875,13 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const titleLineHeight = getVal(titleTypography.lineHeight, localActiveDevice);
-			if (titleLineHeight) {
-				titleTypographyCSS += `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || 'em'};`;
+			if (titleLineHeight && titleLineHeight.value !== "" && titleLineHeight.value !== null && titleLineHeight.value !== undefined) {
+				titleTypographyCSS += `line-height: ${titleLineHeight.value}${titleLineHeight.unit !== null ? titleLineHeight.unit : ''};`;
 			}
 			
 			const titleLetterSpacing = getVal(titleTypography.letterSpacing, localActiveDevice);
-			if (titleLetterSpacing || titleLetterSpacing === 0) {
-				titleTypographyCSS += `letter-spacing: ${titleLetterSpacing}${titleTypography.letterSpacingUnit || 'px'};`;
+			if (titleLetterSpacing && titleLetterSpacing.value !== "" && titleLetterSpacing.value !== null && titleLetterSpacing.value !== undefined) {
+				titleTypographyCSS += `letter-spacing: ${titleLetterSpacing.value}${titleLetterSpacing.unit !== null ? titleLetterSpacing.unit : ''};`;
 			}
 		}
 
@@ -896,8 +893,8 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const priceFontSize = getVal(headingTypography.fontSize, localActiveDevice);
-			if (priceFontSize) {
-				priceTypographyCSS += `font-size: ${priceFontSize}${headingTypography.fontSizeUnit || 'px'};`;
+			if (priceFontSize && priceFontSize.value !== "" && priceFontSize.value !== null && priceFontSize.value !== undefined) {
+				priceTypographyCSS += `font-size: ${priceFontSize.value}${priceFontSize.unit !== null ? priceFontSize.unit : ''};`;
 			}
 			
 			if (headingTypography.fontWeight) {
@@ -919,13 +916,13 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const priceLineHeight = getVal(headingTypography.lineHeight, localActiveDevice);
-			if (priceLineHeight) {
-				priceTypographyCSS += `line-height: ${priceLineHeight}${headingTypography.lineHeightUnit || 'em'};`;
+			if (priceLineHeight && priceLineHeight.value !== "" && priceLineHeight.value !== null && priceLineHeight.value !== undefined) {
+				priceTypographyCSS += `line-height: ${priceLineHeight.value}${priceLineHeight.unit !== null ? priceLineHeight.unit : ''};`;
 			}
 			
 			const priceLetterSpacing = getVal(headingTypography.letterSpacing, localActiveDevice);
-			if (priceLetterSpacing || priceLetterSpacing === 0) {
-				priceTypographyCSS += `letter-spacing: ${priceLetterSpacing}${headingTypography.letterSpacingUnit || 'px'};`;
+			if (priceLetterSpacing && priceLetterSpacing.value !== "" && priceLetterSpacing.value !== null && priceLetterSpacing.value !== undefined) {
+				priceTypographyCSS += `letter-spacing: ${priceLetterSpacing.value}${priceLetterSpacing.unit !== null ? priceLetterSpacing.unit : ''};`;
 			}
 		}
 
@@ -937,8 +934,8 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const textFontSize = getVal(textTypography.fontSize, localActiveDevice);
-			if (textFontSize) {
-				textTypographyCSS += `font-size: ${textFontSize}${textTypography.fontSizeUnit || 'px'};`;
+			if (textFontSize && textFontSize.value !== "" && textFontSize.value !== null && textFontSize.value !== undefined) {
+				textTypographyCSS += `font-size: ${textFontSize.value}${textFontSize.unit !== null ? textFontSize.unit : ''};`;
 			}
 			
 			if (textTypography.fontWeight) {
@@ -958,13 +955,13 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const textLineHeight = getVal(textTypography.lineHeight, localActiveDevice);
-			if (textLineHeight) {
-				textTypographyCSS += `line-height: ${textLineHeight}${textTypography.lineHeightUnit || 'em'};`;
+			if (textLineHeight && textLineHeight.value !== "" && textLineHeight.value !== null && textLineHeight.value !== undefined) {
+				textTypographyCSS += `line-height: ${textLineHeight.value}${textLineHeight.unit !== null ? textLineHeight.unit : ''};`;
 			}
 			
 			const textLetterSpacing = getVal(textTypography.letterSpacing, localActiveDevice);
-			if (textLetterSpacing || textLetterSpacing === 0) {
-				textTypographyCSS += `letter-spacing: ${textLetterSpacing}${textTypography.letterSpacingUnit || 'px'};`;
+			if (textLetterSpacing && textLetterSpacing.value !== "" && textLetterSpacing.value !== null && textLetterSpacing.value !== undefined) {
+				textTypographyCSS += `letter-spacing: ${textLetterSpacing.value}${textLetterSpacing.unit !== null ? textLetterSpacing.unit : ''};`;
 			}
 		}
 
@@ -976,8 +973,8 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const contentFontSize = getVal(contentTypography.fontSize, localActiveDevice);
-			if (contentFontSize) {
-				contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || 'px'};`;
+			if (contentFontSize && contentFontSize.value !== "" && contentFontSize.value !== null && contentFontSize.value !== undefined) {
+				contentTypographyCSS += `font-size: ${contentFontSize.value}${contentFontSize.unit !== null ? contentFontSize.unit : ''};`;
 			}
 			
 			if (contentTypography.fontWeight) {
@@ -997,13 +994,13 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const contentLineHeight = getVal(contentTypography.lineHeight, localActiveDevice);
-			if (contentLineHeight) {
-				contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || 'em'};`;
+			if (contentLineHeight && contentLineHeight.value !== "" && contentLineHeight.value !== null && contentLineHeight.value !== undefined) {
+				contentTypographyCSS += `line-height: ${contentLineHeight.value}${contentLineHeight.unit !== null ? contentLineHeight.unit : ''};`;
 			}
 
 			const contentLetterSpacing = getVal(contentTypography.letterSpacing, localActiveDevice);
-			if (contentLetterSpacing || contentLetterSpacing === 0) {
-				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || 'px'};`;
+			if (contentLetterSpacing && contentLetterSpacing.value !== "" && contentLetterSpacing.value !== null && contentLetterSpacing.value !== undefined) {
+				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing.value}${contentLetterSpacing.unit !== null ? contentLetterSpacing.unit : ''};`;
 			}
 		}
 
@@ -1015,8 +1012,8 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const buttonFontSize = getVal(buttonTypography.fontSize, localActiveDevice);
-			if (buttonFontSize) {
-				buttonTypographyCSS += `font-size: ${buttonFontSize}${buttonTypography.fontSizeUnit || 'px'};`;
+			if (buttonFontSize && buttonFontSize.value !== "" && buttonFontSize.value !== null && buttonFontSize.value !== undefined) {
+				buttonTypographyCSS += `font-size: ${buttonFontSize.value}${buttonFontSize.unit !== null ? buttonFontSize.unit : ''};`;
 			}
 			
 			if (buttonTypography.fontWeight) {
@@ -1036,13 +1033,13 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const buttonLineHeight = getVal(buttonTypography.lineHeight, localActiveDevice);
-			if (buttonLineHeight) {
-				buttonTypographyCSS += `line-height: ${buttonLineHeight}${buttonTypography.lineHeightUnit || 'em'};`;
+			if (buttonLineHeight && buttonLineHeight.value !== "" && buttonLineHeight.value !== null && buttonLineHeight.value !== undefined) {
+				buttonTypographyCSS += `line-height: ${buttonLineHeight.value}${buttonLineHeight.unit !== null ? buttonLineHeight.unit : ''};`;
 			}
 			
 			const buttonLetterSpacing = getVal(buttonTypography.letterSpacing, localActiveDevice);
-			if (buttonLetterSpacing || buttonLetterSpacing === 0) {
-				buttonTypographyCSS += `letter-spacing: ${buttonLetterSpacing}${buttonTypography.letterSpacingUnit || 'px'};`;
+			if (buttonLetterSpacing && buttonLetterSpacing.value !== "" && buttonLetterSpacing.value !== null && buttonLetterSpacing.value !== undefined) {
+				buttonTypographyCSS += `letter-spacing: ${buttonLetterSpacing.value}${buttonLetterSpacing.unit !== null ? buttonLetterSpacing.unit : ''};`;
 			}
 		}
 		
@@ -1316,8 +1313,17 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -1326,8 +1332,17 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -1621,7 +1636,7 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                 <div className="digiblocks-table-item-controls">
                     <Tooltip text={__('Move Left', 'digiblocks')}>
                         <Button
-                            icon="arrow-left-alt2"
+                            icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>}
                             isSmall
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -1632,7 +1647,7 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                     </Tooltip>
                     <Tooltip text={__('Move Right', 'digiblocks')}>
                         <Button
-                            icon="arrow-right-alt2"
+                            icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>}
                             isSmall
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -1643,7 +1658,7 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                     </Tooltip>
                     <Tooltip text={__('Duplicate', 'digiblocks')}>
                         <Button
-                            icon="admin-page"
+                            icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-200.6c0-17.4-7.1-34.1-19.7-46.2L370.6 17.8C358.7 6.4 342.8 0 326.3 0L192 0zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-16-64 0 0 16-192 0 0-256 16 0 0-64-16 0z"/></svg>}
                             isSmall
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -1653,7 +1668,7 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                     </Tooltip>
                     <Tooltip text={__('Remove', 'digiblocks')}>
                         <Button
-                            icon="trash"
+                            icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M136.7 5.9L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-8.7-26.1C306.9-7.2 294.7-16 280.9-16L167.1-16c-13.8 0-26 8.8-30.4 21.9zM416 144L32 144 53.1 467.1C54.7 492.4 75.7 512 101 512L347 512c25.3 0 46.3-19.6 47.9-44.9L416 144z"/></svg>}
                             isSmall
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -1783,7 +1798,7 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                                 </Tooltip>
                                 <Tooltip text={__('Remove', 'digiblocks')}>
                                     <Button
-                                        icon="trash"
+                                        icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M136.7 5.9L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-8.7-26.1C306.9-7.2 294.7-16 280.9-16L167.1-16c-13.8 0-26 8.8-30.4 21.9zM416 144L32 144 53.1 467.1C54.7 492.4 75.7 512 101 512L347 512c25.3 0 46.3-19.6 47.9-44.9L416 144z"/></svg>}
                                         isSmall
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -2207,12 +2222,6 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                                         titleTypography: value,
                                     })
                                 }
-                                defaults={{
-                                    fontSize: { desktop: 24, tablet: 20, mobile: 18 },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                             
                             <TypographyControl
@@ -2226,12 +2235,6 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                                         headingTypography: value,
                                     })
                                 }
-                                defaults={{
-                                    fontSize: { desktop: 36, tablet: 30, mobile: 26 },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                             
                             <TypographyControl
@@ -2245,12 +2248,6 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                                         textTypography: value,
                                     })
                                 }
-                                defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.6, tablet: 1.5, mobile: 1.4 },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                             
                             <TypographyControl
@@ -2264,12 +2261,6 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                                         contentTypography: value,
                                     })
                                 }
-                                defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.6, tablet: 1.5, mobile: 1.4 },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                             
                             <TypographyControl
@@ -2283,12 +2274,6 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                                         buttonTypography: value,
                                     })
                                 }
-                                defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                         </TabPanelBody>
                         
@@ -2309,27 +2294,11 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                             
                             {borderStyle !== 'none' && (
                                 <>
-                                    <ResponsiveControl
+                                    <DimensionControl
 										label={__("Border Width", "digiblocks")}
-									>
-										<DimensionControl
-											values={borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : {
-												top: 1,
-												right: 1,
-												bottom: 1,
-												left: 1,
-												unit: 'px'
-											}}
-											onChange={(value) =>
-												setAttributes({
-													borderWidth: {
-														...borderWidth,
-														[localActiveDevice]: value,
-													},
-												})
-											}
-										/>
-									</ResponsiveControl>
+										value={borderWidth}
+										onChange={(value) => setAttributes({ borderWidth: value })}
+									/>
                                     
                                     <PanelColorSettings
                                         title={__("Border Color", "digiblocks")}
@@ -2346,31 +2315,15 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                                 </>
                             )}
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Border Radius", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
-                                        top: 8,
-                                        right: 8,
-                                        bottom: 8,
-                                        left: 8,
-                                        unit: 'px'
-                                    }}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            borderRadius: {
-                                                ...borderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    units={[
-                                        { label: 'px', value: 'px' },
-                                        { label: '%', value: '%' }
-                                    ]}
-                                />
-                            </ResponsiveControl>
+                                value={borderRadius}
+                                onChange={(value) => setAttributes({ borderRadius: value })}
+                                units={[
+                                    { label: 'px', value: 'px' },
+                                    { label: '%', value: '%' }
+                                ]}
+                            />
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -2415,27 +2368,11 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 							
 							{buttonBorderStyle !== 'none' && (
 								<>
-									<ResponsiveControl
+									<DimensionControl
 										label={__("Border Width", "digiblocks")}
-									>
-										<DimensionControl
-											values={buttonBorderWidth && buttonBorderWidth[localActiveDevice] ? buttonBorderWidth[localActiveDevice] : {
-												top: 1,
-												right: 1,
-												bottom: 1,
-												left: 1,
-												unit: 'px'
-											}}
-											onChange={(value) =>
-												setAttributes({
-													buttonBorderWidth: {
-														...buttonBorderWidth,
-														[localActiveDevice]: value,
-													},
-												})
-											}
-										/>
-									</ResponsiveControl>
+										value={buttonBorderWidth}
+										onChange={(value) => setAttributes({ buttonBorderWidth: value })}
+									/>
 									
 									<PanelColorSettings
 										title={__("Border Colors", "digiblocks")}
@@ -2457,27 +2394,11 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 								</>
 							)}
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Button Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={buttonPadding && buttonPadding[localActiveDevice] ? buttonPadding[localActiveDevice] : {
-                                        top: 10,
-                                        right: 20,
-                                        bottom: 10,
-                                        left: 20,
-                                        unit: 'px'
-                                    }}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            buttonPadding: {
-                                                ...buttonPadding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={buttonPadding}
+                                onChange={(value) => setAttributes({ buttonPadding: value })}
+                            />
                         </TabPanelBody>
                     </>
                 );
@@ -2490,49 +2411,17 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={padding && padding[localActiveDevice] ? padding[localActiveDevice] : {
-                                        top: 0,
-                                        right: 0,
-                                        bottom: 0,
-                                        left: 0,
-                                        unit: 'px'
-                                    }}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={padding}
+                                onChange={(value) => setAttributes({ padding: value })}
+                            />
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Margin", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={margin && margin[localActiveDevice] ? margin[localActiveDevice] : {
-                                        top: 0,
-                                        right: 0,
-                                        bottom: 30,
-                                        left: 0,
-                                        unit: 'px'
-                                    }}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={margin}
+                                onChange={(value) => setAttributes({ margin: value })}
+                            />
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -2587,8 +2476,8 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -2622,8 +2511,8 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -2690,10 +2579,11 @@ const PricingTableEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

@@ -10,16 +10,15 @@ const {
     LinkControl,
 } = wp.blockEditor;
 const {
+    TextControl,
     SelectControl,
     RangeControl,
 	ToggleControl,
     TabPanel,
     Spinner,
     Button,
-    TextControl,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 
@@ -28,7 +27,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, ResponsiveButtonGroup, ResponsiveRangeControl, TransformControl } = digi.components;
+const { DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, ResponsiveButtonGroup, ResponsiveRangeControl, TransformControl } = digi.components;
 
 /**
  * Edit function for the Icon Box block
@@ -96,6 +95,11 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         linkOpenInNewTab,
         linkRel,
         buttonText,
+        buttonIconSource,
+        buttonIcon,
+        buttonCustomSvg,
+        buttonIconPosition,
+        buttonIconSpacing,
         buttonBackgroundColor,
         buttonBackgroundHoverColor,
         buttonTextColor,
@@ -139,14 +143,22 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 	// Get responsive value with fallback
 	const getVal = (obj, device) => {
 		if (!obj || typeof obj !== 'object') return null;
-		
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
 		if (device === 'mobile') {
-			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
-				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
 				obj.desktop;
 		}
 		if (device === 'tablet') {
-			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : obj.desktop;
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
 		}
 		return obj.desktop;
 	};
@@ -494,8 +506,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const titleFontSize = getVal(titleTypography.fontSize, activeDevice);
-			if (titleFontSize) {
-				titleTypographyCSS += `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || 'px'};`;
+			if (titleFontSize && titleFontSize.value !== "" && titleFontSize.value !== null && titleFontSize.value !== undefined) {
+				titleTypographyCSS += `font-size: ${titleFontSize.value}${titleFontSize.unit !== null ? titleFontSize.unit : ''};`;
 			}
             
             if (titleTypography.fontWeight) {
@@ -515,13 +527,13 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const titleLineHeight = getVal(titleTypography.lineHeight, activeDevice);
-			if (titleLineHeight) {
-				titleTypographyCSS += `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || 'em'};`;
+			if (titleLineHeight && titleLineHeight.value !== "" && titleLineHeight.value !== null && titleLineHeight.value !== undefined) {
+				titleTypographyCSS += `line-height: ${titleLineHeight.value}${titleLineHeight.unit !== null ? titleLineHeight.unit : ''};`;
 			}
 
 			const titleLetterSpacing = getVal(titleTypography.letterSpacing, activeDevice);
-			if (titleLetterSpacing || titleLetterSpacing === 0) {
-				titleTypographyCSS += `letter-spacing: ${titleLetterSpacing}${titleTypography.letterSpacingUnit || 'px'};`;
+			if (titleLetterSpacing && titleLetterSpacing.value !== "" && titleLetterSpacing.value !== null && titleLetterSpacing.value !== undefined) {
+				titleTypographyCSS += `letter-spacing: ${titleLetterSpacing.value}${titleLetterSpacing.unit !== null ? titleLetterSpacing.unit : ''};`;
 			}
         }
         
@@ -533,8 +545,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
-			if (contentFontSize) {
-				contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || 'px'};`;
+			if (contentFontSize && contentFontSize.value !== "" && contentFontSize.value !== null && contentFontSize.value !== undefined) {
+				contentTypographyCSS += `font-size: ${contentFontSize.value}${contentFontSize.unit !== null ? contentFontSize.unit : ''};`;
 			}
             
             if (contentTypography.fontWeight) {
@@ -554,13 +566,13 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
-			if (contentLineHeight) {
-				contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || 'em'};`;
+			if (contentLineHeight && contentLineHeight.value !== "" && contentLineHeight.value !== null && contentLineHeight.value !== undefined) {
+				contentTypographyCSS += `line-height: ${contentLineHeight.value}${contentLineHeight.unit !== null ? contentLineHeight.unit : ''};`;
 			}
 			
 			const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
-			if (contentLetterSpacing || contentLetterSpacing === 0) {
-				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || 'px'};`;
+			if (contentLetterSpacing && contentLetterSpacing.value !== "" && contentLetterSpacing.value !== null && contentLetterSpacing.value !== undefined) {
+				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing.value}${contentLetterSpacing.unit !== null ? contentLetterSpacing.unit : ''};`;
 			}
         }
         
@@ -572,8 +584,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const buttonFontSize = getVal(buttonTypography.fontSize, activeDevice);
-			if (buttonFontSize) {
-				buttonTypographyCSS += `font-size: ${buttonFontSize}${buttonTypography.fontSizeUnit || 'px'};`;
+			if (buttonFontSize && buttonFontSize.value !== "" && buttonFontSize.value !== null && buttonFontSize.value !== undefined) {
+				buttonTypographyCSS += `font-size: ${buttonFontSize.value}${buttonFontSize.unit !== null ? buttonFontSize.unit : ''};`;
 			}
             
             if (buttonTypography.fontWeight) {
@@ -593,13 +605,13 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const buttonLineHeight = getVal(buttonTypography.lineHeight, activeDevice);
-			if (buttonLineHeight) {
-				buttonTypographyCSS += `line-height: ${buttonLineHeight}${buttonTypography.lineHeightUnit || 'em'};`;
+			if (buttonLineHeight && buttonLineHeight.value !== "" && buttonLineHeight.value !== null && buttonLineHeight.value !== undefined) {
+				buttonTypographyCSS += `line-height: ${buttonLineHeight.value}${buttonLineHeight.unit !== null ? buttonLineHeight.unit : ''};`;
 			}
 			
 			const buttonLetterSpacing = getVal(buttonTypography.letterSpacing, activeDevice);
-			if (buttonLetterSpacing || buttonLetterSpacing === 0) {
-				buttonTypographyCSS += `letter-spacing: ${buttonLetterSpacing}${buttonTypography.letterSpacingUnit || 'px'};`;
+			if (buttonLetterSpacing && buttonLetterSpacing.value !== "" && buttonLetterSpacing.value !== null && buttonLetterSpacing.value !== undefined) {
+				buttonTypographyCSS += `letter-spacing: ${buttonLetterSpacing.value}${buttonLetterSpacing.unit !== null ? buttonLetterSpacing.unit : ''};`;
 			}
         }
 
@@ -611,8 +623,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const badgeFontSize = getVal(badgeTypography.fontSize, activeDevice);
-			if (badgeFontSize) {
-				badgeTypographyCSS += `font-size: ${badgeFontSize}${badgeTypography.fontSizeUnit || 'rem'};`;
+			if (badgeFontSize && badgeFontSize.value !== "" && badgeFontSize.value !== null && badgeFontSize.value !== undefined) {
+				badgeTypographyCSS += `font-size: ${badgeFontSize.value}${badgeFontSize.unit !== null ? badgeFontSize.unit : ''};`;
 			}
 			
 			if (badgeTypography.fontWeight) {
@@ -632,13 +644,13 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const badgeLineHeight = getVal(badgeTypography.lineHeight, activeDevice);
-			if (badgeLineHeight) {
-				badgeTypographyCSS += `line-height: ${badgeLineHeight}${badgeTypography.lineHeightUnit || 'em'};`;
+			if (badgeLineHeight && badgeLineHeight.value !== "" && badgeLineHeight.value !== null && badgeLineHeight.value !== undefined) {
+				badgeTypographyCSS += `line-height: ${badgeLineHeight.value}${badgeLineHeight.unit !== null ? badgeLineHeight.unit : ''};`;
 			}
 			
 			const badgeLetterSpacing = getVal(badgeTypography.letterSpacing, activeDevice);
-			if (badgeLetterSpacing || badgeLetterSpacing === 0) {
-				badgeTypographyCSS += `letter-spacing: ${badgeLetterSpacing}${badgeTypography.letterSpacingUnit || 'em'};`;
+			if (badgeLetterSpacing && badgeLetterSpacing.value !== "" && badgeLetterSpacing.value !== null && badgeLetterSpacing.value !== undefined) {
+				badgeTypographyCSS += `letter-spacing: ${badgeLetterSpacing.value}${badgeLetterSpacing.unit !== null ? badgeLetterSpacing.unit : ''};`;
 			}
 		}
         
@@ -775,16 +787,29 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
             if (buttonBorderHoverColor) {
                 buttonHoverCSS += `border-color: ${buttonBorderHoverColor};`;
             }
-            
+
+            const hasButtonIcon = (buttonIconSource === 'library' && buttonIcon) || (buttonIconSource === 'custom' && buttonCustomSvg && buttonCustomSvg.trim() !== '');
+
+            let iconGapCSS = '';
+            if (hasButtonIcon) {
+                const iconSpacingValue = getVal(buttonIconSpacing, activeDevice);
+                const iconSpacing = iconSpacingValue && iconSpacingValue.value !== '' && iconSpacingValue.value !== undefined
+                    ? `${iconSpacingValue.value}${iconSpacingValue.unit || 'em'}`
+                    : '0.5em';
+                iconGapCSS = `gap: ${iconSpacing};`;
+            }
+
             buttonCSS = `
                 .${id} .digiblocks-button-wrapper {
                     display: flex;
                     justify-content: ${currentAlign === 'center' ? 'center' : currentAlign === 'flex-end' ? 'flex-end' : 'flex-start'};
                     ${buttonMarginCSS}
                 }
-                
+
                 .${id} .digiblocks-button {
-                    display: inline-block;
+                    display: flex;
+					align-items: center;
+                    ${iconGapCSS}
                     background-color: ${buttonBackgroundColor};
                     color: ${buttonTextColor};
                     ${buttonPaddingCSS}
@@ -795,9 +820,20 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                     text-decoration: none;
                     transition: all 0.3s ease;
                 }
-                
+
                 .${id} .digiblocks-button:hover {
                     ${buttonHoverCSS}
+                }
+
+                .${id} .digiblocks-button .digiblocks-button-icon {
+                    display: inline-flex;
+                    align-items: center;
+                }
+
+                .${id} .digiblocks-button .digiblocks-button-icon svg {
+                    width: 1em;
+                    height: 1em;
+                    fill: currentColor;
                 }
             `;
         }
@@ -880,8 +916,17 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -890,8 +935,17 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -970,8 +1024,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 				}
 
 				.${id} .digiblocks-icon-box-icon svg {
-					width: ${getVal(iconSize, activeDevice).value || iconSize.desktop.value}${getVal(iconSize, activeDevice).unit || iconSize.desktop.unit};
-					height: ${getVal(iconHeight, activeDevice).value ? `${getVal(iconHeight, activeDevice).value}${getVal(iconHeight, activeDevice).unit || iconHeight.desktop.unit}` : '100%'};
+					width: ${getVal(iconSize, activeDevice)?.value || iconSize?.desktop?.value || '48'}${getVal(iconSize, activeDevice)?.unit || iconSize?.desktop?.unit || 'px'};
+					height: ${getVal(iconHeight, activeDevice)?.value ? `${getVal(iconHeight, activeDevice).value}${getVal(iconHeight, activeDevice).unit || iconHeight?.desktop?.unit || 'px'}` : '100%'};
 					fill: ${iconColor || 'inherit'};
 					transition: all 0.3s ease;
 				}
@@ -1134,19 +1188,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 			);
 		}
 		
-		// Default case for backward compatibility
-		if (!iconSource && iconValue && iconValue.svg && iconValue.svg.trim() !== '') {
-			return (
-				<div className="digiblocks-icon-box-icon">
-					<span
-						dangerouslySetInnerHTML={{
-							__html: iconValue.svg,
-						}}
-					/>
-				</div>
-			);
-		}
-		
 		return null;
 	};
 
@@ -1168,22 +1209,42 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
         if (!linkEnabled || linkType !== 'button') {
             return null;
         }
-        
+
+        let buttonIconElement = null;
+
+        if (buttonIconSource === 'library' && buttonIcon && buttonIcon.svg) {
+            buttonIconElement = (
+                <span
+                    className="digiblocks-button-icon"
+                    dangerouslySetInnerHTML={{ __html: buttonIcon.svg }}
+                />
+            );
+        } else if (buttonIconSource === 'custom' && buttonCustomSvg && buttonCustomSvg.trim() !== '') {
+            buttonIconElement = (
+                <span
+                    className="digiblocks-button-icon"
+                    dangerouslySetInnerHTML={{ __html: buttonCustomSvg }}
+                />
+            );
+        }
+
         return (
             <div className="digiblocks-button-wrapper">
-                <a 
+                <a
                     className="digiblocks-button"
                     href={linkUrl || '#'}
                     target={linkOpenInNewTab ? "_blank" : "_self"}
                     rel={linkRel}
                     onClick={(e) => e.preventDefault()}
                 >
+                    {buttonIconPosition === 'before' && buttonIconElement}
                     <RichText
                         tagName="span"
                         value={buttonText}
                         onChange={(value) => setAttributes({ buttonText: value })}
                         placeholder={__('Button Text', 'digiblocks')}
                     />
+                    {buttonIconPosition === 'after' && buttonIconElement}
                 </a>
             </div>
         );
@@ -1282,42 +1343,22 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                             />
                             
                             {/* Border Width */}
-                            <ResponsiveControl
-                                label={__("Border Width", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={iconBorderWidth[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            iconBorderWidth: {
-                                                ...iconBorderWidth,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Border Width", "digiblocks")}
+								value={iconBorderWidth}
+								onChange={(value) => setAttributes({ iconBorderWidth: value })}
+							/>
                             
                             {/* Border Radius */}
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Border Radius", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={iconBorderRadius[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            iconBorderRadius: {
-                                                ...iconBorderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    units={[
-                                        { label: 'px', value: 'px' },
-                                        { label: '%', value: '%' }
-                                    ]}
-                                />
-                            </ResponsiveControl>
+                                value={iconBorderRadius}
+                                onChange={(value) => setAttributes({ iconBorderRadius: value })}
+                                units={[
+                                    { label: 'px', value: 'px' },
+                                    { label: '%', value: '%' }
+                                ]}
+                            />
                         </>
                     )}
                 </>
@@ -1582,78 +1623,38 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                             />
                             
                             {/* Border Width */}
-                            <ResponsiveControl
-                                label={__("Border Width", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={buttonBorderWidth[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            buttonBorderWidth: {
-                                                ...buttonBorderWidth,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Border Width", "digiblocks")}
+								value={buttonBorderWidth}
+								onChange={(value) => setAttributes({ buttonBorderWidth: value })}
+							/>
                         </>
                     )}
                     
                     {/* Button Border Radius */}
-                    <ResponsiveControl
+                    <DimensionControl
                         label={__("Border Radius", "digiblocks")}
-                    >
-                        <DimensionControl
-                            values={buttonBorderRadius[localActiveDevice]}
-                            onChange={(value) =>
-                                setAttributes({
-                                    buttonBorderRadius: {
-                                        ...buttonBorderRadius,
-                                        [localActiveDevice]: value,
-                                    },
-                                })
-                            }
-                            units={[
-                                { label: 'px', value: 'px' },
-                                { label: '%', value: '%' }
-                            ]}
-                        />
-                    </ResponsiveControl>
+                        value={buttonBorderRadius}
+                        onChange={(value) => setAttributes({ buttonBorderRadius: value })}
+                        units={[
+                            { label: 'px', value: 'px' },
+                            { label: '%', value: '%' }
+                        ]}
+                    />
                     
                     {/* Button Padding */}
-                    <ResponsiveControl
-                        label={__("Padding", "digiblocks")}
-                    >
-                        <DimensionControl
-                            values={buttonPadding[localActiveDevice]}
-                            onChange={(value) =>
-                                setAttributes({
-                                    buttonPadding: {
-                                        ...buttonPadding,
-                                        [localActiveDevice]: value,
-                                    },
-                                })
-                            }
-                        />
-                    </ResponsiveControl>
+                    <DimensionControl
+						label={__("Padding", "digiblocks")}
+						value={buttonPadding}
+						onChange={(value) => setAttributes({ buttonPadding: value })}
+					/>
                     
                     {/* Button Margin */}
-                    <ResponsiveControl
-                        label={__("Margin", "digiblocks")}
-                    >
-                        <DimensionControl
-                            values={buttonMargin[localActiveDevice]}
-                            onChange={(value) =>
-                                setAttributes({
-                                    buttonMargin: {
-                                        ...buttonMargin,
-                                        [localActiveDevice]: value,
-                                    },
-                                })
-                            }
-                        />
-                    </ResponsiveControl>
+                    <DimensionControl
+						label={__("Margin", "digiblocks")}
+						value={buttonMargin}
+						onChange={(value) => setAttributes({ buttonMargin: value })}
+					/>
                     
                     {/* Button Box Shadow */}
 					<BoxShadowControl
@@ -1807,67 +1808,37 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 							/>
 							
 							{/* Border Width */}
-							<ResponsiveControl
+							<DimensionControl
 								label={__("Border Width", "digiblocks")}
-							>
-								<DimensionControl
-									values={badgeBorderWidth[localActiveDevice]}
-									onChange={(value) =>
-										setAttributes({
-											badgeBorderWidth: {
-												...badgeBorderWidth,
-												[localActiveDevice]: value,
-											},
-										})
-									}
-								/>
-							</ResponsiveControl>
+								value={badgeBorderWidth}
+								onChange={(value) => setAttributes({ badgeBorderWidth: value })}
+							/>
 						</>
 					)}
 					
 					{/* Badge Border Radius */}
-					<ResponsiveControl
+					<DimensionControl
 						label={__("Border Radius", "digiblocks")}
-					>
-						<DimensionControl
-							values={badgeBorderRadius[localActiveDevice]}
-							onChange={(value) =>
-								setAttributes({
-									badgeBorderRadius: {
-										...badgeBorderRadius,
-										[localActiveDevice]: value,
-									},
-								})
-							}
-							units={[
-								{ label: 'px', value: 'px' },
-								{ label: '%', value: '%' }
-							]}
-						/>
-					</ResponsiveControl>
-					
+						value={badgeBorderRadius}
+						onChange={(value) => setAttributes({ badgeBorderRadius: value })}
+						units={[
+							{ label: 'px', value: 'px' },
+							{ label: '%', value: '%' }
+						]}
+					/>
+
 					{/* Badge Padding */}
-					<ResponsiveControl
+					<DimensionControl
 						label={__("Padding", "digiblocks")}
-					>
-						<DimensionControl
-							values={badgePadding[localActiveDevice]}
-							onChange={(value) =>
-								setAttributes({
-									badgePadding: {
-										...badgePadding,
-										[localActiveDevice]: value,
-									},
-								})
-							}
-							units={[
-								{ label: 'px', value: 'px' },
-								{ label: 'rem', value: 'rem' },
-								{ label: 'em', value: 'em' },
-								{ label: '%', value: '%' }
-							]}
-						/>
-					</ResponsiveControl>
+						value={badgePadding}
+						onChange={(value) => setAttributes({ badgePadding: value })}
+						units={[
+							{ label: 'px', value: 'px' },
+							{ label: 'rem', value: 'rem' },
+							{ label: 'em', value: 'em' },
+							{ label: '%', value: '%' }
+						]}
+					/>
 					
 					{/* Badge Box Shadow */}
 					<BoxShadowControl
@@ -1953,12 +1924,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                         buttonTypography: value,
                     })
                 }
-                defaults={{
-                    fontSize: { desktop: '', tablet: '', mobile: '' },
-                    fontSizeUnit: 'px',
-                    lineHeight: { desktop: '', tablet: '', mobile: '' },
-                    lineHeightUnit: 'em',
-                }}
             />
         );
     };
@@ -1977,16 +1942,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 						badgeTypography: value,
 					})
 				}
-				defaults={{
-					fontSize: { desktop: 0.7, tablet: 0.7, mobile: 0.7 },
-					fontSizeUnit: 'rem',
-					fontWeight: '700',
-					textTransform: 'uppercase',
-					lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
-					lineHeightUnit: 'em',
-					letterSpacing: { desktop: 0.05, tablet: 0.05, mobile: 0.05 },
-					letterSpacingUnit: 'em',
-				}}
 			/>
 		);
 	};
@@ -2149,14 +2104,13 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 									{ label: 'em', value: 'em' },
 									{ label: 'rem', value: 'rem' },
 								]}
-								defaultUnit="px"
 								min={0}
 								max={100}
 								step={1}
 								defaultValues={{
-									desktop: 20,
-									tablet: 15,
-									mobile: 10
+									desktop: { value: 20, unit: 'px' },
+									tablet: { value: '', unit: '' },
+									mobile: { value: '', unit: '' }
 								}}
 							/>
 
@@ -2267,13 +2221,105 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 									</div>
                                     
                                     {linkType === 'button' && (
-                                        <TextControl
-                                            label={__("Button Text", "digiblocks")}
-                                            value={buttonText}
-                                            onChange={(value) => setAttributes({ buttonText: value })}
-                                            __next40pxDefaultSize={true}
-                                            __nextHasNoMarginBottom={true}
-                                        />
+                                        <>
+                                            <TextControl
+                                                label={__("Button Text", "digiblocks")}
+                                                value={buttonText}
+                                                onChange={(value) => setAttributes({ buttonText: value })}
+                                                __next40pxDefaultSize={true}
+                                                __nextHasNoMarginBottom={true}
+                                            />
+
+                                            <ToggleGroupControl
+                                                label={__("Button Icon Source", "digiblocks")}
+                                                value={buttonIconSource || 'library'}
+                                                onChange={(value) => setAttributes({ buttonIconSource: value })}
+                                                isBlock
+                                                __next40pxDefaultSize={true}
+                                                __nextHasNoMarginBottom={true}
+                                            >
+                                                <ToggleGroupControlOption
+                                                    value="library"
+                                                    label={__("Library", "digiblocks")}
+                                                />
+                                                <ToggleGroupControlOption
+                                                    value="custom"
+                                                    label={__("Custom", "digiblocks")}
+                                                />
+                                            </ToggleGroupControl>
+
+                                            {buttonIconSource === 'library' && componentsLoaded && FontAwesomeControl && (
+                                                <FontAwesomeControl
+                                                    label={__('Button Icon', 'digiblocks')}
+                                                    value={buttonIcon}
+                                                    onChange={(value) => setAttributes({ buttonIcon: value })}
+                                                />
+                                            )}
+
+                                            {buttonIconSource === 'custom' && (
+                                                <div style={{ marginTop: '15px' }}>
+                                                    <div className="components-base-control">
+                                                        <label className="components-base-control__label" htmlFor="button-custom-svg-input">
+                                                            {__('Custom SVG Code', 'digiblocks')}
+                                                        </label>
+                                                        <textarea
+                                                            id="button-custom-svg-input"
+                                                            className="components-textarea-control__input"
+                                                            value={buttonCustomSvg || ''}
+                                                            onChange={(e) => setAttributes({ buttonCustomSvg: e.target.value })}
+                                                            placeholder={__('Paste your SVG code here...', 'digiblocks')}
+                                                            rows={10}
+                                                            style={{ width: '100%', fontFamily: 'monospace', fontSize: '12px' }}
+                                                        />
+                                                        <p className="components-base-control__help" style={{ marginTop: '8px', fontSize: '12px' }}>
+                                                            {__('Paste your SVG code here. Make sure it only contains valid SVG markup.', 'digiblocks')}
+                                                        </p>
+                                                    </div>
+
+                                                    {buttonCustomSvg && (
+                                                        <div style={{ marginTop: '15px', marginBottom: '15px' }}>
+                                                            <p><strong>{__('Preview:', 'digiblocks')}</strong></p>
+                                                            <div style={{ padding: '20px', background: '#f0f0f1', borderRadius: '3px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                                <div className="digiblocks-custom-svg-preview" style={{ width: '50px', height: '50px' }} dangerouslySetInnerHTML={{ __html: buttonCustomSvg }}></div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {((buttonIconSource === 'library' && buttonIcon) || (buttonIconSource === 'custom' && buttonCustomSvg)) && (
+                                                <>
+                                                    <ToggleGroupControl
+                                                        label={__("Icon Position", "digiblocks")}
+                                                        value={buttonIconPosition}
+                                                        onChange={(value) => setAttributes({ buttonIconPosition: value })}
+                                                        isBlock
+                                                        __next40pxDefaultSize={true}
+                                                        __nextHasNoMarginBottom={true}
+                                                    >
+                                                        <ToggleGroupControlOption
+                                                            value="before"
+                                                            label={__("Before", "digiblocks")}
+                                                        />
+                                                        <ToggleGroupControlOption
+                                                            value="after"
+                                                            label={__("After", "digiblocks")}
+                                                        />
+                                                    </ToggleGroupControl>
+
+                                                    <ResponsiveRangeControl
+                                                        label={__("Icon Spacing", "digiblocks")}
+                                                        value={buttonIconSpacing}
+                                                        onChange={(value) => setAttributes({ buttonIconSpacing: value })}
+                                                        min={0}
+                                                        max={5}
+                                                        step={0.1}
+                                                        units={['px', 'em', 'rem']}
+                                                        allowReset={true}
+                                                    />
+                                                </>
+                                            )}
+                                        </>
                                     )}
                                 </>
                             )}
@@ -2314,12 +2360,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                         titleTypography: value,
                                     })
                                 }
-                                defaults={{
-                                    fontSize: { desktop: '', tablet: '', mobile: '' },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                             
                             <TypographyControl
@@ -2333,12 +2373,6 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                         contentTypography: value,
                                     })
                                 }
-                                defaults={{
-                                    fontSize: { desktop: '', tablet: '', mobile: '' },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                             
                             {linkEnabled && linkType === "button" && 
@@ -2357,106 +2391,46 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                             initialOpen={false}
                         >
 							{/* Icon Padding */}
-							<ResponsiveControl
+							<DimensionControl
 								label={__("Icon Padding", "digiblocks")}
-							>
-								<DimensionControl
-									values={iconPadding[localActiveDevice]}
-									onChange={(value) =>
-										setAttributes({
-											iconPadding: {
-												...iconPadding,
-												[localActiveDevice]: value,
-											},
-										})
-									}
-								/>
-							</ResponsiveControl>
+								value={iconPadding}
+								onChange={(value) => setAttributes({ iconPadding: value })}
+							/>
 							
 							{/* Icon Margin */}
-							<ResponsiveControl
+							<DimensionControl
 								label={__("Icon Margin", "digiblocks")}
-							>
-								<DimensionControl
-									values={iconMargin[localActiveDevice]}
-									onChange={(value) =>
-										setAttributes({
-											iconMargin: {
-												...iconMargin,
-												[localActiveDevice]: value,
-											},
-										})
-									}
-								/>
-							</ResponsiveControl>
+								value={iconMargin}
+								onChange={(value) => setAttributes({ iconMargin: value })}
+							/>
 
 							{/* Title Padding */}
-							<ResponsiveControl
+							<DimensionControl
 								label={__("Title Padding", "digiblocks")}
-							>
-								<DimensionControl
-									values={titlePadding[localActiveDevice]}
-									onChange={(value) =>
-										setAttributes({
-											titlePadding: {
-												...titlePadding,
-												[localActiveDevice]: value,
-											},
-										})
-									}
-								/>
-							</ResponsiveControl>
+								value={titlePadding}
+								onChange={(value) => setAttributes({ titlePadding: value })}
+							/>
 							
 							{/* Title Margin */}
-							<ResponsiveControl
+							<DimensionControl
 								label={__("Title Margin", "digiblocks")}
-							>
-								<DimensionControl
-									values={titleMargin[localActiveDevice]}
-									onChange={(value) =>
-										setAttributes({
-											titleMargin: {
-												...titleMargin,
-												[localActiveDevice]: value,
-											},
-										})
-									}
-								/>
-							</ResponsiveControl>
+								value={titleMargin}
+								onChange={(value) => setAttributes({ titleMargin: value })}
+							/>
 
 							{/* Content Padding */}
-							<ResponsiveControl
+							<DimensionControl
 								label={__("Content Padding", "digiblocks")}
-							>
-								<DimensionControl
-									values={contentPadding[localActiveDevice]}
-									onChange={(value) =>
-										setAttributes({
-											contentPadding: {
-												...contentPadding,
-												[localActiveDevice]: value,
-											},
-										})
-									}
-								/>
-							</ResponsiveControl>
+								value={contentPadding}
+								onChange={(value) => setAttributes({ contentPadding: value })}
+							/>
 							
 							{/* Content Margin */}
-							<ResponsiveControl
+							<DimensionControl
 								label={__("Content Margin", "digiblocks")}
-							>
-								<DimensionControl
-									values={contentMargin[localActiveDevice]}
-									onChange={(value) =>
-										setAttributes({
-											contentMargin: {
-												...contentMargin,
-												[localActiveDevice]: value,
-											},
-										})
-									}
-								/>
-							</ResponsiveControl>
+								value={contentMargin}
+								onChange={(value) => setAttributes({ contentMargin: value })}
+							/>
                         </TabPanelBody>
 
                         <TabPanelBody 
@@ -2478,8 +2452,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 								]}
 								defaultUnit="px"
 								min={0}
-								max={getMaxValue(iconSize?.[localActiveDevice]?.unit)}
-								step={getStepValue(iconSize?.[localActiveDevice]?.unit)}
+								max={getMaxValue(iconSize?.[localActiveDevice]?.unit || 'px')}
+								step={getStepValue(iconSize?.[localActiveDevice]?.unit || 'px')}
 							/>
 
 							<ResponsiveRangeControl
@@ -2567,56 +2541,24 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                     />
                                     
                                     {/* Border Width */}
-                                    <ResponsiveControl
+                                    <DimensionControl
                                         label={__("Border Width", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={borderWidth && borderWidth[localActiveDevice] ? borderWidth[localActiveDevice] : {
-                                                top: 1,
-                                                right: 1,
-                                                bottom: 1,
-                                                left: 1,
-                                                unit: 'px'
-                                            }}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    borderWidth: {
-                                                        ...borderWidth,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                        />
-                                    </ResponsiveControl>
+                                        value={borderWidth}
+                                        onChange={(value) => setAttributes({ borderWidth: value })}
+                                    />
                                 </>
                             )}
                             
                             {/* Border Radius (always show) */}
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Border Radius", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={borderRadius && borderRadius[localActiveDevice] ? borderRadius[localActiveDevice] : {
-                                        top: 0,
-                                        right: 0,
-                                        bottom: 0,
-                                        left: 0,
-                                        unit: 'px'
-                                    }}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            borderRadius: {
-                                                ...borderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    units={[
-                                        { label: 'px', value: 'px' },
-                                        { label: '%', value: '%' }
-                                    ]}
-                                />
-                            </ResponsiveControl>
+                                value={borderRadius}
+                                onChange={(value) => setAttributes({ borderRadius: value })}
+                                units={[
+                                    { label: 'px', value: 'px' },
+                                    { label: '%', value: '%' }
+                                ]}
+                            />
                             
                             <SelectControl
                                 label={__(
@@ -2699,36 +2641,17 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
-                                label={__("Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={padding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
-                            <ResponsiveControl
-                                label={__("Margin", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={margin[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Padding", "digiblocks")}
+								value={padding}
+								onChange={(value) => setAttributes({ padding: value })}
+							/>
+							
+                            <DimensionControl
+								label={__("Margin", "digiblocks")}
+								value={margin}
+								onChange={(value) => setAttributes({ margin: value })}
+							/>
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -2783,8 +2706,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -2818,8 +2741,8 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -2886,10 +2809,11 @@ const IconBoxEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

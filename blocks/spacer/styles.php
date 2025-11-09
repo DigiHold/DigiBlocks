@@ -24,20 +24,20 @@ $height = isset( $attrs['height'] ) ? $attrs['height'] : array(
 );
 
 $height_desktop = '';
-if ( isset( $height['desktop']['value'] ) && $height['desktop']['value'] !== '' && $height['desktop']['value'] !== null ) {
-    $unit = isset( $height['desktop']['unit'] ) && $height['desktop']['unit'] !== '' ? $height['desktop']['unit'] : 'px';
-    $height_desktop = $height['desktop']['value'] . $unit;
+if ( isset( $height['desktop'] ) && is_array( $height['desktop'] ) && isset( $height['desktop']['value'] ) && $height['desktop']['value'] !== '' && $height['desktop']['value'] !== null ) {
+    $unit = isset( $height['desktop'] ) && is_array( $height['desktop'] ) && isset( $height['desktop']['unit'] ) && $height['desktop']['unit'] !== '' ? $height['desktop']['unit'] : 'px';
+    $height_desktop = (is_array($height['desktop']) && isset($height['desktop']['value']) ? $height['desktop']['value'] : 0) . $unit;
 }
 
 $height_tablet = '';
-if ( isset( $height['tablet']['value'] ) && $height['tablet']['value'] !== '' && $height['tablet']['value'] !== null ) {
-    $unit = isset( $height['tablet']['unit'] ) && $height['tablet']['unit'] !== '' ? $height['tablet']['unit'] : 'px';
+if ( is_array( $height['tablet'] ) && isset( $height['tablet']['value'] ) && $height['tablet']['value'] !== '' && $height['tablet']['value'] !== null ) {
+    $unit = isset( $height['tablet'] ) && is_array( $height['tablet'] ) && isset( $height['tablet']['unit'] ) && $height['tablet']['unit'] !== '' ? $height['tablet']['unit'] : 'px';
     $height_tablet = $height['tablet']['value'] . $unit;
 }
 
 $height_mobile = '';
-if ( isset( $height['mobile']['value'] ) && $height['mobile']['value'] !== '' && $height['mobile']['value'] !== null ) {
-    $unit = isset( $height['mobile']['unit'] ) && $height['mobile']['unit'] !== '' ? $height['mobile']['unit'] : 'px';
+if ( is_array( $height['mobile'] ) && isset( $height['mobile']['value'] ) && $height['mobile']['value'] !== '' && $height['mobile']['value'] !== null ) {
+    $unit = isset( $height['mobile'] ) && is_array( $height['mobile'] ) && isset( $height['mobile']['unit'] ) && $height['mobile']['unit'] !== '' ? $height['mobile']['unit'] : 'px';
     $height_mobile = $height['mobile']['value'] . $unit;
 }
 

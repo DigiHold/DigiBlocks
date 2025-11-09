@@ -131,52 +131,73 @@ registerBlockType('digiblocks/icon-list', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 16, tablet: '', mobile: '' },
-                fontSizeUnit: 'px',
+                fontSize: { desktop: { value: 16, unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } },
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
-                lineHeightUnit: 'em',
-                letterSpacing: { desktop: 0, tablet: '', mobile: '' },
-                letterSpacingUnit: 'px'
+                lineHeight: { desktop: { value: 1.5, unit: 'em' }, tablet: { value: '', unit: 'em' }, mobile: { value: '', unit: 'em' } },
+                letterSpacing: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } }
             }
         },
         listLayout: {
-            type: 'string',
-            default: 'vertical'
+            type: 'object',
+            default: {
+                desktop: 'vertical',
+                tablet: '',
+                mobile: ''
+            }
         },
         listAlign: {
-            type: 'string',
-            default: 'left'
+            type: 'object',
+            default: {
+                desktop: 'left',
+                tablet: '',
+                mobile: ''
+            }
+        },
+        columns: {
+            type: 'object',
+            default: {
+                desktop: 1,
+                tablet: '',
+                mobile: ''
+            }
         },
         iconPosition: {
             type: 'string',
             default: 'before'
         },
+        removeText: {
+            type: 'boolean',
+            default: false
+        },
+        iconWidth: {
+            type: 'string',
+            default: 'custom'
+        },
         iconSize: {
             type: 'object',
             default: {
-                desktop: 24,
-                tablet: '',
-                mobile: ''
+                desktop: { value: 24, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' }
             }
         },
         iconSpace: {
             type: 'object',
             default: {
-                desktop: 12,
-                tablet: '',
-                mobile: ''
+                desktop: { value: 12, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' }
             }
         },
         itemSpace: {
             type: 'object',
             default: {
-                desktop: 16,
-                tablet: '',
-                mobile: ''
+                desktop: { value: 16, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' }
             }
         },
         iconColor: {
@@ -299,8 +320,8 @@ registerBlockType('digiblocks/icon-list', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         verticalOrientation: {
@@ -311,8 +332,8 @@ registerBlockType('digiblocks/icon-list', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         zIndex: {

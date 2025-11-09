@@ -94,7 +94,7 @@ class DigiBlocks_Review_Notice {
 					<?php
 					printf(
 						/* translators: %1$s: Plugin review link */
-						esc_html__( 'Do you like %2$sdigiblocks%3$s? Please consider leaving a 5-star review %4$s&#9733;&#9733;&#9733;&#9733;&#9733;%5$s on %6$sWordPress.org%7$s to help us spread the word!', 'digiblocks' ),
+						esc_html__( 'Do you like %2$sDigiBlocks%3$s? Please consider leaving a 5-star review %4$s&#9733;&#9733;&#9733;&#9733;&#9733;%5$s on %6$sWordPress.org%7$s to help us spread the word!', 'digiblocks' ),
 						'https://wordpress.org/support/plugin/digiblocks/reviews/#new-post',
 						'<strong>',
 						'</strong>',

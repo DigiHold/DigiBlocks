@@ -92,29 +92,21 @@ registerBlockType('digiblocks/image', {
             default: 'auto',
         },
         width: {
-            type: 'object',
-            default: {
-                desktop: 100,
-                tablet: 100,
-                mobile: 100
-            }
-        },
-        widthUnit: {
-            type: 'string',
-            default: '%'
-        },
-        height: {
-            type: 'object',
-            default: {
-                desktop: 'auto',
-                tablet: 'auto',
-                mobile: 'auto'
-            }
-        },
-        heightUnit: {
-            type: 'string',
-            default: 'px'
-        },
+			type: "object",
+			default: {
+				desktop: { value: 100, unit: "%" },
+				tablet: { value: "", unit: "" },
+				mobile: { value: "", unit: "" }
+			}
+		},
+		height: {
+			type: "object",
+			default: {
+				desktop: { value: "", unit: "px" },
+				tablet: { value: "", unit: "" },
+				mobile: { value: "", unit: "" }
+			}
+		},
         sizeSlug: {
             type: 'string',
             default: 'large',
@@ -254,8 +246,8 @@ registerBlockType('digiblocks/image', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         verticalOrientation: {
@@ -266,8 +258,8 @@ registerBlockType('digiblocks/image', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         zIndex: {
@@ -326,11 +318,10 @@ registerBlockType('digiblocks/image', {
             imageUrl: 'https://s.w.org/images/core/5.3/MtBlanc1.jpg',
             sizeSlug: 'large',
             width: {
-                desktop: 100,
+                desktop: { value: 100, unit: "%" },
                 tablet: 100,
                 mobile: 100
-            },
-            widthUnit: '%'
+            }
         },
     },
     edit: ImageEdit,

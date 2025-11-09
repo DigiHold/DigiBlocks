@@ -10,14 +10,13 @@ const {
     AlignmentToolbar
 } = wp.blockEditor;
 const {
+    TextControl,
     ToggleControl,
     SelectControl,
     RangeControl,
     Button,
-    TextControl,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
     BaseControl
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
@@ -211,9 +210,7 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
         primaryColor,
         secondaryColor,
         width,
-        widthUnit,
         height,
-        heightUnit,
         borderRadius,
         margin,
         animation,
@@ -236,19 +233,52 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
 	// Create unique class
 	useBlockId( id, clientId, setAttributes );
 
-	// Get responsive value with fallback
 	const getVal = (obj, device) => {
 		if (!obj || typeof obj !== 'object') return null;
-		
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
 		if (device === 'mobile') {
-			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
-				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
 				obj.desktop;
 		}
 		if (device === 'tablet') {
-			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : obj.desktop;
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
 		}
 		return obj.desktop;
+	};
+
+	const getValueWithUnit = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return '';
+		
+		const deviceValue = obj[device];
+		if (deviceValue && deviceValue.value !== "" && deviceValue.value !== null && deviceValue.value !== undefined) {
+			return `${deviceValue.value}${deviceValue.unit !== null ? deviceValue.unit : ''}`;
+		}
+		
+		// Fallback logic
+		if (device === 'mobile') {
+			const tabletValue = obj.tablet;
+			if (tabletValue && tabletValue.value !== "" && tabletValue.value !== null && tabletValue.value !== undefined) {
+				return `${tabletValue.value}${tabletValue.unit !== null ? tabletValue.unit : ''}`;
+			}
+		}
+		
+		if (device === 'mobile' || device === 'tablet') {
+			const desktopValue = obj.desktop;
+			if (desktopValue && desktopValue.value !== "" && desktopValue.value !== null && desktopValue.value !== undefined) {
+				return `${desktopValue.value}${desktopValue.unit !== null ? desktopValue.unit : ''}`;
+			}
+		}
+		
+		return '';
 	};
 
     // Use global responsive state for local rendering
@@ -315,18 +345,6 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
 	const handlePreviewClick = () => {
 		animationPreview(id, animation, animations, previewTimeoutRef, animationDuration, animationDelay);
 	};
-
-    // Width unit options
-    const widthUnitOptions = [
-        { label: 'px', value: 'px' },
-        { label: '%', value: '%' }
-    ];
-
-    // Height unit options
-    const heightUnitOptions = [
-        { label: 'px', value: 'px' },
-        { label: '%', value: '%' }
-    ];
 
     // Content type options
     const contentTypeOptions = [
@@ -544,8 +562,11 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
         const marginValue = margin[activeDevice] || { top: 30, bottom: 30, unit: 'px' };
         
         // Width and height with units
-        const currentWidth = width[activeDevice] || 100;
-        const currentHeight = height[activeDevice] || 3;
+        const widthCSS = getValueWithUnit(width, activeDevice);
+		const heightCSS = getValueWithUnit(height, activeDevice);
+		const borderRadiusCSS = getValueWithUnit(borderRadius, activeDevice);
+		const heightValue = height?.[activeDevice]?.value || height?.desktop?.value || 3;
+		const heightUnitValue = height?.[activeDevice]?.unit || height?.desktop?.unit || 'px';
         
         // Handle different separator styles
         let separatorSpecificStyles = '';
@@ -556,48 +577,48 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
             case 'line':
                 separatorBaseStyles = `
                     background-color: ${primaryColor};
-                    height: ${currentHeight}${heightUnit};
-                    width: ${currentWidth}${widthUnit};
-                    border-radius: ${borderRadius[activeDevice] || 0}px;
+                    width: ${widthCSS || '100%'};
+					height: ${heightCSS || '3px'};
+					border-radius: ${borderRadiusCSS || '0px'};
                 `;
                 break;
                 
             case 'dashed':
                 separatorBaseStyles = `
-                    border-top: ${currentHeight}${heightUnit} dashed ${primaryColor};
-                    width: ${currentWidth}${widthUnit};
+                    border-top: ${heightCSS} dashed ${primaryColor};
+                    width: ${widthCSS};
                 `;
                 break;
                 
             case 'dotted':
                 separatorBaseStyles = `
-                    border-top: ${currentHeight}${heightUnit} dotted ${primaryColor};
-                    width: ${currentWidth}${widthUnit};
+                    border-top: ${heightCSS} dotted ${primaryColor};
+                    width: ${widthCSS};
                 `;
                 break;
                 
             case 'double':
                 separatorBaseStyles = `
-                    border-top: ${Math.max(1, Math.floor(currentHeight / 3))}${heightUnit} solid ${primaryColor};
-                    border-bottom: ${Math.max(1, Math.floor(currentHeight / 3))}${heightUnit} solid ${primaryColor};
-                    height: ${currentHeight}${heightUnit};
-                    width: ${currentWidth}${widthUnit};
+					border-top: ${Math.max(1, Math.floor(heightValue / 3))}${heightUnitValue} solid ${primaryColor};
+					border-bottom: ${Math.max(1, Math.floor(heightValue / 3))}${heightUnitValue} solid ${primaryColor};
+                    height: ${heightCSS};
+                    width: ${widthCSS};
                 `;
                 break;
                 
             case 'gradient':
                 separatorBaseStyles = `
                     background: linear-gradient(90deg, ${secondaryColor || 'transparent'} 0%, ${primaryColor} 50%, ${secondaryColor || 'transparent'} 100%);
-                    height: ${currentHeight}${heightUnit};
-                    width: ${currentWidth}${widthUnit};
+                    height: ${heightCSS};
+                    width: ${widthCSS};
                     border-radius: ${borderRadius[activeDevice] || 0}px;
                 `;
                 break;
                 
             case 'shadow':
                 separatorBaseStyles = `
-                    height: ${currentHeight}${heightUnit};
-                    width: ${currentWidth}${widthUnit};
+                    height: ${heightCSS};
+                    width: ${widthCSS};
                     background-color: ${primaryColor};
                     border-radius: ${borderRadius[activeDevice] || 0}px;
                     box-shadow: 0 ${Math.max(2, currentHeight/2)}px ${Math.max(4, currentHeight)}px rgba(0,0,0,0.2);
@@ -681,8 +702,8 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const fontSize = getVal(typography.fontSize, activeDevice);
-			if (fontSize) {
-				typographyStyles += `font-size: ${fontSize}${typography.fontSizeUnit || 'px'};`;
+			if (fontSize && fontSize.value !== "" && fontSize.value !== null && fontSize.value !== undefined) {
+				typographyStyles += `font-size: ${fontSize.value}${fontSize.unit !== null ? fontSize.unit : ''};`;
 			}
             
             if (typography.fontWeight) {
@@ -698,13 +719,13 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
             }
             
             const lineHeight = getVal(typography.lineHeight, activeDevice);
-			if (lineHeight) {
-				typographyStyles += `line-height: ${lineHeight}${typography.lineHeightUnit || 'em'};`;
+			if (lineHeight && lineHeight.value !== "" && lineHeight.value !== null && lineHeight.value !== undefined) {
+				typographyStyles += `line-height: ${lineHeight.value}${lineHeight.unit !== null ? lineHeight.unit : ''};`;
 			}
             
             const letterSpacing = getVal(typography.letterSpacing, activeDevice);
-			if (letterSpacing || letterSpacing === 0) {
-				typographyStyles += `letter-spacing: ${letterSpacing}${typography.letterSpacingUnit || 'px'};`;
+			if (letterSpacing && letterSpacing.value !== "" && letterSpacing.value !== null && letterSpacing.value !== undefined) {
+				typographyStyles += `letter-spacing: ${letterSpacing.value}${letterSpacing.unit !== null ? letterSpacing.unit : ''};`;
 			}
             
             contentStyles += `
@@ -733,8 +754,17 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -743,8 +773,17 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -822,9 +861,9 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                 }
                 
                 .${id} .digiblocks-separator-line {
-                    width: ${width.tablet ? width.tablet + widthUnit : currentWidth + widthUnit};
-                    height: ${height.tablet ? height.tablet + heightUnit : currentHeight + heightUnit};
-                    ${borderRadius.tablet ? `border-radius: ${borderRadius.tablet}px;` : ''}
+                    ${getVal(width, 'tablet') ? `width: ${getVal(width, 'tablet')};` : ''}
+					${getVal(height, 'tablet') ? `height: ${getVal(height, 'tablet')};` : ''}
+					${getVal(borderRadius, 'tablet') ? `border-radius: ${getVal(borderRadius, 'tablet')};` : ''}
                 }
                 
                 ${contentType === 'icon' ? `
@@ -841,9 +880,9 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                 }
                 
                 .${id} .digiblocks-separator-line {
-                    width: ${width.mobile ? width.mobile + widthUnit : currentWidth + widthUnit};
-                    height: ${height.mobile ? height.mobile + heightUnit : currentHeight + heightUnit};
-                    ${borderRadius.mobile ? `border-radius: ${borderRadius.mobile}px;` : ''}
+                    ${getVal(width, 'mobile') ? `width: ${getVal(width, 'mobile')};` : ''}
+					${getVal(height, 'mobile') ? `height: ${getVal(height, 'mobile')};` : ''}
+					${getVal(borderRadius, 'mobile') ? `border-radius: ${getVal(borderRadius, 'mobile')};` : ''}
                 }
                 
                 ${contentType === 'icon' ? `
@@ -1069,187 +1108,58 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                         >
 							{!['wave', 'zigzag', 'slant'].includes(separatorStyle) && (
 								<>
-									<div className="digiblocks-size-type-field-tabs">
-										<div className="digiblocks-responsive-control-inner">
-											<div className="components-base-control">
-												<div className="digiblocks-range-control digiblocks-size-type-field-tabs">
-													<div className="digiblocks-control__header">
-														<div className="digiblocks-responsive-label-wrap">
-															<span className="digiblocks-control-label">{__('Width', 'digiblocks')}</span>
-															<button 
-																type="button" 
-																aria-label={__(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks")}
-																className={`components-button digiblocks-responsive-common-button digiblocks-device-${localActiveDevice}`}
-																onClick={() => window.digi.responsiveState.toggleDevice()}
-															>
-																{window.digi.icons.deviceIcons[localActiveDevice]}
-															</button>
-														</div>
-														<div className="digiblocks-range-control__actions digiblocks-control__actions">
-															<div tabIndex="0">
-																<button 
-																	type="button" 
-																	disabled={width[localActiveDevice] === 100}
-																	className="components-button digiblocks-reset is-secondary is-small"
-																	onClick={() => setAttributes({
-																		width: {
-																			...width,
-																			[localActiveDevice]: 100
-																		}
-																	})}
-																>
-																	<span className="dashicon dashicons dashicons-image-rotate"></span>
-																</button>
-															</div>
-															<ToggleGroupControl
-																value={widthUnit}
-																onChange={(value) => setAttributes({ widthUnit: value })}
-																isBlock
-																isSmall
-																hideLabelFromVision
-																aria-label={__("Width Unit", "digiblocks")}
-																__next40pxDefaultSize={true}
-																__nextHasNoMarginBottom={true}
-															>
-																{widthUnitOptions.map(option => (
-																	<ToggleGroupControlOption
-																		key={option.value}
-																		value={option.value}
-																		label={option.label}
-																	/>
-																))}
-															</ToggleGroupControl>
-														</div>
-													</div>
-													<div className="digiblocks-range-control__mobile-controls">
-														<RangeControl
-															value={width[localActiveDevice]}
-															onChange={(value) => setAttributes({
-																width: {
-																	...width,
-																	[localActiveDevice]: value
-																}
-															})}
-															min={1}
-															max={widthUnit === '%' ? 100 : 1000}
-															step={1}
-															__next40pxDefaultSize={true}
-															__nextHasNoMarginBottom={true}
-														/>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-									
-									<div className="digiblocks-size-type-field-tabs">
-										<div className="digiblocks-responsive-control-inner">
-											<div className="components-base-control">
-												<div className="digiblocks-range-control digiblocks-size-type-field-tabs">
-													<div className="digiblocks-control__header">
-														<div className="digiblocks-responsive-label-wrap">
-															<span className="digiblocks-control-label">{__('Height', 'digiblocks')}</span>
-															<button 
-																type="button" 
-																aria-label={__(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks")}
-																className={`components-button digiblocks-responsive-common-button digiblocks-device-${localActiveDevice}`}
-																onClick={() => window.digi.responsiveState.toggleDevice()}
-															>
-																{window.digi.icons.deviceIcons[localActiveDevice]}
-															</button>
-														</div>
-														<div className="digiblocks-range-control__actions digiblocks-control__actions">
-															<div tabIndex="0">
-																<button 
-																	type="button" 
-																	disabled={height[localActiveDevice] === 3}
-																	className="components-button digiblocks-reset is-secondary is-small"
-																	onClick={() => setAttributes({
-																		height: {
-																			...height,
-																			[localActiveDevice]: 3
-																		}
-																	})}
-																>
-																	<span className="dashicon dashicons dashicons-image-rotate"></span>
-																</button>
-															</div>
-															<ToggleGroupControl
-																value={heightUnit}
-																onChange={(value) => setAttributes({ heightUnit: value })}
-																isBlock
-																isSmall
-																hideLabelFromVision
-																aria-label={__("Height Unit", "digiblocks")}
-																__next40pxDefaultSize={true}
-																__nextHasNoMarginBottom={true}
-															>
-																{heightUnitOptions.map(option => (
-																	<ToggleGroupControlOption
-																		key={option.value}
-																		value={option.value}
-																		label={option.label}
-																	/>
-																))}
-															</ToggleGroupControl>
-														</div>
-													</div>
-													<div className="digiblocks-range-control__mobile-controls">
-														<RangeControl
-															value={height[localActiveDevice]}
-															onChange={(value) => setAttributes({
-																height: {
-																	...height,
-																	[localActiveDevice]: value
-																}
-															})}
-															min={1}
-															max={heightUnit === '%' ? 20 : 100}
-															step={1}
-															__next40pxDefaultSize={true}
-															__nextHasNoMarginBottom={true}
-														/>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
+									<ResponsiveRangeControl
+										label={__("Width", "digiblocks")}
+										value={width}
+										onChange={(value) => setAttributes({ width: value })}
+										units={[
+											{ label: 'px', value: 'px' },
+											{ label: '%', value: '%' },
+											{ label: 'em', value: 'em' },
+											{ label: 'rem', value: 'rem' },
+											{ label: 'vw', value: 'vw' },
+										]}
+										defaultValues={{ desktop: { value: 100, unit: '%' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } }}
+										min={0}
+										max={width?.[localActiveDevice]?.unit === '%' ? 100 : (width?.[localActiveDevice]?.unit === 'vw' ? 100 : (width?.[localActiveDevice]?.unit === 'em' || width?.[localActiveDevice]?.unit === 'rem' ? 50 : 1000))}
+										step={width?.[localActiveDevice]?.unit === 'em' || width?.[localActiveDevice]?.unit === 'rem' ? 0.1 : 1}
+									/>
+
+									<ResponsiveRangeControl
+										label={__("Height", "digiblocks")}
+										value={height}
+										onChange={(value) => setAttributes({ height: value })}
+										units={[
+											{ label: 'px', value: 'px' },
+											{ label: '%', value: '%' },
+											{ label: 'em', value: 'em' },
+											{ label: 'rem', value: 'rem' },
+											{ label: 'vh', value: 'vh' },
+										]}
+										defaultValues={{ desktop: { value: 3, unit: 'px' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } }}
+										min={0}
+										max={height?.[localActiveDevice]?.unit === '%' ? 100 : (height?.[localActiveDevice]?.unit === 'vh' ? 100 : (height?.[localActiveDevice]?.unit === 'em' || height?.[localActiveDevice]?.unit === 'rem' ? 50 : 1000))}
+										step={height?.[localActiveDevice]?.unit === 'em' || height?.[localActiveDevice]?.unit === 'rem' ? 0.1 : 1}
+									/>
 								</>
                             )}
                             
                             {['line', 'gradient', 'shadow'].includes(separatorStyle) && (
-                                <div className="digiblocks-responsive-control">
-                                    <div className="digiblocks-control__header">
-                                        <div className="digiblocks-responsive-label-wrap">
-                                            <span className="digiblocks-control-label">{__("Border Radius", "digiblocks")}</span>
-                                            <button 
-                                                type="button" 
-                                                aria-label={__(`Switch to ${window.digi.responsiveState.getNextDevice()} view`, "digiblocks")}
-                                                className={`components-button digiblocks-responsive-common-button digiblocks-device-${localActiveDevice}`}
-                                                onClick={() => window.digi.responsiveState.toggleDevice()}
-                                            >
-                                                {window.digi.icons.deviceIcons[localActiveDevice]}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div className="digiblocks-responsive-control-content">
-                                        <div className="digiblocks-unit-control">
-                                            <RangeControl
-                                                value={borderRadius[localActiveDevice]}
-                                                onChange={(value) => setAttributes({
-                                                    borderRadius: {
-                                                        ...borderRadius,
-                                                        [localActiveDevice]: value
-                                                    }
-                                                })}
-                                                min={0}
-                                                max={50}
-                                                __next40pxDefaultSize={true}
-                                                __nextHasNoMarginBottom={true}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+								<ResponsiveRangeControl
+									label={__("Border Radius", "digiblocks")}
+									value={borderRadius}
+									onChange={(value) => setAttributes({ borderRadius: value })}
+									units={[
+										{ label: 'px', value: 'px' },
+										{ label: '%', value: '%' },
+										{ label: 'em', value: 'em' },
+										{ label: 'rem', value: 'rem' },
+									]}
+									defaultUnit="px"
+									min={0}
+									max={borderRadius?.[localActiveDevice]?.unit === '%' ? 50 : (borderRadius?.[localActiveDevice]?.unit === 'em' || borderRadius?.[localActiveDevice]?.unit === 'rem' ? 10 : 100)}
+									step={borderRadius?.[localActiveDevice]?.unit === 'em' || borderRadius?.[localActiveDevice]?.unit === 'rem' ? 0.1 : 1}
+								/>
                             )}
                             
                             {(contentType === 'text' || contentType === 'icon') && (
@@ -1379,12 +1289,6 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                                     label={__("Text Typography", "digiblocks")}
                                     value={typography}
                                     onChange={(value) => setAttributes({ typography: value })}
-                                    defaults={{
-                                        fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                                        fontSizeUnit: 'px',
-                                        lineHeight: { desktop: 1.5, tablet: 1.5, mobile: 1.5 },
-                                        lineHeightUnit: 'em',
-                                    }}
                                 />
                             </TabPanelBody>
                         )}
@@ -1445,8 +1349,8 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1480,8 +1384,8 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -1541,10 +1445,11 @@ const SeparatorEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

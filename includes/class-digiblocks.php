@@ -871,26 +871,25 @@ class DigiBlocks {
 	}
 
 	/**
-	 * Generate CSS file for a post.
+	 * Write file to filesystem with proper error handling.
 	 *
-	 * @param int    $post_id Post ID.
-	 * @param string $css CSS content.
+	 * @param string $file_path Full path to the file.
+	 * @param string $content File content.
+	 * @param bool   $should_minify Whether to minify CSS content.
 	 */
-	public function generate_css_file( $post_id, $css ) {
+	private function write_asset_file( $file_path, $content, $should_minify = false ) {
 		global $wp_filesystem;
 		if ( ! is_object( $wp_filesystem ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 			WP_Filesystem();
 		}
 
-		$css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-' . $post_id . '.css';
-
-		if ( empty( $css ) ) {
-			if ( file_exists( $css_file ) ) {
+		if ( empty( $content ) ) {
+			if ( file_exists( $file_path ) ) {
 				if ( $wp_filesystem && is_object( $wp_filesystem ) ) {
-					$wp_filesystem->delete( $css_file );
+					$wp_filesystem->delete( $file_path );
 				} else {
-					wp_delete_file( $css_file );
+					wp_delete_file( $file_path );
 				}
 			}
 			return;
@@ -900,15 +899,17 @@ class DigiBlocks {
 			wp_mkdir_p( DIGIBLOCKS_ASSETS_DIR );
 		}
 
-		$css = $this->minify_css( $css );
+		if ( $should_minify ) {
+			$content = $this->minify_css( $content );
+		}
 
-		if ( file_exists( $css_file ) ) {
+		if ( file_exists( $file_path ) ) {
 			if ( $wp_filesystem && is_object( $wp_filesystem ) ) {
-				$wp_filesystem->delete( $css_file );
+				$wp_filesystem->delete( $file_path );
 			} else {
-				wp_delete_file( $css_file );
+				wp_delete_file( $file_path );
 			}
-			clearstatcache( true, $css_file );
+			clearstatcache( true, $file_path );
 		}
 
 		if ( ! $wp_filesystem || ! is_object( $wp_filesystem ) ) {
@@ -917,13 +918,24 @@ class DigiBlocks {
 				require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
 			}
 			$wp_filesystem_direct = new WP_Filesystem_Direct( null );
-			$wp_filesystem_direct->put_contents( $css_file, $css, FS_CHMOD_FILE );
-			clearstatcache( true, $css_file );
+			$wp_filesystem_direct->put_contents( $file_path, $content, FS_CHMOD_FILE );
+			clearstatcache( true, $file_path );
 			return;
 		}
 
-		$wp_filesystem->put_contents( $css_file, $css, FS_CHMOD_FILE );
-		clearstatcache( true, $css_file );
+		$wp_filesystem->put_contents( $file_path, $content, FS_CHMOD_FILE );
+		clearstatcache( true, $file_path );
+	}
+
+	/**
+	 * Generate CSS file for a post.
+	 *
+	 * @param int    $post_id Post ID.
+	 * @param string $css CSS content.
+	 */
+	public function generate_css_file( $post_id, $css ) {
+		$css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-' . $post_id . '.css';
+		$this->write_asset_file( $css_file, $css, true );
 	}
 
 	/**
@@ -933,53 +945,9 @@ class DigiBlocks {
 	 * @param string $js JS content.
 	 */
 	public function generate_js_file( $post_id, $js ) {
-		global $wp_filesystem;
-		if ( ! is_object( $wp_filesystem ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-			WP_Filesystem();
-		}
-
 		$js_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-' . $post_id . '.js';
-
-		if ( empty( $js ) ) {
-			if ( file_exists( $js_file ) ) {
-				if ( $wp_filesystem && is_object( $wp_filesystem ) ) {
-					$wp_filesystem->delete( $js_file );
-				} else {
-					wp_delete_file( $js_file );
-				}
-			}
-			return;
-		}
-
-		if ( ! file_exists( DIGIBLOCKS_ASSETS_DIR ) ) {
-			wp_mkdir_p( DIGIBLOCKS_ASSETS_DIR );
-		}
-
-		$js = $this->minify_js( $js );
-
-		if ( file_exists( $js_file ) ) {
-			if ( $wp_filesystem && is_object( $wp_filesystem ) ) {
-				$wp_filesystem->delete( $js_file );
-			} else {
-				wp_delete_file( $js_file );
-			}
-			clearstatcache( true, $js_file );
-		}
-
-		if ( ! $wp_filesystem || ! is_object( $wp_filesystem ) ) {
-			if ( ! class_exists( 'WP_Filesystem_Direct' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
-				require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
-			}
-			$wp_filesystem_direct = new WP_Filesystem_Direct( null );
-			$wp_filesystem_direct->put_contents( $js_file, $js, FS_CHMOD_FILE );
-			clearstatcache( true, $js_file );
-			return;
-		}
-
-		$wp_filesystem->put_contents( $js_file, $js, FS_CHMOD_FILE );
-		clearstatcache( true, $js_file );
+		$js = ! empty( $js ) ? $this->minify_js( $js ) : '';
+		$this->write_asset_file( $js_file, $js, false );
 	}
 
 	/**
@@ -1121,13 +1089,19 @@ class DigiBlocks {
 						if ( ! $template_info['has_post_content'] || ! $post_has_content ) {
 							if ( ! empty( $template_info['template_content_blocks'] ) && 
 								$this->has_digiblocks_in_blocks( $template_info['template_content_blocks'] ) ) {
-								$template_content_for_post[ $current_post_id ] = $template_info['template_content_blocks'];
+								$template_content_for_post[ $current_post_id ] = array(
+								'blocks' => $template_info['template_content_blocks'],
+								'hash'   => $template_info['template_content_hash'],
+							);
 							}
 						}
 
 						if ( $template_info['has_post_content'] && ! empty( $template_info['template_content_blocks'] ) && 
 							$this->has_digiblocks_in_blocks( $template_info['template_content_blocks'] ) ) {
-							$template_content_for_post[ 'template-' . $current_post_id ] = $template_info['template_content_blocks'];
+							$template_content_for_post[ 'template-' . $current_post_id ] = array(
+							'blocks' => $template_info['template_content_blocks'],
+							'hash'   => $template_info['template_content_hash'],
+						);
 						}
 					}
 				} else {
@@ -1159,7 +1133,10 @@ class DigiBlocks {
 					
 					if ( ! empty( $template_info['template_content_blocks'] ) && 
 						$this->has_digiblocks_in_blocks( $template_info['template_content_blocks'] ) ) {
-						$template_content_for_post[0] = $template_info['template_content_blocks'];
+						$template_content_for_post[0] = array(
+							'blocks' => $template_info['template_content_blocks'],
+							'hash'   => $template_info['template_content_hash'],
+						);
 					}
 				}
 			}
@@ -1227,45 +1204,48 @@ class DigiBlocks {
 			}
 		}
 		
-		foreach ( $template_content_for_post as $post_id => $template_blocks ) {
+		foreach ( $template_content_for_post as $post_id => $template_data ) {
 			if ( isset( $enqueued_posts[ $post_id ] ) ) {
 				continue;
 			}
-			
-			$css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-' . $post_id . '.css';
-			$js_file  = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-' . $post_id . '.js';
-			
+
+			$template_blocks = $template_data['blocks'];
+			$template_hash = $template_data['hash'];
+
+			$css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-template-' . $template_hash . '-' . $post_id . '.css';
+			$js_file  = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-template-' . $template_hash . '-' . $post_id . '.js';
+
 			if ( ! file_exists( $css_file ) || ! file_exists( $js_file ) ) {
-				$this->generate_template_content_assets( $post_id, $template_blocks );
+				$this->generate_template_content_assets( $post_id, $template_blocks, $template_hash );
 			}
-			
+
 			$has_css = file_exists( $css_file );
 			$has_js = file_exists( $js_file );
-			
+
 			if ( $has_css || $has_js ) {
 				$has_any_digiblocks = true;
-				
+
 				if ( $has_css ) {
 					wp_enqueue_style(
-						'digiblocks-' . $post_id,
-						DIGIBLOCKS_ASSETS_URL . '/digiblocks-' . $post_id . '.css',
+						'digiblocks-template-' . $template_hash . '-' . $post_id,
+						DIGIBLOCKS_ASSETS_URL . '/digiblocks-template-' . $template_hash . '-' . $post_id . '.css',
 						array(),
 						filemtime( $css_file )
 					);
 				}
-				
+
 				if ( $has_js ) {
 					wp_enqueue_script(
-						'digiblocks-' . $post_id,
-						DIGIBLOCKS_ASSETS_URL . '/digiblocks-' . $post_id . '.js',
+						'digiblocks-template-' . $template_hash . '-' . $post_id,
+						DIGIBLOCKS_ASSETS_URL . '/digiblocks-template-' . $template_hash . '-' . $post_id . '.js',
 						array(),
 						filemtime( $js_file ),
 						true
 					);
-					
-					$this->enqueue_consolidated_script_data( 'digiblocks-' . $post_id, $template_blocks );
+
+					$this->enqueue_consolidated_script_data( 'digiblocks-template-' . $template_hash . '-' . $post_id, $template_blocks );
 				}
-				
+
 				$all_blocks_for_global_assets = array_merge( $all_blocks_for_global_assets, $template_blocks );
 				$enqueued_posts[ $post_id ] = true;
 			}
@@ -1365,28 +1345,6 @@ class DigiBlocks {
 			
 			if ( ! empty( $block['innerBlocks'] ) ) {
 				if ( $this->has_digiblocks_in_blocks( $block['innerBlocks'] ) ) {
-					return true;
-				}
-			}
-		}
-		
-		return false;
-	}
-
-	/**
-	 * Check if template has core/post-content block
-	 *
-	 * @param array $blocks Parsed blocks to scan
-	 * @return bool Whether post-content block exists
-	 */
-	private function template_has_post_content_block( $blocks ) {
-		foreach ( $blocks as $block ) {
-			if ( isset( $block['blockName'] ) && $block['blockName'] === 'core/post-content' ) {
-				return true;
-			}
-			
-			if ( ! empty( $block['innerBlocks'] ) ) {
-				if ( $this->template_has_post_content_block( $block['innerBlocks'] ) ) {
 					return true;
 				}
 			}
@@ -2662,12 +2620,20 @@ class DigiBlocks {
 		}
 
 		$current_template_parts = array();
+		$current_template_content_hashes = array();
 		if ( wp_is_block_theme() ) {
-			$template_blocks = $this->get_current_template_blocks();
-			if ( ! empty( $template_blocks ) ) {
+			$templates = get_block_templates();
+			foreach ( $templates as $template ) {
+				if ( empty( $template->content ) ) {
+					continue;
+				}
+				$template_blocks = parse_blocks( $template->content );
 				$template_info = $this->analyze_template_structure( $template_blocks );
 				foreach ( $template_info['template_parts'] as $part_info ) {
 					$current_template_parts[] = $part_info['hash'];
+				}
+				if ( ! empty( $template_info['template_content_hash'] ) ) {
+					$current_template_content_hashes[] = $template_info['template_content_hash'];
 				}
 			}
 		}
@@ -2690,12 +2656,29 @@ class DigiBlocks {
 				}
 			} elseif ( preg_match( '/^digiblocks-template-part-([a-f0-9]{8})\.(css|js)$/', $filename, $matches ) ) {
 				$part_hash = $matches[1];
-				
+
 				if ( ! in_array( $part_hash, $current_template_parts, true ) ) {
 					$should_delete = true;
 				}
-			} elseif ( preg_match( '/^digiblocks-template-([a-f0-9]{6})\.(css|js)$/', $filename, $matches ) ) {
-				$should_delete = true;
+			} elseif ( preg_match( '/^digiblocks-template-([a-f0-9]{8})-(\d+|template-\d+)\.(css|js)$/', $filename, $matches ) ) {
+				$template_hash = $matches[1];
+				$post_id_or_key = $matches[2];
+
+				if ( ! in_array( $template_hash, $current_template_content_hashes, true ) ) {
+					$should_delete = true;
+				}
+
+				if ( ! $should_delete && preg_match( '/^(\d+)$/', $post_id_or_key, $id_match ) ) {
+					$post_id = (int) $id_match[1];
+					if ( ! isset( $existing_post_ids[ $post_id ] ) ) {
+						$should_delete = true;
+					}
+				} elseif ( ! $should_delete && preg_match( '/^template-(\d+)$/', $post_id_or_key, $id_match ) ) {
+					$post_id = (int) $id_match[1];
+					if ( ! isset( $existing_post_ids[ $post_id ] ) ) {
+						$should_delete = true;
+					}
+				}
 			}
 			
 			if ( $should_delete ) {
@@ -2970,7 +2953,7 @@ class DigiBlocks {
 						);
 					}
 				}
-			} elseif ( isset( $block['blockName'] ) && $block['blockName'] === 'core/post-content' ) {
+			} elseif ( isset( $block['blockName'] ) && ( $block['blockName'] === 'core/post-content' || $block['blockName'] === 'digiblocks/post-content' ) ) {
 				$has_post_content = true;
 			} else {
 				if ( ! empty( $block['innerBlocks'] ) ) {
@@ -2988,9 +2971,16 @@ class DigiBlocks {
 			}
 		}
 		
+		$template_content_hash = '';
+		if ( ! empty( $template_content_blocks ) ) {
+			$content_string = serialize( $template_content_blocks );
+			$template_content_hash = substr( md5( $content_string ), 0, 8 );
+		}
+
 		return array(
 			'template_parts'          => $template_parts,
 			'template_content_blocks' => $template_content_blocks,
+			'template_content_hash'   => $template_content_hash,
 			'has_post_content'        => $has_post_content,
 		);
 	}
@@ -3019,16 +3009,45 @@ class DigiBlocks {
 	 * @param int   $post_id Post ID to associate with
 	 * @param array $template_blocks Template content blocks (excluding template parts)
 	 */
-	private function generate_template_content_assets( $post_id, $template_blocks ) {
+	private function generate_template_content_assets( $post_id, $template_blocks, $template_hash = '' ) {
 		if ( ! file_exists( DIGIBLOCKS_ASSETS_DIR ) ) {
 			wp_mkdir_p( DIGIBLOCKS_ASSETS_DIR );
 		}
-		
+
 		$css = $this->process_blocks_for_css( $template_blocks, $post_id );
 		$js  = $this->process_blocks_for_js( $template_blocks, $post_id );
-		
-		$this->generate_css_file( $post_id, $css );
-		$this->generate_js_file( $post_id, $js );
+
+		if ( ! empty( $template_hash ) ) {
+			$this->generate_template_content_css_file( $post_id, $css, $template_hash );
+			$this->generate_template_content_js_file( $post_id, $js, $template_hash );
+		} else {
+			$this->generate_css_file( $post_id, $css );
+			$this->generate_js_file( $post_id, $js );
+		}
+	}
+
+	/**
+	 * Generate CSS file for template content
+	 *
+	 * @param int    $post_id Post ID
+	 * @param string $css CSS content
+	 * @param string $template_hash Template content hash
+	 */
+	private function generate_template_content_css_file( $post_id, $css, $template_hash ) {
+		$css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-template-' . $template_hash . '-' . $post_id . '.css';
+		$this->write_asset_file( $css_file, $css, true );
+	}
+
+	/**
+	 * Generate JS file for template content
+	 *
+	 * @param int    $post_id Post ID
+	 * @param string $js JS content
+	 * @param string $template_hash Template content hash
+	 */
+	private function generate_template_content_js_file( $post_id, $js, $template_hash ) {
+		$js_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-template-' . $template_hash . '-' . $post_id . '.js';
+		$this->write_asset_file( $js_file, $js, false );
 	}
 
 	/**
@@ -3038,36 +3057,8 @@ class DigiBlocks {
 	 * @param string $css CSS content
 	 */
 	private function generate_template_part_css_file( $part_hash, $css ) {
-		global $wp_filesystem;
-		if ( ! is_object( $wp_filesystem ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-			WP_Filesystem();
-		}
-
 		$css_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-template-part-' . $part_hash . '.css';
-
-		if ( empty( $css ) ) {
-			if ( $wp_filesystem && $wp_filesystem->exists( $css_file ) ) {
-				$wp_filesystem->delete( $css_file );
-			}
-			return;
-		}
-
-		if ( ! file_exists( DIGIBLOCKS_ASSETS_DIR ) ) {
-			wp_mkdir_p( DIGIBLOCKS_ASSETS_DIR );
-		}
-
-		if ( ! $wp_filesystem || ! is_object( $wp_filesystem ) ) {
-			if ( ! class_exists( 'WP_Filesystem_Direct' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
-				require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
-			}
-			$wp_filesystem_direct = new WP_Filesystem_Direct( null );
-			$wp_filesystem_direct->put_contents( $css_file, $this->minify_css( $css ), FS_CHMOD_FILE );
-			return;
-		}
-
-		$wp_filesystem->put_contents( $css_file, $this->minify_css( $css ), FS_CHMOD_FILE );
+		$this->write_asset_file( $css_file, $css, true );
 	}
 
 	/**
@@ -3077,36 +3068,9 @@ class DigiBlocks {
 	 * @param string $js JS content
 	 */
 	private function generate_template_part_js_file( $part_hash, $js ) {
-		global $wp_filesystem;
-		if ( ! is_object( $wp_filesystem ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-			WP_Filesystem();
-		}
-
 		$js_file = DIGIBLOCKS_ASSETS_DIR . '/digiblocks-template-part-' . $part_hash . '.js';
-
-		if ( empty( $js ) ) {
-			if ( $wp_filesystem && $wp_filesystem->exists( $js_file ) ) {
-				$wp_filesystem->delete( $js_file );
-			}
-			return;
-		}
-
-		if ( ! file_exists( DIGIBLOCKS_ASSETS_DIR ) ) {
-			wp_mkdir_p( DIGIBLOCKS_ASSETS_DIR );
-		}
-
-		if ( ! $wp_filesystem || ! is_object( $wp_filesystem ) ) {
-			if ( ! class_exists( 'WP_Filesystem_Direct' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
-				require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
-			}
-			$wp_filesystem_direct = new WP_Filesystem_Direct( null );
-			$wp_filesystem_direct->put_contents( $js_file, $this->minify_js( $js ), FS_CHMOD_FILE );
-			return;
-		}
-
-		$wp_filesystem->put_contents( $js_file, $this->minify_js( $js ), FS_CHMOD_FILE );
+		$js = ! empty( $js ) ? $this->minify_js( $js ) : '';
+		$this->write_asset_file( $js_file, $js, false );
 	}
 
 	/**
@@ -3271,6 +3235,18 @@ class DigiBlocks {
 						'value' => 'default',
 					),
 				),
+			);
+			$posts_to_regenerate = get_posts( $args );
+		} elseif ( $template_slug === 'single' ) {
+			$post_types = get_post_types( array( 'public' => true ), 'names' );
+			$exclude_types = array( 'page', 'attachment' );
+			$post_types = array_diff( $post_types, $exclude_types );
+
+			$args = array(
+				'post_type'      => array_values( $post_types ),
+				'post_status'    => array( 'publish', 'private', 'draft' ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
 			);
 			$posts_to_regenerate = get_posts( $args );
 		} elseif ( strpos( $template_slug, 'single-' ) === 0 ) {

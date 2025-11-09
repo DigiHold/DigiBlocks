@@ -10,16 +10,15 @@ const {
     AlignmentToolbar
 } = wp.blockEditor;
 const {
+    TextControl,
     SelectControl,
     RangeControl,
     TabPanel,
     ToggleControl,
-    TextControl,
     DateTimePicker,
     Button,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
     BaseControl
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
@@ -95,15 +94,22 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
 	// Get responsive value with fallback
 	const getVal = (obj, device) => {
 		if (!obj || typeof obj !== 'object') return null;
-		
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
 		if (device === 'mobile') {
-			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
-				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
 				obj.desktop;
 		}
 		if (device === 'tablet') {
-			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
-				obj.desktop;
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
 		}
 		return obj.desktop;
 	};
@@ -463,8 +469,8 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                 titleTypographyCSS += `font-family: ${titleTypography.fontFamily};`;
             }
             const titleFontSize = getVal(titleTypography.fontSize, activeDevice);
-			if (titleFontSize) {
-				titleTypographyCSS += `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || 'px'};`;
+			if (titleFontSize && titleFontSize.value !== "" && titleFontSize.value !== null && titleFontSize.value !== undefined) {
+				titleTypographyCSS += `font-size: ${titleFontSize.value}${titleFontSize.unit !== null ? titleFontSize.unit : ''};`;
 			}
             if (titleTypography.fontWeight) {
                 titleTypographyCSS += `font-weight: ${titleTypography.fontWeight};`;
@@ -476,12 +482,12 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                 titleTypographyCSS += `text-transform: ${titleTypography.textTransform};`;
             }
             const titleLineHeight = getVal(titleTypography.lineHeight, activeDevice);
-			if (titleLineHeight) {
-				titleTypographyCSS += `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || 'em'};`;
+			if (titleLineHeight && titleLineHeight.value !== "" && titleLineHeight.value !== null && titleLineHeight.value !== undefined) {
+				titleTypographyCSS += `line-height: ${titleLineHeight.value}${titleLineHeight.unit !== null ? titleLineHeight.unit : ''};`;
 			}
             const titleLetterSpacing = getVal(titleTypography.letterSpacing, activeDevice);
-			if (titleLetterSpacing || titleLetterSpacing === 0) {
-				titleTypographyCSS += `letter-spacing: ${titleLetterSpacing}${titleTypography.letterSpacingUnit || 'px'};`;
+			if (titleLetterSpacing && titleLetterSpacing.value !== "" && titleLetterSpacing.value !== null && titleLetterSpacing.value !== undefined) {
+				titleTypographyCSS += `letter-spacing: ${titleLetterSpacing.value}${titleLetterSpacing.unit !== null ? titleLetterSpacing.unit : ''};`;
 			}
         }
 
@@ -492,8 +498,8 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                 contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
             }
             const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
-			if (contentFontSize) {
-				contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || 'px'};`;
+			if (contentFontSize && contentFontSize.value !== "" && contentFontSize.value !== null && contentFontSize.value !== undefined) {
+				contentTypographyCSS += `font-size: ${contentFontSize.value}${contentFontSize.unit !== null ? contentFontSize.unit : ''};`;
 			}
             if (contentTypography.fontWeight) {
                 contentTypographyCSS += `font-weight: ${contentTypography.fontWeight};`;
@@ -505,12 +511,12 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                 contentTypographyCSS += `text-transform: ${contentTypography.textTransform};`;
             }
             const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
-			if (contentLineHeight) {
-				contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || 'em'};`;
+			if (contentLineHeight && contentLineHeight.value !== "" && contentLineHeight.value !== null && contentLineHeight.value !== undefined) {
+				contentTypographyCSS += `line-height: ${contentLineHeight.value}${contentLineHeight.unit !== null ? contentLineHeight.unit : ''};`;
 			}
             const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
-			if (contentLetterSpacing || contentLetterSpacing === 0) {
-				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || 'px'};`;
+			if (contentLetterSpacing && contentLetterSpacing.value !== "" && contentLetterSpacing.value !== null && contentLetterSpacing.value !== undefined) {
+				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing.value}${contentLetterSpacing.unit !== null ? contentLetterSpacing.unit : ''};`;
 			}
         }
         
@@ -674,7 +680,7 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
             separatorStyles = `
                 .${id} .digiblocks-countdown-separator {
                     color: ${separatorColor};
-                    font-size: ${titleTypography && titleTypography.fontSize && titleTypography.fontSize[activeDevice] ? titleTypography.fontSize[activeDevice] + (titleTypography.fontSizeUnit || 'px') : '2rem'};
+                    font-size: ${(getVal(titleTypography?.fontSize, activeDevice) && getVal(titleTypography.fontSize, activeDevice).value !== "" && getVal(titleTypography.fontSize, activeDevice).value !== null && getVal(titleTypography.fontSize, activeDevice).value !== undefined) ? getVal(titleTypography.fontSize, activeDevice).value + getVal(titleTypography.fontSize, activeDevice).unit : '2rem'};
                 }
                 .${id} .digiblocks-countdown-separator::before {
                     content: "${separatorContent}";
@@ -759,8 +765,17 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -769,8 +784,17 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -1199,25 +1223,12 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Digit Typography", "digiblocks")}
                                 value={titleTypography}
                                 onChange={(value) => setAttributes({ titleTypography: value })}
-                                defaults={{
-                                    fontSize: { desktop: 32, tablet: 28, mobile: 24 },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.2, tablet: 1.2, mobile: 1.2 },
-                                    lineHeightUnit: 'em',
-                                    fontWeight: '600'
-                                }}
                             />
 
                             <TypographyControl
                                 label={__("Label Typography", "digiblocks")}
                                 value={contentTypography}
                                 onChange={(value) => setAttributes({ contentTypography: value })}
-                                defaults={{
-                                    fontSize: { desktop: 14, tablet: 13, mobile: 12 },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.4, tablet: 1.4, mobile: 1.4 },
-                                    lineHeightUnit: 'em'
-                                }}
                             />
                         </TabPanelBody>
 
@@ -1229,54 +1240,22 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
 									title={__("Box Style", "digiblocks")}
 									initialOpen={false}
 								>
-									<ResponsiveControl
+									<DimensionControl
 										label={__("Border Radius", "digiblocks")}
-									>
-										<DimensionControl
-											values={boxBorderRadius && boxBorderRadius[localActiveDevice] ? boxBorderRadius[localActiveDevice] : {
-												top: 4,
-												right: 4,
-												bottom: 4,
-												left: 4,
-												unit: 'px'
-											}}
-											onChange={(value) =>
-												setAttributes({
-													boxBorderRadius: {
-														...boxBorderRadius,
-														[localActiveDevice]: value,
-													},
-												})
-											}
-											units={[
-												{ label: 'px', value: 'px' },
-												{ label: '%', value: '%' }
-											]}
-										/>
-									</ResponsiveControl>
+										value={boxBorderRadius}
+										onChange={(value) => setAttributes({ boxBorderRadius: value })}
+										units={[
+											{ label: 'px', value: 'px' },
+											{ label: '%', value: '%' }
+										]}
+									/>
 
 									{boxStyle === 'outlined' && (
-										<ResponsiveControl
+										<DimensionControl
 											label={__("Border Width", "digiblocks")}
-										>
-											<DimensionControl
-												values={boxBorderWidth && boxBorderWidth[localActiveDevice] ? boxBorderWidth[localActiveDevice] : {
-													top: 1,
-													right: 1,
-													bottom: 1,
-													left: 1,
-													unit: 'px'
-												}}
-												onChange={(value) =>
-													setAttributes({
-														boxBorderWidth: {
-															...boxBorderWidth,
-															[localActiveDevice]: value,
-														},
-													})
-												}
-											/>
-										</ResponsiveControl>
+											value={boxBorderWidth}
+											onChange={(value) => setAttributes({ boxBorderWidth: value })}
+										/>
 									)}
 								</TabPanelBody>
 
@@ -1306,49 +1285,17 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-							<ResponsiveControl
+							<DimensionControl
 								label={__("Padding", "digiblocks")}
-							>
-								<DimensionControl
-									values={boxPadding && boxPadding[localActiveDevice] ? boxPadding[localActiveDevice] : {
-										top: 10,
-										right: 10,
-										bottom: 10,
-										left: 10,
-										unit: 'px'
-									}}
-									onChange={(value) =>
-										setAttributes({
-											boxPadding: {
-												...boxPadding,
-												[localActiveDevice]: value,
-											},
-										})
-									}
-								/>
-							</ResponsiveControl>
+								value={boxPadding}
+								onChange={(value) => setAttributes({ boxPadding: value })}
+							/>
 
-							<ResponsiveControl
+							<DimensionControl
 								label={__("Margin", "digiblocks")}
-							>
-								<DimensionControl
-									values={boxMargin && boxMargin[localActiveDevice] ? boxMargin[localActiveDevice] : {
-										top: 0,
-										right: 0,
-										bottom: 0,
-										left: 0,
-										unit: 'px'
-									}}
-									onChange={(value) =>
-										setAttributes({
-											boxMargin: {
-												...boxMargin,
-												[localActiveDevice]: value,
-											},
-										})
-									}
-								/>
-							</ResponsiveControl>
+								value={boxMargin}
+								onChange={(value) => setAttributes({ boxMargin: value })}
+							/>
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1403,8 +1350,8 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1438,8 +1385,8 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -1499,10 +1446,11 @@ const CountdownEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

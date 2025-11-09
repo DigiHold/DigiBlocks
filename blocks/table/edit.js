@@ -10,6 +10,7 @@ const {
     BlockControls,
 } = wp.blockEditor;
 const {
+    TextControl,
     SelectControl,
     RangeControl,
     ToggleControl,
@@ -20,7 +21,6 @@ const {
     Popover,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 
@@ -29,7 +29,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveRangeControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
+const { ResponsiveRangeControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
 
 /**
  * Edit function for the Table block
@@ -88,15 +88,22 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 	// Get responsive value with fallback
 	const getVal = (obj, device) => {
 		if (!obj || typeof obj !== 'object') return null;
-		
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
 		if (device === 'mobile') {
-			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
-				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
 				obj.desktop;
 		}
 		if (device === 'tablet') {
-			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
-				obj.desktop;
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
 		}
 		return obj.desktop;
 	};
@@ -667,8 +674,8 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const headerFontSize = getVal(headingTypography.fontSize, activeDevice);
-			if (headerFontSize) {
-				headingTypographyCSS += `font-size: ${headerFontSize}${headingTypography.fontSizeUnit || 'px'};`;
+			if (headerFontSize && headerFontSize.value !== "" && headerFontSize.value !== null && headerFontSize.value !== undefined) {
+				headingTypographyCSS += `font-size: ${headerFontSize.value}${headerFontSize.unit !== null ? headerFontSize.unit : ''};`;
 			}
 			
 			if (headingTypography.fontWeight) {
@@ -688,13 +695,13 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const headerLineHeight = getVal(headingTypography.lineHeight, activeDevice);
-			if (headerLineHeight) {
-				headingTypographyCSS += `line-height: ${headerLineHeight}${headingTypography.lineHeightUnit || 'em'};`;
+			if (headerLineHeight && headerLineHeight.value !== "" && headerLineHeight.value !== null && headerLineHeight.value !== undefined) {
+				headingTypographyCSS += `line-height: ${headerLineHeight.value}${headerLineHeight.unit !== null ? headerLineHeight.unit : ''};`;
 			}
 			
 			const headerLetterSpacing = getVal(headingTypography.letterSpacing, activeDevice);
-			if (headerLetterSpacing || headerLetterSpacing === 0) {
-				headingTypographyCSS += `letter-spacing: ${headerLetterSpacing}${headingTypography.letterSpacingUnit || 'px'};`;
+			if (headerLetterSpacing && headerLetterSpacing.value !== "" && headerLetterSpacing.value !== null && headerLetterSpacing.value !== undefined) {
+				headingTypographyCSS += `letter-spacing: ${headerLetterSpacing.value}${headerLetterSpacing.unit !== null ? headerLetterSpacing.unit : ''};`;
 			}
 		}
 
@@ -706,8 +713,8 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const bodyFontSize = getVal(textTypography.fontSize, activeDevice);
-			if (bodyFontSize) {
-				bodyTypographyCSS += `font-size: ${bodyFontSize}${textTypography.fontSizeUnit || 'px'};`;
+			if (bodyFontSize && bodyFontSize.value !== "" && bodyFontSize.value !== null && bodyFontSize.value !== undefined) {
+				bodyTypographyCSS += `font-size: ${bodyFontSize.value}${bodyFontSize.unit !== null ? bodyFontSize.unit : ''};`;
 			}
 			
 			if (textTypography.fontWeight) {
@@ -727,13 +734,13 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const bodyLineHeight = getVal(textTypography.lineHeight, activeDevice);
-			if (bodyLineHeight) {
-				bodyTypographyCSS += `line-height: ${bodyLineHeight}${textTypography.lineHeightUnit || 'em'};`;
+			if (bodyLineHeight && bodyLineHeight.value !== "" && bodyLineHeight.value !== null && bodyLineHeight.value !== undefined) {
+				bodyTypographyCSS += `line-height: ${bodyLineHeight.value}${bodyLineHeight.unit !== null ? bodyLineHeight.unit : ''};`;
 			}
 			
 			const bodyLetterSpacing = getVal(textTypography.letterSpacing, activeDevice);
-			if (bodyLetterSpacing || bodyLetterSpacing === 0) {
-				bodyTypographyCSS += `letter-spacing: ${bodyLetterSpacing}${textTypography.letterSpacingUnit || 'px'};`;
+			if (bodyLetterSpacing && bodyLetterSpacing.value !== "" && bodyLetterSpacing.value !== null && bodyLetterSpacing.value !== undefined) {
+				bodyTypographyCSS += `letter-spacing: ${bodyLetterSpacing.value}${bodyLetterSpacing.unit !== null ? bodyLetterSpacing.unit : ''};`;
 			}
 		}
 
@@ -745,8 +752,8 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const contentFontSize = getVal(contentTypography.fontSize, activeDevice);
-			if (contentFontSize) {
-				contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || 'px'};`;
+			if (contentFontSize && contentFontSize.value !== "" && contentFontSize.value !== null && contentFontSize.value !== undefined) {
+				contentTypographyCSS += `font-size: ${contentFontSize.value}${contentFontSize.unit !== null ? contentFontSize.unit : ''};`;
 			}
 			
 			if (contentTypography.fontWeight) {
@@ -766,13 +773,13 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const contentLineHeight = getVal(contentTypography.lineHeight, activeDevice);
-			if (contentLineHeight) {
-				contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || 'em'};`;
+			if (contentLineHeight && contentLineHeight.value !== "" && contentLineHeight.value !== null && contentLineHeight.value !== undefined) {
+				contentTypographyCSS += `line-height: ${contentLineHeight.value}${contentLineHeight.unit !== null ? contentLineHeight.unit : ''};`;
 			}
 			
 			const contentLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
-			if (contentLetterSpacing || contentLetterSpacing === 0) {
-				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || 'px'};`;
+			if (contentLetterSpacing && contentLetterSpacing.value !== "" && contentLetterSpacing.value !== null && contentLetterSpacing.value !== undefined) {
+				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing.value}${contentLetterSpacing.unit !== null ? contentLetterSpacing.unit : ''};`;
 			}
 		}
 
@@ -781,8 +788,17 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -791,8 +807,17 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -1525,25 +1550,15 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                 __nextHasNoMarginBottom={true}
                             />
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Border Radius", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={borderRadius[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            borderRadius: {
-                                                ...borderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    units={[
+                                value={borderRadius}
+                                onChange={(value) => setAttributes({ borderRadius: value })}
+                                units={[
                                         { label: 'px', value: 'px' },
                                         { label: '%', value: '%' }
                                     ]}
                                 />
-                            </ResponsiveControl>
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1610,12 +1625,6 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                         headingTypography: value,
                                     })
                                 }
-                                defaults={{
-                                    fontSize: { desktop: 18, tablet: 16, mobile: 15 },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                             
 							<BaseControl
@@ -1709,12 +1718,6 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                         textTypography: value,
                                     })
                                 }
-                                defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                             
 							<BaseControl
@@ -1798,12 +1801,6 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                             contentTypography: value,
                                         })
                                     }
-                                    defaults={{
-                                        fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                                        fontSizeUnit: 'px',
-                                        lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                                        lineHeightUnit: 'em',
-                                    }}
                                 />
                                 
 								<BaseControl
@@ -1847,49 +1844,17 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Cell Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={cellPadding && cellPadding[localActiveDevice] ? cellPadding[localActiveDevice] : {
-                                        top: 15,
-                                        right: 15,
-                                        bottom: 15,
-                                        left: 15,
-                                        unit: 'px'
-                                    }}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            cellPadding: {
-                                                ...cellPadding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={cellPadding}
+                                onChange={(value) => setAttributes({ cellPadding: value })}
+                            />
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Margin", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={margin && margin[localActiveDevice] ? margin[localActiveDevice] : {
-                                        top: 0,
-                                        right: 0,
-                                        bottom: 30,
-                                        left: 0,
-                                        unit: 'px'
-                                    }}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={margin}
+                                onChange={(value) => setAttributes({ margin: value })}
+                            />
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1944,8 +1909,8 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1979,8 +1944,8 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -2047,10 +2012,11 @@ const TableEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

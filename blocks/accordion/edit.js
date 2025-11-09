@@ -9,6 +9,7 @@ const {
     PanelColorSettings
 } = wp.blockEditor;
 const {
+    TextControl,
     SelectControl,
     RangeControl,
     ToggleControl,
@@ -16,7 +17,6 @@ const {
     Tooltip,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
     TabPanel
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
@@ -83,15 +83,22 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
 	// Get responsive value with fallback
 	const getVal = (obj, device) => {
 		if (!obj || typeof obj !== 'object') return null;
-		
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
 		if (device === 'mobile') {
-			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
-				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
 				obj.desktop;
 		}
 		if (device === 'tablet') {
-			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
-				obj.desktop;
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
 		}
 		return obj.desktop;
 	};
@@ -507,9 +514,9 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                 titleTypographyCSS += `font-family: ${titleTypography.fontFamily};`;
             }
             
-            const titleFontSize = getVal(titleTypography.fontSize || { desktop: 18, tablet: '', mobile: '' }, activeDevice);
-			if (titleFontSize) {
-				titleTypographyCSS += `font-size: ${titleFontSize}${titleTypography.fontSizeUnit || 'px'};`;
+            const titleFontSize = getVal(titleTypography.fontSize || { desktop: { value: 18, unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } }, activeDevice);
+			if (titleFontSize && titleFontSize.value !== "" && titleFontSize.value !== null && titleFontSize.value !== undefined) {
+				titleTypographyCSS += `font-size: ${titleFontSize.value}${titleFontSize.unit !== null ? titleFontSize.unit : ''};`;
 			}
             
             if (titleTypography.fontWeight) {
@@ -528,14 +535,14 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                 titleTypographyCSS += `text-decoration: ${titleTypography.textDecoration};`;
             }
             
-            const titleLineHeight = getVal(titleTypography.lineHeight || { desktop: 1.5, tablet: '', mobile: '' }, activeDevice);
-			if (titleLineHeight) {
-				titleTypographyCSS += `line-height: ${titleLineHeight}${titleTypography.lineHeightUnit || 'em'};`;
+            const titleLineHeight = getVal(titleTypography.lineHeight || { desktop: { value: 1.5, unit: 'em' }, tablet: { value: '', unit: 'em' }, mobile: { value: '', unit: 'em' } }, activeDevice);
+			if (titleLineHeight && titleLineHeight.value !== "" && titleLineHeight.value !== null && titleLineHeight.value !== undefined) {
+				titleTypographyCSS += `line-height: ${titleLineHeight.value}${titleLineHeight.unit !== null ? titleLineHeight.unit : ''};`;
 			}
 						
-			const titleLetterSpacing = getVal(titleTypography.letterSpacing || { desktop: 0, tablet: '', mobile: '' }, activeDevice);
-			if (titleLetterSpacing || titleLetterSpacing === 0) {
-				titleTypographyCSS += `letter-spacing: ${titleLetterSpacing}${titleTypography.letterSpacingUnit || 'px'};`;
+			const titleLetterSpacing = getVal(titleTypography.letterSpacing || { desktop: { value: 0, unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } }, activeDevice);
+			if (titleLetterSpacing && titleLetterSpacing.value !== "" && titleLetterSpacing.value !== null && titleLetterSpacing.value !== undefined) {
+				titleTypographyCSS += `letter-spacing: ${titleLetterSpacing.value}${titleLetterSpacing.unit !== null ? titleLetterSpacing.unit : ''};`;
 			}
         }
         
@@ -546,9 +553,9 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
 				contentTypographyCSS += `font-family: ${contentTypography.fontFamily};`;
 			}
 			
-			const contentFontSize = getVal(contentTypography.fontSize || { desktop: 16, tablet: '', mobile: '' }, activeDevice);
-			if (contentFontSize) {
-				contentTypographyCSS += `font-size: ${contentFontSize}${contentTypography.fontSizeUnit || 'px'};`;
+			const contentFontSize = getVal(contentTypography.fontSize || { desktop: { value: 16, unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } }, activeDevice);
+			if (contentFontSize && contentFontSize.value !== "" && contentFontSize.value !== null && contentFontSize.value !== undefined) {
+				contentTypographyCSS += `font-size: ${contentFontSize.value}${contentFontSize.unit !== null ? contentFontSize.unit : ''};`;
 			}
 			
 			if (contentTypography.fontWeight) {
@@ -567,14 +574,14 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
 				contentTypographyCSS += `text-decoration: ${contentTypography.textDecoration};`;
 			}
 			
-			const contentLineHeight = getVal(contentTypography.lineHeight || { desktop: 1.5, tablet: '', mobile: '' }, activeDevice);
-			if (contentLineHeight) {
-				contentTypographyCSS += `line-height: ${contentLineHeight}${contentTypography.lineHeightUnit || 'em'};`;
+			const contentLineHeight = getVal(contentTypography.lineHeight || { desktop: { value: 1.5, unit: 'em' }, tablet: { value: '', unit: 'em' }, mobile: { value: '', unit: 'em' } }, activeDevice);
+			if (contentLineHeight && contentLineHeight.value !== "" && contentLineHeight.value !== null && contentLineHeight.value !== undefined) {
+				contentTypographyCSS += `line-height: ${contentLineHeight.value}${contentLineHeight.unit !== null ? contentLineHeight.unit : ''};`;
 			}
 			
-			const contentLetterSpacing = getVal(contentTypography.letterSpacing || { desktop: 0, tablet: '', mobile: '' }, activeDevice);
-			if (contentLetterSpacing || contentLetterSpacing === 0) {
-				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing}${contentTypography.letterSpacingUnit || 'px'};`;
+			const contentLetterSpacing = getVal(contentTypography.letterSpacing || { desktop: { value: 0, unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } }, activeDevice);
+			if (contentLetterSpacing && contentLetterSpacing.value !== "" && contentLetterSpacing.value !== null && contentLetterSpacing.value !== undefined) {
+				contentTypographyCSS += `letter-spacing: ${contentLetterSpacing.value}${contentLetterSpacing.unit !== null ? contentLetterSpacing.unit : ''};`;
 			}
 		}
 
@@ -583,8 +590,17 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -593,8 +609,17 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -1064,24 +1089,12 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Title Typography", "digiblocks")}
                                 value={titleTypography}
                                 onChange={(value) => setAttributes({ titleTypography: value })}
-                                defaults={{
-									fontSize: { desktop: 18, tablet: '', mobile: '' },
-									fontSizeUnit: 'px',
-									lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
-									lineHeightUnit: 'em',
-								}}
                             />
                             
                             <TypographyControl
                                 label={__("Content Typography", "digiblocks")}
                                 value={contentTypography}
                                 onChange={(value) => setAttributes({ contentTypography: value })}
-                                defaults={{
-									fontSize: { desktop: 16, tablet: '', mobile: '' },
-									fontSizeUnit: 'px',
-									lineHeight: { desktop: 1.5, tablet: '', mobile: '' },
-									lineHeightUnit: 'em',
-								}}
                             />
                         </TabPanelBody>
                         
@@ -1102,41 +1115,21 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                             
                             {borderStyle !== 'none' && (
                                 <>
-                                    <ResponsiveControl
+                                    <DimensionControl
                                         label={__("Border Width", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={borderWidth[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    borderWidth: {
-                                                        ...borderWidth,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                        />
-                                    </ResponsiveControl>
-                                    
-                                    <ResponsiveControl
+                                        value={borderWidth}
+                                        onChange={(value) => setAttributes({ borderWidth: value })}
+                                    />
+
+                                    <DimensionControl
                                         label={__("Border Radius", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={borderRadius[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    borderRadius: {
-                                                        ...borderRadius,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                            units={[
-                                                { label: 'px', value: 'px' },
-                                                { label: '%', value: '%' }
-                                            ]}
-                                        />
-                                    </ResponsiveControl>
+                                        value={borderRadius}
+                                        onChange={(value) => setAttributes({ borderRadius: value })}
+                                        units={[
+                                            { label: 'px', value: 'px' },
+                                            { label: '%', value: '%' }
+                                        ]}
+                                    />
                                 </>
                             )}
                         </TabPanelBody>
@@ -1166,37 +1159,17 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
 							title={__('Spacing', 'digiblocks')}
 							initialOpen={true}
 						>
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={padding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
-                            
-                            <ResponsiveControl
+                                value={padding}
+                                onChange={(value) => setAttributes({ padding: value })}
+                            />
+
+                            <DimensionControl
                                 label={__("Margin", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={margin[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={margin}
+                                onChange={(value) => setAttributes({ margin: value })}
+                            />
                         </TabPanelBody>
 
 						<TabPanelBody
@@ -1249,10 +1222,10 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                             { label: 'vw', value: 'vw' },
                                             { label: 'vh', value: 'vh' },
                                         ]}
-                                        defaultUnit="px"
+                                        defaultValues={{ desktop: { value: 0, unit: 'px' }, tablet: { value: 0, unit: 'px' }, mobile: { value: 0, unit: 'px' } }}
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1284,10 +1257,10 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
                                             { label: 'vw', value: 'vw' },
                                             { label: 'vh', value: 'vh' },
                                         ]}
-                                        defaultUnit="px"
+                                        defaultValues={{ desktop: { value: 0, unit: 'px' }, tablet: { value: 0, unit: 'px' }, mobile: { value: 0, unit: 'px' } }}
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -1347,10 +1320,11 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}
@@ -1567,7 +1541,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
 											e.stopPropagation();
 											moveItemUp(index);
 										}}
-										icon="arrow-up-alt2"
+										icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M169.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L192 205.3 54.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"/></svg>}
 										disabled={index === 0}
 										isSmall
 									/>
@@ -1579,7 +1553,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
 											e.stopPropagation();
 											moveItemDown(index);
 										}}
-										icon="arrow-down-alt2"
+										icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M169.4 374.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 306.7 54.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>}
 										disabled={index === items.length - 1}
 										isSmall
 									/>
@@ -1591,7 +1565,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
 											e.stopPropagation();
 											duplicateItem(index);
 										}}
-										icon="admin-page"
+										icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-200.6c0-17.4-7.1-34.1-19.7-46.2L370.6 17.8C358.7 6.4 342.8 0 326.3 0L192 0zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-16-64 0 0 16-192 0 0-256 16 0 0-64-16 0z"/></svg>}
 										isSmall
 									/>
 								</Tooltip>
@@ -1602,7 +1576,7 @@ const AccordionEdit = ({ attributes, setAttributes, clientId }) => {
 											e.stopPropagation();
 											removeItem(index);
 										}}
-										icon="trash"
+										icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M136.7 5.9L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-8.7-26.1C306.9-7.2 294.7-16 280.9-16L167.1-16c-13.8 0-26 8.8-30.4 21.9zM416 144L32 144 53.1 467.1C54.7 492.4 75.7 512 101 512L347 512c25.3 0 46.3-19.6 47.9-44.9L416 144z"/></svg>}
 										isSmall
 									/>
 								</Tooltip>

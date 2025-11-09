@@ -83,6 +83,38 @@ registerBlockType('digiblocks/button', {
             type: 'string',
             default: 'left'
         },
+        iconWidth: {
+            type: 'object',
+            default: {
+                desktop: { value: '', unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' }
+            }
+        },
+        iconHeight: {
+            type: 'object',
+            default: {
+                desktop: { value: '', unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' }
+            }
+        },
+        iconGap: {
+            type: 'object',
+            default: {
+                desktop: { value: '', unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' }
+            }
+        },
+        iconColor: {
+            type: 'string',
+            default: ''
+        },
+        iconHoverColor: {
+            type: 'string',
+            default: ''
+        },
         size: {
             type: 'string',
             default: 'medium'
@@ -95,16 +127,25 @@ registerBlockType('digiblocks/button', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: '', tablet: '', mobile: '' },
-                fontSizeUnit: 'px',
+                fontSize: {
+                    desktop: { value: '', unit: 'px' },
+                    tablet: { value: '', unit: 'px' },
+                    mobile: { value: '', unit: 'px' }
+                },
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: '', tablet: '', mobile: '' },
-                lineHeightUnit: 'em',
-                letterSpacing: { desktop: '', tablet: '', mobile: '' },
-                letterSpacingUnit: 'px'
+                lineHeight: {
+                    desktop: { value: '', unit: 'em' },
+                    tablet: { value: '', unit: 'em' },
+                    mobile: { value: '', unit: 'em' }
+                },
+                letterSpacing: {
+                    desktop: { value: '', unit: 'px' },
+                    tablet: { value: '', unit: 'px' },
+                    mobile: { value: '', unit: 'px' }
+                }
             }
         },
         textColor: {
@@ -219,8 +260,8 @@ registerBlockType('digiblocks/button', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         verticalOrientation: {
@@ -231,14 +272,18 @@ registerBlockType('digiblocks/button', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         zIndex: {
             type: 'number',
             default: '',
         },
+		hoverEffect: {
+			type: 'string',
+			default: 'none',
+		},
 		transform: {
             type: 'object',
             default: {

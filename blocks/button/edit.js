@@ -10,6 +10,7 @@ const {
     LinkControl,
 } = wp.blockEditor;
 const {
+    TextControl,
     SelectControl,
     TabPanel,
     ToggleControl,
@@ -18,7 +19,6 @@ const {
 	Spinner,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 
@@ -27,7 +27,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveRangeControl, DimensionControl, BoxShadowControl, TypographyControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
+const { ResponsiveRangeControl, DimensionControl, BoxShadowControl, TypographyControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
 
 /**
  * Edit function for the Button block
@@ -46,6 +46,11 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         customSvg,
         iconValue,
         iconPosition,
+        iconWidth,
+        iconHeight,
+        iconGap,
+        iconColor,
+        iconHoverColor,
         size,
         fill,
         textColor,
@@ -72,6 +77,7 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         verticalOrientation,
         verticalOffset,
         zIndex,
+		hoverEffect,
 		transform,
         transformHover,
     } = attributes;
@@ -131,10 +137,33 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         const unsubscribe = window.digi.responsiveState.subscribe((device) => {
             setLocalActiveDevice(device);
         });
-        
+
         // Cleanup subscription on unmount
         return unsubscribe;
     }, []);
+
+	// Get responsive value with fallback
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
+		if (device === 'mobile') {
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
+		}
+		return obj.desktop;
+	};
 
     // Border style options
     const borderStyleOptions = [
@@ -155,7 +184,6 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         { label: __("Small", "digiblocks"), value: "small" },
         { label: __("Medium", "digiblocks"), value: "medium" },
         { label: __("Large", "digiblocks"), value: "large" },
-        { label: __("Custom", "digiblocks"), value: "custom" },
     ];
 
     // Define the tabs for our custom tab panel
@@ -368,17 +396,8 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
     const generateCSS = () => {
         const activeDevice = localActiveDevice;
         
-        // Size-based padding
-        let sizeCSS = '';
-        if (size === 'custom') {
-            sizeCSS = getDimensionCSS(padding, 'padding', activeDevice);
-        } else if (size === 'small') {
-            sizeCSS = 'padding: 8px 16px;';
-        } else if (size === 'large') {
-            sizeCSS = 'padding: 16px 32px;';
-        } else {
-            sizeCSS = 'padding: 12px 24px;';
-        }
+        // Always use custom padding
+        const paddingCSS = getDimensionCSS(padding, 'padding', activeDevice);
         
         // Border styles
         let borderCSS = '';
@@ -424,33 +443,36 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
             if (buttonTypography.fontFamily) {
                 buttonTypographyCSS += `font-family: ${buttonTypography.fontFamily};`;
             }
-            
-            if (buttonTypography.fontSize && buttonTypography.fontSize[activeDevice]) {
-                buttonTypographyCSS += `font-size: ${buttonTypography.fontSize[activeDevice]}${buttonTypography.fontSizeUnit || 'px'};`;
+
+            const fontSizeValue = getVal(buttonTypography.fontSize, activeDevice);
+            if (fontSizeValue && fontSizeValue.value !== "" && fontSizeValue.value !== null && fontSizeValue.value !== undefined) {
+                buttonTypographyCSS += `font-size: ${fontSizeValue.value}${fontSizeValue.unit !== null ? fontSizeValue.unit : ''};`;
             }
-            
+
             if (buttonTypography.fontWeight) {
                 buttonTypographyCSS += `font-weight: ${buttonTypography.fontWeight};`;
             }
-            
+
             if (buttonTypography.fontStyle) {
                 buttonTypographyCSS += `font-style: ${buttonTypography.fontStyle};`;
             }
-            
+
             if (buttonTypography.textTransform) {
                 buttonTypographyCSS += `text-transform: ${buttonTypography.textTransform};`;
             }
-            
+
             if (buttonTypography.textDecoration) {
                 buttonTypographyCSS += `text-decoration: ${buttonTypography.textDecoration};`;
             }
-            
-            if (buttonTypography.lineHeight && buttonTypography.lineHeight[activeDevice]) {
-                buttonTypographyCSS += `line-height: ${buttonTypography.lineHeight[activeDevice]}${buttonTypography.lineHeightUnit || 'em'};`;
+
+            const lineHeightValue = getVal(buttonTypography.lineHeight, activeDevice);
+            if (lineHeightValue && lineHeightValue.value !== "" && lineHeightValue.value !== null && lineHeightValue.value !== undefined) {
+                buttonTypographyCSS += `line-height: ${lineHeightValue.value}${lineHeightValue.unit !== null ? lineHeightValue.unit : ''};`;
             }
-            
-            if (buttonTypography.letterSpacing && buttonTypography.letterSpacing[activeDevice]) {
-                buttonTypographyCSS += `letter-spacing: ${buttonTypography.letterSpacing[activeDevice]}${buttonTypography.letterSpacingUnit || 'px'};`;
+
+            const letterSpacingValue = getVal(buttonTypography.letterSpacing, activeDevice);
+            if (letterSpacingValue && letterSpacingValue.value !== "" && letterSpacingValue.value !== null && letterSpacingValue.value !== undefined) {
+                buttonTypographyCSS += `letter-spacing: ${letterSpacingValue.value}${letterSpacingValue.unit !== null ? letterSpacingValue.unit : ''};`;
             }
         }
 
@@ -459,8 +481,17 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -469,8 +500,17 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -503,7 +543,244 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
 			transformHoverCSS += `transform: ${transformHoverValue};`;
 			transformHoverCSS += `transform-origin: ${getTransformOrigin(transformHover, activeDevice)};`;
 		}
-        
+
+		let hoverEffectCSS = '';
+		const effectColor = backgroundHoverColor || backgroundColor;
+
+		if (hoverEffect && hoverEffect !== 'none') {
+			switch (hoverEffect) {
+				case 'sweep-corners':
+					hoverEffectCSS = `
+						.${id} {
+							overflow: hidden;
+							position: relative;
+							z-index: 0;
+						}
+						.${id}::before, .${id}::after, .${id} .digiblocks-button-content-wrapper::before, .${id} .digiblocks-button-content-wrapper::after {
+							content: "";
+							position: absolute;
+							top: 0;
+							right: 0;
+							bottom: 0;
+							left: 0;
+							background-color: ${effectColor};
+							transition: all 0.5s ease;
+							z-index: -1;
+						}
+						.${id}::before {
+							transform: translate(-100%, -100%);
+						}
+						.${id}::after {
+							transform: translate(-100%, 100%);
+						}
+						.${id} .digiblocks-button-content-wrapper::before {
+							transform: translate(100%, -100%);
+						}
+						.${id} .digiblocks-button-content-wrapper::after {
+							transform: translate(100%, 100%);
+						}
+						.${id}:hover::before {
+							transform: translate(-49%, -49%);
+						}
+						.${id}:hover::after {
+							transform: translate(-49%, 49%);
+						}
+						.${id}:hover .digiblocks-button-content-wrapper::before {
+							transform: translate(50%, -50%);
+						}
+						.${id}:hover .digiblocks-button-content-wrapper::after {
+							transform: translate(50%, 50%);
+						}
+						.${id} .digiblocks-button-text {
+							position: relative;
+							z-index: 1;
+						}
+					`;
+					break;
+				case 'sweep-to-right':
+					hoverEffectCSS = `
+						.${id} {
+							overflow: hidden;
+							position: relative;
+							z-index: 0;
+						}
+						.${id}::before {
+							content: "";
+							position: absolute;
+							top: 0;
+							left: 0;
+							width: 0;
+							height: 100%;
+							background-color: ${effectColor};
+							transition: width 0.4s ease;
+							z-index: -1;
+						}
+						.${id}:hover::before {
+							width: 100%;
+						}
+					`;
+					break;
+				case 'sweep-to-left':
+					hoverEffectCSS = `
+						.${id} {
+							overflow: hidden;
+							position: relative;
+							z-index: 0;
+						}
+						.${id}::before {
+							content: "";
+							position: absolute;
+							top: 0;
+							right: 0;
+							width: 0;
+							height: 100%;
+							background-color: ${effectColor};
+							transition: width 0.4s ease;
+							z-index: -1;
+						}
+						.${id}:hover::before {
+							width: 100%;
+						}
+					`;
+					break;
+				case 'sweep-to-top':
+					hoverEffectCSS = `
+						.${id} {
+							overflow: hidden;
+							position: relative;
+							z-index: 0;
+						}
+						.${id}::before {
+							content: "";
+							position: absolute;
+							bottom: 0;
+							left: 0;
+							width: 100%;
+							height: 0;
+							background-color: ${effectColor};
+							transition: height 0.4s ease;
+							z-index: -1;
+						}
+						.${id}:hover::before {
+							height: 100%;
+						}
+					`;
+					break;
+				case 'sweep-to-bottom':
+					hoverEffectCSS = `
+						.${id} {
+							overflow: hidden;
+							position: relative;
+							z-index: 0;
+						}
+						.${id}::before {
+							content: "";
+							position: absolute;
+							top: 0;
+							left: 0;
+							width: 100%;
+							height: 0;
+							background-color: ${effectColor};
+							transition: height 0.4s ease;
+							z-index: -1;
+						}
+						.${id}:hover::before {
+							height: 100%;
+						}
+					`;
+					break;
+				case 'grow-shadow':
+					hoverEffectCSS = `
+						.${id} {
+							transition: all 0.3s ease, box-shadow 0.3s ease;
+						}
+						.${id}:hover {
+							transform: translateY(-3px);
+							box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+						}
+					`;
+					break;
+				case 'pulse':
+					hoverEffectCSS = `
+						.${id} {
+							transition: all 0.3s ease;
+						}
+						.${id}:hover {
+							animation: button-pulse 0.6s ease-in-out;
+						}
+						@keyframes button-pulse {
+							0%, 100% { transform: scale(1); }
+							50% { transform: scale(1.05); }
+						}
+					`;
+					break;
+				case 'bounce':
+					hoverEffectCSS = `
+						.${id} {
+							transition: all 0.3s ease;
+						}
+						.${id}:hover {
+							animation: button-bounce 0.6s ease;
+						}
+						@keyframes button-bounce {
+							0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+							40% { transform: translateY(-10px); }
+							60% { transform: translateY(-5px); }
+						}
+					`;
+					break;
+				case 'border-expand':
+					hoverEffectCSS = `
+						.${id} {
+							position: relative;
+							overflow: hidden;
+						}
+						.${id}::before {
+							content: "";
+							position: absolute;
+							top: 50%;
+							left: 50%;
+							width: 0;
+							height: 0;
+							border: 2px solid ${effectColor};
+							border-radius: inherit;
+							transform: translate(-50%, -50%);
+							transition: all 0.4s ease;
+							opacity: 0;
+						}
+						.${id}:hover::before {
+							width: calc(100% - 8px);
+							height: calc(100% - 8px);
+							opacity: 1;
+						}
+					`;
+					break;
+				case 'shine':
+					hoverEffectCSS = `
+						.${id} {
+							position: relative;
+							overflow: hidden;
+						}
+						.${id}::after {
+							content: "";
+							position: absolute;
+							top: 0;
+							left: -100%;
+							width: 50%;
+							height: 100%;
+							background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+							transition: left 0.6s ease;
+						}
+						.${id}:hover::after {
+							left: 100%;
+						}
+					`;
+					break;
+				default:
+					break;
+			}
+		}
+
         return `
             /* Button Block - ${id} */
             .${id} {
@@ -513,38 +790,68 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                 text-decoration: none;
                 cursor: pointer;
                 transition: all 0.3s ease;
-                ${sizeCSS}
+                ${paddingCSS}
                 ${borderCSS}
                 ${borderRadiusCSS}
                 ${boxShadowCSS}
                 ${marginCSS}
                 ${fill ? 'width: 100%;' : ''}
-                gap: 8px; /* Space between icon and text */
+                ${(() => {
+                    const gapValue = getVal(iconGap, activeDevice);
+                    if (gapValue && gapValue.value !== '' && gapValue.value !== null && gapValue.value !== undefined) {
+                        return `gap: ${gapValue.value}${gapValue.unit || 'px'};`;
+                    }
+                    return 'gap: 8px;';
+                })()}
                 ${backgroundColor ? `background-color: ${backgroundColor};` : ''}
                 ${textColor ? `color: ${textColor};` : ''}
                 ${positionCSS}
 				${transformCSS}
             }
-            
+
             .${id}:hover {
                 ${textHoverColor ? `color: ${textHoverColor};` : ''}
-                ${backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : ''}
+                ${(!hoverEffect || ['none', 'grow-shadow', 'pulse', 'bounce', 'shine'].includes(hoverEffect)) ? (backgroundHoverColor ? `background-color: ${backgroundHoverColor};` : '') : ''}
                 ${borderHoverColor ? `border-color: ${borderHoverColor};` : ''}
                 ${hoverCSS}
 				${transformHoverCSS}
             }
-            
+
+			${hoverEffectCSS}
+
             /* Icon styles */
             .${id} .digiblocks-button-icon {
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                ${iconColor ? `color: ${iconColor};` : ''}
             }
-            
+
             .${id} .digiblocks-button-icon svg {
-                width: 1em;
-                height: 1em;
-                fill: currentColor;
+                ${(() => {
+                    const widthValue = getVal(iconWidth, activeDevice);
+                    const heightValue = getVal(iconHeight, activeDevice);
+                    let iconStyles = '';
+
+                    if (widthValue && widthValue.value !== '' && widthValue.value !== null && widthValue.value !== undefined) {
+                        iconStyles += `width: ${widthValue.value}${widthValue.unit || 'px'};`;
+                    } else {
+                        iconStyles += 'width: 1em;';
+                    }
+
+                    if (heightValue && heightValue.value !== '' && heightValue.value !== null && heightValue.value !== undefined) {
+                        iconStyles += `height: ${heightValue.value}${heightValue.unit || 'px'};`;
+                    } else {
+                        iconStyles += 'height: 1em;';
+                    }
+
+                    iconStyles += 'fill: currentColor;';
+                    return iconStyles;
+                })()}
+            }
+
+            .${id}:hover .digiblocks-button-icon {
+                ${iconHoverColor ? `color: ${iconHoverColor};` : ''}
             }
             
             /* Button typography */
@@ -613,7 +920,7 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
     // Render button content
     const renderButtonContent = () => {
 		const iconElement = renderIcon();
-		
+
 		const textElement = !onlyIcon ? (
 			<RichText
 				key="text"
@@ -625,12 +932,24 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
 				identifier="text"
 			/>
 		) : null;
-		
-		if (iconPosition === 'left') {
-			return [iconElement, textElement].filter(Boolean);
-		} else {
-			return [textElement, iconElement].filter(Boolean);
+
+		const contentArray = iconPosition === 'left'
+			? [iconElement, textElement].filter(Boolean)
+			: [textElement, iconElement].filter(Boolean);
+
+		const needsWrappers = hoverEffect && hoverEffect !== 'none' && ['sweep-corners', 'sweep-to-right', 'sweep-to-left', 'sweep-to-top', 'sweep-to-bottom'].includes(hoverEffect);
+
+		if (needsWrappers) {
+			return (
+				<>
+					<span className="digiblocks-button-content-wrapper">
+						<span className="digiblocks-button-text">{contentArray}</span>
+					</span>
+				</>
+			);
 		}
+
+		return contentArray;
 	};
 
     // Render tab content
@@ -826,7 +1145,23 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                 label={__("Size", "digiblocks")}
                                 value={size}
                                 options={sizeOptions}
-                                onChange={(value) => setAttributes({ size: value })}
+                                onChange={(value) => {
+                                    // Update size and set default padding for the size
+                                    let newPadding = { ...padding };
+                                    
+                                    if (value === 'small') {
+                                        newPadding.desktop = { top: '8', right: '16', bottom: '8', left: '16', unit: 'px', isLinked: false };
+                                    } else if (value === 'large') {
+                                        newPadding.desktop = { top: '16', right: '32', bottom: '16', left: '32', unit: 'px', isLinked: false };
+                                    } else if (value === 'medium') {
+                                        newPadding.desktop = { top: '12', right: '24', bottom: '12', left: '24', unit: 'px', isLinked: false };
+                                    }
+                                    
+                                    setAttributes({ 
+                                        size: value,
+                                        padding: newPadding
+                                    });
+                                }}
                                 __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
                             />
@@ -855,14 +1190,106 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                 onChange={(value) =>
                                     setAttributes({ buttonTypography: value })
                                 }
-                                defaults={{
-                                    fontSize: { desktop: '', tablet: '', mobile: '' },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                         </TabPanelBody>
+
+                        {iconValue && (
+                            <TabPanelBody
+                                tab="style"
+                                name="icon"
+                                title={__("Icon", "digiblocks")}
+                                initialOpen={false}
+                            >
+                                <ResponsiveRangeControl
+                                    label={__("Icon Width", "digiblocks")}
+                                    value={iconWidth}
+                                    onChange={(value) => setAttributes({ iconWidth: value })}
+                                    units={[
+                                        { label: 'px', value: 'px' },
+                                        { label: 'em', value: 'em' },
+                                        { label: 'rem', value: 'rem' },
+                                    ]}
+                                    defaultValues={{
+                                        desktop: { value: '', unit: 'px' },
+                                        tablet: { value: '', unit: 'px' },
+                                        mobile: { value: '', unit: 'px' }
+                                    }}
+                                    min={0}
+                                    max={200}
+                                    step={1}
+                                />
+
+                                <ResponsiveRangeControl
+                                    label={__("Icon Height", "digiblocks")}
+                                    value={iconHeight}
+                                    onChange={(value) => setAttributes({ iconHeight: value })}
+                                    units={[
+                                        { label: 'px', value: 'px' },
+                                        { label: 'em', value: 'em' },
+                                        { label: 'rem', value: 'rem' },
+                                    ]}
+                                    defaultValues={{
+                                        desktop: { value: '', unit: 'px' },
+                                        tablet: { value: '', unit: 'px' },
+                                        mobile: { value: '', unit: 'px' }
+                                    }}
+                                    min={0}
+                                    max={200}
+                                    step={1}
+                                />
+
+                                {!onlyIcon && (
+                                    <ResponsiveRangeControl
+                                        label={__("Gap", "digiblocks")}
+                                        value={iconGap}
+                                        onChange={(value) => setAttributes({ iconGap: value })}
+                                        units={[
+                                            { label: 'px', value: 'px' },
+                                            { label: 'em', value: 'em' },
+                                            { label: 'rem', value: 'rem' },
+                                        ]}
+                                        defaultValues={{
+                                            desktop: { value: '', unit: 'px' },
+                                            tablet: { value: '', unit: 'px' },
+                                            mobile: { value: '', unit: 'px' }
+                                        }}
+                                        min={0}
+                                        max={100}
+                                        step={1}
+                                    />
+                                )}
+
+                                <TabPanel
+                                    className="digiblocks-control-tabs"
+                                    activeClass="active-tab"
+                                    tabs={stateTabList}
+                                >
+                                    {(tab) => (
+                                        <PanelColorSettings
+                                            title={
+                                                tab.name === 'normal'
+                                                    ? __("Icon Colors", "digiblocks")
+                                                    : __("Icon Hover Colors", "digiblocks")
+                                            }
+                                            initialOpen={true}
+                                            enableAlpha={true}
+                                            colorSettings={[
+                                                {
+                                                    value: tab.name === 'normal' ? iconColor : iconHoverColor,
+                                                    onChange: (value) =>
+                                                        setAttributes(
+                                                            tab.name === 'normal'
+                                                                ? { iconColor: value }
+                                                                : { iconHoverColor: value }
+                                                        ),
+                                                    label: __("Icon Color", "digiblocks"),
+                                                },
+                                            ]}
+                                        />
+                                    )}
+                                </TabPanel>
+                            </TabPanelBody>
+                        )}
 
                         <TabPanelBody
                             tab="style"
@@ -910,6 +1337,52 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                 )}
                             </TabPanel>
                         </TabPanelBody>
+
+						<TabPanelBody
+                            tab="style"
+                            name="hover-effect"
+                            title={__("Hover Effect", "digiblocks")}
+                            initialOpen={false}
+                        >
+							<SelectControl
+								label={__("Hover Effect", "digiblocks")}
+								value={hoverEffect || 'none'}
+								options={[
+									{ label: __("None", "digiblocks"), value: "none" },
+									{ label: __("Sweep from Corners", "digiblocks"), value: "sweep-corners" },
+									{ label: __("Sweep to Right", "digiblocks"), value: "sweep-to-right" },
+									{ label: __("Sweep to Left", "digiblocks"), value: "sweep-to-left" },
+									{ label: __("Sweep to Top", "digiblocks"), value: "sweep-to-top" },
+									{ label: __("Sweep to Bottom", "digiblocks"), value: "sweep-to-bottom" },
+									{ label: __("Grow Shadow", "digiblocks"), value: "grow-shadow" },
+									{ label: __("Pulse", "digiblocks"), value: "pulse" },
+									{ label: __("Bounce", "digiblocks"), value: "bounce" },
+									{ label: __("Border Expand", "digiblocks"), value: "border-expand" },
+									{ label: __("Shine", "digiblocks"), value: "shine" },
+								]}
+								onChange={(value) => setAttributes({ hoverEffect: value })}
+								__next40pxDefaultSize={true}
+								__nextHasNoMarginBottom={true}
+							/>
+
+							{hoverEffect && hoverEffect !== 'none' && (
+								<div style={{
+									padding: '12px',
+									backgroundColor: '#f0f6fc',
+									border: '1px solid #c3ddfd',
+									borderRadius: '4px',
+									marginTop: '12px'
+								}}>
+									<p style={{ margin: 0, fontSize: '13px' }}>
+										<strong>{__('Note:', 'digiblocks')}</strong>{' '}
+										{['sweep-corners', 'sweep-to-right', 'sweep-to-left', 'sweep-to-top', 'sweep-to-bottom', 'border-expand'].includes(hoverEffect)
+											? __('The sweep/border color will use the hover background color if set, otherwise the normal background color.', 'digiblocks')
+											: __('The hover background color will be applied along with this effect.', 'digiblocks')
+										}
+									</p>
+								</div>
+							)}
+						</TabPanelBody>
 
                         <TabPanelBody
                             tab="style"
@@ -972,45 +1445,23 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                         )}
                                     </TabPanel>
                                     
-                                    {/* Border Width */}
-                                    <ResponsiveControl
+                                    <DimensionControl
                                         label={__("Border Width", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={borderWidth[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    borderWidth: {
-                                                        ...borderWidth,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                        />
-                                    </ResponsiveControl>
+                                        value={borderWidth}
+                                        onChange={(value) => setAttributes({ borderWidth: value })}
+                                    />
                                 </>
                             )}
                                     
-							{/* Border Radius */}
-							<ResponsiveControl
+							<DimensionControl
 								label={__("Border Radius", "digiblocks")}
-							>
-								<DimensionControl
-									values={borderRadius[localActiveDevice]}
-									onChange={(value) =>
-										setAttributes({
-											borderRadius: {
-												...borderRadius,
-												[localActiveDevice]: value,
-											},
-										})
-									}
-									units={[
-										{ label: 'px', value: 'px' },
-										{ label: '%', value: '%' }
-									]}
-								/>
-							</ResponsiveControl>
+								value={borderRadius}
+								onChange={(value) => setAttributes({ borderRadius: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' }
+								]}
+							/>
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1036,44 +1487,22 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                 return (
                     <>
                         <TabPanelBody
-                            tab="style"
+                            tab="advanced"
                             name="spacing"
                             title={__("Spacing", "digiblocks")}
                             initialOpen={true}
                         >
-							{size === 'custom' && (
-								<ResponsiveControl
-									label={__("Padding", "digiblocks")}
-								>
-									<DimensionControl
-										values={padding[localActiveDevice]}
-										onChange={(value) =>
-											setAttributes({
-												padding: {
-													...padding,
-													[localActiveDevice]: value,
-												},
-											})
-										}
-									/>
-								</ResponsiveControl>
-							)}
+							<DimensionControl
+								label={__("Padding", "digiblocks")}
+								value={padding}
+								onChange={(value) => setAttributes({ padding: value })}
+							/>
 
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Margin", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={margin[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={margin}
+                                onChange={(value) => setAttributes({ margin: value })}
+                            />
                         </TabPanelBody>
 
 						<TabPanelBody
@@ -1126,10 +1555,10 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                             { label: 'vw', value: 'vw' },
                                             { label: 'vh', value: 'vh' },
                                         ]}
-                                        defaultUnit="px"
+                                        defaultValues={{ desktop: { value: 0, unit: 'px' }, tablet: { value: 0, unit: 'px' }, mobile: { value: 0, unit: 'px' } }}
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1161,10 +1590,10 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
                                             { label: 'vw', value: 'vw' },
                                             { label: 'vh', value: 'vh' },
                                         ]}
-                                        defaultUnit="px"
+                                        defaultValues={{ desktop: { value: 0, unit: 'px' }, tablet: { value: 0, unit: 'px' }, mobile: { value: 0, unit: 'px' } }}
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -1224,10 +1653,11 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}
@@ -1379,7 +1809,7 @@ const ButtonEdit = ({ attributes, setAttributes, clientId, isSelected }) => {
 
     // Block props
     const blockProps = useBlockProps({
-        className: `digiblocks-button ${id} ${size} ${fill ? 'is-fill' : ''} ${customClasses || ''}`,
+        className: `digiblocks-button ${id} ${size} ${customClasses || ''}`,
         id: anchor || null,
     });
 

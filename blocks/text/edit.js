@@ -9,13 +9,13 @@ const {
     PanelColorSettings,
 } = wp.blockEditor;
 const {
+    TextControl,
     SelectControl,
     ToggleControl,
 	RangeControl,
     Button,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 
@@ -24,7 +24,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveRangeControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, ResponsiveButtonGroup, TransformControl } = digi.components;
+const { ResponsiveRangeControl, DimensionControl, TypographyControl, BoxShadowControl, CustomTabPanel, TabPanelBody, ResponsiveButtonGroup, TransformControl } = digi.components;
 
 /**
  * Edit function for the Text block
@@ -394,7 +394,7 @@ const TextEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onReplace 
         let maxWidthCSS = '';
 		const maxWidthValue = getVal(maxWidth, activeDevice);
 		if (maxWidthValue && maxWidthValue.value) {
-			maxWidthCSS = `max-width: ${maxWidthValue.value}${maxWidthValue.unit};`;
+			maxWidthCSS = `max-width: ${maxWidthValue.value}${maxWidthValue.unit !== null ? maxWidthValue.unit : ''};`;
 			if (alignValue === 'center') {
 				maxWidthCSS += 'margin-left: auto;margin-right: auto;';
 			} else if (alignValue === 'right') {
@@ -410,8 +410,8 @@ const TextEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onReplace 
             }
             
             const fontSize = getVal(typography.fontSize, activeDevice);
-			if (fontSize) {
-				typographyCSS += `font-size: ${fontSize}${typography.fontSizeUnit || 'px'};`;
+			if (fontSize && fontSize.value !== "" && fontSize.value !== null && fontSize.value !== undefined) {
+				typographyCSS += `font-size: ${fontSize.value}${fontSize.unit !== null ? fontSize.unit : ''};`;
 			}
             
             if (typography.fontWeight) {
@@ -431,13 +431,13 @@ const TextEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onReplace 
             }
             
             const lineHeight = getVal(typography.lineHeight, activeDevice);
-			if (lineHeight) {
-				typographyCSS += `line-height: ${lineHeight}${typography.lineHeightUnit || 'em'};`;
+			if (lineHeight && lineHeight.value !== "" && lineHeight.value !== null && lineHeight.value !== undefined) {
+				typographyCSS += `line-height: ${lineHeight.value}${lineHeight.unit !== null ? lineHeight.unit : ''};`;
 			}
 			
 			const letterSpacing = getVal(typography.letterSpacing, activeDevice);
-			if (letterSpacing) {
-				typographyCSS += `letter-spacing: ${letterSpacing}${typography.letterSpacingUnit || 'px'};`;
+			if (letterSpacing && letterSpacing.value !== "" && letterSpacing.value !== null && letterSpacing.value !== undefined) {
+				typographyCSS += `letter-spacing: ${letterSpacing.value}${letterSpacing.unit !== null ? letterSpacing.unit : ''};`;
 			}
         }
 
@@ -474,8 +474,17 @@ const TextEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onReplace 
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -484,8 +493,17 @@ const TextEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onReplace 
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -768,12 +786,6 @@ const TextEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onReplace 
                                         typography: value,
                                     })
                                 }
-                                defaults={{
-                                    fontSize: { desktop: '', tablet: '', mobile: '' },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: '', tablet: '', mobile: '' },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                         </TabPanelBody>
                         
@@ -838,44 +850,24 @@ const TextEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onReplace 
                                     />
                                     
                                     {/* Border Width */}
-                                    <ResponsiveControl
+                                    <DimensionControl
                                         label={__("Border Width", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={borderWidth[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    borderWidth: {
-                                                        ...borderWidth,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                        />
-                                    </ResponsiveControl>
+                                        value={borderWidth}
+                                        onChange={(value) => setAttributes({ borderWidth: value })}
+                                    />
                                 </>
                             )}
                             
                             {/* Border Radius (always show) */}
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Border Radius", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={borderRadius[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            borderRadius: {
-                                                ...borderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    units={[
-                                        { label: 'px', value: 'px' },
-                                        { label: '%', value: '%' }
-                                    ]}
-                                />
-                            </ResponsiveControl>
+                                value={borderRadius}
+                                onChange={(value) => setAttributes({ borderRadius: value })}
+                                units={[
+                                    { label: 'px', value: 'px' },
+                                    { label: '%', value: '%' }
+                                ]}
+                            />
                             
                             <SelectControl
                                 label={__(
@@ -918,36 +910,17 @@ const TextEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onReplace 
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__("Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={padding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
-                            <ResponsiveControl
+                                value={padding}
+                                onChange={(value) => setAttributes({ padding: value })}
+                            />
+							
+                            <DimensionControl
                                 label={__("Margin", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={margin[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={margin}
+                                onChange={(value) => setAttributes({ margin: value })}
+                            />
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1002,8 +975,8 @@ const TextEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onReplace 
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1037,8 +1010,8 @@ const TextEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onReplace 
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -1105,10 +1078,11 @@ const TextEdit = ({ attributes, setAttributes, clientId, mergeBlocks, onReplace 
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

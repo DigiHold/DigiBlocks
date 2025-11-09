@@ -8,16 +8,15 @@ const {
     PanelColorSettings
 } = wp.blockEditor;
 const {
+    TextControl,
     SelectControl,
     RangeControl,
     TabPanel,
     Button,
     ToggleControl,
-    TextControl,
     Popover,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 
@@ -26,7 +25,7 @@ const { useState, useEffect, useRef } = wp.element;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveButtonGroup, ResponsiveRangeControl, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
+const { ResponsiveButtonGroup, ResponsiveRangeControl, DimensionControl, TypographyControl, CustomTabPanel, TabPanelBody, TransformControl } = digi.components;
 
 /**
  * Social Icons SVG components
@@ -120,10 +119,32 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
         const unsubscribe = window.digi.responsiveState.subscribe((device) => {
             setLocalActiveDevice(device);
         });
-        
+
         // Cleanup subscription on unmount
         return unsubscribe;
     }, []);
+
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
+		if (device === 'mobile') {
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
+		}
+		return obj.desktop;
+	};
     
     // Use useEffect to set the ID only once when component mounts
     useEffect(() => {
@@ -495,33 +516,36 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
             if (textTypography.fontFamily) {
                 textTypographyCSS += `font-family: ${textTypography.fontFamily};`;
             }
-            
-            if (textTypography.fontSize && textTypography.fontSize[activeDevice]) {
-                textTypographyCSS += `font-size: ${textTypography.fontSize[activeDevice]}${textTypography.fontSizeUnit || 'px'};`;
+
+            const fontSizeValue = getVal(textTypography.fontSize, activeDevice);
+            if (fontSizeValue && fontSizeValue.value !== "" && fontSizeValue.value !== null && fontSizeValue.value !== undefined) {
+                textTypographyCSS += `font-size: ${fontSizeValue.value}${fontSizeValue.unit !== null ? fontSizeValue.unit : ''};`;
             }
-            
+
             if (textTypography.fontWeight) {
                 textTypographyCSS += `font-weight: ${textTypography.fontWeight};`;
             }
-            
+
             if (textTypography.fontStyle) {
                 textTypographyCSS += `font-style: ${textTypography.fontStyle};`;
             }
-            
+
             if (textTypography.textTransform) {
                 textTypographyCSS += `text-transform: ${textTypography.textTransform};`;
             }
-            
+
             if (textTypography.textDecoration) {
                 textTypographyCSS += `text-decoration: ${textTypography.textDecoration};`;
             }
-            
-            if (textTypography.lineHeight && textTypography.lineHeight[activeDevice]) {
-                textTypographyCSS += `line-height: ${textTypography.lineHeight[activeDevice]}${textTypography.lineHeightUnit || 'em'};`;
+
+            const lineHeightValue = getVal(textTypography.lineHeight, activeDevice);
+            if (lineHeightValue && lineHeightValue.value !== "" && lineHeightValue.value !== null && lineHeightValue.value !== undefined) {
+                textTypographyCSS += `line-height: ${lineHeightValue.value}${lineHeightValue.unit !== null ? lineHeightValue.unit : ''};`;
             }
-            
-            if (textTypography.letterSpacing && textTypography.letterSpacing[activeDevice]) {
-                textTypographyCSS += `letter-spacing: ${textTypography.letterSpacing[activeDevice]}${textTypography.letterSpacingUnit || 'px'};`;
+
+            const letterSpacingValue = getVal(textTypography.letterSpacing, activeDevice);
+            if (letterSpacingValue && letterSpacingValue.value !== "" && letterSpacingValue.value !== null && letterSpacingValue.value !== undefined) {
+                textTypographyCSS += `letter-spacing: ${letterSpacingValue.value}${letterSpacingValue.unit !== null ? letterSpacingValue.unit : ''};`;
             }
         }
         
@@ -570,8 +594,17 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -580,8 +613,17 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -622,7 +664,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 align-items: center;
                 flex-wrap: wrap;
                 gap: ${currentIconSpacing};
-                justify-content: ${align[activeDevice]};
+                justify-content: ${getVal(align, activeDevice)};
                 ${positionCSS}
 				${transformCSS}
             }
@@ -743,7 +785,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 
                 ${textTypography && textTypography.fontSize && textTypography.fontSize.tablet ? `
                 .${id} .digiblocks-social-icon-label {
-                    font-size: ${textTypography.fontSize.tablet}${textTypography.fontSizeUnit || 'px'};
+                    font-size: ${textTypography.fontSize.tablet.value}${textTypography.fontSize.tablet.unit};
                 }
                 ` : ''}
                 
@@ -769,7 +811,7 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                 
                 ${textTypography && textTypography.fontSize && textTypography.fontSize.mobile ? `
                 .${id} .digiblocks-social-icon-label {
-                    font-size: ${textTypography.fontSize.mobile}${textTypography.fontSizeUnit || 'px'};
+                    font-size: ${textTypography.fontSize.mobile.value}${textTypography.fontSize.mobile.unit};
                 }
                 ` : ''}
                 
@@ -1117,14 +1159,13 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
 									{ label: 'em', value: 'em' },
 									{ label: '%', value: '%' }
 								]}
-								defaultUnit="rem"
 								min={0}
-								max={getMaxValue(iconWidth?.[localActiveDevice]?.unit)}
-								step={getStepValue(iconWidth?.[localActiveDevice]?.unit)}
+								max={getMaxValue(iconWidth?.[localActiveDevice]?.unit || 'rem')}
+								step={getStepValue(iconWidth?.[localActiveDevice]?.unit || 'rem')}
 								defaultValues={{
-									desktop: 1,
-									tablet: '',
-									mobile: ''
+									desktop: { value: 1, unit: 'rem' },
+									tablet: { value: '', unit: '' },
+									mobile: { value: '', unit: '' }
 								}}
 							/>
 
@@ -1138,15 +1179,14 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
 									{ label: 'em', value: 'em' },
 									{ label: '%', value: '%' }
 								]}
-								defaultUnit="rem"
 								min={0}
-								max={getMaxValue(iconHeight?.[localActiveDevice]?.unit)}
-								step={getStepValue(iconHeight?.[localActiveDevice]?.unit)}
+								max={getMaxValue(iconHeight?.[localActiveDevice]?.unit || 'rem')}
+								step={getStepValue(iconHeight?.[localActiveDevice]?.unit || 'rem')}
 								defaultValues={{
-									desktop: '',
-										tablet: '',
-										mobile: ''
-									}}
+									desktop: { value: 1, unit: 'rem' },
+									tablet: { value: '', unit: '' },
+									mobile: { value: '', unit: '' }
+								}}
 								/>
 
 								<ResponsiveRangeControl
@@ -1161,8 +1201,8 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
 									]}
 									defaultUnit="rem"
 									min={0}
-									max={getMaxValue(iconSpacing?.[localActiveDevice]?.unit)}
-									step={getStepValue(iconSpacing?.[localActiveDevice]?.unit)}
+									max={getMaxValue(iconSpacing?.[localActiveDevice]?.unit || 'px')}
+									step={getStepValue(iconSpacing?.[localActiveDevice]?.unit || 'px')}
 									defaultValues={{
 										desktop: 0.8,
 										tablet: '',
@@ -1228,55 +1268,25 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                             {/* Show border width and border radius controls only if a border style is selected */}
                             {iconBorderStyle && iconBorderStyle !== 'none' && (
                                 <>
-                                   	<ResponsiveControl
+                                   	<DimensionControl
 										label={__("Border Width", "digiblocks")}
-									>
-										<DimensionControl
-											values={iconBorderWidth[localActiveDevice]}
-											onChange={(value) =>
-												setAttributes({
-													iconBorderWidth: {
-														...iconBorderWidth,
-														[localActiveDevice]: value,
-													},
-												})
-											}
-										/>
-									</ResponsiveControl>
+										value={iconBorderWidth}
+										onChange={(value) => setAttributes({ iconBorderWidth: value })}
+									/>
 
-									<ResponsiveControl
+									<DimensionControl
 										label={__("Border Radius", "digiblocks")}
-									>
-										<DimensionControl
-											values={iconBorderRadius[localActiveDevice]}
-											onChange={(value) =>
-												setAttributes({
-													iconBorderRadius: {
-														...iconBorderRadius,
-														[localActiveDevice]: value,
-													},
-												})
-											}
-										/>
-									</ResponsiveControl>
+										value={iconBorderRadius}
+										onChange={(value) => setAttributes({ iconBorderRadius: value })}
+									/>
                                 </>
                             )}
                             
-                            <ResponsiveControl
-                                label={__("Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={padding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Padding", "digiblocks")}
+								value={padding}
+								onChange={(value) => setAttributes({ padding: value })}
+							/>
                         </TabPanelBody>
                         
                         {showLabels && (
@@ -1297,12 +1307,6 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                                             textTypography: value,
                                         })
                                     }
-                                    defaults={{
-                                        fontSize: { desktop: 14, tablet: 13, mobile: 12 },
-                                        fontSizeUnit: 'px',
-                                        lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                                        lineHeightUnit: 'em',
-                                    }}
                                 />
                             </TabPanelBody>
                         )}
@@ -1363,8 +1367,8 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1398,8 +1402,8 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -1459,10 +1463,11 @@ const SocialIconsEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

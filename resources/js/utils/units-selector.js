@@ -65,7 +65,7 @@ const UnitsSelector = ({
 
     return (
         <div className="digiblocks-units-wrapper" ref={wrapperRef}>
-            <div 
+            <div
                 className={`digiblocks-units-switcher ${isOpen ? 'is-open' : ''}`}
                 onClick={handleToggle}
                 onKeyDown={handleKeyDown}
@@ -75,7 +75,7 @@ const UnitsSelector = ({
                 aria-label={ariaLabel}
                 data-selected={selectedUnit.value}
             >
-                <span className="digiblocks-units-switcher__label">{selectedUnit.label}</span>
+                <span className="digiblocks-units-switcher__label">{selectedUnit.icon || selectedUnit.label}</span>
                 <span className={`dashicon dashicons dashicons-arrow-down-alt2 digiblocks-units-switcher__icon`}></span>
             </div>
             
@@ -90,14 +90,14 @@ const UnitsSelector = ({
                                 value={unit.value}
                                 checked={value === unit.value}
                                 onChange={() => handleUnitChange(unit.value)}
-                                aria-label={unit.label}
+                                aria-label={typeof unit.label === 'string' ? unit.label : unit.value}
                             />
                             <label
                                 className="digiblocks-units-choices-label"
                                 htmlFor={`${uniqueId}-${unit.value}`}
                                 data-choose={unit.value}
                             >
-                                <span>{unit.label}</span>
+                                <span>{unit.icon || unit.label}</span>
                             </label>
                         </div>
                     ))}

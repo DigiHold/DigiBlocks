@@ -4,7 +4,7 @@ Tags: blocks, gutenberg, editor, page builder, gutenberg blocks
 Requires at least: 5.8
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.3
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -211,16 +211,21 @@ This plugin uses Google Maps API for the Google Map Block feature.
 
 == Changelog ==
 
-= 1.0.4 -  =
+= 1.1.0 -  = IMPORTANT TO READ: This is a big update, many blocks have been completely rewritten so do a backup of your site before updating it
 * Added: Max Width field for the Heading block
+* Added: Flex Direction field for the Container and Row blocks
 * Added: Position panel with settings to allow relative, absolute or fixed positioning with orientation fields
 * Added: Transform panel with settings like Rotate, Offset, Scale, which allow you to create unique design
 * Added: More Animations
 * Added: Margins fields for the Icon Box block to control title and content margin
+* Added: Justify content field for the Icon Box block to control align
+* Added: Better Font Family selection with search input and fonts preview
+* Added: Hover Effect for the Button block
 * Tweak: Many improvements for the Heading block
 * Tweak: Many improvements for the Text block
 * Tweak: Many improvements for the Container block
 * Tweak: Many improvements for the Column block
+* Tweak: Many improvements for the Row block
 * Tweak: Better Units selection design
 * Tweak: Better Typography UX
 * Tweak: Animations now only load the required JS dynamically instead of all animations

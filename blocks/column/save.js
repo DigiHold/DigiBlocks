@@ -10,18 +10,20 @@ const { useBlockProps, useInnerBlocksProps } = wp.blockEditor;
 const ColumnSave = ({ attributes }) => {
     const {
         id,
-        backgroundOverlay,
+        anchor,
+        customClasses,
         animation,
         animationDuration,
         animationDelay,
     } = attributes;
 
     // Build class names
-    const classNames = `digiblocks-column ${id}${animation !== 'none' ? ` animate-${animation} digi-animate-hidden` : ''}`;
+    const classNames = `digiblocks-column ${id} ${customClasses || ''}${animation !== 'none' ? ` animate-${animation} digi-animate-hidden` : ''}`;
     
     // Save block props
     const blockProps = useBlockProps.save({
-        className: classNames
+        className: classNames,
+        id: anchor || null,
     });
 
     // Add animation data attributes only if animation is active

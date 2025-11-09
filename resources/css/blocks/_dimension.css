@@ -182,9 +182,9 @@ body .components-button.is-secondary.digiblocks-reset.is-small {
 
 /* Main Container */
 .digiblocks-dimension-control {
-    margin-bottom: 25px;
-}
+    margin-bottom: 15px;
 
-.digiblocks-dimension-control.is-responsive {
-    margin-bottom: 0;
+    &:last-child {
+        margin-bottom: 0;
+    }
 }

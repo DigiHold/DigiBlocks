@@ -30,7 +30,6 @@
 /* Column block in editor */
 .block-editor-block-list__block[data-type="digiblocks/column"] {
     position: initial;
-    min-height: 50px;
     border: 1px dashed transparent;
     transition: all 0.3s ease;
 

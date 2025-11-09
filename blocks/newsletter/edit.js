@@ -18,7 +18,6 @@ const {
     Button,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 
@@ -110,15 +109,22 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
 	// Get responsive value with fallback
 	const getVal = (obj, device) => {
 		if (!obj || typeof obj !== 'object') return null;
-		
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
 		if (device === 'mobile') {
-			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
-				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
 				obj.desktop;
 		}
 		if (device === 'tablet') {
-			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
-				obj.desktop;
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
 		}
 		return obj.desktop;
 	};
@@ -373,8 +379,17 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -383,8 +398,17 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -446,13 +470,13 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
                 margin-top: 0;
                 margin-bottom: ${getVal(spacing, activeDevice)?.value || 20}${getVal(spacing, activeDevice)?.unit || 'px'};
                 ${titleTypography.fontFamily ? `font-family: ${titleTypography.fontFamily};` : ''}
-                ${getVal(titleTypography.fontSize, activeDevice) ? `font-size: ${getVal(titleTypography.fontSize, activeDevice)}${titleTypography.fontSizeUnit || 'px'};` : ''}
+                ${(getVal(titleTypography.fontSize, activeDevice) && getVal(titleTypography.fontSize, activeDevice).value !== "" && getVal(titleTypography.fontSize, activeDevice).value !== null && getVal(titleTypography.fontSize, activeDevice).value !== undefined) ? `font-size: ${getVal(titleTypography.fontSize, activeDevice).value}${getVal(titleTypography.fontSize, activeDevice).unit};` : ''}
                 ${titleTypography.fontWeight ? `font-weight: ${titleTypography.fontWeight};` : ''}
                 ${titleTypography.fontStyle ? `font-style: ${titleTypography.fontStyle};` : ''}
                 ${titleTypography.textTransform ? `text-transform: ${titleTypography.textTransform};` : ''}
                 ${titleTypography.textDecoration ? `text-decoration: ${titleTypography.textDecoration};` : ''}
-                ${getVal(titleTypography.lineHeight, activeDevice) ? `line-height: ${getVal(titleTypography.lineHeight, activeDevice)}${titleTypography.lineHeightUnit || 'em'};` : ''}
-                ${getVal(titleTypography.letterSpacing, activeDevice) ? `letter-spacing: ${getVal(titleTypography.letterSpacing, activeDevice)}${titleTypography.letterSpacingUnit || 'px'};` : ''}
+                ${(getVal(titleTypography.lineHeight, activeDevice) && getVal(titleTypography.lineHeight, activeDevice).value !== "" && getVal(titleTypography.lineHeight, activeDevice).value !== null && getVal(titleTypography.lineHeight, activeDevice).value !== undefined) ? `line-height: ${getVal(titleTypography.lineHeight, activeDevice).value}${getVal(titleTypography.lineHeight, activeDevice).unit};` : ''}
+                ${(getVal(titleTypography.letterSpacing, activeDevice) && getVal(titleTypography.letterSpacing, activeDevice).value !== "" && getVal(titleTypography.letterSpacing, activeDevice).value !== null && getVal(titleTypography.letterSpacing, activeDevice).value !== undefined) ? `letter-spacing: ${getVal(titleTypography.letterSpacing, activeDevice).value}${getVal(titleTypography.letterSpacing, activeDevice).unit};` : ''}
                 transition: color 0.3s ease;
             }
 
@@ -465,13 +489,13 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
                 color: ${descriptionColor};
                 margin-bottom: ${spacing[activeDevice]?.value || 20}${spacing[activeDevice]?.unit || 'px'};
                 ${contentTypography.fontFamily ? `font-family: ${contentTypography.fontFamily};` : ''}
-                ${getVal(contentTypography.fontSize, activeDevice) ? `font-size: ${getVal(contentTypography.fontSize, activeDevice)}${contentTypography.fontSizeUnit || 'px'};` : ''}
+                ${(getVal(contentTypography.fontSize, activeDevice) && getVal(contentTypography.fontSize, activeDevice).value !== "" && getVal(contentTypography.fontSize, activeDevice).value !== null && getVal(contentTypography.fontSize, activeDevice).value !== undefined) ? `font-size: ${getVal(contentTypography.fontSize, activeDevice).value}${getVal(contentTypography.fontSize, activeDevice).unit};` : ''}
                 ${contentTypography.fontWeight ? `font-weight: ${contentTypography.fontWeight};` : ''}
                 ${contentTypography.fontStyle ? `font-style: ${contentTypography.fontStyle};` : ''}
                 ${contentTypography.textTransform ? `text-transform: ${contentTypography.textTransform};` : ''}
                 ${contentTypography.textDecoration ? `text-decoration: ${contentTypography.textDecoration};` : ''}
-                ${getVal(contentTypography.lineHeight, activeDevice) ? `line-height: ${getVal(contentTypography.lineHeight, activeDevice)}${contentTypography.lineHeightUnit || 'em'};` : ''}
-				${getVal(contentTypography.letterSpacing, activeDevice) !== null ? `letter-spacing: ${getVal(contentTypography.letterSpacing, activeDevice)}${contentTypography.letterSpacingUnit || 'px'};` : ''}
+                ${(getVal(contentTypography.lineHeight, activeDevice) && getVal(contentTypography.lineHeight, activeDevice).value !== "" && getVal(contentTypography.lineHeight, activeDevice).value !== null && getVal(contentTypography.lineHeight, activeDevice).value !== undefined) ? `line-height: ${getVal(contentTypography.lineHeight, activeDevice).value}${getVal(contentTypography.lineHeight, activeDevice).unit};` : ''}
+				${(getVal(contentTypography.letterSpacing, activeDevice) && getVal(contentTypography.letterSpacing, activeDevice).value !== "" && getVal(contentTypography.letterSpacing, activeDevice).value !== null && getVal(contentTypography.letterSpacing, activeDevice).value !== undefined) ? `letter-spacing: ${getVal(contentTypography.letterSpacing, activeDevice).value}${getVal(contentTypography.letterSpacing, activeDevice).unit};` : ''}
             }
 
             /* Newsletter Form */
@@ -508,8 +532,8 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
                 left: 16px;
                 top: 50%;
                 transform: translateY(-50%);
-                ${textTypography.fontSize?.[activeDevice] ? `width: ${textTypography.fontSize[activeDevice]}${textTypography.fontSizeUnit || 'px'};` : 'width: 1em;'}
-                ${textTypography.fontSize?.[activeDevice] ? `height: ${textTypography.fontSize[activeDevice]}${textTypography.fontSizeUnit || 'px'};` : 'height: 1em;'}
+                ${(getVal(textTypography.fontSize, activeDevice) && getVal(textTypography.fontSize, activeDevice).value !== "" && getVal(textTypography.fontSize, activeDevice).value !== null && getVal(textTypography.fontSize, activeDevice).value !== undefined) ? `width: ${getVal(textTypography.fontSize, activeDevice).value}${getVal(textTypography.fontSize, activeDevice).unit};` : 'width: 1em;'}
+                ${(getVal(textTypography.fontSize, activeDevice) && getVal(textTypography.fontSize, activeDevice).value !== "" && getVal(textTypography.fontSize, activeDevice).value !== null && getVal(textTypography.fontSize, activeDevice).value !== undefined) ? `height: ${getVal(textTypography.fontSize, activeDevice).value}${getVal(textTypography.fontSize, activeDevice).unit};` : 'height: 1em;'}
                 fill: ${inputTextColor};
                 pointer-events: none;
                 z-index: 2;
@@ -527,13 +551,13 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
                 ${getDimensionCSS(inputBorderRadius, 'border-radius', activeDevice)}
                 ${inputBoxShadow?.enable ? `box-shadow: ${inputBoxShadow.horizontal}px ${inputBoxShadow.vertical}px ${inputBoxShadow.blur}px ${inputBoxShadow.spread}px ${inputBoxShadow.color};` : ''}
                 ${textTypography.fontFamily ? `font-family: ${textTypography.fontFamily};` : ''}
-                ${getVal(textTypography.fontSize, activeDevice) ? `font-size: ${getVal(textTypography.fontSize, activeDevice)}${textTypography.fontSizeUnit || 'px'};` : ''}
+                ${(getVal(textTypography.fontSize, activeDevice) && getVal(textTypography.fontSize, activeDevice).value !== "" && getVal(textTypography.fontSize, activeDevice).value !== null && getVal(textTypography.fontSize, activeDevice).value !== undefined) ? `font-size: ${getVal(textTypography.fontSize, activeDevice).value}${getVal(textTypography.fontSize, activeDevice).unit};` : ''}
                 ${textTypography.fontWeight ? `font-weight: ${textTypography.fontWeight};` : ''}
                 ${textTypography.fontStyle ? `font-style: ${textTypography.fontStyle};` : ''}
                 ${textTypography.textTransform ? `text-transform: ${textTypography.textTransform};` : ''}
                 ${textTypography.textDecoration ? `text-decoration: ${textTypography.textDecoration};` : ''}
-                ${getVal(textTypography.lineHeight, activeDevice) ? `line-height: ${getVal(textTypography.lineHeight, activeDevice)}${textTypography.lineHeightUnit || 'em'};` : ''}
-				${getVal(textTypography.letterSpacing, activeDevice) !== null ? `letter-spacing: ${getVal(textTypography.letterSpacing, activeDevice)}${textTypography.letterSpacingUnit || 'px'};` : ''}
+                ${(getVal(textTypography.lineHeight, activeDevice) && getVal(textTypography.lineHeight, activeDevice).value !== "" && getVal(textTypography.lineHeight, activeDevice).value !== null && getVal(textTypography.lineHeight, activeDevice).value !== undefined) ? `line-height: ${getVal(textTypography.lineHeight, activeDevice).value}${getVal(textTypography.lineHeight, activeDevice).unit};` : ''}
+				${(getVal(textTypography.letterSpacing, activeDevice) && getVal(textTypography.letterSpacing, activeDevice).value !== "" && getVal(textTypography.letterSpacing, activeDevice).value !== null && getVal(textTypography.letterSpacing, activeDevice).value !== undefined) ? `letter-spacing: ${getVal(textTypography.letterSpacing, activeDevice).value}${getVal(textTypography.letterSpacing, activeDevice).unit};` : ''}
                 transition: all 0.3s ease;
                 outline: none;
 				box-shadow: none;
@@ -560,15 +584,14 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
                 background-color: ${buttonBackgroundColor};
 				${buttonBorderStyle !== 'none' ? 'border: ' + (buttonBorderWidth[activeDevice] || 1) + 'px ' + (buttonBorderStyle || 'solid') + ' ' + buttonBorderColor + ';' : 'border: none;'}
                 ${getDimensionCSS(buttonBorderRadius, 'border-radius', activeDevice)}
-                ${getVal(buttonTypography.fontSize, activeDevice) ? `font-size: ${getVal(buttonTypography.fontSize, activeDevice)}${buttonTypography.fontSizeUnit || 'px'};` : ''}
                 ${buttonTypography.fontFamily ? `font-family: ${buttonTypography.fontFamily};` : ''}
-                ${buttonTypography.fontSize?.[activeDevice] ? `font-size: ${buttonTypography.fontSize[activeDevice]}${buttonTypography.fontSizeUnit || 'px'};` : ''}
+                ${(getVal(buttonTypography.fontSize, activeDevice) && getVal(buttonTypography.fontSize, activeDevice).value !== "" && getVal(buttonTypography.fontSize, activeDevice).value !== null && getVal(buttonTypography.fontSize, activeDevice).value !== undefined) ? `font-size: ${getVal(buttonTypography.fontSize, activeDevice).value}${getVal(buttonTypography.fontSize, activeDevice).unit};` : ''}
                 ${buttonTypography.fontWeight ? `font-weight: ${buttonTypography.fontWeight};` : ''}
                 ${buttonTypography.fontStyle ? `font-style: ${buttonTypography.fontStyle};` : ''}
                 ${buttonTypography.textTransform ? `text-transform: ${buttonTypography.textTransform};` : ''}
                 ${buttonTypography.textDecoration ? `text-decoration: ${buttonTypography.textDecoration};` : ''}
-                ${getVal(buttonTypography.lineHeight, activeDevice) ? `line-height: ${getVal(buttonTypography.lineHeight, activeDevice)}${buttonTypography.lineHeightUnit || 'em'};` : ''}
-				${getVal(buttonTypography.letterSpacing, activeDevice) !== null ? `letter-spacing: ${getVal(buttonTypography.letterSpacing, activeDevice)}${buttonTypography.letterSpacingUnit || 'px'};` : ''}
+                ${(getVal(buttonTypography.lineHeight, activeDevice) && getVal(buttonTypography.lineHeight, activeDevice).value !== "" && getVal(buttonTypography.lineHeight, activeDevice).value !== null && getVal(buttonTypography.lineHeight, activeDevice).value !== undefined) ? `line-height: ${getVal(buttonTypography.lineHeight, activeDevice).value}${getVal(buttonTypography.lineHeight, activeDevice).unit};` : ''}
+				${(getVal(buttonTypography.letterSpacing, activeDevice) && getVal(buttonTypography.letterSpacing, activeDevice).value !== "" && getVal(buttonTypography.letterSpacing, activeDevice).value !== null && getVal(buttonTypography.letterSpacing, activeDevice).value !== undefined) ? `letter-spacing: ${getVal(buttonTypography.letterSpacing, activeDevice).value}${getVal(buttonTypography.letterSpacing, activeDevice).unit};` : ''}
                 cursor: pointer;
                 transition: all 0.3s ease;
                 ${layout === 'stacked' ? 'width: 100%;' : 'white-space: nowrap;'}
@@ -765,14 +788,13 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
 									{ label: 'em', value: 'em' },
 									{ label: 'rem', value: 'rem' },
                                 ]}
-                                defaultUnit="px"
                                 min={0}
                                 max={100}
                                 step={1}
                                 defaultValues={{
                                     desktop: { value: 20, unit: 'px' },
-									tablet: { value: 20, unit: 'px' },
-									mobile: { value: 20, unit: 'px' }
+									tablet: { value: '', unit: 'px' },
+									mobile: { value: '', unit: 'px' }
                                 }}
                             />
 
@@ -785,14 +807,13 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
 									{ label: 'em', value: 'em' },
 									{ label: 'rem', value: 'rem' },
                                 ]}
-                                defaultUnit="px"
                                 min={0}
                                 max={50}
                                 step={1}
                                 defaultValues={{
                                     desktop: { value: 10, unit: 'px' },
-                                    tablet: { value: 8, unit: 'px' },
-                                    mobile: { value: 6, unit: 'px' },
+                                    tablet: { value: '', unit: 'px' },
+                                    mobile: { value: '', unit: 'px' }
                                 }}
                             />
                         </TabPanelBody>
@@ -966,42 +987,24 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__('Title Typography', 'digiblocks')}
                                 value={titleTypography}
                                 onChange={(value) => setAttributes({ titleTypography: value })}
-                                defaults={{
-                                    fontSize: { desktop: 24, tablet: 22, mobile: 20 },
-                                    fontWeight: '600',
-                                    lineHeight: { desktop: 1.4, tablet: 1.3, mobile: 1.2 },
-                                }}
                             />
                             
                             <TypographyControl
                                 label={__('Description Typography', 'digiblocks')}
                                 value={contentTypography}
                                 onChange={(value) => setAttributes({ contentTypography: value })}
-                                defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                                }}
                             />
 
                             <TypographyControl
                                 label={__('Input Typography', 'digiblocks')}
                                 value={textTypography}
                                 onChange={(value) => setAttributes({ textTypography: value })}
-                                defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                                }}
                             />
                             
                             <TypographyControl
                                 label={__('Button Typography', 'digiblocks')}
                                 value={buttonTypography}
                                 onChange={(value) => setAttributes({ buttonTypography: value })}
-                                defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                                    fontWeight: '500',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                                }}
                             />
                         </TabPanelBody>
 
@@ -1042,25 +1045,15 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
 								/>
 							</ResponsiveControl>
 							
-							<ResponsiveControl
+							<DimensionControl
 								label={__('Container Border Radius', 'digiblocks')}
-							>
-								<DimensionControl
-									values={containerBorderRadius[localActiveDevice]}
-									onChange={(value) =>
-										setAttributes({
-											containerBorderRadius: {
-												...containerBorderRadius,
-												[localActiveDevice]: value,
-											},
-										})
-									}
-									units={[
-										{ label: 'px', value: 'px' },
-										{ label: '%', value: '%' }
-									]}
-								/>
-							</ResponsiveControl>
+								value={containerBorderRadius}
+								onChange={(value) => setAttributes({ containerBorderRadius: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' }
+								]}
+							/>
 
                             <h4>{__('Input Border', 'digiblocks')}</h4>
                             
@@ -1093,25 +1086,15 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
                                 />
                             </ResponsiveControl>
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__('Input Border Radius', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={inputBorderRadius[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            inputBorderRadius: {
-                                                ...inputBorderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    units={[
-                                        { label: 'px', value: 'px' },
-                                        { label: '%', value: '%' }
-                                    ]}
-                                />
-                            </ResponsiveControl>
+                                value={inputBorderRadius}
+                                onChange={(value) => setAttributes({ inputBorderRadius: value })}
+                                units={[
+                                    { label: 'px', value: 'px' },
+                                    { label: '%', value: '%' }
+                                ]}
+                            />
 
                             <h4>{__('Button Border', 'digiblocks')}</h4>
                             
@@ -1144,25 +1127,15 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
                                 />
                             </ResponsiveControl>
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__('Button Border Radius', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={buttonBorderRadius[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            buttonBorderRadius: {
-                                                ...buttonBorderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    units={[
-                                        { label: 'px', value: 'px' },
-                                        { label: '%', value: '%' }
-                                    ]}
-                                />
-                            </ResponsiveControl>
+                                value={buttonBorderRadius}
+                                onChange={(value) => setAttributes({ buttonBorderRadius: value })}
+                                units={[
+                                    { label: 'px', value: 'px' },
+                                    { label: '%', value: '%' }
+                                ]}
+                            />
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1206,37 +1179,17 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__('Padding', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={padding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={padding}
+                                onChange={(value) => setAttributes({ padding: value })}
+                            />
                             
-                            <ResponsiveControl
+                            <DimensionControl
                                 label={__('Margin', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={margin[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                                value={margin}
+                                onChange={(value) => setAttributes({ margin: value })}
+                            />
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1291,8 +1244,8 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1326,8 +1279,8 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -1387,10 +1340,11 @@ const NewsletterEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

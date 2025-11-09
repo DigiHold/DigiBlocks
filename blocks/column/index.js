@@ -33,6 +33,14 @@ registerBlockType('digiblocks/column', {
             type: 'string',
             default: '',
         },
+        anchor: {
+            type: 'string',
+            default: ''
+        },
+        customClasses: {
+            type: 'string',
+            default: ''
+        },
 		visibility: {
 			type: 'object',
 			default: {
@@ -61,6 +69,14 @@ registerBlockType('digiblocks/column', {
 				mobile: { value: '', unit: '' }
 			}
 		},
+		minHeight: {
+			type: 'object',
+			default: {
+				desktop: { value: '', unit: 'px' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			}
+		},
         order: {
             type: 'object',
             default: {
@@ -70,6 +86,14 @@ registerBlockType('digiblocks/column', {
             }
         },
 		alignSelf: {
+			type: 'object',
+			default: {
+				desktop: '',
+				tablet: '',
+				mobile: ''
+			}
+		},
+		justifyContent: {
 			type: 'object',
 			default: {
 				desktop: '',
@@ -93,6 +117,10 @@ registerBlockType('digiblocks/column', {
 				mobile: { value: '', unit: 'px' }
 			}
 		},
+        overflowHidden: {
+            type: 'boolean',
+            default: false
+        },
         hoverEffect: {
             type: 'string',
             default: 'none'
@@ -102,18 +130,9 @@ registerBlockType('digiblocks/column', {
             default: ''
         },
         backgroundGradient: {
-            type: 'object',
-            default: {
-                enable: false,
-                type: 'linear',
-                angle: 90,
-                position: 'center center',
-                colors: [
-                    { color: '#667eea', position: 0 },
-                    { color: '#764ba2', position: 100 }
-                ]
-            }
-        },
+			type: 'string',
+			default: ''
+		},
         backgroundImage: {
             type: 'object',
             default: {
@@ -136,6 +155,10 @@ registerBlockType('digiblocks/column', {
             default: 'cover'
         },
         backgroundOverlay: {
+            type: 'string',
+            default: ''
+        },
+		backgroundOverlayGradient: {
             type: 'string',
             default: ''
         },
@@ -223,8 +246,8 @@ registerBlockType('digiblocks/column', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         verticalOrientation: {
@@ -235,8 +258,8 @@ registerBlockType('digiblocks/column', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         zIndex: {

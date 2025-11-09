@@ -220,16 +220,13 @@ registerBlockType('digiblocks/social-icons', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: 1, tablet: '', mobile: '' },
-                fontSizeUnit: 'rem',
+                fontSize: { desktop: { value: 1, unit: 'rem' }, tablet: { value: '', unit: 'rem' }, mobile: { value: '', unit: 'rem' } },
                 fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: '',
                 textDecoration: '',
-                lineHeight: { desktop: '', tablet: '', mobile: '' },
-                lineHeightUnit: 'em',
-                letterSpacing: { desktop: '', tablet: '', mobile: '' },
-                letterSpacingUnit: 'px'
+                lineHeight: { desktop: { value: '', unit: 'em' }, tablet: { value: '', unit: 'em' }, mobile: { value: '', unit: 'em' } },
+                letterSpacing: { desktop: { value: '', unit: 'px' }, tablet: { value: '', unit: 'px' }, mobile: { value: '', unit: 'px' } }
             }
         },
         position: {
@@ -244,8 +241,8 @@ registerBlockType('digiblocks/social-icons', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         verticalOrientation: {
@@ -256,8 +253,8 @@ registerBlockType('digiblocks/social-icons', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         zIndex: {

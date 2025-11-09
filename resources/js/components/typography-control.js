@@ -2,12 +2,204 @@
  * WordPress dependencies
  */
 const { __ } = wp.i18n;
-const { 
-    SelectControl, 
-    RangeControl, 
-    Button
-} = wp.components;
-const { useState, useEffect } = wp.element;
+const { SelectControl } = wp.components;
+const { useState, useEffect, useRef } = wp.element;
+
+import ResponsiveRangeControl from './range-control';
+
+/**
+ * Custom Font Family Select with search and live preview
+ */
+const FontFamilySelect = ({ label, value, options, onChange }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredOptions, setFilteredOptions] = useState(options);
+    const [loadedFonts, setLoadedFonts] = useState(new Set());
+    const dropdownRef = useRef(null);
+    const searchInputRef = useRef(null);
+    const listRef = useRef(null);
+    const observerRef = useRef(null);
+
+    const getSelectedLabel = () => {
+        const selected = options.find(opt => opt.value === value);
+        return selected ? selected.label : __('Default', 'digiblocks');
+    };
+
+    useEffect(() => {
+        setFilteredOptions(
+            options.filter(option => 
+                option.label.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+        );
+    }, [searchTerm, options]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+                setSearchTerm('');
+            }
+        };
+
+        const handleEscape = (event) => {
+            if (event.key === 'Escape') {
+                setIsOpen(false);
+                setSearchTerm('');
+            }
+        };
+
+        setTimeout(() => {
+            document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener('keydown', handleEscape);
+        }, 0);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleEscape);
+        };
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (isOpen && searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (!isOpen || !listRef.current) return;
+
+        if (!observerRef.current) {
+            observerRef.current = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            const fontFamily = entry.target.dataset.fontFamily;
+                            if (fontFamily && !loadedFonts.has(fontFamily) && 
+                                fontFamily !== '' && fontFamily !== 'system-ui') {
+                                const isSystemFont = fontFamily.includes(',');
+                                if (!isSystemFont) {
+                                    window.digi?.utils?.loadGoogleFont(fontFamily, '400');
+                                }
+                                setLoadedFonts(prev => new Set([...prev, fontFamily]));
+                            }
+                        }
+                    });
+                },
+                {
+                    root: listRef.current,
+                    rootMargin: '50px',
+                    threshold: 0.1
+                }
+            );
+        }
+
+        const items = listRef.current.querySelectorAll('.digiblocks-font-option');
+        items.forEach(item => observerRef.current.observe(item));
+
+        return () => {
+            if (observerRef.current) {
+                observerRef.current.disconnect();
+                observerRef.current = null;
+            }
+        };
+    }, [isOpen, filteredOptions]);
+
+    const handleSelect = (optionValue) => {
+        onChange(optionValue);
+        setIsOpen(false);
+        setSearchTerm('');
+    };
+
+    const handleToggle = () => {
+        setIsOpen(!isOpen);
+        if (!isOpen) {
+            setSearchTerm('');
+        }
+    };
+
+    const getFontStyle = (fontValue) => {
+        if (!fontValue) {
+            return {};
+        }
+        return { fontFamily: fontValue };
+    };
+
+    return (
+        <div className="digiblocks-font-family-select" ref={dropdownRef}>
+            <div className="digiblocks-font-family-select__field">
+                {label && (
+                    <label className="digiblocks-font-family-select__label">
+                        {label}
+                    </label>
+                )}
+                <div className="digiblocks-font-family-select__control">
+                    <button
+                        type="button"
+                        className="digiblocks-font-family-select__trigger"
+                        onClick={handleToggle}
+                        aria-expanded={isOpen}
+                        aria-haspopup="listbox"
+                    >
+                        <span className="digiblocks-font-family-select__value" style={getFontStyle(value)}>
+                            {getSelectedLabel()}
+                        </span>
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 7L9 11L13 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    </button>
+
+                    {isOpen && (
+                        <div className="digiblocks-font-family-select__dropdown">
+                            <div className="digiblocks-font-family-select__search">
+                                <input
+                                    ref={searchInputRef}
+                                    type="text"
+                                    placeholder={__('Search fonts...', 'digiblocks')}
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="digiblocks-font-family-select__search-input"
+                                />
+                            </div>
+                            <div 
+                                className="digiblocks-font-family-select__list" 
+                                ref={listRef}
+                                role="listbox"
+                            >
+                                {filteredOptions.length > 0 ? (
+                                    filteredOptions.map((option) => (
+                                        <button
+                                            key={option.value}
+                                            type="button"
+                                            className={`digiblocks-font-option ${value === option.value ? 'is-selected' : ''}`}
+                                            onClick={() => handleSelect(option.value)}
+                                            data-font-family={option.value}
+                                            style={getFontStyle(option.value)}
+                                            role="option"
+                                            aria-selected={value === option.value}
+                                        >
+                                            {option.label}
+                                            {value === option.value && (
+                                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M15 5L7 13L3 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                </svg>
+                                            )}
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="digiblocks-font-family-select__no-results">
+                                        {__('No fonts found', 'digiblocks')}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 /**
  * Typography Control Component that matches WordPress native typography controls
@@ -15,14 +207,11 @@ const { useState, useEffect } = wp.element;
 const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
 	// Generate a unique ID for this typography control
     const [controlId] = useState(`typography-${Math.random().toString(36).substr(2, 9)}`);
-    
+
     // State for panel toggle - use UI state for persistence
     const [isOpen, setIsOpen] = useState(() => {
         return window.digi.uiState.getPanelState('typography', controlId) ?? false;
     });
-
-	// Units selector
-	const UnitsSelector = window.digi?.utils?.UnitsSelector;
     
     // State for font weight options (will be dynamically updated based on selected font)
     const [fontWeightOptions, setFontWeightOptions] = useState([
@@ -51,40 +240,44 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
     // State to track if fonts have been loaded
     const [fontLoaded, setFontLoaded] = useState(false);
     
-    // Use global responsive state for local rendering
-    const [localActiveDevice, setLocalActiveDevice] = useState(
-        window.digi?.responsiveState?.activeDevice || 'desktop'
-    );
-    
-    // Expand the received values with defaults
+    const ensureResponsiveValue = (val, defaultUnit = 'px') => {
+        if (!val || typeof val !== 'object') {
+            return {
+                desktop: { value: '', unit: defaultUnit },
+                tablet: { value: '', unit: defaultUnit },
+                mobile: { value: '', unit: defaultUnit }
+            };
+        }
+
+        const result = {};
+        ['desktop', 'tablet', 'mobile'].forEach(device => {
+            if (val[device] && typeof val[device] === 'object' && val[device].hasOwnProperty('value')) {
+                result[device] = {
+                    value: val[device].value !== undefined ? val[device].value : '',
+                    unit: val[device].unit || defaultUnit
+                };
+            } else {
+                const deviceValue = typeof val[device] === 'number' ? val[device] : '';
+                result[device] = { value: deviceValue, unit: defaultUnit };
+            }
+        });
+
+        return result;
+    };
+
     const values = {
         fontFamily: '',
-        fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-        fontSizeUnit: 'px',
+        fontSize: ensureResponsiveValue(value?.fontSize || defaults?.fontSize, 'px'),
         fontWeight: '',
         fontStyle: 'normal',
         textTransform: '',
         textDecoration: '',
-        lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-        lineHeightUnit: 'em',
-        letterSpacing: { desktop: 0, tablet: 0, mobile: 0 },
-        letterSpacingUnit: 'px',
+        lineHeight: ensureResponsiveValue(value?.lineHeight || defaults?.lineHeight, 'em'),
+        letterSpacing: ensureResponsiveValue(value?.letterSpacing || defaults?.letterSpacing, 'px'),
         ...defaults,
         ...value
     };
 
-    // Subscribe to global device state changes
-    useEffect(() => {
-        // Skip if global state doesn't exist
-        if (!window.digi?.responsiveState?.subscribe) return;
-        
-        const unsubscribe = window.digi.responsiveState.subscribe((device) => {
-            setLocalActiveDevice(device);
-        });
-        
-        // Cleanup subscription on unmount
-        return unsubscribe;
-    }, []);
 
     // Load Google Font data and set initial font options
     useEffect(() => {
@@ -196,26 +389,6 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
         }
     }, [values.fontFamily]);
 
-    // Font size units
-    const fontSizeUnits = [
-        { label: 'px', value: 'px' },
-        { label: 'em', value: 'em' },
-        { label: 'rem', value: 'rem' },
-        { label: 'vw', value: 'vw' },
-    ];
-
-    // Line height units
-    const lineHeightUnits = [
-        { label: 'px', value: 'px' },
-        { label: 'em', value: 'em' },
-    ];
-
-    // Letter spacing units
-    const letterSpacingUnits = [
-        { label: 'px', value: 'px' },
-        { label: 'em', value: 'em' },
-    ];
-
     // Font style options
     const fontStyleOptions = [
         { label: __('Default', 'digiblocks'), value: 'normal' },
@@ -247,9 +420,9 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
             ...values,
             [property]: newValue
         };
-        
+
         onChange(updatedValues);
-        
+
         // Load Google Fonts when font family or font weight changes
         if (property === 'fontFamily') {
             window.digi.utils.loadGoogleFont(newValue);
@@ -258,43 +431,11 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
         }
     };
 
-    // Update responsive value (fontSize, lineHeight, letterSpacing)
-    const updateResponsiveValue = (property, device, newValue) => {
-        onChange({
-            ...values,
-            [property]: {
-                ...values[property],
-                [device]: newValue
-            }
-        });
-    };
-
     // Toggle panel open/closed
     const toggleTypographyPanel = () => {
         const newState = !isOpen;
         setIsOpen(newState);
         window.digi.uiState.setPanelState('typography', controlId, newState);
-    };
-
-    // Get device icon
-    const getDeviceIcon = (device) => {
-        // If global icons exist, use them
-        if (window.digi?.icons?.deviceIcons?.[device]) {
-            return window.digi.icons.deviceIcons[device];
-        }
-        // Fallback to a simple icon
-        return <span className={`dashicon dashicons dashicons-${device}`}></span>;
-    };
-
-    const handleToggleDevice = () => {
-        if (window.digi?.responsiveState?.toggleDevice) {
-            window.digi.responsiveState.toggleDevice();
-        } else {
-            // Fallback toggle logic
-            const nextDevice = localActiveDevice === "desktop" ? "tablet" : 
-                              localActiveDevice === "tablet" ? "mobile" : "desktop";
-            setLocalActiveDevice(nextDevice);
-        }
     };
 
     return (
@@ -313,71 +454,31 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
             
             {isOpen && (
                 <div className="digiblocks-popover digiblocks-control-popup">
-                    <div className="components-base-control digiblocks-font-family-searchable-select__wrapper">
-                        <label className="components-input-control__label" htmlFor="font-family">
-                            {__('Font Family', 'digiblocks')}
-                        </label>
-                        <SelectControl
-                            id="font-family"
-                            value={values.fontFamily}
-                            options={fontFamilyOptions}
-                            onChange={(newValue) => updateTypographyValue('fontFamily', newValue)}
-                            __next40pxDefaultSize={true}
-                            __nextHasNoMarginBottom={true}
-                        />
-                    </div>
+                    <FontFamilySelect
+                        label={__('Font Family', 'digiblocks')}
+                        value={values.fontFamily}
+                        options={fontFamilyOptions}
+                        onChange={(newValue) => updateTypographyValue('fontFamily', newValue)}
+                    />
                     
-                    <div className="digiblocks-size-type-field-tabs">
-                        <div className="digiblocks-responsive-control-inner">
-                            <div className="components-base-control">
-                                <div className="digiblocks-range-control digiblocks-size-type-field-tabs">
-                                    <div className="digiblocks-control__header">
-                                        <div className="digiblocks-responsive-label-wrap">
-                                            <span className="digiblocks-control-label">{__('Font Size', 'digiblocks')}</span>
-                                            <Button 
-                                                className="digiblocks-responsive-common-button"
-                                                onClick={handleToggleDevice}
-                                                aria-label={__(`Switch to ${window.digi?.responsiveState?.getNextDevice() || 'next'} view`, "digiblocks")}
-                                            >
-                                                {getDeviceIcon(localActiveDevice)}
-                                            </Button>
-                                        </div>
-                                        <div className="digiblocks-range-control__actions digiblocks-control__actions">
-                                            <div tabIndex="0">
-                                                <button 
-                                                    type="button" 
-                                                    disabled={values.fontSize[localActiveDevice] === defaults.fontSize?.[localActiveDevice]}
-                                                    className="components-button digiblocks-reset is-secondary is-small"
-                                                    onClick={() => updateResponsiveValue('fontSize', localActiveDevice, defaults.fontSize?.[localActiveDevice] || 16)}
-                                                >
-                                                    <span className="dashicon dashicons dashicons-image-rotate"></span>
-                                                </button>
-                                            </div>
-											{UnitsSelector && (
-												<UnitsSelector
-													value={values.fontSizeUnit}
-													onChange={(value) => updateTypographyValue('fontSizeUnit', value)}
-													units={fontSizeUnits}
-													ariaLabel={__("Select Units", "digiblocks")}
-												/>
-											)}
-                                        </div>
-                                    </div>
-                                    <div className="digiblocks-range-control__mobile-controls">
-                                        <RangeControl
-                                            value={values.fontSize[localActiveDevice]}
-                                            onChange={(newValue) => updateResponsiveValue('fontSize', localActiveDevice, newValue)}
-                                            min={0}
-                                            max={200}
-                                            step={values.fontSizeUnit === 'px' ? 1 : 0.1}
-                                            __next40pxDefaultSize={true}
-                                            __nextHasNoMarginBottom={true}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <ResponsiveRangeControl
+                        label={__('Font Size', 'digiblocks')}
+                        value={values.fontSize}
+                        onChange={(newValue) => updateTypographyValue('fontSize', newValue)}
+                        units={[
+                            { label: 'px', value: 'px' },
+                            { label: 'em', value: 'em' },
+                            { label: 'rem', value: 'rem' },
+                            { label: 'vw', value: 'vw' },
+                            { label: 'vh', value: 'vh' },
+                            { label: '%', value: '%' },
+                        ]}
+                        defaultUnit="px"
+                        min={0}
+                        max={{ px: 500, em: 50, rem: 50, vw: 100, vh: 100, '%': 100 }}
+                        step={{ px: 1, em: 0.1, rem: 0.1, vw: 1, vh: 1, '%': 1 }}
+                        defaultValues={defaults?.fontSize}
+                    />
 
                     <div className="digiblocks-select-control digiblocks-select-control--layout-inline">
                         <SelectControl
@@ -425,109 +526,38 @@ const TypographyControl = ({ label, value, onChange, defaults = {} }) => {
                         </div>
                     </div>
 
-                    <div className="digiblocks-size-type-field-tabs">
-                        <div className="digiblocks-responsive-control-inner">
-                            <div className="components-base-control">
-                                <div className="digiblocks-range-control digiblocks-size-type-field-tabs">
-                                    <div className="digiblocks-control__header">
-                                        <div className="digiblocks-responsive-label-wrap">
-                                            <span className="digiblocks-control-label">{__('Line Height', 'digiblocks')}</span>
-                                            <Button 
-                                                className="digiblocks-responsive-common-button"
-                                                onClick={handleToggleDevice}
-                                                aria-label={__(`Switch to ${window.digi?.responsiveState?.getNextDevice() || 'next'} view`, "digiblocks")}
-                                            >
-                                                {getDeviceIcon(localActiveDevice)}
-                                            </Button>
-                                        </div>
-                                        <div className="digiblocks-range-control__actions digiblocks-control__actions">
-                                            <div tabIndex="0">
-                                                <button 
-                                                    type="button" 
-                                                    disabled={values.lineHeight[localActiveDevice] === defaults.lineHeight?.[localActiveDevice]}
-                                                    className="components-button digiblocks-reset is-secondary is-small"
-                                                    onClick={() => updateResponsiveValue('lineHeight', localActiveDevice, defaults.lineHeight?.[localActiveDevice] || 1.5)}
-                                                >
-                                                    <span className="dashicon dashicons dashicons-image-rotate"></span>
-                                                </button>
-                                            </div>
-											{UnitsSelector && (
-												<UnitsSelector
-													value={values.lineHeightUnit}
-													onChange={(value) => updateTypographyValue('lineHeightUnit', value)}
-													units={lineHeightUnits}
-													ariaLabel={__("Select Units", "digiblocks")}
-												/>
-											)}
-                                        </div>
-                                    </div>
-                                    <div className="digiblocks-range-control__mobile-controls">
-                                        <RangeControl
-                                            value={values.lineHeight[localActiveDevice]}
-                                            onChange={(newValue) => updateResponsiveValue('lineHeight', localActiveDevice, newValue)}
-                                            min={0}
-                                            max={values.lineHeightUnit === 'px' ? 200 : 3}
-                                            step={values.lineHeightUnit === 'px' ? 1 : 0.1}
-                                            __next40pxDefaultSize={true}
-                                            __nextHasNoMarginBottom={true}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <ResponsiveRangeControl
+                        label={__('Line Height', 'digiblocks')}
+                        value={values.lineHeight}
+                        onChange={(newValue) => updateTypographyValue('lineHeight', newValue)}
+                        units={[
+                            { label: 'px', value: 'px' },
+                            { label: 'em', value: 'em' },
+                            { label: 'rem', value: 'rem' },
+                            { label: '%', value: '%' },
+                        ]}
+                        defaultUnit="em"
+                        min={0}
+                        max={{ px: 500, em: 50, rem: 50, '%': 100 }}
+                        step={{ px: 1, em: 0.1, rem: 0.1, '%': 1 }}
+                        defaultValues={defaults?.lineHeight}
+                    />
 
-                    <div className="digiblocks-size-type-field-tabs">
-                        <div className="digiblocks-responsive-control-inner">
-                            <div className="components-base-control">
-                                <div className="digiblocks-range-control digiblocks-size-type-field-tabs">
-                                    <div className="digiblocks-control__header">
-                                        <div className="digiblocks-responsive-label-wrap">
-                                            <span className="digiblocks-control-label">{__('Letter Spacing', 'digiblocks')}</span>
-                                            <Button 
-                                                className="digiblocks-responsive-common-button"
-                                                onClick={handleToggleDevice}
-                                                aria-label={__(`Switch to ${window.digi?.responsiveState?.getNextDevice() || 'next'} view`, "digiblocks")}
-                                            >
-                                                {getDeviceIcon(localActiveDevice)}
-                                            </Button>
-                                        </div>
-                                        <div className="digiblocks-range-control__actions digiblocks-control__actions">
-                                            <div tabIndex="0">
-                                                <button 
-                                                    type="button" 
-                                                    disabled={values.letterSpacing[localActiveDevice] === defaults.letterSpacing?.[localActiveDevice]}
-                                                    className="components-button digiblocks-reset is-secondary is-small"
-                                                    onClick={() => updateResponsiveValue('letterSpacing', localActiveDevice, defaults.letterSpacing?.[localActiveDevice] || 0)}
-                                                >
-                                                    <span className="dashicon dashicons dashicons-image-rotate"></span>
-                                                </button>
-                                            </div>
-											{UnitsSelector && (
-												<UnitsSelector
-													value={values.letterSpacingUnit}
-													onChange={(value) => updateTypographyValue('letterSpacingUnit', value)}
-													units={letterSpacingUnits}
-													ariaLabel={__("Select Units", "digiblocks")}
-												/>
-											)}
-                                        </div>
-                                    </div>
-                                    <div className="digiblocks-range-control__mobile-controls">
-                                        <RangeControl
-                                            value={values.letterSpacing[localActiveDevice]}
-                                            onChange={(newValue) => updateResponsiveValue('letterSpacing', localActiveDevice, newValue)}
-                                            min={-50}
-                                            max={200}
-                                            step={values.letterSpacingUnit === 'px' ? 1 : 0.1}
-                                            __next40pxDefaultSize={true}
-                                            __nextHasNoMarginBottom={true}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <ResponsiveRangeControl
+                        label={__('Letter Spacing', 'digiblocks')}
+                        value={values.letterSpacing}
+                        onChange={(newValue) => updateTypographyValue('letterSpacing', newValue)}
+                        units={[
+                            { label: 'px', value: 'px' },
+                            { label: 'em', value: 'em' },
+                            { label: 'rem', value: 'rem' },
+                        ]}
+                        defaultUnit="px"
+                        min={{ px: -5, em: -0.5, rem: -0.5 }}
+                        max={{ px: 500, em: 50, rem: 50 }}
+                        step={{ px: 0.1, em: 0.01, rem: 0.01 }}
+                        defaultValues={defaults?.letterSpacing}
+                    />
                 </div>
             )}
         </div>

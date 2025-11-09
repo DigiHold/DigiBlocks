@@ -7,8 +7,8 @@ const { useBlockProps, RichText } = wp.blockEditor;
  * Save function for the Button block
  */
 const ButtonSave = ({ attributes }) => {
-    const { 
-        id, 
+    const {
+        id,
         anchor,
         customClasses,
         text,
@@ -20,11 +20,11 @@ const ButtonSave = ({ attributes }) => {
         iconValue,
         iconPosition,
         size,
-        fill,
         onlyIcon,
 		animation,
         animationDuration,
         animationDelay,
+		hoverEffect,
     } = attributes;
 
     // Build class names
@@ -32,7 +32,6 @@ const ButtonSave = ({ attributes }) => {
         "digiblocks-button",
 		id,
         size,
-        fill ? 'is-fill' : '',
         animation !== "none" ? `animate-${animation} digi-animate-hidden` : "",
         customClasses || ''
     ]
@@ -76,21 +75,31 @@ const ButtonSave = ({ attributes }) => {
 		return null;
 	};
 
-    const buttonContent = (
-        <>
-            {iconPosition === 'left' && (
-                renderIcon()
-            )}
-            {!onlyIcon && (
-                <RichText.Content
-                    value={text}
-                />
-            )}
-            {iconPosition === 'right' && (
-                renderIcon()
-            )}
-        </>
-    );
+    const renderButtonText = () => {
+        const textContent = (
+            <>
+                {iconPosition === 'left' && renderIcon()}
+                {!onlyIcon && <RichText.Content value={text} />}
+                {iconPosition === 'right' && renderIcon()}
+            </>
+        );
+
+        const needsWrappers = hoverEffect && hoverEffect !== 'none' && ['sweep-corners', 'sweep-to-right', 'sweep-to-left', 'sweep-to-top', 'sweep-to-bottom'].includes(hoverEffect);
+
+        if (needsWrappers) {
+            return (
+                <>
+                    <span className="digiblocks-button-content-wrapper">
+                        <span className="digiblocks-button-text">{textContent}</span>
+                    </span>
+                </>
+            );
+        }
+
+        return textContent;
+    };
+
+    const buttonContent = renderButtonText();
 
     // Return button as link or div based on URL
     if (url) {

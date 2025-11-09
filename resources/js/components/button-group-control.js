@@ -110,6 +110,38 @@ const ResponsiveButtonGroup = ({
         return values[localActiveDevice] === expectedDefault;
     };
 
+    const getInheritedValue = () => {
+        if (localActiveDevice === 'desktop') {
+            return null;
+        }
+
+        if (values[localActiveDevice] !== '' && values[localActiveDevice] !== undefined) {
+            return null;
+        }
+
+        if (localActiveDevice === 'mobile') {
+            if (values.tablet !== '' && values.tablet !== undefined) {
+                return values.tablet;
+            }
+            if (values.desktop !== '' && values.desktop !== undefined) {
+                return values.desktop;
+            }
+        }
+
+        if (localActiveDevice === 'tablet') {
+            if (values.desktop !== '' && values.desktop !== undefined) {
+                return values.desktop;
+            }
+        }
+
+        return null;
+    };
+
+    const isInherited = getInheritedValue() !== null;
+    const displayValue = (values[localActiveDevice] !== '' && values[localActiveDevice] !== undefined)
+        ? values[localActiveDevice]
+        : getInheritedValue();
+
     const handleToggleDevice = () => {
         if (window.digi?.responsiveState?.toggleDevice) {
             window.digi.responsiveState.toggleDevice();
@@ -158,17 +190,23 @@ const ResponsiveButtonGroup = ({
                         </div>
                         <div className="digiblocks-range-control__mobile-controls">
                             <ToggleGroupControl
-                                value={values[localActiveDevice] === '' ? undefined : values[localActiveDevice]}
+                                value={displayValue === '' ? undefined : displayValue}
                                 onChange={updateValue}
                                 isBlock
                                 __next40pxDefaultSize={true}
                                 __nextHasNoMarginBottom={true}
+                                className={isInherited ? 'is-inherited' : ''}
                             >
                                 {options.map(option => (
                                     <ToggleGroupControlOption
                                         key={option.value}
                                         value={option.value}
                                         label={option.label}
+                                        onClick={() => {
+                                            if (isInherited && option.value === displayValue) {
+                                                updateValue(option.value);
+                                            }
+                                        }}
                                     />
                                 ))}
                             </ToggleGroupControl>

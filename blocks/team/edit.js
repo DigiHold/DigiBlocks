@@ -12,16 +12,15 @@ const {
     URLPopover
 } = wp.blockEditor;
 const {
+    TextControl,
     SelectControl,
     RangeControl,
     Button,
     ToggleControl,
     Tooltip,
-    TextControl,
     Popover,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
     BaseControl,
     Icon
 } = wp.components;
@@ -119,17 +118,24 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 	// Create unique class
 	useBlockId( id, clientId, setAttributes );
 
-	// Get responsive value with fallback
 	const getVal = (obj, device) => {
 		if (!obj || typeof obj !== 'object') return null;
-		
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
 		if (device === 'mobile') {
-			return (obj.mobile !== '' && obj.mobile !== undefined && obj.mobile !== null) ? obj.mobile : 
-				(obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : 
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
 				obj.desktop;
 		}
 		if (device === 'tablet') {
-			return (obj.tablet !== '' && obj.tablet !== undefined && obj.tablet !== null) ? obj.tablet : obj.desktop;
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
 		}
 		return obj.desktop;
 	};
@@ -729,34 +735,34 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const nameFontSize = getVal(typography.fontSize, activeDevice);
-			if (nameFontSize) {
-				nameTypographyCSS += `font-size: ${nameFontSize}${typography.fontSizeUnit || 'px'};`;
+			if (nameFontSize && nameFontSize.value !== "" && nameFontSize.value !== null && nameFontSize.value !== undefined) {
+				nameTypographyCSS += `font-size: ${nameFontSize.value}${nameFontSize.unit !== null ? nameFontSize.unit : ''};`;
 			}
-			
+
 			if (typography.fontWeight) {
 				nameTypographyCSS += `font-weight: ${typography.fontWeight};`;
 			}
-			
+
 			if (typography.fontStyle) {
 				nameTypographyCSS += `font-style: ${typography.fontStyle};`;
 			}
-			
+
 			if (typography.textTransform) {
 				nameTypographyCSS += `text-transform: ${typography.textTransform};`;
 			}
-			
+
 			if (typography.textDecoration) {
 				nameTypographyCSS += `text-decoration: ${typography.textDecoration};`;
 			}
-			
+
 			const nameLineHeight = getVal(typography.lineHeight, activeDevice);
-			if (nameLineHeight) {
-				nameTypographyCSS += `line-height: ${nameLineHeight}${typography.lineHeightUnit || 'em'};`;
+			if (nameLineHeight && nameLineHeight.value !== "" && nameLineHeight.value !== null && nameLineHeight.value !== undefined) {
+				nameTypographyCSS += `line-height: ${nameLineHeight.value}${nameLineHeight.unit !== null ? nameLineHeight.unit : ''};`;
 			}
 
 			const nameLetterSpacing = getVal(typography.letterSpacing, activeDevice);
-			if (nameLetterSpacing || nameLetterSpacing === 0) {
-				nameTypographyCSS += `letter-spacing: ${nameLetterSpacing}${typography.letterSpacingUnit || 'px'};`;
+			if (nameLetterSpacing && nameLetterSpacing.value !== "" && nameLetterSpacing.value !== null && nameLetterSpacing.value !== undefined) {
+				nameTypographyCSS += `letter-spacing: ${nameLetterSpacing.value}${nameLetterSpacing.unit !== null ? nameLetterSpacing.unit : ''};`;
 			}
 		}
 
@@ -768,8 +774,8 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const positionFontSize = getVal(textTypography.fontSize, activeDevice);
-			if (positionFontSize) {
-				positionTypographyCSS += `font-size: ${positionFontSize}${textTypography.fontSizeUnit || 'px'};`;
+			if (positionFontSize && positionFontSize.value !== "" && positionFontSize.value !== null && positionFontSize.value !== undefined) {
+				positionTypographyCSS += `font-size: ${positionFontSize.value}${positionFontSize.unit !== null ? positionFontSize.unit : ''};`;
 			}
 			
 			if (textTypography.fontWeight) {
@@ -789,13 +795,13 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const positionLineHeight = getVal(textTypography.lineHeight, activeDevice);
-			if (positionLineHeight) {
-				positionTypographyCSS += `line-height: ${positionLineHeight}${textTypography.lineHeightUnit || 'em'};`;
+			if (positionLineHeight && positionLineHeight.value !== "" && positionLineHeight.value !== null && positionLineHeight.value !== undefined) {
+				positionTypographyCSS += `line-height: ${positionLineHeight.value}${positionLineHeight.unit !== null ? positionLineHeight.unit : ''};`;
 			}
 
 			const positionLetterSpacing = getVal(textTypography.letterSpacing, activeDevice);
-			if (positionLetterSpacing || positionLetterSpacing === 0) {
-				positionTypographyCSS += `letter-spacing: ${positionLetterSpacing}${textTypography.letterSpacingUnit || 'px'};`;
+			if (positionLetterSpacing && positionLetterSpacing.value !== "" && positionLetterSpacing.value !== null && positionLetterSpacing.value !== undefined) {
+				positionTypographyCSS += `letter-spacing: ${positionLetterSpacing.value}${positionLetterSpacing.unit !== null ? positionLetterSpacing.unit : ''};`;
 			}
 		}
 
@@ -807,8 +813,8 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const bioFontSize = getVal(contentTypography.fontSize, activeDevice);
-			if (bioFontSize) {
-				bioTypographyCSS += `font-size: ${bioFontSize}${contentTypography.fontSizeUnit || 'px'};`;
+			if (bioFontSize && bioFontSize.value !== "" && bioFontSize.value !== null && bioFontSize.value !== undefined) {
+				bioTypographyCSS += `font-size: ${bioFontSize.value}${bioFontSize.unit !== null ? bioFontSize.unit : ''};`;
 			}
 			
 			if (contentTypography.fontWeight) {
@@ -828,13 +834,13 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 			}
 			
 			const bioLineHeight = getVal(contentTypography.lineHeight, activeDevice);
-			if (bioLineHeight) {
-				bioTypographyCSS += `line-height: ${bioLineHeight}${contentTypography.lineHeightUnit || 'em'};`;
+			if (bioLineHeight && bioLineHeight.value !== "" && bioLineHeight.value !== null && bioLineHeight.value !== undefined) {
+				bioTypographyCSS += `line-height: ${bioLineHeight.value}${bioLineHeight.unit !== null ? bioLineHeight.unit : ''};`;
 			}
 
 			const bioLetterSpacing = getVal(contentTypography.letterSpacing, activeDevice);
-			if (bioLetterSpacing || bioLetterSpacing === 0) {
-				bioTypographyCSS += `letter-spacing: ${bioLetterSpacing}${contentTypography.letterSpacingUnit || 'px'};`;
+			if (bioLetterSpacing && bioLetterSpacing.value !== "" && bioLetterSpacing.value !== null && bioLetterSpacing.value !== undefined) {
+				bioTypographyCSS += `letter-spacing: ${bioLetterSpacing.value}${bioLetterSpacing.unit !== null ? bioLetterSpacing.unit : ''};`;
 			}
 		}
         
@@ -876,8 +882,17 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -886,8 +901,17 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -1219,7 +1243,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                             <Button
                                 className="digiblocks-team-member-move-up"
                                 onClick={() => moveTeamMemberUp(index)}
-                                icon="arrow-up-alt2"
+                                icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M169.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L192 205.3 54.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"/></svg>}
                                 disabled={index === 0}
                                 isSmall
                             />
@@ -1228,7 +1252,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                             <Button
                                 className="digiblocks-team-member-move-down"
                                 onClick={() => moveTeamMemberDown(index)}
-                                icon="arrow-down-alt2"
+                                icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M169.4 374.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 306.7 54.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>}
                                 disabled={index === members.length - 1}
                                 isSmall
                             />
@@ -1237,7 +1261,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                             <Button
                                 className="digiblocks-team-member-duplicate"
                                 onClick={() => duplicateTeamMember(index)}
-                                icon="admin-page"
+                                icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-200.6c0-17.4-7.1-34.1-19.7-46.2L370.6 17.8C358.7 6.4 342.8 0 326.3 0L192 0zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-16-64 0 0 16-192 0 0-256 16 0 0-64-16 0z"/></svg>}
                                 isSmall
                             />
                         </Tooltip>
@@ -1245,7 +1269,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                             <Button
                                 className="digiblocks-team-member-remove"
                                 onClick={() => removeTeamMember(index)}
-                                icon="trash"
+                                icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M136.7 5.9L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-8.7-26.1C306.9-7.2 294.7-16 280.9-16L167.1-16c-13.8 0-26 8.8-30.4 21.9zM416 144L32 144 53.1 467.1C54.7 492.4 75.7 512 101 512L347 512c25.3 0 46.3-19.6 47.9-44.9L416 144z"/></svg>}
                                 isSmall
                                 disabled={members.length <= 1}
                             />
@@ -1630,40 +1654,20 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                     />
                                     
-                                    <ResponsiveControl
-                                        label={__("Border Width", "digiblocks")}
-                                    >
-                                        <DimensionControl
-                                            values={imageBorderWidth[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    imageBorderWidth: {
-                                                        ...imageBorderWidth,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                        />
-                                    </ResponsiveControl>
+                                    <DimensionControl
+										label={__("Border Width", "digiblocks")}
+										value={imageBorderWidth}
+										onChange={(value) => setAttributes({ imageBorderWidth: value })}
+									/>
                                 </>
                             )}
                             
                             {imageStyle === 'default' && (
-                                <ResponsiveControl
-                                    label={__("Border Radius", "digiblocks")}
-                                >
-                                    <DimensionControl
-                                        values={imageBorderRadius[localActiveDevice]}
-                                        onChange={(value) =>
-                                            setAttributes({
-                                                imageBorderRadius: {
-                                                    ...imageBorderRadius,
-                                                    [localActiveDevice]: value,
-                                                },
-                                            })
-                                        }
-                                    />
-                                </ResponsiveControl>
+                                <DimensionControl
+									label={__("Border Radius", "digiblocks")}
+									value={imageBorderRadius}
+									onChange={(value) => setAttributes({ imageBorderRadius: value })}
+								/>
                             )}
                         </TabPanelBody>
                     </>
@@ -1729,6 +1733,7 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                             <PanelColorSettings
                                 title={__("Box Colors", "digiblocks")}
                                 initialOpen={false}
+								enableAlpha={true}
                                 colorSettings={[
                                     {
                                         value: boxBackgroundColor,
@@ -1754,36 +1759,18 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                                 label={__("Name Typography", "digiblocks")}
                                 value={typography}
                                 onChange={(value) => setAttributes({ typography: value })}
-                                defaults={{
-                                    fontSize: { desktop: 22, tablet: 20, mobile: 18 },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                             
                             <TypographyControl
                                 label={__("Position Typography", "digiblocks")}
                                 value={textTypography}
                                 onChange={(value) => setAttributes({ textTypography: value })}
-                                defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                             
                             <TypographyControl
                                 label={__("Bio Typography", "digiblocks")}
                                 value={contentTypography}
                                 onChange={(value) => setAttributes({ contentTypography: value })}
-                                defaults={{
-                                    fontSize: { desktop: 16, tablet: 15, mobile: 14 },
-                                    fontSizeUnit: 'px',
-                                    lineHeight: { desktop: 1.5, tablet: 1.4, mobile: 1.3 },
-                                    lineHeightUnit: 'em',
-                                }}
                             />
                         </TabPanelBody>
                         
@@ -1835,37 +1822,17 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                                 />
                             </ResponsiveControl>
                             
-                            <ResponsiveControl
-                                label={__("Icon Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={iconPadding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            iconPadding: {
-                                                ...iconPadding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Icon Padding", "digiblocks")}
+								value={iconPadding}
+								onChange={(value) => setAttributes({ iconPadding: value })}
+							/>
                             
-                            <ResponsiveControl
-                                label={__("Border Radius", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={iconBorderRadius[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            iconBorderRadius: {
-                                                ...iconBorderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Border Radius", "digiblocks")}
+								value={iconBorderRadius}
+								onChange={(value) => setAttributes({ iconBorderRadius: value })}
+							/>
                         </TabPanelBody>
                         
                         <TabPanelBody
@@ -1884,38 +1851,18 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                             />
                             
                             {boxBorderStyle !== 'none' && (
-                                <ResponsiveControl
-                                    label={__("Border Width", "digiblocks")}
-                                >
-                                    <DimensionControl
-                                        values={boxBorderWidth[localActiveDevice]}
-                                        onChange={(value) =>
-                                            setAttributes({
-                                                boxBorderWidth: {
-                                                    ...boxBorderWidth,
-                                                    [localActiveDevice]: value,
-                                                },
-                                            })
-                                        }
-                                    />
-                                </ResponsiveControl>
+                                <DimensionControl
+									label={__("Border Width", "digiblocks")}
+									value={boxBorderWidth}
+									onChange={(value) => setAttributes({ boxBorderWidth: value })}
+								/>
                             )}
                             
-                            <ResponsiveControl
-                                label={__("Border Radius", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={boxBorderRadius[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            boxBorderRadius: {
-                                                ...boxBorderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Border Radius", "digiblocks")}
+								value={boxBorderRadius}
+								onChange={(value) => setAttributes({ boxBorderRadius: value })}
+							/>
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1942,37 +1889,17 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
-                                label={__("Padding", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={boxPadding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            boxPadding: {
-                                                ...boxPadding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Padding", "digiblocks")}
+								value={boxPadding}
+								onChange={(value) => setAttributes({ boxPadding: value })}
+							/>
                             
-                            <ResponsiveControl
-                                label={__("Margin", "digiblocks")}
-                            >
-                                <DimensionControl
-                                    values={boxMargin[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            boxMargin: {
-                                                ...boxMargin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Margin", "digiblocks")}
+								value={boxMargin}
+								onChange={(value) => setAttributes({ boxMargin: value })}
+							/>
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -2027,8 +1954,8 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -2062,8 +1989,8 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -2123,10 +2050,11 @@ const TeamEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

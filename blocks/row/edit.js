@@ -11,13 +11,14 @@ const {
     MediaUploadCheck,
 } = wp.blockEditor;
 const {
+    TextControl,
     ToggleControl,
     SelectControl,
     RangeControl,
     Button,
     __experimentalToggleGroupControl: ToggleGroupControl,
     __experimentalToggleGroupControlOption: ToggleGroupControlOption,
-	__experimentalNumberControl: NumberControl,
+	GradientPicker,
 } = wp.components;
 const { useState, useEffect, useRef } = wp.element;
 const { useSelect } = wp.data;
@@ -27,7 +28,7 @@ const { useSelect } = wp.data;
  */
 const { useBlockId, getDimensionCSS, animations, animationPreview } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody, ResponsiveRangeControl, ResponsiveButtonGroup, GradientControl, TransformControl } = digi.components;
+const { DimensionControl, BoxShadowControl, CustomTabPanel, TabPanelBody, ResponsiveRangeControl, ResponsiveButtonGroup, TransformControl } = digi.components;
 
 /**
  * Row Block Edit Component
@@ -37,6 +38,7 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
         id,
         anchor,
         visibility,
+		flexDirection,
         customClasses,
         contentWidth,
         contentMaxWidth,
@@ -56,6 +58,7 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
         backgroundVideo,
         backgroundVideoFallbackImage,
         backgroundOverlay,
+		backgroundOverlayGradient,
         backgroundOverlayOpacity,
         backgroundOverlayBlendMode,
         padding,
@@ -102,14 +105,38 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
         const unsubscribe = window.digi.responsiveState.subscribe((device) => {
             setLocalActiveDevice(device);
         });
-        
+
         return unsubscribe;
     }, []);
 
+	const getVal = (obj, device) => {
+		if (!obj || typeof obj !== 'object') return null;
+
+		const isEmpty = (val) => {
+			if (val === '' || val === undefined || val === null) return true;
+			if (typeof val === 'object' && val !== null) {
+				return val.value === '' || val.value === undefined || val.value === null;
+			}
+			return false;
+		};
+
+		if (device === 'mobile') {
+			return !isEmpty(obj.mobile) ? obj.mobile :
+				!isEmpty(obj.tablet) ? obj.tablet :
+				obj.desktop;
+		}
+		if (device === 'tablet') {
+			return !isEmpty(obj.tablet) ? obj.tablet : obj.desktop;
+		}
+		return obj.desktop;
+	};
+
     // Check if this row is nested inside another row
-    const { isNested, hasChildBlocks } = useSelect(
+    const {
+    isNested, hasChildBlocks } = useSelect(
         (select) => {
-            const { getBlockParentsByBlockName, getBlockCount } = select('core/block-editor');
+            const {
+    getBlockParentsByBlockName, getBlockCount } = select('core/block-editor');
             return {
                 isNested: getBlockParentsByBlockName(clientId, 'digiblocks/row').length > 0,
                 hasChildBlocks: getBlockCount(clientId) > 0,
@@ -133,22 +160,37 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
         }
     }, [animation]);
 
-    // Generate gradient CSS
-    const generateGradientCSS = () => {
-        if (!backgroundGradient.enable || !backgroundGradient.colors.length) {
-            return '';
-        }
+    const getContentMaxValue = (unit) => {
+		switch (unit) {
+			case '%':
+				return 100;
+			case 'vw':
+				return 100;
+			case 'vh':
+				return 100;
+			case 'em':
+			case 'rem':
+				return 100;
+			case 'px':
+			default:
+				return 3000;
+		}
+	};
 
-        const colorStops = backgroundGradient.colors
-            .map(stop => `${stop.color} ${stop.position}%`)
-            .join(', ');
-
-        if (backgroundGradient.type === 'radial') {
-            return `background-image: radial-gradient(circle at ${backgroundGradient.position}, ${colorStops});`;
-        } else {
-            return `background-image: linear-gradient(${backgroundGradient.angle}deg, ${colorStops});`;
-        }
-    };
+	const getContentStepValue = (unit) => {
+		switch (unit) {
+			case 'em':
+			case 'rem':
+				return 0.1;
+			case '%':
+			case 'vw':
+			case 'vh':
+				return 1;
+			case 'px':
+			default:
+				return 1;
+		}
+	};
 
     // Animation options
     const animationOptions = [
@@ -204,26 +246,6 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
         { label: __('Double', 'digiblocks'), value: 'double' },
     ];
 
-    // Blend mode options
-    const blendModeOptions = [
-        { label: __('Normal', 'digiblocks'), value: 'normal' },
-        { label: __('Multiply', 'digiblocks'), value: 'multiply' },
-        { label: __('Screen', 'digiblocks'), value: 'screen' },
-        { label: __('Overlay', 'digiblocks'), value: 'overlay' },
-        { label: __('Darken', 'digiblocks'), value: 'darken' },
-        { label: __('Lighten', 'digiblocks'), value: 'lighten' },
-        { label: __('Color Dodge', 'digiblocks'), value: 'color-dodge' },
-        { label: __('Color Burn', 'digiblocks'), value: 'color-burn' },
-        { label: __('Hard Light', 'digiblocks'), value: 'hard-light' },
-        { label: __('Soft Light', 'digiblocks'), value: 'soft-light' },
-        { label: __('Difference', 'digiblocks'), value: 'difference' },
-        { label: __('Exclusion', 'digiblocks'), value: 'exclusion' },
-        { label: __('Hue', 'digiblocks'), value: 'hue' },
-        { label: __('Saturation', 'digiblocks'), value: 'saturation' },
-        { label: __('Color', 'digiblocks'), value: 'color' },
-        { label: __('Luminosity', 'digiblocks'), value: 'luminosity' },
-    ];
-
     // Define the tabs for our custom tab panel
     const tabList = [
         { 
@@ -245,7 +267,7 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
 
     // Helper function to get gap value with fallback
     const getGapValue = (gapObj, device) => {
-        if (gapObj[device] && gapObj[device].value !== '') {
+        if (gapObj[device] && gapObj[device].value !== "") {
             return {
                 value: gapObj[device].value,
                 unit: gapObj[device].unit || 'px'
@@ -260,7 +282,7 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
         }
         
         if (device === 'mobile') {
-            if (gapObj.tablet && gapObj.tablet.value !== '') {
+            if (gapObj.tablet && gapObj.tablet.value !== "") {
                 return {
                     value: gapObj.tablet.value,
                     unit: gapObj.tablet.unit || 'px'
@@ -423,59 +445,6 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
     const generateCSS = () => {
         const activeDevice = localActiveDevice;
 
-        // Get responsive padding with minimum 10px enforcement
-        const getRowPadding = (padding, device) => {
-            const hasDeviceValues = (dev) => {
-                return padding && padding[dev] && (
-                    (padding[dev].top !== undefined && padding[dev].top !== '') ||
-                    (padding[dev].right !== undefined && padding[dev].right !== '') ||
-                    (padding[dev].bottom !== undefined && padding[dev].bottom !== '') ||
-                    (padding[dev].left !== undefined && padding[dev].left !== '')
-                );
-            };
-            
-            let values;
-            
-            if (hasDeviceValues(device)) {
-                values = padding[device];
-            } else if (device === 'tablet' && hasDeviceValues('desktop')) {
-                values = padding['desktop'];
-            } else if (device === 'mobile') {
-                if (hasDeviceValues('tablet')) {
-                    values = padding['tablet'];
-                } else if (hasDeviceValues('desktop')) {
-                    values = padding['desktop'];
-                } else {
-                    return '';
-                }
-            } else {
-                return '';
-            }
-            
-            const ensureMinPadding = (value, unit) => {
-                if (value === undefined || value === '') {
-                    return '0' + unit;
-                }
-                if (unit === 'px' && parseFloat(value) < 10) {
-                    return '10px';
-                }
-                return value + unit;
-            };
-            
-            const unit = values.unit || 'px';
-            
-            const top = ensureMinPadding(values.top, unit);
-            const right = ensureMinPadding(values.right, unit);
-            const bottom = ensureMinPadding(values.bottom, unit);
-            const left = ensureMinPadding(values.left, unit);
-            
-            return `padding: ${top} ${right} ${bottom} ${left} !important;`;
-        };
-
-        const paddingCSS = getRowPadding(padding, activeDevice);
-        const tabletPaddingCSS = getRowPadding(padding, 'tablet');
-        const mobilePaddingCSS = getRowPadding(padding, 'mobile');
-
         // Background styles - priority: gradient > image > color
         let backgroundStyles = '';
         
@@ -483,49 +452,56 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
             backgroundStyles += `background-color: ${backgroundColor};`;
         }
         
-        const gradientCSS = generateGradientCSS();
-        if (gradientCSS) {
-            backgroundStyles += gradientCSS;
-        }
+        // Background gradient
+        if (backgroundGradient) {
+			backgroundStyles += `background-image: ${backgroundGradient};`;
+		}
         
-        if (backgroundImage && backgroundImage.url) {
-            const imageCSS = `url(${backgroundImage.url})`;
-            if (gradientCSS) {
-                backgroundStyles = backgroundStyles.replace(
-                    /background-image: ([^;]+);/, 
-                    `background-image: ${imageCSS}, $1;`
-                );
-            } else {
-                backgroundStyles += `background-image: ${imageCSS};`;
-            }
-            backgroundStyles += `background-position: ${backgroundPosition};
-            background-repeat: ${backgroundRepeat};
-            background-size: ${backgroundSize};`;
-        }
+		if (backgroundImage && backgroundImage.url) {
+			const imageCSS = `url(${backgroundImage.url})`;
+			if (backgroundGradient) {
+				backgroundStyles = backgroundStyles.replace(
+					/background-image: ([^;]+);/, 
+					`background-image: ${imageCSS}, $1;`
+				);
+			} else {
+				backgroundStyles += `background-image: ${imageCSS};`;
+			}
+			backgroundStyles += `background-position: ${backgroundPosition};
+			background-repeat: ${backgroundRepeat};
+			background-size: ${backgroundSize};`;
+		}
         
         // Background overlay CSS
-        let overlayCSS = '';
-        if (backgroundOverlay) {
-            overlayCSS = `
-            .${id}:before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: ${backgroundOverlay};
-                opacity: ${backgroundOverlayOpacity};
-                mix-blend-mode: ${backgroundOverlayBlendMode};
-                z-index: 1;
-                pointer-events: none;
-                border-radius: inherit;
-            }
-            .${id} > * {
-                position: relative;
-                z-index: 2;
-            }`;
-        }
+		let overlayCSS = '';
+		if (backgroundOverlay || backgroundOverlayGradient) {
+			let overlayBackground = '';
+			if (backgroundOverlayGradient) {
+				overlayBackground = `background: ${backgroundOverlayGradient};`;
+			} else if (backgroundOverlay) {
+				overlayBackground = `background-color: ${backgroundOverlay};`;
+			}
+			
+			overlayCSS = `
+			.${id}:before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				${overlayBackground}
+				opacity: ${backgroundOverlayOpacity};
+				mix-blend-mode: ${backgroundOverlayBlendMode};
+				z-index: 1;
+				pointer-events: none;
+				border-radius: inherit;
+			}
+			.${id} > * {
+				position: relative;
+				z-index: 2;
+			}`;
+		}
         
         // Box shadow CSS
         let boxShadowCSS = '';
@@ -542,43 +518,28 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
         
         // Height CSS for non-nested rows only
         let heightCSS = '';
-        if (!isNested) {
-            if (heightType[activeDevice] === 'full') {
-                heightCSS = 'height: 100vh;';
-            } else if (heightType[activeDevice] === 'custom') {
-                heightCSS = `min-height: ${minHeight[activeDevice]}px !important;`;
-            }
-        }
-        
-        // Content width CSS for non-nested rows
-        let contentWidthCSS = '';
-        if (!isNested) {
-            const widthValue = contentWidth[activeDevice] !== undefined && contentWidth[activeDevice] !== '' 
-                ? contentWidth[activeDevice] 
-                : contentWidth.desktop;
-                
-            contentWidthCSS = `width: ${widthValue}px;
-            margin-left: auto;
-            margin-right: auto;`;
-        }
-        
-        // Content max width CSS for non-nested rows
-        let contentMaxWidthCSS = '';
-        if (!isNested) {
-            const maxWidthValue = contentMaxWidth[activeDevice] !== undefined && contentMaxWidth[activeDevice] !== '' 
-                ? contentMaxWidth[activeDevice] 
-                : contentMaxWidth.desktop;
-                
-            contentMaxWidthCSS = `max-width: ${maxWidthValue}%;`;
-        }
+		if (heightType['desktop'] === 'full') {
+			heightCSS = 'height: 100vh;';
+		} else if (heightType['desktop'] === 'custom' && minHeight.desktop?.value) {
+			heightCSS = `min-height: ${minHeight.desktop.value}${minHeight.desktop.unit};`;
+		}
 
         // Position styles
         let positionCSS = '';
         if (position && position !== 'default') {
             positionCSS += `position: ${position} !important;`;
             
-            const horizontalValue = horizontalOffset?.[activeDevice]?.value;
+            let horizontalValue = horizontalOffset?.[activeDevice]?.value;
             const horizontalUnit = horizontalOffset?.[activeDevice]?.unit || 'px';
+            if (horizontalValue === '' || horizontalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    horizontalValue = horizontalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    horizontalValue = horizontalOffset?.tablet?.value !== '' && horizontalOffset?.tablet?.value !== undefined
+                        ? horizontalOffset?.tablet?.value
+                        : horizontalOffset?.desktop?.value;
+                }
+            }
             if (horizontalValue !== '' && horizontalValue !== undefined) {
                 if (horizontalOrientation === 'left') {
                     positionCSS += `left: ${horizontalValue}${horizontalUnit};`;
@@ -587,8 +548,17 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
                 }
             }
             
-            const verticalValue = verticalOffset?.[activeDevice]?.value;
+            let verticalValue = verticalOffset?.[activeDevice]?.value;
             const verticalUnit = verticalOffset?.[activeDevice]?.unit || 'px';
+            if (verticalValue === '' || verticalValue === undefined) {
+                if (activeDevice === 'tablet') {
+                    verticalValue = verticalOffset?.desktop?.value;
+                } else if (activeDevice === 'mobile') {
+                    verticalValue = verticalOffset?.tablet?.value !== '' && verticalOffset?.tablet?.value !== undefined
+                        ? verticalOffset?.tablet?.value
+                        : verticalOffset?.desktop?.value;
+                }
+            }
             if (verticalValue !== '' && verticalValue !== undefined) {
                 if (verticalOrientation === 'top') {
                     positionCSS += `top: ${verticalValue}${verticalUnit};`;
@@ -625,8 +595,9 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
         return `
             /* Row Block - ${id} */
             .${id} {
+				display: flex;
                 position: relative;
-                ${paddingCSS}
+                ${getDimensionCSS(padding, 'padding', activeDevice)}
                 ${getDimensionCSS(margin, 'margin', activeDevice)}
                 width: 100%;
                 ${heightCSS}
@@ -650,19 +621,21 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
 
             .${id} > .digiblocks-row-inner {
                 display: flex;
-                align-items: ${verticalAlign[activeDevice]};
-                justify-content: ${horizontalAlign[activeDevice]};
+				${getVal(flexDirection, activeDevice) ? `flex-direction: ${getVal(flexDirection, activeDevice)};` : ''}
+                align-items: ${getVal(verticalAlign, activeDevice)};
+                justify-content: ${getVal(horizontalAlign, activeDevice)};
                 gap: ${getGapValue(gap, activeDevice).value}${getGapValue(gap, activeDevice).unit};
-                ${!isNested ? contentWidthCSS : ''}
-                ${!isNested ? contentMaxWidthCSS : ''}
+                width: ${contentWidth.desktop.value}${contentWidth.desktop.unit};
+    			max-width: ${contentMaxWidth.desktop.value}${contentMaxWidth.desktop.unit};
             }
 
             .${id}.is-nested > .block-editor-block-list__layout {
 				display: flex;
-				align-items: ${verticalAlign[activeDevice]};
-				justify-content: ${horizontalAlign[activeDevice]};
+				${getVal(flexDirection, activeDevice) ? `flex-direction: ${getVal(flexDirection, activeDevice)};` : ''}
+				align-items: ${getVal(verticalAlign, activeDevice)};
+				justify-content: ${getVal(horizontalAlign, activeDevice)};
 				gap: ${getGapValue(gap, activeDevice).value}${getGapValue(gap, activeDevice).unit};
-				width: ${nestedWidth[activeDevice] === 'full' ? '100%' : 'auto'};
+				width: ${getVal(nestedWidth, activeDevice) === 'full' ? '100%' : 'auto'};
 			}
             
             ${overlayCSS}
@@ -695,68 +668,68 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
             /* Tablet styles */
             @media (max-width: 991px) {
                 .${id} {
-                    ${tabletPaddingCSS}
+                    ${getDimensionCSS(padding, 'padding', 'tablet')}
                     ${getDimensionCSS(margin, 'margin', 'tablet')}
-                    ${!isNested && heightType['tablet'] === 'custom' ? `min-height: ${minHeight['tablet']}px;` : ''}
+                    ${heightType['tablet'] === 'custom' && minHeight.tablet?.value ? `min-height: ${minHeight.tablet.value}${minHeight.tablet.unit};` : ''}
                     ${getDimensionCSS(borderRadius, 'border-radius', 'tablet')}
                     ${borderStyle !== 'none' ? `${getDimensionCSS(borderWidth, 'border-width', 'tablet', true)}` : ''}
                 }
 
                 .${id} > .digiblocks-row-inner {
-                    ${!isNested ? `
-                        width: ${contentWidth.tablet !== undefined && contentWidth.tablet !== '' 
-                            ? contentWidth.tablet 
-                            : contentWidth.desktop}px;
-                        max-width: ${contentMaxWidth.tablet !== undefined && contentMaxWidth.tablet !== '' 
-                            ? contentMaxWidth.tablet 
-                            : contentMaxWidth.desktop}%;
-                    ` : ''}
-                    align-items: ${verticalAlign['tablet']};
-                    justify-content: ${horizontalAlign['tablet']};
+                    ${contentWidth.tablet.value !== ""
+						? `width: ${contentWidth.tablet.value}${contentWidth.tablet.unit};`
+						: ''}
+					${contentMaxWidth.tablet.value !== ""
+						? `max-width: ${contentMaxWidth.tablet.value}${contentMaxWidth.tablet.unit};`
+						: ''}
+					${getVal(flexDirection, 'tablet') ? `flex-direction: ${getVal(flexDirection, 'tablet')};` : ''}
+                    align-items: ${getVal(verticalAlign, 'tablet')};
+                    justify-content: ${getVal(horizontalAlign, 'tablet')};
                     gap: ${getGapValue(gap, 'tablet').value}${getGapValue(gap, 'tablet').unit};
                 }
 
                 .${id}.is-nested > .block-editor-block-list__layout {
-					align-items: ${verticalAlign['tablet']};
-					justify-content: ${horizontalAlign['tablet']};
+					${getVal(flexDirection, 'tablet') ? `flex-direction: ${getVal(flexDirection, 'tablet')};` : ''}
+					align-items: ${getVal(verticalAlign, 'tablet')};
+					justify-content: ${getVal(horizontalAlign, 'tablet')};
 					gap: ${getGapValue(gap, 'tablet').value}${getGapValue(gap, 'tablet').unit};
-					width: ${nestedWidth['tablet'] === 'full' ? '100%' : 'auto'};
+					width: ${getVal(nestedWidth, 'tablet') === 'full' ? '100%' : 'auto'};
 				}
             }
             
             /* Mobile styles */
             @media (max-width: 767px) {
                 .${id} {
-                    ${mobilePaddingCSS}
+                    ${getDimensionCSS(padding, 'padding', 'mobile')}
                     ${getDimensionCSS(margin, 'margin', 'mobile')}
-                    ${!isNested && heightType['mobile'] === 'custom' ? `min-height: ${minHeight['mobile']}px;` : ''}
+                    ${heightType['mobile'] === 'custom' && minHeight.mobile?.value ? `min-height: ${minHeight.mobile.value}${minHeight.mobile.unit};` : ''}
                     ${getDimensionCSS(borderRadius, 'border-radius', 'mobile')}
                     ${borderStyle !== 'none' ? `${getDimensionCSS(borderWidth, 'border-width', 'mobile', true)}` : ''}
                 }
 
                 .${id} > .digiblocks-row-inner {
-                    ${!isNested ? `
-                        width: ${contentWidth.mobile !== undefined && contentWidth.mobile !== '' 
-                            ? contentWidth.mobile 
-                            : (contentWidth.tablet !== undefined && contentWidth.tablet !== '' 
-                                ? contentWidth.tablet 
-                                : contentWidth.desktop)}px;
-                        max-width: ${contentMaxWidth.mobile !== undefined && contentMaxWidth.mobile !== '' 
-                            ? contentMaxWidth.mobile 
-                            : (contentMaxWidth.tablet !== undefined && contentMaxWidth.tablet !== '' 
-                                ? contentMaxWidth.tablet 
-                                : contentMaxWidth.desktop)}%;
-                    ` : ''}
-                    align-items: ${verticalAlign['mobile']};
-                    justify-content: ${horizontalAlign['mobile']};
+                    ${contentWidth.mobile.value !== ""
+						? `width: ${contentWidth.mobile.value}${contentWidth.mobile.unit};`
+						: (contentWidth.tablet.value !== ""
+							? `width: ${contentWidth.tablet.value}${contentWidth.tablet.unit};`
+							: `width: ${contentWidth.desktop.value}${contentWidth.desktop.unit};`)}
+					${contentMaxWidth.mobile.value !== ""
+						? `max-width: ${contentMaxWidth.mobile.value}${contentMaxWidth.mobile.unit};`
+						: (contentMaxWidth.tablet.value !== ""
+							? `max-width: ${contentMaxWidth.tablet.value}${contentMaxWidth.tablet.unit};`
+							: `max-width: ${contentMaxWidth.desktop.value}${contentMaxWidth.desktop.unit};`)}
+					${getVal(flexDirection, 'mobile') ? `flex-direction: ${getVal(flexDirection, 'mobile')};` : ''}
+                    align-items: ${getVal(verticalAlign, 'mobile')};
+                    justify-content: ${getVal(horizontalAlign, 'mobile')};
                     gap: ${getGapValue(gap, 'mobile').value}${getGapValue(gap, 'mobile').unit};
                 }
 
                 .${id}.is-nested > .block-editor-block-list__layout {
-					align-items: ${verticalAlign['mobile']};
-					justify-content: ${horizontalAlign['mobile']};
+					${getVal(flexDirection, 'mobile') ? `flex-direction: ${getVal(flexDirection, 'mobile')};` : ''}
+					align-items: ${getVal(verticalAlign, 'mobile')};
+					justify-content: ${getVal(horizontalAlign, 'mobile')};
 					gap: ${getGapValue(gap, 'mobile').value}${getGapValue(gap, 'mobile').unit};
-					width: ${nestedWidth['mobile'] === 'full' ? '100%' : 'auto'};
+					width: ${getVal(nestedWidth, 'mobile') === 'full' ? '100%' : 'auto'};
 				}
             }
 
@@ -784,6 +757,11 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
                     }
                 }
             ` : ''}
+
+			/* Correct issue with appender */
+			.digiblocks-row-inner > *:not(.block-list-appender) {
+				z-index: 1000;
+			}
         `;
     };
 
@@ -815,111 +793,85 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Row Layout', 'digiblocks')}
                             initialOpen={true}
                         >
-                            {!isNested && (
+							{!isNested && (
 								<>
-									<ResponsiveControl
-										label={__('Content Width (px)', 'digiblocks')}
-									>
-										<RangeControl
-											value={
-												contentWidth[localActiveDevice] !== '' ? 
-												contentWidth[localActiveDevice] : 
-												(localActiveDevice === 'desktop' ? 
-													(digiBlocksData.contentWidth || 1200) : 
-													contentWidth.desktop || digiBlocksData.contentWidth || 1200)
-											}
-											onChange={(value) =>
-												setAttributes({
-													contentWidth: {
-														...contentWidth,
-														[localActiveDevice]: value,
-													},
-												})
-											}
-											min={300}
-											max={2000}
-											step={1}
-											__next40pxDefaultSize={true}
-											__nextHasNoMarginBottom={true}
-										/>
-									</ResponsiveControl>
-
-									<ResponsiveControl
-										label={__('Content Max Width (%)', 'digiblocks')}
-									>
-										<RangeControl
-											value={
-												contentMaxWidth[localActiveDevice] !== '' ? 
-												contentMaxWidth[localActiveDevice] : 
-												(localActiveDevice === 'desktop' ? 
-													(digiBlocksData.contentMaxWidth || 90) : 
-													contentMaxWidth.desktop || digiBlocksData.contentMaxWidth || 90)
-											}
-											onChange={(value) =>
-												setAttributes({
-													contentMaxWidth: {
-														...contentMaxWidth,
-														[localActiveDevice]: value,
-													},
-												})
-											}
-											min={0}
-											max={100}
-											step={1}
-											__next40pxDefaultSize={true}
-											__nextHasNoMarginBottom={true}
-										/>
-									</ResponsiveControl>
-									
 									<ResponsiveRangeControl
-										label={__("Gap", "digiblocks")}
-										value={gap}
-										onChange={(value) => setAttributes({ gap: value })}
+										label={__('Content Width', 'digiblocks')}
+										value={contentWidth}
+										onChange={(value) => setAttributes({ contentWidth: value })}
 										units={[
 											{ label: 'px', value: 'px' },
 											{ label: '%', value: '%' },
 											{ label: 'em', value: 'em' },
 											{ label: 'rem', value: 'rem' },
+											{ label: 'vw', value: 'vw' }
 										]}
-										defaultUnit="px"
+										defaultValues={{ desktop: { value: 1200, unit: 'px' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } }}
+										min={0}
+										max={getContentMaxValue(contentWidth[localActiveDevice]?.unit || 'px')}
+										step={getContentStepValue(contentWidth[localActiveDevice]?.unit || 'px')}
+									/>
+
+									<ResponsiveRangeControl
+										label={__('Content Max Width', 'digiblocks')}
+										value={contentMaxWidth}
+										onChange={(value) => setAttributes({ contentMaxWidth: value })}
+										units={[
+											{ label: '%', value: '%' },
+											{ label: 'px', value: 'px' },
+											{ label: 'vw', value: 'vw' }
+										]}
+										defaultValues={{ desktop: { value: 90, unit: '%' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } }}
 										min={0}
 										max={100}
 										step={1}
 									/>
-
-									<ResponsiveButtonGroup
-										label={__("Height", "digiblocks")}
-										value={heightType}
-										onChange={(value) => setAttributes({ heightType: value })}
-										options={[
-											{ label: __("Auto", "digiblocks"), value: "auto" },
-											{ label: __("Full", "digiblocks"), value: "full" },
-											{ label: __("Custom", "digiblocks"), value: "custom" }
-										]}
-									/>
-
-									{heightType[localActiveDevice] === 'custom' && (
-										<ResponsiveControl
-											label={__('Min Height', 'digiblocks')}
-										>
-											<RangeControl
-												value={minHeight[localActiveDevice]}
-												onChange={(value) =>
-													setAttributes({
-														minHeight: {
-															...minHeight,
-															[localActiveDevice]: value,
-														},
-													})
-												}
-												min={0}
-												max={1000}
-												__next40pxDefaultSize={true}
-												__nextHasNoMarginBottom={true}
-											/>
-										</ResponsiveControl>
-									)}
 								</>
+							)}
+							
+							<ResponsiveRangeControl
+								label={__("Gap", "digiblocks")}
+								value={gap}
+								onChange={(value) => setAttributes({ gap: value })}
+								units={[
+									{ label: 'px', value: 'px' },
+									{ label: '%', value: '%' },
+									{ label: 'em', value: 'em' },
+									{ label: 'rem', value: 'rem' },
+								]}
+								defaultValues={{ desktop: { value: 20, unit: 'px' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } }}
+								min={0}
+								max={100}
+								step={1}
+							/>
+
+							<ResponsiveButtonGroup
+								label={__("Height", "digiblocks")}
+								value={heightType}
+								onChange={(value) => setAttributes({ heightType: value })}
+								options={[
+									{ label: __("Auto", "digiblocks"), value: "auto" },
+									{ label: __("Full", "digiblocks"), value: "full" },
+									{ label: __("Custom", "digiblocks"), value: "custom" }
+								]}
+							/>
+
+							{heightType[localActiveDevice] === 'custom' && (
+								<ResponsiveRangeControl
+									label={__('Min Height', 'digiblocks')}
+									value={minHeight}
+									onChange={(value) => setAttributes({ minHeight: value })}
+									units={[
+										{ label: 'px', value: 'px' },
+										{ label: 'em', value: 'em' },
+										{ label: 'rem', value: 'rem' },
+										{ label: 'vh', value: 'vh' }
+									]}
+									defaultUnit='px'
+									min={0}
+									max={getContentMaxValue(minHeight[localActiveDevice]?.unit || 'px')}
+									step={getContentStepValue(minHeight[localActiveDevice]?.unit || 'px')}
+								/>
 							)}
 
 							{isNested && (
@@ -935,27 +887,37 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
 							)}
 
 							<ResponsiveButtonGroup
-								label={__("Horizontal Align", "digiblocks")}
+								label={__("Justify Content", "digiblocks")}
 								value={horizontalAlign}
 								onChange={(value) => setAttributes({ horizontalAlign: value })}
 								options={[
-									{ label: __("Left", "digiblocks"), value: "flex-start" },
+									{ label: __("Start", "digiblocks"), value: "flex-start" },
 									{ label: __("Center", "digiblocks"), value: "center" },
-									{ label: __("Right", "digiblocks"), value: "flex-end" },
+									{ label: __("End", "digiblocks"), value: "flex-end" },
 									{ label: __("Space", "digiblocks"), value: "space-between" }
 								]}
 							/>
 
                             <ResponsiveButtonGroup
-                                label={__("Vertical Align", "digiblocks")}
+                                label={__("Align Items", "digiblocks")}
                                 value={verticalAlign}
                                 onChange={(value) => setAttributes({ verticalAlign: value })}
                                 options={[
-                                    { label: __("Top", "digiblocks"), value: "flex-start" },
-                                    { label: __("Middle", "digiblocks"), value: "center" },
-                                    { label: __("Bottom", "digiblocks"), value: "flex-end" }
+                                    { label: __("Start", "digiblocks"), value: "flex-start" },
+                                    { label: __("Center", "digiblocks"), value: "center" },
+                                    { label: __("End", "digiblocks"), value: "flex-end" }
                                 ]}
                             />
+
+							<ResponsiveButtonGroup
+								label={__('Flex Direction', 'digiblocks')}
+								value={flexDirection}
+								onChange={(value) => setAttributes({ flexDirection: value })}
+								options={[
+									{ label: __('Row', 'digiblocks'), value: 'row' },
+									{ label: __('Column', 'digiblocks'), value: 'column' },
+								]}
+							/>
                         </TabPanelBody>
                         
                         <TabPanelBody
@@ -1079,17 +1041,57 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
                             )}
                         </TabPanelBody>
 
-                        <TabPanelBody
-                            tab="background"
-                            name="gradient"
-                            title={__('Background Gradient', 'digiblocks')}
-                            initialOpen={false}
-                        >
-                            <GradientControl
-                                value={backgroundGradient}
-                                onChange={(value) => setAttributes({ backgroundGradient: value })}
-                            />
-                        </TabPanelBody>
+						<TabPanelBody
+							tab="background"
+							name="gradient"
+							title={__('Background Gradient', 'digiblocks')}
+							initialOpen={false}
+						>
+							<ToggleControl
+								label={__('Enable Gradient', 'digiblocks')}
+								checked={!!backgroundGradient}
+								onChange={(value) => {
+									if (value) {
+										setAttributes({ backgroundGradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)' });
+									} else {
+										setAttributes({ backgroundGradient: '' });
+									}
+								}}
+								__nextHasNoMarginBottom={true}
+							/>
+							
+							{backgroundGradient && (
+								<div style={{ marginTop: '12px' }}>
+									<label className="components-base-control__label" style={{ marginBottom: '8px', display: 'block' }}>
+										{__('Background Gradient', 'digiblocks')}
+									</label>
+									<GradientPicker
+										value={backgroundGradient || undefined}
+										onChange={(value) => setAttributes({ 
+											backgroundGradient: value || ''
+										})}
+										clearable={true}
+										gradients={[
+											{
+												name: 'Vivid cyan blue to vivid purple',
+												gradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)',
+												slug: 'vivid-cyan-blue-to-vivid-purple',
+											},
+											{
+												name: 'Light green cyan to vivid green cyan',
+												gradient: 'linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%)',
+												slug: 'light-green-cyan-to-vivid-green-cyan',
+											},
+											{
+												name: 'Luminous vivid amber to luminous vivid orange',
+												gradient: 'linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%)',
+												slug: 'luminous-vivid-amber-to-luminous-vivid-orange',
+											},
+										]}
+									/>
+								</div>
+							)}
+						</TabPanelBody>
                         
                         <TabPanelBody
                             tab="background"
@@ -1208,42 +1210,105 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Background Overlay', 'digiblocks')}
                             initialOpen={false}
                         >
-                            <PanelColorSettings
-                                title={__("Overlay Color", "digiblocks")}
-                                initialOpen={true}
-                                enableAlpha={true}
-                                colorSettings={[
-                                    {
-                                        value: backgroundOverlay,
-                                        onChange: (value) => setAttributes({ backgroundOverlay: value }),
-                                        label: __("Overlay Color", "digiblocks"),
-                                    },
-                                ]}
-                            />
-                            
-                            {backgroundOverlay && (
-                                <>
-                                    <RangeControl
-                                        label={__('Overlay Opacity', 'digiblocks')}
-                                        value={backgroundOverlayOpacity}
-                                        onChange={(value) => setAttributes({ backgroundOverlayOpacity: value })}
-                                        min={0}
-                                        max={1}
-                                        step={0.01}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
-                                    
-                                    <SelectControl
-                                        label={__('Blend Mode', 'digiblocks')}
-                                        value={backgroundOverlayBlendMode}
-                                        options={blendModeOptions}
-                                        onChange={(value) => setAttributes({ backgroundOverlayBlendMode: value })}
-                                        __next40pxDefaultSize={true}
-                                        __nextHasNoMarginBottom={true}
-                                    />
-                                </>
-                            )}
+							<PanelColorSettings
+								title={__("Overlay Color", "digiblocks")}
+								enableAlpha={true}
+								colorSettings={[
+									{
+										value: backgroundOverlay,
+										onChange: (value) => setAttributes({ 
+											backgroundOverlay: value,
+											backgroundOverlayGradient: ''
+										}),
+										label: __("Overlay Color", "digiblocks"),
+									},
+								]}
+							/>
+
+							<ToggleControl
+								label={__('Enable Gradient', 'digiblocks')}
+								checked={!!backgroundOverlayGradient}
+								onChange={(value) => {
+									if (value) {
+										setAttributes({ 
+											backgroundOverlayGradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)',
+											backgroundOverlay: ''
+										});
+									} else {
+										setAttributes({ backgroundOverlayGradient: '' });
+									}
+								}}
+								__nextHasNoMarginBottom={true}
+							/>
+
+							{backgroundOverlayGradient && (
+								<div style={{ marginTop: '12px' }}>
+									<label className="components-base-control__label" style={{ marginBottom: '8px', display: 'block' }}>
+										{__('Overlay Gradient', 'digiblocks')}
+									</label>
+									<GradientPicker
+										value={backgroundOverlayGradient || undefined}
+										onChange={(value) => setAttributes({ 
+											backgroundOverlayGradient: value || '',
+											backgroundOverlay: ''
+										})}
+										clearable={true}
+										gradients={[
+											{
+												name: 'Vivid cyan blue to vivid purple',
+												gradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)',
+												slug: 'vivid-cyan-blue-to-vivid-purple',
+											},
+											{
+												name: 'Light green cyan to vivid green cyan',
+												gradient: 'linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%)',
+												slug: 'light-green-cyan-to-vivid-green-cyan',
+											},
+											{
+												name: 'Luminous vivid amber to luminous vivid orange',
+												gradient: 'linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%)',
+												slug: 'luminous-vivid-amber-to-luminous-vivid-orange',
+											},
+										]}
+									/>
+								</div>
+							)}
+
+							{(backgroundOverlay || backgroundOverlayGradient) && (
+								<>
+									<RangeControl
+										label={__('Overlay Opacity', 'digiblocks')}
+										value={backgroundOverlayOpacity}
+										onChange={(value) => setAttributes({ backgroundOverlayOpacity: value })}
+										min={0}
+										max={1}
+										step={0.01}
+										__nextHasNoMarginBottom={true}
+									/>
+
+									<SelectControl
+										label={__('Blend Mode', 'digiblocks')}
+										value={backgroundOverlayBlendMode}
+										options={[
+											{ label: __('Normal', 'digiblocks'), value: 'normal' },
+											{ label: __('Multiply', 'digiblocks'), value: 'multiply' },
+											{ label: __('Screen', 'digiblocks'), value: 'screen' },
+											{ label: __('Overlay', 'digiblocks'), value: 'overlay' },
+											{ label: __('Darken', 'digiblocks'), value: 'darken' },
+											{ label: __('Lighten', 'digiblocks'), value: 'lighten' },
+											{ label: __('Color Dodge', 'digiblocks'), value: 'color-dodge' },
+											{ label: __('Color Burn', 'digiblocks'), value: 'color-burn' },
+											{ label: __('Hard Light', 'digiblocks'), value: 'hard-light' },
+											{ label: __('Soft Light', 'digiblocks'), value: 'soft-light' },
+											{ label: __('Difference', 'digiblocks'), value: 'difference' },
+											{ label: __('Exclusion', 'digiblocks'), value: 'exclusion' },
+										]}
+										onChange={(value) => setAttributes({ backgroundOverlayBlendMode: value })}
+										__next40pxDefaultSize={true}
+										__nextHasNoMarginBottom={true}
+									/>
+								</>
+							)}
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1263,21 +1328,11 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
                             
                             {borderStyle !== 'none' && (
                                 <>
-                                    <ResponsiveControl
-                                        label={__('Border Width', 'digiblocks')}
-                                    >
-                                        <DimensionControl
-                                            values={borderWidth[localActiveDevice]}
-                                            onChange={(value) =>
-                                                setAttributes({
-                                                    borderWidth: {
-                                                        ...borderWidth,
-                                                        [localActiveDevice]: value,
-                                                    },
-                                                })
-                                            }
-                                        />
-                                    </ResponsiveControl>
+                                    <DimensionControl
+										label={__("Border Width", "digiblocks")}
+										value={borderWidth}
+										onChange={(value) => setAttributes({ borderWidth: value })}
+									/>
                                     
                                     <PanelColorSettings
                                         title=""
@@ -1293,26 +1348,12 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
                                 </>
                             )}
                             
-                            <ResponsiveControl
-                                label={__('Border Radius', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={borderRadius[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            borderRadius: {
-                                                ...borderRadius,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                    units={[
-                                        { label: 'px', value: 'px' },
-                                        { label: '%', value: '%' },
-                                        { label: 'em', value: 'em' },
-                                    ]}
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Border Radius", "digiblocks")}
+								value={borderRadius}
+								onChange={(value) => setAttributes({ borderRadius: value })}
+								units={[ { label: 'px', value: 'px' }, { label: '%', value: '%' }, { label: 'em', value: 'em' }, ]}
+							/>
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1339,37 +1380,17 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
                             title={__('Spacing', 'digiblocks')}
                             initialOpen={true}
                         >
-                            <ResponsiveControl
-                                label={__('Padding', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={padding[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            padding: {
-                                                ...padding,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Padding", "digiblocks")}
+								value={padding}
+								onChange={(value) => setAttributes({ padding: value })}
+							/>
                             
-                            <ResponsiveControl
-                                label={__('Margin', 'digiblocks')}
-                            >
-                                <DimensionControl
-                                    values={margin[localActiveDevice]}
-                                    onChange={(value) =>
-                                        setAttributes({
-                                            margin: {
-                                                ...margin,
-                                                [localActiveDevice]: value,
-                                            },
-                                        })
-                                    }
-                                />
-                            </ResponsiveControl>
+                            <DimensionControl
+								label={__("Margin", "digiblocks")}
+								value={margin}
+								onChange={(value) => setAttributes({ margin: value })}
+							/>
                         </TabPanelBody>
 
                         <TabPanelBody
@@ -1424,8 +1445,8 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(horizontalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
 
                                     <ToggleGroupControl
@@ -1459,8 +1480,8 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
                                         ]}
                                         defaultUnit="px"
                                         min={0}
-                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit)}
-                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit)}
+                                        max={getMaxValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
+                                        step={getStepValue(verticalOffset?.[localActiveDevice]?.unit || 'px')}
                                     />
                                 </>
                             )}
@@ -1520,10 +1541,11 @@ const RowEdit = ({ attributes, setAttributes, clientId }) => {
 										__nextHasNoMarginBottom={true}
 									/>
 									
-									<NumberControl
+									<TextControl
 										label={__("Animation Delay (ms)", "digiblocks")}
 										value={animationDelay || 0}
 										onChange={(value) => setAttributes({ animationDelay: parseInt(value) || 0 })}
+										type="number"
 										min={0}
 										step={100}
 										__next40pxDefaultSize={true}

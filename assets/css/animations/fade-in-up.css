@@ -1,13 +1,1 @@
-@keyframes digiBlocksFadeInUp {
-    from {
-        opacity: 0;
-        transform: translate3d(0, 100%, 0);
-    }
-    to {
-        opacity: 1;
-        transform: none;
-    }
-}
-.digi-animated.animate-fade-in-up {
-    animation-name: digiBlocksFadeInUp;
-}
+@keyframes digiBlocksFadeInUp{from{opacity:0;transform:translate3d(0,100%,0)}to{opacity:1;transform:none}}.digi-animated.animate-fade-in-up{animation-name:digiBlocksFadeInUp}

@@ -126,16 +126,25 @@ registerBlockType('digiblocks/heading', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: '', tablet: '', mobile: '' },
-                fontSizeUnit: 'px',
-                fontWeight: '600',
+                fontSize: {
+                    desktop: { value: '', unit: 'px' },
+                    tablet: { value: '', unit: 'px' },
+                    mobile: { value: '', unit: 'px' }
+                },
+                fontWeight: '',
                 fontStyle: 'normal',
                 textTransform: 'none',
                 textDecoration: 'none',
-                lineHeight: { desktop: '', tablet: '', mobile: '' },
-                lineHeightUnit: 'em',
-                letterSpacing: { desktop: '', tablet: '', mobile: '' },
-                letterSpacingUnit: 'px'
+                lineHeight: {
+                    desktop: { value: '', unit: 'em' },
+                    tablet: { value: '', unit: 'em' },
+                    mobile: { value: '', unit: 'em' }
+                },
+                letterSpacing: {
+                    desktop: { value: '', unit: 'px' },
+                    tablet: { value: '', unit: 'px' },
+                    mobile: { value: '', unit: 'px' }
+                }
             }
         },
         align: {
@@ -279,8 +288,8 @@ registerBlockType('digiblocks/heading', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         verticalOrientation: {
@@ -291,8 +300,8 @@ registerBlockType('digiblocks/heading', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         zIndex: {

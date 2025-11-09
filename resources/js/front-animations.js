@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	function createObserver(element) {
 		let hasAnimated = false;
-		
+
 		function handleIntersection(entries) {
 			entries.forEach((entry) => {
 				if (entry.isIntersecting && !hasAnimated) {
@@ -27,14 +27,14 @@ document.addEventListener('DOMContentLoaded', function() {
 				}
 			});
 		}
-		
+
 		const observer = new IntersectionObserver(handleIntersection, {
-			threshold: 0.1,
-			rootMargin: '0px'
+			threshold: 0,
+			rootMargin: '0px 0px -50px 0px'
 		});
-		
+
 		observer.observe(element);
-		
+
 		return observer;
 	}
 	

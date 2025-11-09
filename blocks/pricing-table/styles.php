@@ -21,14 +21,14 @@ $position                = isset( $attrs['position'] ) ? $attrs['position'] : 'd
 $horizontalOrientation   = isset( $attrs['horizontalOrientation'] ) ? $attrs['horizontalOrientation'] : 'left';
 $horizontalOffset        = isset( $attrs['horizontalOffset'] ) ? $attrs['horizontalOffset'] : array(
 	'desktop' => array( 'value' => 0, 'unit' => 'px' ),
-	'tablet'  => array( 'value' => 0, 'unit' => 'px' ),
-	'mobile'  => array( 'value' => 0, 'unit' => 'px' ),
+	'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'value' => '', 'unit' => 'px' ),
 );
 $verticalOrientation     = isset( $attrs['verticalOrientation'] ) ? $attrs['verticalOrientation'] : 'top';
 $verticalOffset          = isset( $attrs['verticalOffset'] ) ? $attrs['verticalOffset'] : array(
 	'desktop' => array( 'value' => 0, 'unit' => 'px' ),
-	'tablet'  => array( 'value' => 0, 'unit' => 'px' ),
-	'mobile'  => array( 'value' => 0, 'unit' => 'px' ),
+	'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'value' => '', 'unit' => 'px' ),
 );
 $zIndex                  = isset( $attrs['zIndex'] ) ? $attrs['zIndex'] : '';
 $transform               = isset( $attrs['transform'] ) ? $attrs['transform'] : array();
@@ -184,28 +184,25 @@ $ribbonBackgroundColor  = isset( $attrs['ribbonBackgroundColor'] ) ? $attrs['rib
 if ( ! $titleTypography ) {
     $titleTypography = array(
         'fontFamily'        => '',
-        'fontSize'          => array(
-            'desktop' => 24,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'fontSizeUnit'      => 'px',
+        'fontSize' => array(
+		'desktop' => array('value' => 24, 'unit' => 'px'),
+		'tablet'  => array('value' => '', 'unit' => 'px'),
+		'mobile'  => array('value' => '', 'unit' => 'px'),
+	),
         'fontWeight'        => '',
         'fontStyle'         => 'normal',
         'textTransform'     => '',
         'textDecoration'    => '',
-        'lineHeight'        => array(
-            'desktop' => 1.4,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'lineHeightUnit'    => 'em',
-        'letterSpacing'     => array(
-            'desktop' => 0,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'letterSpacingUnit' => 'px',
+        'lineHeight' => array(
+		'desktop' => array('value' => 1.4, 'unit' => 'em'),
+		'tablet'  => array('value' => '', 'unit' => 'em'),
+		'mobile'  => array('value' => '', 'unit' => 'em'),
+	),
+        'letterSpacing' => array(
+		'desktop' => array('value' => 0, 'unit' => 'px'),
+		'tablet'  => array('value' => '', 'unit' => 'px'),
+		'mobile'  => array('value' => '', 'unit' => 'px'),
+	),
     );
 }
 
@@ -213,28 +210,25 @@ if ( ! $titleTypography ) {
 if ( ! $priceTypography ) {
     $priceTypography = array(
         'fontFamily'        => '',
-        'fontSize'          => array(
-            'desktop' => 36,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'fontSizeUnit'      => 'px',
+        'fontSize' => array(
+		'desktop' => array('value' => 36, 'unit' => 'px'),
+		'tablet'  => array('value' => '', 'unit' => 'px'),
+		'mobile'  => array('value' => '', 'unit' => 'px'),
+	),
         'fontWeight'        => 'bold',
         'fontStyle'         => 'normal',
         'textTransform'     => '',
         'textDecoration'    => '',
-        'lineHeight'        => array(
-            'desktop' => 1.2,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'lineHeightUnit'    => 'em',
-        'letterSpacing'     => array(
-            'desktop' => 0,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'letterSpacingUnit' => 'px',
+        'lineHeight' => array(
+		'desktop' => array('value' => 1.2, 'unit' => 'em'),
+		'tablet'  => array('value' => '', 'unit' => 'em'),
+		'mobile'  => array('value' => '', 'unit' => 'em'),
+	),
+        'letterSpacing' => array(
+		'desktop' => array('value' => 0, 'unit' => 'px'),
+		'tablet'  => array('value' => '', 'unit' => 'px'),
+		'mobile'  => array('value' => '', 'unit' => 'px'),
+	),
     );
 }
 
@@ -242,28 +236,25 @@ if ( ! $priceTypography ) {
 if ( ! $textTypography ) {
     $textTypography = array(
         'fontFamily'        => '',
-        'fontSize'          => array(
-            'desktop' => 16,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'fontSizeUnit'      => 'px',
+        'fontSize' => array(
+		'desktop' => array('value' => 16, 'unit' => 'px'),
+		'tablet'  => array('value' => '', 'unit' => 'px'),
+		'mobile'  => array('value' => '', 'unit' => 'px'),
+	),
         'fontWeight'        => '',
         'fontStyle'         => 'normal',
         'textTransform'     => '',
         'textDecoration'    => '',
-        'lineHeight'        => array(
-            'desktop' => 1.6,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'lineHeightUnit'    => 'em',
-        'letterSpacing'     => array(
-            'desktop' => 0,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'letterSpacingUnit' => 'px',
+        'lineHeight' => array(
+		'desktop' => array('value' => 1.6, 'unit' => 'em'),
+		'tablet'  => array('value' => '', 'unit' => 'em'),
+		'mobile'  => array('value' => '', 'unit' => 'em'),
+	),
+        'letterSpacing' => array(
+		'desktop' => array('value' => 0, 'unit' => 'px'),
+		'tablet'  => array('value' => '', 'unit' => 'px'),
+		'mobile'  => array('value' => '', 'unit' => 'px'),
+	),
     );
 }
 
@@ -271,28 +262,25 @@ if ( ! $textTypography ) {
 if ( ! $contentTypography ) {
     $contentTypography = array(
         'fontFamily'        => '',
-        'fontSize'          => array(
-            'desktop' => 16,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'fontSizeUnit'      => 'px',
+        'fontSize' => array(
+		'desktop' => array('value' => 16, 'unit' => 'px'),
+		'tablet'  => array('value' => '', 'unit' => 'px'),
+		'mobile'  => array('value' => '', 'unit' => 'px'),
+	),
         'fontWeight'        => '',
         'fontStyle'         => 'normal',
         'textTransform'     => '',
         'textDecoration'    => '',
-        'lineHeight'        => array(
-            'desktop' => 1.6,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'lineHeightUnit'    => 'em',
-        'letterSpacing'     => array(
-            'desktop' => 0,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'letterSpacingUnit' => 'px',
+        'lineHeight' => array(
+		'desktop' => array('value' => 1.6, 'unit' => 'em'),
+		'tablet'  => array('value' => '', 'unit' => 'em'),
+		'mobile'  => array('value' => '', 'unit' => 'em'),
+	),
+        'letterSpacing' => array(
+		'desktop' => array('value' => 0, 'unit' => 'px'),
+		'tablet'  => array('value' => '', 'unit' => 'px'),
+		'mobile'  => array('value' => '', 'unit' => 'px'),
+	),
     );
 }
 
@@ -300,28 +288,25 @@ if ( ! $contentTypography ) {
 if ( ! $buttonTypography ) {
     $buttonTypography = array(
         'fontFamily'        => '',
-        'fontSize'          => array(
-            'desktop' => 16,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'fontSizeUnit'      => 'px',
+        'fontSize' => array(
+		'desktop' => array('value' => 16, 'unit' => 'px'),
+		'tablet'  => array('value' => '', 'unit' => 'px'),
+		'mobile'  => array('value' => '', 'unit' => 'px'),
+	),
         'fontWeight'        => '',
         'fontStyle'         => 'normal',
         'textTransform'     => '',
         'textDecoration'    => '',
-        'lineHeight'        => array(
-            'desktop' => 1.5,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'lineHeightUnit'    => 'em',
-        'letterSpacing'     => array(
-            'desktop' => 0,
-            'tablet'  => '',
-            'mobile'  => '',
-        ),
-        'letterSpacingUnit' => 'px',
+        'lineHeight' => array(
+		'desktop' => array('value' => 1.5, 'unit' => 'em'),
+		'tablet'  => array('value' => '', 'unit' => 'em'),
+		'mobile'  => array('value' => '', 'unit' => 'em'),
+	),
+        'letterSpacing' => array(
+		'desktop' => array('value' => 0, 'unit' => 'px'),
+		'tablet'  => array('value' => '', 'unit' => 'px'),
+		'mobile'  => array('value' => '', 'unit' => 'px'),
+	),
     );
 }
 
@@ -336,26 +321,26 @@ ob_start();
     <?php if ( $position && 'default' !== $position ) : ?>
         position: <?php echo esc_attr( $position ); ?>;
         <?php
-        $h_value = isset( $horizontalOffset['desktop']['value'] ) && '' !== $horizontalOffset['desktop']['value'] ? $horizontalOffset['desktop']['value'] : '0';
-        $h_unit = isset( $horizontalOffset['desktop']['unit'] ) ? $horizontalOffset['desktop']['unit'] : 'px';
+        $h_value = isset( $horizontalOffset['desktop'] ) && is_array( $horizontalOffset['desktop'] ) && isset( $horizontalOffset['desktop']['value'] ) && '' !== $horizontalOffset['desktop']['value'] ? $horizontalOffset['desktop']['value'] : '0';
+        $h_unit = isset( $horizontalOffset['desktop'] ) && is_array( $horizontalOffset['desktop'] ) && isset( $horizontalOffset['desktop']['unit'] ) ? $horizontalOffset['desktop']['unit'] : 'px';
         if ( '' !== $h_value ) :
             if ( 'left' === $horizontalOrientation ) :
         ?>
-        left: <?php echo esc_attr( $h_value . $h_unit ); ?>;
+        left: <?php echo esc_attr( $h_value . ( $h_unit !== null ? $h_unit : '' ) ); ?>;
         <?php else : ?>
-        right: <?php echo esc_attr( $h_value . $h_unit ); ?>;
+        right: <?php echo esc_attr( $h_value . ( $h_unit !== null ? $h_unit : '' ) ); ?>;
         <?php
             endif;
         endif;
         
-        $v_value = isset( $verticalOffset['desktop']['value'] ) && '' !== $verticalOffset['desktop']['value'] ? $verticalOffset['desktop']['value'] : '0';
-        $v_unit = isset( $verticalOffset['desktop']['unit'] ) ? $verticalOffset['desktop']['unit'] : 'px';
+        $v_value = isset( $verticalOffset['desktop'] ) && is_array( $verticalOffset['desktop'] ) && isset( $verticalOffset['desktop']['value'] ) && '' !== $verticalOffset['desktop']['value'] ? $verticalOffset['desktop']['value'] : '0';
+        $v_unit = isset( $verticalOffset['desktop'] ) && is_array( $verticalOffset['desktop'] ) && isset( $verticalOffset['desktop']['unit'] ) ? $verticalOffset['desktop']['unit'] : 'px';
         if ( '' !== $v_value ) :
             if ( 'top' === $verticalOrientation ) :
         ?>
-        top: <?php echo esc_attr( $v_value . $v_unit ); ?>;
+        top: <?php echo esc_attr( $v_value . ( $v_unit !== null ? $v_unit : '' ) ); ?>;
         <?php else : ?>
-        bottom: <?php echo esc_attr( $v_value . $v_unit ); ?>;
+        bottom: <?php echo esc_attr( $v_value . ( $v_unit !== null ? $v_unit : '' ) ); ?>;
         <?php
             endif;
         endif;
@@ -369,7 +354,7 @@ ob_start();
     if ( ! empty( $transform_value ) ) :
     ?>
     transform: <?php echo esc_attr( $transform_value ); ?>;
-    transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'desktop' ); ?>;
+    transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transform, 'desktop' ) ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $transformHover ) && isset( $transformHover['transitionDuration'] ) && '' !== $transformHover['transitionDuration'] && null !== $transformHover['transitionDuration'] ) : ?>
 	transition: all <?php echo esc_attr( $transformHover['transitionDuration'] ); ?>ms ease;
@@ -382,7 +367,7 @@ if ( ! empty( $transform_hover_value ) ) :
 ?>
 .<?php echo esc_attr( $id ); ?>:hover {
     transform: <?php echo esc_attr( $transform_hover_value ); ?>;
-    transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'desktop' ); ?>;
+    transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transformHover, 'desktop' ) ); ?>;
 }
 <?php endif; ?>
 
@@ -519,8 +504,8 @@ foreach ( $tables as $index => $table ) {
         font-family: <?php echo esc_attr( $titleTypography['fontFamily'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $titleTypography['fontSize']['desktop'] ) ) : ?>
-        font-size: <?php echo esc_attr( $titleTypography['fontSize']['desktop'] . ( $titleTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
+    <?php if ( isset( $titleTypography['fontSize'] ) && is_array( $titleTypography['fontSize'] ) && isset( $titleTypography['fontSize']['desktop'] ) && isset( $titleTypography['fontSize']['desktop']['value'] ) && $titleTypography['fontSize']['desktop']['value'] !== '' ) : ?>
+        font-size: <?php echo esc_attr( $titleTypography['fontSize']['desktop']['value'] . ( $titleTypography['fontSize']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $titleTypography['fontWeight'] ) ) : ?>
@@ -539,12 +524,12 @@ foreach ( $tables as $index => $table ) {
         text-decoration: <?php echo esc_attr( $titleTypography['textDecoration'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $titleTypography['lineHeight']['desktop'] ) ) : ?>
-        line-height: <?php echo esc_attr( $titleTypography['lineHeight']['desktop'] . ( $titleTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+    <?php if ( isset( $titleTypography['lineHeight'] ) && is_array( $titleTypography['lineHeight'] ) && isset( $titleTypography['lineHeight']['desktop'] ) && isset( $titleTypography['lineHeight']['desktop']['value'] ) && $titleTypography['lineHeight']['desktop']['value'] !== '' ) : ?>
+        line-height: <?php echo esc_attr( $titleTypography['lineHeight']['desktop']['value'] . ( $titleTypography['lineHeight']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $titleTypography['letterSpacing']['desktop'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['desktop'] . ( $titleTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+    <?php if ( isset( $titleTypography['letterSpacing'] ) && is_array( $titleTypography['letterSpacing'] ) && isset( $titleTypography['letterSpacing']['desktop'] ) && isset( $titleTypography['letterSpacing']['desktop']['value'] ) && $titleTypography['letterSpacing']['desktop']['value'] !== '' ) : ?>
+        letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['desktop']['value'] . ( $titleTypography['letterSpacing']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
 }
 
@@ -555,8 +540,8 @@ foreach ( $tables as $index => $table ) {
         font-family: <?php echo esc_attr( $priceTypography['fontFamily'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $priceTypography['fontSize']['desktop'] ) ) : ?>
-        font-size: <?php echo esc_attr( $priceTypography['fontSize']['desktop'] . ( $priceTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
+    <?php if ( isset( $priceTypography['fontSize'] ) && is_array( $priceTypography['fontSize'] ) && isset( $priceTypography['fontSize']['desktop'] ) && isset( $priceTypography['fontSize']['desktop']['value'] ) && $priceTypography['fontSize']['desktop']['value'] !== '' ) : ?>
+        font-size: <?php echo esc_attr( $priceTypography['fontSize']['desktop']['value'] . ( $priceTypography['fontSize']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $priceTypography['fontWeight'] ) ) : ?>
@@ -575,12 +560,12 @@ foreach ( $tables as $index => $table ) {
         text-decoration: <?php echo esc_attr( $priceTypography['textDecoration'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $priceTypography['lineHeight']['desktop'] ) ) : ?>
-        line-height: <?php echo esc_attr( $priceTypography['lineHeight']['desktop'] . ( $priceTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+    <?php if ( isset( $priceTypography['lineHeight'] ) && is_array( $priceTypography['lineHeight'] ) && isset( $priceTypography['lineHeight']['desktop'] ) && isset( $priceTypography['lineHeight']['desktop']['value'] ) && $priceTypography['lineHeight']['desktop']['value'] !== '' ) : ?>
+        line-height: <?php echo esc_attr( $priceTypography['lineHeight']['desktop']['value'] . ( $priceTypography['lineHeight']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $priceTypography['letterSpacing']['desktop'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $priceTypography['letterSpacing']['desktop'] . ( $priceTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+    <?php if ( isset( $priceTypography['letterSpacing'] ) && is_array( $priceTypography['letterSpacing'] ) && isset( $priceTypography['letterSpacing']['desktop'] ) && isset( $priceTypography['letterSpacing']['desktop']['value'] ) && $priceTypography['letterSpacing']['desktop']['value'] !== '' ) : ?>
+        letter-spacing: <?php echo esc_attr( $priceTypography['letterSpacing']['desktop']['value'] . ( $priceTypography['letterSpacing']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( 'style4' === $tableStyle ) : ?>
@@ -594,8 +579,8 @@ foreach ( $tables as $index => $table ) {
         font-family: <?php echo esc_attr( $textTypography['fontFamily'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $textTypography['fontSize']['desktop'] ) ) : ?>
-        font-size: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
+    <?php if ( isset( $textTypography['fontSize'] ) && is_array( $textTypography['fontSize'] ) && isset( $textTypography['fontSize']['desktop'] ) && isset( $textTypography['fontSize']['desktop']['value'] ) && $textTypography['fontSize']['desktop']['value'] !== '' ) : ?>
+        font-size: <?php echo esc_attr( $textTypography['fontSize']['desktop']['value'] . ( $textTypography['fontSize']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     opacity: 0.8;
 }
@@ -606,8 +591,8 @@ foreach ( $tables as $index => $table ) {
         font-family: <?php echo esc_attr( $textTypography['fontFamily'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $textTypography['fontSize']['desktop'] ) ) : ?>
-        font-size: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
+    <?php if ( isset( $textTypography['fontSize'] ) && is_array( $textTypography['fontSize'] ) && isset( $textTypography['fontSize']['desktop'] ) && isset( $textTypography['fontSize']['desktop']['value'] ) && $textTypography['fontSize']['desktop']['value'] !== '' ) : ?>
+        font-size: <?php echo esc_attr( $textTypography['fontSize']['desktop']['value'] . ( $textTypography['fontSize']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $textTypography['fontWeight'] ) ) : ?>
@@ -626,12 +611,12 @@ foreach ( $tables as $index => $table ) {
         text-decoration: <?php echo esc_attr( $textTypography['textDecoration'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $textTypography['lineHeight']['desktop'] ) ) : ?>
-        line-height: <?php echo esc_attr( $textTypography['lineHeight']['desktop'] . ( $textTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+    <?php if ( isset( $textTypography['lineHeight'] ) && is_array( $textTypography['lineHeight'] ) && isset( $textTypography['lineHeight']['desktop'] ) && isset( $textTypography['lineHeight']['desktop']['value'] ) && $textTypography['lineHeight']['desktop']['value'] !== '' ) : ?>
+        line-height: <?php echo esc_attr( $textTypography['lineHeight']['desktop']['value'] . ( $textTypography['lineHeight']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $textTypography['letterSpacing']['desktop'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['desktop'] . ( $textTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+    <?php if ( isset( $textTypography['letterSpacing'] ) && is_array( $textTypography['letterSpacing'] ) && isset( $textTypography['letterSpacing']['desktop'] ) && isset( $textTypography['letterSpacing']['desktop']['value'] ) && $textTypography['letterSpacing']['desktop']['value'] !== '' ) : ?>
+        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['desktop']['value'] . ( $textTypography['letterSpacing']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
 }
 
@@ -665,8 +650,8 @@ foreach ( $tables as $index => $table ) {
         font-family: <?php echo esc_attr( $contentTypography['fontFamily'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $contentTypography['fontSize']['desktop'] ) ) : ?>
-        font-size: <?php echo esc_attr( $contentTypography['fontSize']['desktop'] . ( $contentTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
+    <?php if ( isset( $contentTypography['fontSize'] ) && is_array( $contentTypography['fontSize'] ) && isset( $contentTypography['fontSize']['desktop'] ) && isset( $contentTypography['fontSize']['desktop']['value'] ) && $contentTypography['fontSize']['desktop']['value'] !== '' ) : ?>
+        font-size: <?php echo esc_attr( $contentTypography['fontSize']['desktop']['value'] . ( $contentTypography['fontSize']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $contentTypography['fontWeight'] ) ) : ?>
@@ -685,12 +670,12 @@ foreach ( $tables as $index => $table ) {
         text-decoration: <?php echo esc_attr( $contentTypography['textDecoration'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $contentTypography['lineHeight']['desktop'] ) ) : ?>
-        line-height: <?php echo esc_attr( $contentTypography['lineHeight']['desktop'] . ( $contentTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+    <?php if ( isset( $contentTypography['lineHeight'] ) && is_array( $contentTypography['lineHeight'] ) && isset( $contentTypography['lineHeight']['desktop'] ) && isset( $contentTypography['lineHeight']['desktop']['value'] ) && $contentTypography['lineHeight']['desktop']['value'] !== '' ) : ?>
+        line-height: <?php echo esc_attr( $contentTypography['lineHeight']['desktop']['value'] . ( $contentTypography['lineHeight']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $contentTypography['letterSpacing']['desktop'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['desktop'] . ( $contentTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+    <?php if ( isset( $contentTypography['letterSpacing'] ) && is_array( $contentTypography['letterSpacing'] ) && isset( $contentTypography['letterSpacing']['desktop'] ) && isset( $contentTypography['letterSpacing']['desktop']['value'] ) && $contentTypography['letterSpacing']['desktop']['value'] !== '' ) : ?>
+        letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['desktop']['value'] . ( $contentTypography['letterSpacing']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
 }
 
@@ -757,8 +742,8 @@ foreach ( $tables as $index => $table ) {
         font-family: <?php echo esc_attr( $buttonTypography['fontFamily'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $buttonTypography['fontSize']['desktop'] ) ) : ?>
-        font-size: <?php echo esc_attr( $buttonTypography['fontSize']['desktop'] . ( $buttonTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
+    <?php if ( isset( $buttonTypography['fontSize'] ) && is_array( $buttonTypography['fontSize'] ) && isset( $buttonTypography['fontSize']['desktop'] ) && isset( $buttonTypography['fontSize']['desktop']['value'] ) && $buttonTypography['fontSize']['desktop']['value'] !== '' ) : ?>
+        font-size: <?php echo esc_attr( $buttonTypography['fontSize']['desktop']['value'] . ( $buttonTypography['fontSize']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $buttonTypography['fontWeight'] ) ) : ?>
@@ -777,12 +762,12 @@ foreach ( $tables as $index => $table ) {
         text-decoration: <?php echo esc_attr( $buttonTypography['textDecoration'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $buttonTypography['lineHeight']['desktop'] ) ) : ?>
-        line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['desktop'] . ( $buttonTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+    <?php if ( isset( $buttonTypography['lineHeight'] ) && is_array( $buttonTypography['lineHeight'] ) && isset( $buttonTypography['lineHeight']['desktop'] ) && isset( $buttonTypography['lineHeight']['desktop']['value'] ) && $buttonTypography['lineHeight']['desktop']['value'] !== '' ) : ?>
+        line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['desktop']['value'] . ( $buttonTypography['lineHeight']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $buttonTypography['letterSpacing']['desktop'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['desktop'] . ( $buttonTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+    <?php if ( isset( $buttonTypography['letterSpacing'] ) && is_array( $buttonTypography['letterSpacing'] ) && isset( $buttonTypography['letterSpacing']['desktop'] ) && isset( $buttonTypography['letterSpacing']['desktop']['value'] ) && $buttonTypography['letterSpacing']['desktop']['value'] !== '' ) : ?>
+        letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['desktop']['value'] . ( $buttonTypography['letterSpacing']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( 'style4' === $tableStyle ) : ?>
@@ -897,8 +882,8 @@ foreach ( $tables as $index => $table ) {
 		<?php echo esc_attr( digiblocks_get_dimensions( $margin, 'margin', 'tablet' ) ); ?>
         <?php if ( $position && 'default' !== $position ) : ?>
             <?php
-            $h_value_tablet = isset( $horizontalOffset['tablet']['value'] ) && '' !== $horizontalOffset['tablet']['value'] ? $horizontalOffset['tablet']['value'] : '0';
-            $h_unit_tablet = isset( $horizontalOffset['tablet']['unit'] ) ? $horizontalOffset['tablet']['unit'] : 'px';
+            $h_value_tablet = isset( $horizontalOffset['tablet'] ) && is_array( $horizontalOffset['tablet'] ) && isset( $horizontalOffset['tablet']['value'] ) && '' !== $horizontalOffset['tablet']['value'] ? $horizontalOffset['tablet']['value'] : '';
+            $h_unit_tablet = isset( $horizontalOffset['tablet'] ) && is_array( $horizontalOffset['tablet'] ) && isset( $horizontalOffset['tablet']['unit'] ) ? $horizontalOffset['tablet']['unit'] : 'px';
             if ( '' !== $h_value_tablet ) :
                 if ( 'left' === $horizontalOrientation ) :
             ?>
@@ -909,8 +894,8 @@ foreach ( $tables as $index => $table ) {
                 endif;
             endif;
             
-            $v_value_tablet = isset( $verticalOffset['tablet']['value'] ) && '' !== $verticalOffset['tablet']['value'] ? $verticalOffset['tablet']['value'] : '0';
-            $v_unit_tablet = isset( $verticalOffset['tablet']['unit'] ) ? $verticalOffset['tablet']['unit'] : 'px';
+            $v_value_tablet = isset( $verticalOffset['tablet'] ) && is_array( $verticalOffset['tablet'] ) && isset( $verticalOffset['tablet']['value'] ) && '' !== $verticalOffset['tablet']['value'] ? $verticalOffset['tablet']['value'] : '';
+            $v_unit_tablet = isset( $verticalOffset['tablet'] ) && is_array( $verticalOffset['tablet'] ) && isset( $verticalOffset['tablet']['unit'] ) ? $verticalOffset['tablet']['unit'] : 'px';
             if ( '' !== $v_value_tablet ) :
                 if ( 'top' === $verticalOrientation ) :
             ?>
@@ -927,7 +912,7 @@ foreach ( $tables as $index => $table ) {
         if ( ! empty( $transform_value_tablet ) ) :
         ?>
         transform: <?php echo esc_attr( $transform_value_tablet ); ?>;
-    	transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'tablet' ); ?>;
+    	transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transform, 'tablet' ) ); ?>;
         <?php endif; ?>
     }
 
@@ -937,7 +922,7 @@ foreach ( $tables as $index => $table ) {
 	?>
 		.<?php echo esc_attr( $id ); ?>:hover {
 			transform: <?php echo esc_attr( $transform_hover_value_tablet ); ?>;
-    		transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'tablet' ); ?>;
+    		transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transformHover, 'tablet' ) ); ?>;
 		}
 	<?php endif; ?>
 
@@ -965,67 +950,67 @@ foreach ( $tables as $index => $table ) {
     }
     
     /* Title responsive */
-    <?php if ( ! empty( $titleTypography['fontSize']['tablet'] ) ) : ?>
+    <?php if ( isset( $titleTypography['fontSize'] ) && is_array( $titleTypography['fontSize'] ) && isset( $titleTypography['fontSize']['tablet'] ) && isset( $titleTypography['fontSize']['tablet']['value'] ) && $titleTypography['fontSize']['tablet']['value'] !== '' ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table-title {
-        font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet'] . ( $titleTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
-        <?php if ( ! empty( $titleTypography['lineHeight']['tablet'] ) ) : ?>
-            line-height: <?php echo esc_attr( $titleTypography['lineHeight']['tablet'] . ( $titleTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+        font-size: <?php echo esc_attr( $titleTypography['fontSize']['tablet']['value'] . ( $titleTypography['fontSize']['tablet']['unit'] ?? '' ) ); ?>;
+        <?php if ( isset( $titleTypography['lineHeight'] ) && is_array( $titleTypography['lineHeight'] ) && isset( $titleTypography['lineHeight']['tablet'] ) && isset( $titleTypography['lineHeight']['tablet']['value'] ) && $titleTypography['lineHeight']['tablet']['value'] !== '' ) : ?>
+            line-height: <?php echo esc_attr( $titleTypography['lineHeight']['tablet']['value'] . ( $titleTypography['lineHeight']['tablet']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
-        <?php if ( ! empty( $titleTypography['letterSpacing']['tablet'] ) ) : ?>
-            letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['tablet'] . ( $titleTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+        <?php if ( isset( $titleTypography['letterSpacing'] ) && is_array( $titleTypography['letterSpacing'] ) && isset( $titleTypography['letterSpacing']['tablet'] ) && isset( $titleTypography['letterSpacing']['tablet']['value'] ) && $titleTypography['letterSpacing']['tablet']['value'] !== '' ) : ?>
+            letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['tablet']['value'] . ( $titleTypography['letterSpacing']['tablet']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
     
     /* Price responsive */
-    <?php if ( ! empty( $priceTypography['fontSize']['tablet'] ) ) : ?>
+    <?php if ( isset( $priceTypography['fontSize'] ) && is_array( $priceTypography['fontSize'] ) && isset( $priceTypography['fontSize']['tablet'] ) && isset( $priceTypography['fontSize']['tablet']['value'] ) && $priceTypography['fontSize']['tablet']['value'] !== '' ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table-price {
-        font-size: <?php echo esc_attr( $priceTypography['fontSize']['tablet'] . ( $priceTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
-        <?php if ( ! empty( $priceTypography['lineHeight']['tablet'] ) ) : ?>
-            line-height: <?php echo esc_attr( $priceTypography['lineHeight']['tablet'] . ( $priceTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+        font-size: <?php echo esc_attr( $priceTypography['fontSize']['tablet']['value'] . ( $priceTypography['fontSize']['tablet']['unit'] ?? '' ) ); ?>;
+        <?php if ( isset( $priceTypography['lineHeight'] ) && is_array( $priceTypography['lineHeight'] ) && isset( $priceTypography['lineHeight']['tablet'] ) && isset( $priceTypography['lineHeight']['tablet']['value'] ) && $priceTypography['lineHeight']['tablet']['value'] !== '' ) : ?>
+            line-height: <?php echo esc_attr( $priceTypography['lineHeight']['tablet']['value'] . ( $priceTypography['lineHeight']['tablet']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
-        <?php if ( ! empty( $priceTypography['letterSpacing']['tablet'] ) ) : ?>
-            letter-spacing: <?php echo esc_attr( $priceTypography['letterSpacing']['tablet'] . ( $priceTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+        <?php if ( isset( $priceTypography['letterSpacing'] ) && is_array( $priceTypography['letterSpacing'] ) && isset( $priceTypography['letterSpacing']['tablet'] ) && isset( $priceTypography['letterSpacing']['tablet']['value'] ) && $priceTypography['letterSpacing']['tablet']['value'] !== '' ) : ?>
+            letter-spacing: <?php echo esc_attr( $priceTypography['letterSpacing']['tablet']['value'] . ( $priceTypography['letterSpacing']['tablet']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
     
     /* Text responsive */
-    <?php if ( ! empty( $textTypography['fontSize']['tablet'] ) ) : ?>
+    <?php if ( isset( $textTypography['fontSize'] ) && is_array( $textTypography['fontSize'] ) && isset( $textTypography['fontSize']['tablet'] ) && isset( $textTypography['fontSize']['tablet']['value'] ) && $textTypography['fontSize']['tablet']['value'] !== '' ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table-period,
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table-description {
-        font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
-        <?php if ( ! empty( $textTypography['lineHeight']['tablet'] ) ) : ?>
-            line-height: <?php echo esc_attr( $textTypography['lineHeight']['tablet'] . ( $textTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+        font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet']['value'] . ( $textTypography['fontSize']['tablet']['unit'] ?? '' ) ); ?>;
+        <?php if ( isset( $textTypography['lineHeight'] ) && is_array( $textTypography['lineHeight'] ) && isset( $textTypography['lineHeight']['tablet'] ) && isset( $textTypography['lineHeight']['tablet']['value'] ) && $textTypography['lineHeight']['tablet']['value'] !== '' ) : ?>
+            line-height: <?php echo esc_attr( $textTypography['lineHeight']['tablet']['value'] . ( $textTypography['lineHeight']['tablet']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
-        <?php if ( ! empty( $textTypography['letterSpacing']['tablet'] ) ) : ?>
-            letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['tablet'] . ( $textTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+        <?php if ( isset( $textTypography['letterSpacing'] ) && is_array( $textTypography['letterSpacing'] ) && isset( $textTypography['letterSpacing']['tablet'] ) && isset( $textTypography['letterSpacing']['tablet']['value'] ) && $textTypography['letterSpacing']['tablet']['value'] !== '' ) : ?>
+            letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['tablet']['value'] . ( $textTypography['letterSpacing']['tablet']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
     
     /* Content responsive */
-    <?php if ( ! empty( $contentTypography['fontSize']['tablet'] ) ) : ?>
+    <?php if ( isset( $contentTypography['fontSize'] ) && is_array( $contentTypography['fontSize'] ) && isset( $contentTypography['fontSize']['tablet'] ) && isset( $contentTypography['fontSize']['tablet']['value'] ) && $contentTypography['fontSize']['tablet']['value'] !== '' ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table-feature-item {
-        font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet'] . ( $contentTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
-        <?php if ( ! empty( $contentTypography['lineHeight']['tablet'] ) ) : ?>
-            line-height: <?php echo esc_attr( $contentTypography['lineHeight']['tablet'] . ( $contentTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+        font-size: <?php echo esc_attr( $contentTypography['fontSize']['tablet']['value'] . ( $contentTypography['fontSize']['tablet']['unit'] ?? '' ) ); ?>;
+        <?php if ( isset( $contentTypography['lineHeight'] ) && is_array( $contentTypography['lineHeight'] ) && isset( $contentTypography['lineHeight']['tablet'] ) && isset( $contentTypography['lineHeight']['tablet']['value'] ) && $contentTypography['lineHeight']['tablet']['value'] !== '' ) : ?>
+            line-height: <?php echo esc_attr( $contentTypography['lineHeight']['tablet']['value'] . ( $contentTypography['lineHeight']['tablet']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
-        <?php if ( ! empty( $contentTypography['letterSpacing']['tablet'] ) ) : ?>
-            letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['tablet'] . ( $contentTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+        <?php if ( isset( $contentTypography['letterSpacing'] ) && is_array( $contentTypography['letterSpacing'] ) && isset( $contentTypography['letterSpacing']['tablet'] ) && isset( $contentTypography['letterSpacing']['tablet']['value'] ) && $contentTypography['letterSpacing']['tablet']['value'] !== '' ) : ?>
+            letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['tablet']['value'] . ( $contentTypography['letterSpacing']['tablet']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
     
     /* Button responsive */
-    <?php if ( ! empty( $buttonTypography['fontSize']['tablet'] ) ) : ?>
+    <?php if ( isset( $buttonTypography['fontSize'] ) && is_array( $buttonTypography['fontSize'] ) && isset( $buttonTypography['fontSize']['tablet'] ) && isset( $buttonTypography['fontSize']['tablet']['value'] ) && $buttonTypography['fontSize']['tablet']['value'] !== '' ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table-button {
-        font-size: <?php echo esc_attr( $buttonTypography['fontSize']['tablet'] . ( $buttonTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
-        <?php if ( ! empty( $buttonTypography['lineHeight']['tablet'] ) ) : ?>
-            line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['tablet'] . ( $buttonTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+        font-size: <?php echo esc_attr( $buttonTypography['fontSize']['tablet']['value'] . ( $buttonTypography['fontSize']['tablet']['unit'] ?? '' ) ); ?>;
+        <?php if ( isset( $buttonTypography['lineHeight'] ) && is_array( $buttonTypography['lineHeight'] ) && isset( $buttonTypography['lineHeight']['tablet'] ) && isset( $buttonTypography['lineHeight']['tablet']['value'] ) && $buttonTypography['lineHeight']['tablet']['value'] !== '' ) : ?>
+            line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['tablet']['value'] . ( $buttonTypography['lineHeight']['tablet']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
-        <?php if ( ! empty( $buttonTypography['letterSpacing']['tablet'] ) ) : ?>
-            letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['tablet'] . ( $buttonTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+        <?php if ( isset( $buttonTypography['letterSpacing'] ) && is_array( $buttonTypography['letterSpacing'] ) && isset( $buttonTypography['letterSpacing']['tablet'] ) && isset( $buttonTypography['letterSpacing']['tablet']['value'] ) && $buttonTypography['letterSpacing']['tablet']['value'] !== '' ) : ?>
+            letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['tablet']['value'] . ( $buttonTypography['letterSpacing']['tablet']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
@@ -1035,8 +1020,8 @@ foreach ( $tables as $index => $table ) {
     .<?php echo esc_attr( $id ); ?> {
         <?php if ( $position && 'default' !== $position ) : ?>
             <?php
-            $h_value_mobile = isset( $horizontalOffset['mobile']['value'] ) && '' !== $horizontalOffset['mobile']['value'] ? $horizontalOffset['mobile']['value'] : '0';
-            $h_unit_mobile = isset( $horizontalOffset['mobile']['unit'] ) ? $horizontalOffset['mobile']['unit'] : 'px';
+            $h_value_mobile = isset( $horizontalOffset['mobile'] ) && is_array( $horizontalOffset['mobile'] ) && isset( $horizontalOffset['mobile']['value'] ) && '' !== $horizontalOffset['mobile']['value'] ? $horizontalOffset['mobile']['value'] : '';
+            $h_unit_mobile = isset( $horizontalOffset['mobile'] ) && is_array( $horizontalOffset['mobile'] ) && isset( $horizontalOffset['mobile']['unit'] ) ? $horizontalOffset['mobile']['unit'] : 'px';
             if ( '' !== $h_value_mobile ) :
                 if ( 'left' === $horizontalOrientation ) :
             ?>
@@ -1047,8 +1032,8 @@ foreach ( $tables as $index => $table ) {
                 endif;
             endif;
             
-            $v_value_mobile = isset( $verticalOffset['mobile']['value'] ) && '' !== $verticalOffset['mobile']['value'] ? $verticalOffset['mobile']['value'] : '0';
-            $v_unit_mobile = isset( $verticalOffset['mobile']['unit'] ) ? $verticalOffset['mobile']['unit'] : 'px';
+            $v_value_mobile = isset( $verticalOffset['mobile'] ) && is_array( $verticalOffset['mobile'] ) && isset( $verticalOffset['mobile']['value'] ) && '' !== $verticalOffset['mobile']['value'] ? $verticalOffset['mobile']['value'] : '';
+            $v_unit_mobile = isset( $verticalOffset['mobile'] ) && is_array( $verticalOffset['mobile'] ) && isset( $verticalOffset['mobile']['unit'] ) ? $verticalOffset['mobile']['unit'] : 'px';
             if ( '' !== $v_value_mobile ) :
                 if ( 'top' === $verticalOrientation ) :
             ?>
@@ -1065,7 +1050,7 @@ foreach ( $tables as $index => $table ) {
         if ( ! empty( $transform_value_mobile ) ) :
         ?>
         transform: <?php echo esc_attr( $transform_value_mobile ); ?>;
-    	transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'mobile' ); ?>;
+    	transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transform, 'mobile' ) ); ?>;
         <?php endif; ?>
     }
 
@@ -1075,7 +1060,7 @@ foreach ( $tables as $index => $table ) {
 	?>
 		.<?php echo esc_attr( $id ); ?>:hover {
 			transform: <?php echo esc_attr( $transform_hover_value_mobile ); ?>;
-    		transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'mobile' ); ?>;
+    		transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transformHover, 'mobile' ) ); ?>;
 		}
 	<?php endif; ?>
 
@@ -1103,67 +1088,67 @@ foreach ( $tables as $index => $table ) {
     }
     
     /* Title responsive */
-    <?php if ( ! empty( $titleTypography['fontSize']['mobile'] ) ) : ?>
+    <?php if ( isset( $titleTypography['fontSize'] ) && is_array( $titleTypography['fontSize'] ) && isset( $titleTypography['fontSize']['mobile'] ) && isset( $titleTypography['fontSize']['mobile']['value'] ) && $titleTypography['fontSize']['mobile']['value'] !== '' ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table-title {
-        font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile'] . ( $titleTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
-        <?php if ( ! empty( $titleTypography['lineHeight']['mobile'] ) ) : ?>
-            line-height: <?php echo esc_attr( $titleTypography['lineHeight']['mobile'] . ( $titleTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+        font-size: <?php echo esc_attr( $titleTypography['fontSize']['mobile']['value'] . ( $titleTypography['fontSize']['mobile']['unit'] ?? '' ) ); ?>;
+        <?php if ( isset( $titleTypography['lineHeight'] ) && is_array( $titleTypography['lineHeight'] ) && isset( $titleTypography['lineHeight']['mobile'] ) && isset( $titleTypography['lineHeight']['mobile']['value'] ) && $titleTypography['lineHeight']['mobile']['value'] !== '' ) : ?>
+            line-height: <?php echo esc_attr( $titleTypography['lineHeight']['mobile']['value'] . ( $titleTypography['lineHeight']['mobile']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
-        <?php if ( ! empty( $titleTypography['letterSpacing']['mobile'] ) ) : ?>
-            letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['mobile'] . ( $titleTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+        <?php if ( isset( $titleTypography['letterSpacing'] ) && is_array( $titleTypography['letterSpacing'] ) && isset( $titleTypography['letterSpacing']['mobile'] ) && isset( $titleTypography['letterSpacing']['mobile']['value'] ) && $titleTypography['letterSpacing']['mobile']['value'] !== '' ) : ?>
+            letter-spacing: <?php echo esc_attr( $titleTypography['letterSpacing']['mobile']['value'] . ( $titleTypography['letterSpacing']['mobile']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
     
     /* Price responsive */
-    <?php if ( ! empty( $priceTypography['fontSize']['mobile'] ) ) : ?>
+    <?php if ( isset( $priceTypography['fontSize'] ) && is_array( $priceTypography['fontSize'] ) && isset( $priceTypography['fontSize']['mobile'] ) && isset( $priceTypography['fontSize']['mobile']['value'] ) && $priceTypography['fontSize']['mobile']['value'] !== '' ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table-price {
-        font-size: <?php echo esc_attr( $priceTypography['fontSize']['mobile'] . ( $priceTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
-        <?php if ( ! empty( $priceTypography['lineHeight']['mobile'] ) ) : ?>
-            line-height: <?php echo esc_attr( $priceTypography['lineHeight']['mobile'] . ( $priceTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+        font-size: <?php echo esc_attr( $priceTypography['fontSize']['mobile']['value'] . ( $priceTypography['fontSize']['mobile']['unit'] ?? '' ) ); ?>;
+        <?php if ( isset( $priceTypography['lineHeight'] ) && is_array( $priceTypography['lineHeight'] ) && isset( $priceTypography['lineHeight']['mobile'] ) && isset( $priceTypography['lineHeight']['mobile']['value'] ) && $priceTypography['lineHeight']['mobile']['value'] !== '' ) : ?>
+            line-height: <?php echo esc_attr( $priceTypography['lineHeight']['mobile']['value'] . ( $priceTypography['lineHeight']['mobile']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
-        <?php if ( ! empty( $priceTypography['letterSpacing']['mobile'] ) ) : ?>
-            letter-spacing: <?php echo esc_attr( $priceTypography['letterSpacing']['mobile'] . ( $priceTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+        <?php if ( isset( $priceTypography['letterSpacing'] ) && is_array( $priceTypography['letterSpacing'] ) && isset( $priceTypography['letterSpacing']['mobile'] ) && isset( $priceTypography['letterSpacing']['mobile']['value'] ) && $priceTypography['letterSpacing']['mobile']['value'] !== '' ) : ?>
+            letter-spacing: <?php echo esc_attr( $priceTypography['letterSpacing']['mobile']['value'] . ( $priceTypography['letterSpacing']['mobile']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
     
     /* Text responsive */
-    <?php if ( ! empty( $textTypography['fontSize']['mobile'] ) ) : ?>
+    <?php if ( isset( $textTypography['fontSize'] ) && is_array( $textTypography['fontSize'] ) && isset( $textTypography['fontSize']['mobile'] ) && isset( $textTypography['fontSize']['mobile']['value'] ) && $textTypography['fontSize']['mobile']['value'] !== '' ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table-period,
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table-description {
-        font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ( $textTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
-        <?php if ( ! empty( $textTypography['lineHeight']['mobile'] ) ) : ?>
-            line-height: <?php echo esc_attr( $textTypography['lineHeight']['mobile'] . ( $textTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+        font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile']['value'] . ( $textTypography['fontSize']['mobile']['unit'] ?? '' ) ); ?>;
+        <?php if ( isset( $textTypography['lineHeight'] ) && is_array( $textTypography['lineHeight'] ) && isset( $textTypography['lineHeight']['mobile'] ) && isset( $textTypography['lineHeight']['mobile']['value'] ) && $textTypography['lineHeight']['mobile']['value'] !== '' ) : ?>
+            line-height: <?php echo esc_attr( $textTypography['lineHeight']['mobile']['value'] . ( $textTypography['lineHeight']['mobile']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
-        <?php if ( ! empty( $textTypography['letterSpacing']['mobile'] ) ) : ?>
-            letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['mobile'] . ( $textTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+        <?php if ( isset( $textTypography['letterSpacing'] ) && is_array( $textTypography['letterSpacing'] ) && isset( $textTypography['letterSpacing']['mobile'] ) && isset( $textTypography['letterSpacing']['mobile']['value'] ) && $textTypography['letterSpacing']['mobile']['value'] !== '' ) : ?>
+            letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['mobile']['value'] . ( $textTypography['letterSpacing']['mobile']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
     
     /* Content responsive */
-    <?php if ( ! empty( $contentTypography['fontSize']['mobile'] ) ) : ?>
+    <?php if ( isset( $contentTypography['fontSize'] ) && is_array( $contentTypography['fontSize'] ) && isset( $contentTypography['fontSize']['mobile'] ) && isset( $contentTypography['fontSize']['mobile']['value'] ) && $contentTypography['fontSize']['mobile']['value'] !== '' ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table-feature-item {
-        font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile'] . ( $contentTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
-        <?php if ( ! empty( $contentTypography['lineHeight']['mobile'] ) ) : ?>
-            line-height: <?php echo esc_attr( $contentTypography['lineHeight']['mobile'] . ( $contentTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+        font-size: <?php echo esc_attr( $contentTypography['fontSize']['mobile']['value'] . ( $contentTypography['fontSize']['mobile']['unit'] ?? '' ) ); ?>;
+        <?php if ( isset( $contentTypography['lineHeight'] ) && is_array( $contentTypography['lineHeight'] ) && isset( $contentTypography['lineHeight']['mobile'] ) && isset( $contentTypography['lineHeight']['mobile']['value'] ) && $contentTypography['lineHeight']['mobile']['value'] !== '' ) : ?>
+            line-height: <?php echo esc_attr( $contentTypography['lineHeight']['mobile']['value'] . ( $contentTypography['lineHeight']['mobile']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
-        <?php if ( ! empty( $contentTypography['letterSpacing']['mobile'] ) ) : ?>
-            letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['mobile'] . ( $contentTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+        <?php if ( isset( $contentTypography['letterSpacing'] ) && is_array( $contentTypography['letterSpacing'] ) && isset( $contentTypography['letterSpacing']['mobile'] ) && isset( $contentTypography['letterSpacing']['mobile']['value'] ) && $contentTypography['letterSpacing']['mobile']['value'] !== '' ) : ?>
+            letter-spacing: <?php echo esc_attr( $contentTypography['letterSpacing']['mobile']['value'] . ( $contentTypography['letterSpacing']['mobile']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
     
     /* Button responsive */
-    <?php if ( ! empty( $buttonTypography['fontSize']['mobile'] ) ) : ?>
+    <?php if ( isset( $buttonTypography['fontSize'] ) && is_array( $buttonTypography['fontSize'] ) && isset( $buttonTypography['fontSize']['mobile'] ) && isset( $buttonTypography['fontSize']['mobile']['value'] ) && $buttonTypography['fontSize']['mobile']['value'] !== '' ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-pricing-table-button {
-        font-size: <?php echo esc_attr( $buttonTypography['fontSize']['mobile'] . ( $buttonTypography['fontSizeUnit'] ?? 'px' ) ); ?>;
-        <?php if ( ! empty( $buttonTypography['lineHeight']['mobile'] ) ) : ?>
-            line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['mobile'] . ( $buttonTypography['lineHeightUnit'] ?? 'em' ) ); ?>;
+        font-size: <?php echo esc_attr( $buttonTypography['fontSize']['mobile']['value'] . ( $buttonTypography['fontSize']['mobile']['unit'] ?? '' ) ); ?>;
+        <?php if ( isset( $buttonTypography['lineHeight'] ) && is_array( $buttonTypography['lineHeight'] ) && isset( $buttonTypography['lineHeight']['mobile'] ) && isset( $buttonTypography['lineHeight']['mobile']['value'] ) && $buttonTypography['lineHeight']['mobile']['value'] !== '' ) : ?>
+            line-height: <?php echo esc_attr( $buttonTypography['lineHeight']['mobile']['value'] . ( $buttonTypography['lineHeight']['mobile']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
-        <?php if ( ! empty( $buttonTypography['letterSpacing']['mobile'] ) ) : ?>
-            letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['mobile'] . ( $buttonTypography['letterSpacingUnit'] ?? 'px' ) ); ?>;
+        <?php if ( isset( $buttonTypography['letterSpacing'] ) && is_array( $buttonTypography['letterSpacing'] ) && isset( $buttonTypography['letterSpacing']['mobile'] ) && isset( $buttonTypography['letterSpacing']['mobile']['value'] ) && $buttonTypography['letterSpacing']['mobile']['value'] !== '' ) : ?>
+            letter-spacing: <?php echo esc_attr( $buttonTypography['letterSpacing']['mobile']['value'] . ( $buttonTypography['letterSpacing']['mobile']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>

@@ -16,21 +16,10 @@ const LottieSave = ({ attributes }) => {
         autoplay,
         loop,
         speed,
-        width,
-        widthUnit,
-        height,
-        heightUnit,
-        alignment,
-        backgroundColor,
         showControls,
         animation,
         animationDuration,
         animationDelay,
-        borderStyle,
-        borderColor,
-        borderWidth,
-        borderRadius,
-        shadow,
     } = attributes;
 
     // If no source, don't render anything

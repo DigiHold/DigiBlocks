@@ -112,16 +112,25 @@ registerBlockType('digiblocks/text', {
             type: 'object',
             default: {
                 fontFamily: '',
-                fontSize: { desktop: '', tablet: '', mobile: '' },
-                fontSizeUnit: 'px',
+                fontSize: {
+                    desktop: { value: '', unit: 'px' },
+                    tablet: { value: '', unit: 'px' },
+                    mobile: { value: '', unit: 'px' }
+                },
                 fontWeight: '',
                 fontStyle: 'normal',
-                textTransform: '',
-                textDecoration: '',
-                lineHeight: { desktop: '', tablet: '', mobile: '' },
-                lineHeightUnit: 'em',
-                letterSpacing: { desktop: '', tablet: '', mobile: '' },
-                letterSpacingUnit: 'px'
+                textTransform: 'none',
+                textDecoration: 'none',
+                lineHeight: {
+                    desktop: { value: '', unit: 'em' },
+                    tablet: { value: '', unit: 'em' },
+                    mobile: { value: '', unit: 'em' }
+                },
+                letterSpacing: {
+                    desktop: { value: '', unit: 'px' },
+                    tablet: { value: '', unit: 'px' },
+                    mobile: { value: '', unit: 'px' }
+                }
             }
         },
         textShadow: {
@@ -166,9 +175,9 @@ registerBlockType('digiblocks/text', {
                 desktop: {
                     top: 0,
                     right: 0,
-                    bottom: 16,
+                    bottom: 1,
                     left: 0,
-                    unit: 'px',
+                    unit: 'rem',
 					isLinked: false,
                 },
                 tablet: {
@@ -303,8 +312,8 @@ registerBlockType('digiblocks/text', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         verticalOrientation: {
@@ -315,8 +324,8 @@ registerBlockType('digiblocks/text', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         zIndex: {

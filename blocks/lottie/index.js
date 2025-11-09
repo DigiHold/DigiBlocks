@@ -79,25 +79,21 @@ registerBlockType('digiblocks/lottie', {
             default: 1
         },
         width: {
-            type: 'object',
-            default: {
-                desktop: 300,
-                tablet: 300,
-                mobile: 300
-            }
-        },
-        widthUnit: {
-            type: 'string',
-            default: 'px'
-        },
-        height: {
-            type: 'object',
-            default: {
-                desktop: 300,
-                tablet: 300,
-                mobile: 300
-            }
-        },
+			type: 'object',
+			default: {
+				desktop: { value: 300, unit: 'px' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			}
+		},
+		height: {
+			type: 'object',
+			default: {
+				desktop: { value: 300, unit: 'px' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			}
+		},
         heightUnit: {
             type: 'string',
             default: 'px'
@@ -202,8 +198,8 @@ registerBlockType('digiblocks/lottie', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         verticalOrientation: {
@@ -214,8 +210,8 @@ registerBlockType('digiblocks/lottie', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         zIndex: {
@@ -270,22 +266,22 @@ registerBlockType('digiblocks/lottie', {
         },
     },
     example: {
-        attributes: {
-            lottieSource: 'https://lottie.host/74c2e0cc-daa3-4269-b9a8-3205d6cd70d6/V7KchLpRt2.lottie',
-            autoplay: true,
-            loop: true,
-            width: {
-                desktop: 300,
-                tablet: 300,
-                mobile: 300
-            },
-            height: {
-                desktop: 300,
-                tablet: 300,
-                mobile: 300
-            }
-        },
-    },
+		attributes: {
+			lottieSource: 'https://lottie.host/74c2e0cc-daa3-4269-b9a8-3205d6cd70d6/V7KchLpRt2.lottie',
+			autoplay: true,
+			loop: true,
+			width: {
+				desktop: { value: 300, unit: 'px' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			},
+			height: {
+				desktop: { value: 300, unit: 'px' },
+				tablet: { value: '', unit: '' },
+				mobile: { value: '', unit: '' }
+			}
+		},
+	},
     edit: LottieEdit,
     save: LottieSave,
 });

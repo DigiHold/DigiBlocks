@@ -82,6 +82,10 @@
         &:checked + .digiblocks-units-choices-label {
             background: var(--wp-admin-theme-color, #3858e9);
             color: #fff;
+
+            svg {
+                fill: #fff;
+            }
         }
     }
 }

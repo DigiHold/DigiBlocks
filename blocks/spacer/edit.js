@@ -17,7 +17,7 @@ const { useState, useEffect } = wp.element;
  */
 const { useBlockId } = digi.utils;
 const { tabIcons } = digi.icons;
-const { ResponsiveControl, ResponsiveRangeControl, CustomTabPanel, TabPanelBody } = digi.components;
+const { ResponsiveRangeControl, CustomTabPanel, TabPanelBody } = digi.components;
 
 /**
  * Edit function for the Spacer block
@@ -82,20 +82,20 @@ const SpacerEdit = ({ attributes, setAttributes, clientId }) => {
 	const getVal = (obj, device) => {
 		if (!obj) return '';
 		const val = obj[device];
-		if (val && val.value !== '' && val.value !== undefined && val.value !== null) {
+		if (val && val.value !== "" && val.value !== undefined && val.value !== null) {
 			return `${val.value}${val.unit || 'px'}`;
 		}
 		if (device === 'tablet' && obj.desktop) {
-			return obj.desktop.value !== '' && obj.desktop.value !== undefined && obj.desktop.value !== null 
+			return obj.desktop.value !== "" && obj.desktop.value !== undefined && obj.desktop.value !== null 
 				? `${obj.desktop.value}${obj.desktop.unit || 'px'}` 
 				: '';
 		}
 		if (device === 'mobile') {
-			if (obj.tablet && obj.tablet.value !== '' && obj.tablet.value !== undefined && obj.tablet.value !== null) {
+			if (obj.tablet && obj.tablet.value !== "" && obj.tablet.value !== undefined && obj.tablet.value !== null) {
 				return `${obj.tablet.value}${obj.tablet.unit || 'px'}`;
 			}
 			if (obj.desktop) {
-				return obj.desktop.value !== '' && obj.desktop.value !== undefined && obj.desktop.value !== null 
+				return obj.desktop.value !== "" && obj.desktop.value !== undefined && obj.desktop.value !== null 
 					? `${obj.desktop.value}${obj.desktop.unit || 'px'}` 
 					: '';
 			}
@@ -377,10 +377,10 @@ const SpacerEdit = ({ attributes, setAttributes, clientId }) => {
 									{ label: 'rem', value: 'rem' },
 									{ label: 'vh', value: 'vh' },
 								]}
-								defaultUnit="px"
+								defaultValues={{ desktop: { value: 80, unit: 'px' }, tablet: { value: '', unit: '' }, mobile: { value: '', unit: '' } }}
 								min={0}
-								max={getMaxValue(height?.[localActiveDevice]?.unit)}
-								step={getStepValue(height?.[localActiveDevice]?.unit)}
+								max={getMaxValue(height?.[localActiveDevice]?.unit || 'px')}
+								step={getStepValue(height?.[localActiveDevice]?.unit || 'px')}
 							/>
 						</div>
                     </>

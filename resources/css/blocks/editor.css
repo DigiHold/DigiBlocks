@@ -246,3 +246,9 @@ body
 .components-datetime__time-field {
     margin: 0 !important;
 }
+
+/* Fix icons issue */
+.components-button.is-small.has-icon:not(.has-text) svg {
+    width: 16px;
+    height: 16px;
+}

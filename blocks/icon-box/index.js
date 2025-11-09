@@ -262,6 +262,30 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'string',
 			default: __('Learn More', 'digiblocks')
 		},
+		buttonIconSource: {
+			type: 'string',
+			default: 'library'
+		},
+		buttonIcon: {
+			type: 'object',
+			default: null
+		},
+		buttonCustomSvg: {
+			type: 'string',
+			default: ''
+		},
+		buttonIconPosition: {
+			type: 'string',
+			default: 'after'
+		},
+		buttonIconSpacing: {
+			type: 'object',
+			default: {
+				desktop: { value: 0.5, unit: 'em' },
+				tablet: { value: '', unit: 'em' },
+				mobile: { value: '', unit: 'em' }
+			}
+		},
 		buttonBackgroundColor: {
 			type: 'string',
 			default: '#1e73be'
@@ -350,17 +374,26 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				fontFamily: '',
-				fontSize: { desktop: '', tablet: '', mobile: '' },
-				fontSizeUnit: 'px',
-				fontWeight: '500',
-				fontStyle: 'normal',
-				textTransform: '',
-				textDecoration: '',
-				lineHeight: { desktop: '', tablet: '', mobile: '' },
-				lineHeightUnit: 'em',
-				letterSpacing: { desktop: '', tablet: '', mobile: '' },
-				letterSpacingUnit: 'px'
-			}
+                fontSize: {
+                    desktop: { value: '', unit: 'px' },
+                    tablet: { value: '', unit: 'px' },
+                    mobile: { value: '', unit: 'px' }
+                },
+                fontWeight: '',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: {
+                    desktop: { value: '', unit: 'em' },
+                    tablet: { value: '', unit: 'em' },
+                    mobile: { value: '', unit: 'em' }
+                },
+                letterSpacing: {
+                    desktop: { value: '', unit: 'px' },
+                    tablet: { value: '', unit: 'px' },
+                    mobile: { value: '', unit: 'px' }
+                }
+            }
 		},
 		badgeBackgroundColor: {
 			type: 'string',
@@ -382,16 +415,13 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				fontFamily: '',
-				fontSize: { desktop: 0.7, tablet: '', mobile: '' },
-				fontSizeUnit: 'rem',
+				fontSize: { desktop: { value: 0.7, unit: 'rem' }, tablet: { value: '', unit: 'rem' }, mobile: { value: '', unit: 'rem' } },
 				fontWeight: '700',
 				fontStyle: 'normal',
 				textTransform: 'uppercase',
 				textDecoration: '',
-				lineHeight: { desktop: 1.2, tablet: '', mobile: '' },
-				lineHeightUnit: 'em',
-				letterSpacing: { desktop: 0.05, tablet: '', mobile: '' },
-				letterSpacingUnit: 'em'
+				lineHeight: { desktop: { value: 1.2, unit: 'em' }, tablet: { value: '', unit: 'em' }, mobile: { value: '', unit: 'em' } },
+				letterSpacing: { desktop: { value: 0.05, unit: 'em' }, tablet: { value: '', unit: 'em' }, mobile: { value: '', unit: 'em' } }
 			}
 		},
 		badgePadding: {
@@ -474,33 +504,51 @@ registerBlockType('digiblocks/icon-box', {
 			type: 'object',
 			default: {
 				fontFamily: '',
-				fontSize: { desktop: '', tablet: '', mobile: '' },
-				fontSizeUnit: 'px',
-				fontWeight: '',
-				fontStyle: 'normal',
-				textTransform: '',
-				textDecoration: '',
-				lineHeight: { desktop: '', tablet: '', mobile: '' },
-				lineHeightUnit: 'em',
-				letterSpacing: { desktop: '', tablet: '', mobile: '' },
-				letterSpacingUnit: 'px'
-			}
+                fontSize: {
+                    desktop: { value: '', unit: 'px' },
+                    tablet: { value: '', unit: 'px' },
+                    mobile: { value: '', unit: 'px' }
+                },
+                fontWeight: '',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: {
+                    desktop: { value: '', unit: 'em' },
+                    tablet: { value: '', unit: 'em' },
+                    mobile: { value: '', unit: 'em' }
+                },
+                letterSpacing: {
+                    desktop: { value: '', unit: 'px' },
+                    tablet: { value: '', unit: 'px' },
+                    mobile: { value: '', unit: 'px' }
+                }
+            }
 		},
 		contentTypography: {
 			type: 'object',
 			default: {
 				fontFamily: '',
-				fontSize: { desktop: '', tablet: '', mobile: '' },
-				fontSizeUnit: 'px',
-				fontWeight: '',
-				fontStyle: 'normal',
-				textTransform: '',
-				textDecoration: '',
-				lineHeight: { desktop: '', tablet: '', mobile: '' },
-				lineHeightUnit: 'em',
-				letterSpacing: { desktop: '', tablet: '', mobile: '' },
-				letterSpacingUnit: 'px'
-			}
+                fontSize: {
+                    desktop: { value: '', unit: 'px' },
+                    tablet: { value: '', unit: 'px' },
+                    mobile: { value: '', unit: 'px' }
+                },
+                fontWeight: '',
+                fontStyle: 'normal',
+                textTransform: '',
+                textDecoration: '',
+                lineHeight: {
+                    desktop: { value: '', unit: 'em' },
+                    tablet: { value: '', unit: 'em' },
+                    mobile: { value: '', unit: 'em' }
+                },
+                letterSpacing: {
+                    desktop: { value: '', unit: 'px' },
+                    tablet: { value: '', unit: 'px' },
+                    mobile: { value: '', unit: 'px' }
+                }
+            }
 		},
 		padding: {
 			type: 'object',
@@ -670,8 +718,8 @@ registerBlockType('digiblocks/icon-box', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         verticalOrientation: {
@@ -682,8 +730,8 @@ registerBlockType('digiblocks/icon-box', {
             type: 'object',
             default: {
                 desktop: { value: 0, unit: 'px' },
-                tablet: { value: 0, unit: 'px' },
-                mobile: { value: 0, unit: 'px' },
+                tablet: { value: '', unit: 'px' },
+                mobile: { value: '', unit: 'px' },
             },
         },
         zIndex: {

@@ -21,14 +21,14 @@ $position                = isset( $attrs['position'] ) ? $attrs['position'] : 'd
 $horizontalOrientation   = isset( $attrs['horizontalOrientation'] ) ? $attrs['horizontalOrientation'] : 'left';
 $horizontalOffset        = isset( $attrs['horizontalOffset'] ) ? $attrs['horizontalOffset'] : array(
 	'desktop' => array( 'value' => 0, 'unit' => 'px' ),
-	'tablet'  => array( 'value' => 0, 'unit' => 'px' ),
-	'mobile'  => array( 'value' => 0, 'unit' => 'px' ),
+	'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'value' => '', 'unit' => 'px' ),
 );
 $verticalOrientation     = isset( $attrs['verticalOrientation'] ) ? $attrs['verticalOrientation'] : 'top';
 $verticalOffset          = isset( $attrs['verticalOffset'] ) ? $attrs['verticalOffset'] : array(
 	'desktop' => array( 'value' => 0, 'unit' => 'px' ),
-	'tablet'  => array( 'value' => 0, 'unit' => 'px' ),
-	'mobile'  => array( 'value' => 0, 'unit' => 'px' ),
+	'tablet'  => array( 'value' => '', 'unit' => 'px' ),
+	'mobile'  => array( 'value' => '', 'unit' => 'px' ),
 );
 $zIndex                  = isset( $attrs['zIndex'] ) ? $attrs['zIndex'] : '';
 $transform               = isset( $attrs['transform'] ) ? $attrs['transform'] : array();
@@ -98,28 +98,25 @@ $showLabels           = isset( $attrs['showLabels'] ) ? $attrs['showLabels'] : f
 $labelPosition        = isset( $attrs['labelPosition'] ) ? $attrs['labelPosition'] : 'bottom';
 $textTypography      = isset( $attrs['textTypography'] ) ? $attrs['textTypography'] : array(
     'fontFamily'        => '',
-    'fontSize'          => array(
-        'desktop' => 14,
-        'tablet'  => 13,
-        'mobile'  => 12,
-    ),
-    'fontSizeUnit'      => 'px',
+    'fontSize' => array(
+		'desktop' => array('value' => 14, 'unit' => 'px'),
+		'tablet'  => array('value' => 13, 'unit' => 'px'),
+		'mobile'  => array('value' => 12, 'unit' => 'px'),
+	),
     'fontWeight'        => '',
     'fontStyle'         => 'normal',
     'textTransform'     => '',
     'textDecoration'    => '',
-    'lineHeight'        => array(
-        'desktop' => 1.5,
-        'tablet'  => 1.4,
-        'mobile'  => 1.3,
-    ),
-    'lineHeightUnit'    => 'em',
-    'letterSpacing'     => array(
-        'desktop' => 0,
-        'tablet'  => 0,
-        'mobile'  => 0,
-    ),
-    'letterSpacingUnit' => 'px',
+    'lineHeight' => array(
+		'desktop' => array('value' => 1.5, 'unit' => 'em'),
+		'tablet'  => array('value' => 1.4, 'unit' => 'em'),
+		'mobile'  => array('value' => 1.3, 'unit' => 'em'),
+	),
+    'letterSpacing' => array(
+		'desktop' => array('value' => 0, 'unit' => 'px'),
+		'tablet'  => array('value' => 0, 'unit' => 'px'),
+		'mobile'  => array('value' => 0, 'unit' => 'px'),
+	),
 );
 
 // CSS Output
@@ -129,31 +126,35 @@ ob_start();
 .<?php echo esc_attr( $id ); ?> {
     display: flex;
     flex-wrap: wrap;
-    gap: <?php echo esc_attr( $iconSpacing['desktop']['value'] ? $iconSpacing['desktop']['value'] . $iconSpacing['desktop']['unit'] : '0.8rem' ); ?>;
+    gap: <?php
+    $desktop_spacing_value = (is_array($iconSpacing['desktop']) && isset($iconSpacing['desktop']['value']) && $iconSpacing['desktop']['value']) ? $iconSpacing['desktop']['value'] : 0.8;
+    $desktop_spacing_unit = (is_array($iconSpacing['desktop']) && array_key_exists('unit', $iconSpacing['desktop'])) ? $iconSpacing['desktop']['unit'] : 'rem';
+    echo esc_attr( $desktop_spacing_value . ( $desktop_spacing_unit !== null ? $desktop_spacing_unit : '' ) );
+    ?>;
     justify-content: <?php echo esc_attr( $align['desktop'] ); ?>;
     <?php if ( $position && 'default' !== $position ) : ?>
         position: <?php echo esc_attr( $position ); ?>;
         <?php
-        $h_value = isset( $horizontalOffset['desktop']['value'] ) && '' !== $horizontalOffset['desktop']['value'] ? $horizontalOffset['desktop']['value'] : '0';
-        $h_unit = isset( $horizontalOffset['desktop']['unit'] ) ? $horizontalOffset['desktop']['unit'] : 'px';
+        $h_value = isset( $horizontalOffset['desktop'] ) && is_array( $horizontalOffset['desktop'] ) && isset( $horizontalOffset['desktop']['value'] ) && '' !== $horizontalOffset['desktop']['value'] ? $horizontalOffset['desktop']['value'] : '0';
+        $h_unit = isset( $horizontalOffset['desktop'] ) && is_array( $horizontalOffset['desktop'] ) && isset( $horizontalOffset['desktop']['unit'] ) ? $horizontalOffset['desktop']['unit'] : 'px';
         if ( '' !== $h_value ) :
             if ( 'left' === $horizontalOrientation ) :
         ?>
-        left: <?php echo esc_attr( $h_value . $h_unit ); ?>;
+        left: <?php echo esc_attr( $h_value . ( $h_unit !== null ? $h_unit : '' ) ); ?>;
         <?php else : ?>
-        right: <?php echo esc_attr( $h_value . $h_unit ); ?>;
+        right: <?php echo esc_attr( $h_value . ( $h_unit !== null ? $h_unit : '' ) ); ?>;
         <?php
             endif;
         endif;
         
-        $v_value = isset( $verticalOffset['desktop']['value'] ) && '' !== $verticalOffset['desktop']['value'] ? $verticalOffset['desktop']['value'] : '0';
-        $v_unit = isset( $verticalOffset['desktop']['unit'] ) ? $verticalOffset['desktop']['unit'] : 'px';
+        $v_value = isset( $verticalOffset['desktop'] ) && is_array( $verticalOffset['desktop'] ) && isset( $verticalOffset['desktop']['value'] ) && '' !== $verticalOffset['desktop']['value'] ? $verticalOffset['desktop']['value'] : '0';
+        $v_unit = isset( $verticalOffset['desktop'] ) && is_array( $verticalOffset['desktop'] ) && isset( $verticalOffset['desktop']['unit'] ) ? $verticalOffset['desktop']['unit'] : 'px';
         if ( '' !== $v_value ) :
             if ( 'top' === $verticalOrientation ) :
         ?>
-        top: <?php echo esc_attr( $v_value . $v_unit ); ?>;
+        top: <?php echo esc_attr( $v_value . ( $v_unit !== null ? $v_unit : '' ) ); ?>;
         <?php else : ?>
-        bottom: <?php echo esc_attr( $v_value . $v_unit ); ?>;
+        bottom: <?php echo esc_attr( $v_value . ( $v_unit !== null ? $v_unit : '' ) ); ?>;
         <?php
             endif;
         endif;
@@ -167,7 +168,7 @@ ob_start();
     if ( ! empty( $transform_value ) ) :
     ?>
     transform: <?php echo esc_attr( $transform_value ); ?>;
-    transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'desktop' ); ?>;
+    transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transform, 'desktop' ) ); ?>;
     <?php endif; ?>
     <?php if ( ! empty( $transformHover ) && isset( $transformHover['transitionDuration'] ) && '' !== $transformHover['transitionDuration'] && null !== $transformHover['transitionDuration'] ) : ?>
 	transition: all <?php echo esc_attr( $transformHover['transitionDuration'] ); ?>ms ease;
@@ -182,7 +183,7 @@ if ( ! empty( $transform_hover_value ) ) :
 ?>
 .<?php echo esc_attr( $id ); ?>:hover {
     transform: <?php echo esc_attr( $transform_hover_value ); ?>;
-    transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'desktop' ); ?>;
+    transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transformHover, 'desktop' ) ); ?>;
 }
 <?php endif; ?>
 
@@ -191,7 +192,11 @@ if ( ! empty( $transform_hover_value ) ) :
     align-items: center;
     text-decoration: none;
 	<?php if ( $labelSpacing && isset( $labelSpacing['desktop'] ) ) : ?>
-		gap: <?php echo esc_attr( $labelSpacing['desktop']['value'] ? $labelSpacing['desktop']['value'] . $labelSpacing['desktop']['unit'] : '0.8rem' ); ?>;
+		gap: <?php
+        $desktop_label_spacing_value = (is_array($labelSpacing['desktop']) && isset($labelSpacing['desktop']['value']) && $labelSpacing['desktop']['value']) ? $labelSpacing['desktop']['value'] : 0.8;
+        $desktop_label_spacing_unit = (is_array($labelSpacing['desktop']) && array_key_exists('unit', $labelSpacing['desktop'])) ? $labelSpacing['desktop']['unit'] : 'rem';
+        echo esc_attr( $desktop_label_spacing_value . ( $desktop_label_spacing_unit !== null ? $desktop_label_spacing_unit : '' ) );
+        ?>;
     <?php endif; ?>
 }
 
@@ -220,8 +225,16 @@ if ( ! empty( $transform_hover_value ) ) :
 }
 
 .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon svg {
-    width: <?php echo esc_attr( $iconWidth['desktop']['value'] ? $iconWidth['desktop']['value'] . $iconWidth['desktop']['unit'] : '1rem' ); ?>;
-    height: <?php echo esc_attr( $iconHeight['desktop']['value'] ? $iconHeight['desktop']['value'] . $iconHeight['desktop']['unit'] : '1rem' ); ?>;
+    width: <?php
+    $desktop_width_value = (is_array($iconWidth['desktop']) && isset($iconWidth['desktop']['value']) && $iconWidth['desktop']['value']) ? $iconWidth['desktop']['value'] : 1;
+    $desktop_width_unit = (is_array($iconWidth['desktop']) && array_key_exists('unit', $iconWidth['desktop'])) ? $iconWidth['desktop']['unit'] : 'rem';
+    echo esc_attr( $desktop_width_value . ( $desktop_width_unit !== null ? $desktop_width_unit : '' ) );
+    ?>;
+    height: <?php
+    $desktop_height_value = (is_array($iconHeight['desktop']) && isset($iconHeight['desktop']['value']) && $iconHeight['desktop']['value']) ? $iconHeight['desktop']['value'] : 1;
+    $desktop_height_unit = (is_array($iconHeight['desktop']) && array_key_exists('unit', $iconHeight['desktop'])) ? $iconHeight['desktop']['unit'] : 'rem';
+    echo esc_attr( $desktop_height_value . ( $desktop_height_unit !== null ? $desktop_height_unit : '' ) );
+    ?>;
     fill: <?php echo esc_attr( $iconColor ); ?>;
     transition: all 0.3s ease;
 }
@@ -247,8 +260,8 @@ if ( ! empty( $transform_hover_value ) ) :
     	font-family: <?php echo esc_attr( $textTypography['fontFamily'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $textTypography['fontSize']['desktop'] ) ) : ?>
-    	font-size: <?php echo esc_attr( $textTypography['fontSize']['desktop'] . ($textTypography['fontSizeUnit'] ?? 'px') ); ?>;
+    <?php if ( isset( $textTypography['fontSize'] ) && is_array( $textTypography['fontSize'] ) && isset( $textTypography['fontSize']['desktop'] ) && isset( $textTypography['fontSize']['desktop']['value'] ) && $textTypography['fontSize']['desktop']['value'] !== '' ) : ?>
+    	font-size: <?php echo esc_attr( $textTypography['fontSize']['desktop']['value'] . ( $textTypography['fontSize']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
     <?php if ( ! empty( $textTypography['fontWeight'] ) ) : ?>
@@ -267,12 +280,12 @@ if ( ! empty( $transform_hover_value ) ) :
     	text-decoration: <?php echo esc_attr( $textTypography['textDecoration'] ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $textTypography['lineHeight']['desktop'] ) ) : ?>
-    	line-height: <?php echo esc_attr( $textTypography['lineHeight']['desktop'] . ($textTypography['lineHeightUnit'] ?? 'em') ); ?>;
+    <?php if ( isset( $textTypography['lineHeight'] ) && is_array( $textTypography['lineHeight'] ) && isset( $textTypography['lineHeight']['desktop'] ) && isset( $textTypography['lineHeight']['desktop']['value'] ) && $textTypography['lineHeight']['desktop']['value'] !== '' ) : ?>
+    	line-height: <?php echo esc_attr( $textTypography['lineHeight']['desktop']['value'] . ( $textTypography['lineHeight']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
-    <?php if ( ! empty( $textTypography['letterSpacing']['desktop'] ) ) : ?>
-    	letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['desktop'] . ($textTypography['letterSpacingUnit'] ?? 'px') ); ?>;
+    <?php if ( isset( $textTypography['letterSpacing'] ) && is_array( $textTypography['letterSpacing'] ) && isset( $textTypography['letterSpacing']['desktop'] ) && isset( $textTypography['letterSpacing']['desktop']['value'] ) && $textTypography['letterSpacing']['desktop']['value'] !== '' ) : ?>
+    	letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['desktop']['value'] . ( $textTypography['letterSpacing']['desktop']['unit'] ?? '' ) ); ?>;
     <?php endif; ?>
     
     color: <?php echo esc_attr( $labelColor ?: $iconColor ); ?>;
@@ -307,14 +320,18 @@ if ( ! empty( $transform_hover_value ) ) :
 /* Tablet Styles */
 @media (max-width: 991px) {
     .<?php echo esc_attr( $id ); ?> {
-        gap: <?php echo esc_attr( $iconSpacing['tablet']['value'] ? $iconSpacing['tablet']['value'] . $iconSpacing['tablet']['unit'] : ($iconSpacing['desktop']['value'] . $iconSpacing['desktop']['unit']) ); ?>;
+        gap: <?php
+		$tablet_spacing_value = (is_array($iconSpacing['tablet']) && isset($iconSpacing['tablet']['value']) && $iconSpacing['tablet']['value']) ? $iconSpacing['tablet']['value'] : (is_array($iconSpacing['desktop']) && isset($iconSpacing['desktop']['value']) ? $iconSpacing['desktop']['value'] : 0);
+		$tablet_spacing_unit = (is_array($iconSpacing['tablet']) && array_key_exists('unit', $iconSpacing['tablet'])) ? $iconSpacing['tablet']['unit'] : (is_array($iconSpacing['desktop']) && array_key_exists('unit', $iconSpacing['desktop']) ? $iconSpacing['desktop']['unit'] : 'px');
+		echo esc_attr( $tablet_spacing_value . ( $tablet_spacing_unit !== null ? $tablet_spacing_unit : '' ) );
+		?>;
 		<?php if ( ! empty( $align['tablet'] ) ) : ?>
 		justify-content: <?php echo esc_attr( $align['tablet'] ); ?>;
         <?php endif; ?>
         <?php if ( $position && 'default' !== $position ) : ?>
             <?php
-            $h_value_tablet = isset( $horizontalOffset['tablet']['value'] ) && '' !== $horizontalOffset['tablet']['value'] ? $horizontalOffset['tablet']['value'] : '0';
-            $h_unit_tablet = isset( $horizontalOffset['tablet']['unit'] ) ? $horizontalOffset['tablet']['unit'] : 'px';
+            $h_value_tablet = isset( $horizontalOffset['tablet'] ) && is_array( $horizontalOffset['tablet'] ) && isset( $horizontalOffset['tablet']['value'] ) && '' !== (is_array($horizontalOffset['tablet']) && isset($horizontalOffset['tablet']['value']) && $horizontalOffset['tablet']['value']) ? $horizontalOffset['tablet']['value'] : '';
+            $h_unit_tablet = isset( $horizontalOffset['tablet'] ) && is_array( $horizontalOffset['tablet'] ) && isset( $horizontalOffset['tablet']['unit'] ) ? $horizontalOffset['tablet']['unit'] : 'px';
             if ( '' !== $h_value_tablet ) :
                 if ( 'left' === $horizontalOrientation ) :
             ?>
@@ -325,8 +342,8 @@ if ( ! empty( $transform_hover_value ) ) :
                 endif;
             endif;
             
-            $v_value_tablet = isset( $verticalOffset['tablet']['value'] ) && '' !== $verticalOffset['tablet']['value'] ? $verticalOffset['tablet']['value'] : '0';
-            $v_unit_tablet = isset( $verticalOffset['tablet']['unit'] ) ? $verticalOffset['tablet']['unit'] : 'px';
+            $v_value_tablet = isset( $verticalOffset['tablet'] ) && is_array( $verticalOffset['tablet'] ) && isset( $verticalOffset['tablet']['value'] ) && '' !== (is_array($verticalOffset['tablet']) && isset($verticalOffset['tablet']['value']) && $verticalOffset['tablet']['value']) ? $verticalOffset['tablet']['value'] : '';
+            $v_unit_tablet = isset( $verticalOffset['tablet'] ) && is_array( $verticalOffset['tablet'] ) && isset( $verticalOffset['tablet']['unit'] ) ? $verticalOffset['tablet']['unit'] : 'px';
             if ( '' !== $v_value_tablet ) :
                 if ( 'top' === $verticalOrientation ) :
             ?>
@@ -343,7 +360,7 @@ if ( ! empty( $transform_hover_value ) ) :
         if ( ! empty( $transform_value_tablet ) ) :
         ?>
         transform: <?php echo esc_attr( $transform_value_tablet ); ?>;
-    	transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'tablet' ); ?>;
+    	transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transform, 'tablet' ) ); ?>;
         <?php endif; ?>
     }
 
@@ -353,13 +370,17 @@ if ( ! empty( $transform_hover_value ) ) :
 	?>
 		.<?php echo esc_attr( $id ); ?>:hover {
 			transform: <?php echo esc_attr( $transform_hover_value_tablet ); ?>;
-    		transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'tablet' ); ?>;
+    		transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transformHover, 'tablet' ) ); ?>;
 		}
 	<?php endif; ?>
 
 	<?php if ( $labelSpacing && isset( $labelSpacing['tablet'] ) ) : ?>
     	.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon {
-			gap: <?php echo esc_attr( $labelSpacing['tablet']['value'] ? $labelSpacing['tablet']['value'] . $labelSpacing['tablet']['unit'] : ($labelSpacing['desktop']['value'] . $labelSpacing['desktop']['unit']) ); ?>;
+			gap: <?php
+            $tablet_label_spacing_value = (is_array($labelSpacing['tablet']) && isset($labelSpacing['tablet']['value']) && $labelSpacing['tablet']['value']) ? $labelSpacing['tablet']['value'] : ((is_array($labelSpacing['desktop']) && isset($labelSpacing['desktop']['value'])) ? $labelSpacing['desktop']['value'] : 0.8);
+            $tablet_label_spacing_unit = (is_array($labelSpacing['tablet']) && array_key_exists('unit', $labelSpacing['tablet'])) ? $labelSpacing['tablet']['unit'] : ((is_array($labelSpacing['desktop']) && array_key_exists('unit', $labelSpacing['desktop'])) ? $labelSpacing['desktop']['unit'] : 'rem');
+            echo esc_attr( $tablet_label_spacing_value . ( $tablet_label_spacing_unit !== null ? $tablet_label_spacing_unit : '' ) );
+            ?>;
 		}
     <?php endif; ?>
 
@@ -376,20 +397,28 @@ if ( ! empty( $transform_hover_value ) ) :
     }
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon svg {
-        width: <?php echo esc_attr( $iconWidth['tablet']['value'] ? $iconWidth['tablet']['value'] . $iconWidth['tablet']['unit'] : ($iconWidth['desktop']['value'] . $iconWidth['desktop']['unit']) ); ?>;
-        height: <?php echo esc_attr( $iconHeight['tablet']['value'] ? $iconHeight['tablet']['value'] . $iconHeight['tablet']['unit'] : ($iconHeight['desktop']['value'] . $iconHeight['desktop']['unit']) ); ?>;
+        width: <?php
+        $tablet_width_value = (is_array($iconWidth['tablet']) && isset($iconWidth['tablet']['value']) && $iconWidth['tablet']['value']) ? $iconWidth['tablet']['value'] : ((is_array($iconWidth['desktop']) && isset($iconWidth['desktop']['value'])) ? $iconWidth['desktop']['value'] : 1);
+        $tablet_width_unit = (is_array($iconWidth['tablet']) && array_key_exists('unit', $iconWidth['tablet'])) ? $iconWidth['tablet']['unit'] : ((is_array($iconWidth['desktop']) && array_key_exists('unit', $iconWidth['desktop'])) ? $iconWidth['desktop']['unit'] : 'rem');
+        echo esc_attr( $tablet_width_value . ( $tablet_width_unit !== null ? $tablet_width_unit : '' ) );
+        ?>;
+        height: <?php
+        $tablet_height_value = (is_array($iconHeight['tablet']) && isset($iconHeight['tablet']['value']) && $iconHeight['tablet']['value']) ? $iconHeight['tablet']['value'] : ((is_array($iconHeight['desktop']) && isset($iconHeight['desktop']['value'])) ? $iconHeight['desktop']['value'] : 1);
+        $tablet_height_unit = (is_array($iconHeight['tablet']) && array_key_exists('unit', $iconHeight['tablet'])) ? $iconHeight['tablet']['unit'] : ((is_array($iconHeight['desktop']) && array_key_exists('unit', $iconHeight['desktop'])) ? $iconHeight['desktop']['unit'] : 'rem');
+        echo esc_attr( $tablet_height_value . ( $tablet_height_unit !== null ? $tablet_height_unit : '' ) );
+        ?>;
     }
     
-    <?php if ( $showLabels && isset( $textTypography['fontSize']['tablet'] ) ) : ?>
+    <?php if ( $showLabels && isset( $textTypography['fontSize'] ) && is_array( $textTypography['fontSize'] ) && isset( $textTypography['fontSize']['tablet']['value'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-label {
-        font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet'] . ($textTypography['fontSizeUnit'] ?? 'px') ); ?>;
+        font-size: <?php echo esc_attr( $textTypography['fontSize']['tablet']['value'] . ( $textTypography['fontSize']['tablet']['unit'] ?? '' ) ); ?>;
         
-        <?php if ( isset( $textTypography['lineHeight']['tablet'] ) ) : ?>
-        line-height: <?php echo esc_attr( $textTypography['lineHeight']['tablet'] . ($textTypography['lineHeightUnit'] ?? 'em') ); ?>;
+        <?php if ( isset( $textTypography['lineHeight'] ) && is_array( $textTypography['lineHeight'] ) && isset( $textTypography['lineHeight']['tablet']['value'] ) ) : ?>
+        line-height: <?php echo esc_attr( $textTypography['lineHeight']['tablet']['value'] . ( $textTypography['lineHeight']['tablet']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
         
-        <?php if ( isset( $textTypography['letterSpacing']['tablet'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['tablet'] . ($textTypography['letterSpacingUnit'] ?? 'px') ); ?>;
+        <?php if ( isset( $textTypography['letterSpacing'] ) && is_array( $textTypography['letterSpacing'] ) && isset( $textTypography['letterSpacing']['tablet']['value'] ) ) : ?>
+        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['tablet']['value'] . ( $textTypography['letterSpacing']['tablet']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>
@@ -398,14 +427,18 @@ if ( ! empty( $transform_hover_value ) ) :
 /* Mobile Styles */
 @media (max-width: 767px) {
     .<?php echo esc_attr( $id ); ?> {
-        gap: <?php echo esc_attr( $iconSpacing['mobile']['value'] ? $iconSpacing['mobile']['value'] . $iconSpacing['mobile']['unit'] : ($iconSpacing['tablet']['value'] ? $iconSpacing['tablet']['value'] . $iconSpacing['tablet']['unit'] : ($iconSpacing['desktop']['value'] . $iconSpacing['desktop']['unit'])) ); ?>;
+        gap: <?php
+        $mobile_spacing_value = (is_array($iconSpacing['mobile']) && isset($iconSpacing['mobile']['value']) && $iconSpacing['mobile']['value']) ? $iconSpacing['mobile']['value'] : ((is_array($iconSpacing['tablet']) && isset($iconSpacing['tablet']['value']) && $iconSpacing['tablet']['value']) ? $iconSpacing['tablet']['value'] : ((is_array($iconSpacing['desktop']) && isset($iconSpacing['desktop']['value'])) ? $iconSpacing['desktop']['value'] : 0.8));
+        $mobile_spacing_unit = (is_array($iconSpacing['mobile']) && array_key_exists('unit', $iconSpacing['mobile'])) ? $iconSpacing['mobile']['unit'] : ((is_array($iconSpacing['tablet']) && array_key_exists('unit', $iconSpacing['tablet'])) ? $iconSpacing['tablet']['unit'] : ((is_array($iconSpacing['desktop']) && array_key_exists('unit', $iconSpacing['desktop'])) ? $iconSpacing['desktop']['unit'] : 'rem'));
+        echo esc_attr( $mobile_spacing_value . ( $mobile_spacing_unit !== null ? $mobile_spacing_unit : '' ) );
+        ?>;
 		<?php if ( ! empty( $align['mobile'] ) ) : ?>
 		justify-content: <?php echo esc_attr( $align['mobile'] ); ?>;
         <?php endif; ?>
     	<?php if ( $position && 'default' !== $position ) : ?>
             <?php
-            $h_value_mobile = isset( $horizontalOffset['mobile']['value'] ) && '' !== $horizontalOffset['mobile']['value'] ? $horizontalOffset['mobile']['value'] : '0';
-            $h_unit_mobile = isset( $horizontalOffset['mobile']['unit'] ) ? $horizontalOffset['mobile']['unit'] : 'px';
+            $h_value_mobile = isset( $horizontalOffset['mobile'] ) && is_array( $horizontalOffset['mobile'] ) && isset( $horizontalOffset['mobile']['value'] ) && '' !== (is_array($horizontalOffset['mobile']) && isset($horizontalOffset['mobile']['value']) && $horizontalOffset['mobile']['value']) ? $horizontalOffset['mobile']['value'] : '';
+            $h_unit_mobile = isset( $horizontalOffset['mobile'] ) && is_array( $horizontalOffset['mobile'] ) && isset( $horizontalOffset['mobile']['unit'] ) ? $horizontalOffset['mobile']['unit'] : 'px';
             if ( '' !== $h_value_mobile ) :
                 if ( 'left' === $horizontalOrientation ) :
             ?>
@@ -416,8 +449,8 @@ if ( ! empty( $transform_hover_value ) ) :
                 endif;
             endif;
             
-            $v_value_mobile = isset( $verticalOffset['mobile']['value'] ) && '' !== $verticalOffset['mobile']['value'] ? $verticalOffset['mobile']['value'] : '0';
-            $v_unit_mobile = isset( $verticalOffset['mobile']['unit'] ) ? $verticalOffset['mobile']['unit'] : 'px';
+            $v_value_mobile = isset( $verticalOffset['mobile'] ) && is_array( $verticalOffset['mobile'] ) && isset( $verticalOffset['mobile']['value'] ) && '' !== (is_array($verticalOffset['mobile']) && isset($verticalOffset['mobile']['value']) && $verticalOffset['mobile']['value']) ? $verticalOffset['mobile']['value'] : '';
+            $v_unit_mobile = isset( $verticalOffset['mobile'] ) && is_array( $verticalOffset['mobile'] ) && isset( $verticalOffset['mobile']['unit'] ) ? $verticalOffset['mobile']['unit'] : 'px';
             if ( '' !== $v_value_mobile ) :
                 if ( 'top' === $verticalOrientation ) :
             ?>
@@ -434,7 +467,7 @@ if ( ! empty( $transform_hover_value ) ) :
         if ( ! empty( $transform_value_mobile ) ) :
         ?>
         transform: <?php echo esc_attr( $transform_value_mobile ); ?>;
-    	transform-origin: <?php echo digiblocks_get_transform_origin( $transform, 'mobile' ); ?>;
+    	transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transform, 'mobile' ) ); ?>;
         <?php endif; ?>
     }
 
@@ -444,13 +477,17 @@ if ( ! empty( $transform_hover_value ) ) :
 	?>
 		.<?php echo esc_attr( $id ); ?>:hover {
 			transform: <?php echo esc_attr( $transform_hover_value_mobile ); ?>;
-    		transform-origin: <?php echo digiblocks_get_transform_origin( $transformHover, 'mobile' ); ?>;
+    		transform-origin: <?php echo esc_attr( digiblocks_get_transform_origin( $transformHover, 'mobile' ) ); ?>;
 		}
 	<?php endif; ?>
 
 	<?php if ( $labelSpacing && isset( $labelSpacing['mobile'] ) ) : ?>
     	.<?php echo esc_attr( $id ); ?> .digiblocks-social-icon {
-			gap: <?php echo esc_attr( $labelSpacing['mobile']['value'] ? $labelSpacing['mobile']['value'] . $labelSpacing['mobile']['unit'] : ($labelSpacing['tablet']['value'] ? $labelSpacing['tablet']['value'] . $labelSpacing['tablet']['unit'] : ($labelSpacing['desktop']['value'] . $labelSpacing['desktop']['unit'])) ); ?>;
+			gap: <?php
+            $mobile_label_spacing_value = (is_array($labelSpacing['mobile']) && isset($labelSpacing['mobile']['value']) && $labelSpacing['mobile']['value']) ? $labelSpacing['mobile']['value'] : ((is_array($labelSpacing['tablet']) && isset($labelSpacing['tablet']['value']) && $labelSpacing['tablet']['value']) ? $labelSpacing['tablet']['value'] : ((is_array($labelSpacing['desktop']) && isset($labelSpacing['desktop']['value'])) ? $labelSpacing['desktop']['value'] : 0.8));
+            $mobile_label_spacing_unit = (is_array($labelSpacing['mobile']) && array_key_exists('unit', $labelSpacing['mobile'])) ? $labelSpacing['mobile']['unit'] : ((is_array($labelSpacing['tablet']) && array_key_exists('unit', $labelSpacing['tablet'])) ? $labelSpacing['tablet']['unit'] : ((is_array($labelSpacing['desktop']) && array_key_exists('unit', $labelSpacing['desktop'])) ? $labelSpacing['desktop']['unit'] : 'rem'));
+            echo esc_attr( $mobile_label_spacing_value . ( $mobile_label_spacing_unit !== null ? $mobile_label_spacing_unit : '' ) );
+            ?>;
 		}
     <?php endif; ?>
 
@@ -467,20 +504,28 @@ if ( ! empty( $transform_hover_value ) ) :
     }
 
     .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-icon svg {
-        width: <?php echo esc_attr( $iconWidth['mobile']['value'] ? $iconWidth['mobile']['value'] . $iconWidth['mobile']['unit'] : ($iconWidth['tablet']['value'] ? $iconWidth['tablet']['value'] . $iconWidth['tablet']['unit'] : ($iconWidth['desktop']['value'] . $iconWidth['desktop']['unit'])) ); ?>;
-        height: <?php echo esc_attr( $iconHeight['mobile']['value'] ? $iconHeight['mobile']['value'] . $iconHeight['mobile']['unit'] : ($iconHeight['tablet']['value'] ? $iconHeight['tablet']['value'] . $iconHeight['tablet']['unit'] : ($iconHeight['desktop']['value'] . $iconHeight['desktop']['unit'])) ); ?>;
+        width: <?php
+        $mobile_width_value = (is_array($iconWidth['mobile']) && isset($iconWidth['mobile']['value']) && $iconWidth['mobile']['value']) ? $iconWidth['mobile']['value'] : ((is_array($iconWidth['tablet']) && isset($iconWidth['tablet']['value']) && $iconWidth['tablet']['value']) ? $iconWidth['tablet']['value'] : ((is_array($iconWidth['desktop']) && isset($iconWidth['desktop']['value'])) ? $iconWidth['desktop']['value'] : 1));
+        $mobile_width_unit = (is_array($iconWidth['mobile']) && array_key_exists('unit', $iconWidth['mobile'])) ? $iconWidth['mobile']['unit'] : ((is_array($iconWidth['tablet']) && array_key_exists('unit', $iconWidth['tablet'])) ? $iconWidth['tablet']['unit'] : ((is_array($iconWidth['desktop']) && array_key_exists('unit', $iconWidth['desktop'])) ? $iconWidth['desktop']['unit'] : 'rem'));
+        echo esc_attr( $mobile_width_value . ( $mobile_width_unit !== null ? $mobile_width_unit : '' ) );
+        ?>;
+        height: <?php
+        $mobile_height_value = (is_array($iconHeight['mobile']) && isset($iconHeight['mobile']['value']) && $iconHeight['mobile']['value']) ? $iconHeight['mobile']['value'] : ((is_array($iconHeight['tablet']) && isset($iconHeight['tablet']['value']) && $iconHeight['tablet']['value']) ? $iconHeight['tablet']['value'] : ((is_array($iconHeight['desktop']) && isset($iconHeight['desktop']['value'])) ? $iconHeight['desktop']['value'] : 1));
+        $mobile_height_unit = (is_array($iconHeight['mobile']) && array_key_exists('unit', $iconHeight['mobile'])) ? $iconHeight['mobile']['unit'] : ((is_array($iconHeight['tablet']) && array_key_exists('unit', $iconHeight['tablet'])) ? $iconHeight['tablet']['unit'] : ((is_array($iconHeight['desktop']) && array_key_exists('unit', $iconHeight['desktop'])) ? $iconHeight['desktop']['unit'] : 'rem'));
+        echo esc_attr( $mobile_height_value . ( $mobile_height_unit !== null ? $mobile_height_unit : '' ) );
+        ?>;
     }
     
-    <?php if ( $showLabels && isset( $textTypography['fontSize']['mobile'] ) ) : ?>
+    <?php if ( $showLabels && isset( $textTypography['fontSize'] ) && is_array( $textTypography['fontSize'] ) && isset( $textTypography['fontSize']['mobile']['value'] ) ) : ?>
     .<?php echo esc_attr( $id ); ?> .digiblocks-social-icon-label {
-        font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile'] . ($textTypography['fontSizeUnit'] ?? 'px') ); ?>;
+        font-size: <?php echo esc_attr( $textTypography['fontSize']['mobile']['value'] . ( $textTypography['fontSize']['mobile']['unit'] ?? '' ) ); ?>;
         
-        <?php if ( isset( $textTypography['lineHeight']['mobile'] ) ) : ?>
-        line-height: <?php echo esc_attr( $textTypography['lineHeight']['mobile'] . ($textTypography['lineHeightUnit'] ?? 'em') ); ?>;
+        <?php if ( isset( $textTypography['lineHeight'] ) && is_array( $textTypography['lineHeight'] ) && isset( $textTypography['lineHeight']['mobile']['value'] ) ) : ?>
+        line-height: <?php echo esc_attr( $textTypography['lineHeight']['mobile']['value'] . ( $textTypography['lineHeight']['mobile']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
         
-        <?php if ( isset( $textTypography['letterSpacing']['mobile'] ) ) : ?>
-        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['mobile'] . ($textTypography['letterSpacingUnit'] ?? 'px') ); ?>;
+        <?php if ( isset( $textTypography['letterSpacing'] ) && is_array( $textTypography['letterSpacing'] ) && isset( $textTypography['letterSpacing']['mobile']['value'] ) ) : ?>
+        letter-spacing: <?php echo esc_attr( $textTypography['letterSpacing']['mobile']['value'] . ( $textTypography['letterSpacing']['mobile']['unit'] ?? '' ) ); ?>;
         <?php endif; ?>
     }
     <?php endif; ?>

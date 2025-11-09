@@ -261,67 +261,77 @@ export const animationPreview = (id, animation, animations, previewTimeoutRef, a
     if (!animation || animation === 'none') {
         return;
     }
-    
+
     if (previewTimeoutRef.current) {
         clearTimeout(previewTimeoutRef.current);
     }
-    
-    const blockElement = document.querySelector(`.${id}`);
+
+    let targetDocument = document;
+    let blockElement = document.querySelector(`.${id}`);
+
+    if (!blockElement) {
+        const editorIframe = document.querySelector('.edit-post-visual-editor iframe, .edit-site-visual-editor iframe, iframe[name="editor-canvas"]');
+        if (editorIframe && editorIframe.contentDocument) {
+            targetDocument = editorIframe.contentDocument;
+            blockElement = targetDocument.querySelector(`.${id}`);
+        }
+    }
+
     if (!blockElement) {
         return;
     }
-    
+
     const timestamp = Date.now();
-    
+
     if (animations[animation]) {
         const originalKeyframes = animations[animation].keyframes;
         const originalAnimNameMatch = originalKeyframes.match(/@keyframes\s+([a-zA-Z0-9]+)/);
-        
+
         if (!originalAnimNameMatch || !originalAnimNameMatch[1]) {
             console.error('Could not extract animation name from keyframes');
             return;
         }
-        
+
         const originalAnimName = originalAnimNameMatch[1];
         const uniqueAnimName = `digianim_${id}_${originalAnimName}_${timestamp}`;
-        
-        const styleElement = document.createElement('style');
+
+        const styleElement = targetDocument.createElement('style');
         styleElement.id = `animation-style-${id}_${timestamp}`;
-        
+
         const updatedKeyframes = originalKeyframes.replace(
             new RegExp(originalAnimName, 'g'),
             uniqueAnimName
         );
-        
+
         styleElement.textContent = `
             ${updatedKeyframes}
-            
+
             .${id} {
                 animation: none;
             }
         `;
-        
-        document.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
+
+        targetDocument.querySelectorAll(`[id^="animation-style-${id}"]`).forEach(el => {
             el.remove();
         });
-        
-        document.head.appendChild(styleElement);
-        
+
+        targetDocument.head.appendChild(styleElement);
+
         blockElement.offsetHeight;
-        
+
         const durationMap = { slow: '2s', normal: '1s', fast: '0.5s' };
         const duration = durationMap[animationDuration] || '1s';
         const delay = animationDelay ? `${animationDelay}ms` : '0ms';
-        
-        const animationStyleElement = document.createElement('style');
+
+        const animationStyleElement = targetDocument.createElement('style');
         animationStyleElement.id = `animation-style-${id}_active_${timestamp}`;
         animationStyleElement.textContent = `
             .${id} {
                 animation: ${uniqueAnimName} ${duration} ${delay} forwards !important;
             }
         `;
-        document.head.appendChild(animationStyleElement);
-        
+        targetDocument.head.appendChild(animationStyleElement);
+
         const cleanupDelay = (animationDuration === 'slow' ? 2000 : animationDuration === 'fast' ? 500 : 1000) + animationDelay;
         previewTimeoutRef.current = setTimeout(() => {
             styleElement.remove();
